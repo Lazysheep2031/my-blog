@@ -1,9 +1,9 @@
 # About
-This is the demo site for [Fuwari](https://github.com/saicaca/fuwari).
 
-::github{repo="saicaca/fuwari"}
+不定期掉落想分享的东西，本来想把Obsidian上的内容都迁移过来，但基本都是参考前辈们的笔记再修改的，就还是不传上来哩。
 
-> ### Sources of images used in this site
-> - [Unsplash](https://unsplash.com/)
-> - [星と少女](https://www.pixiv.net/artworks/108916539) by [Stella](https://www.pixiv.net/users/93273965)
-> - [Rabbit - v1.4 Showcase](https://civitai.com/posts/586908) by [Rabbit_YourMajesty](https://civitai.com/user/Rabbit_YourMajesty)
+> ## 对我帮助很大的前辈们
+>
+> - [NoughtQ的NoteBook](https://note.noughtq.top)
+> - [TillyEndless的Blog](https://herobrine101.top)
+> - [Memset0的Blog](https://mem.ac)
