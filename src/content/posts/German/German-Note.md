@@ -2,13 +2,15 @@
 title: 德语笔记
 published: 2026-01-17
 tags: [德语]
+description: 德语1的期末复习笔记
 image: ./Lazysheep1.jpg
 category: 德语
 draft: false
 ---
 
-> [!note]
-> **前言**：本笔记整合了所有课堂讲义及重点补充内容。涵盖发音、核心语法（动词、格、句法结构）、易混淆点（否定词、不定代词）及高频场景（时间数字、餐厅、社交、起居）。
+:::tip
+**前言**：本笔记整合了所有课堂讲义及重点补充内容。涵盖发音、核心语法（动词、格、句法结构）、易混淆点（否定词、不定代词）及高频场景（时间数字、餐厅、社交、起居）。
+:::
 
 ## 一、语音基础
 
@@ -24,8 +26,8 @@ draft: false
 - **w** [v]: 咬唇音，上牙咬下唇 (如 *wer*, *wo*)。
 - **v** [f]: 通常发清辅音 f (如 *Vater*, *vier*)。
 - **ch**:
-  - [ç] (轻音): 在 i, e, ä, ö, ü, eu, äu 后 (如 *ich*, *Mädchen*)。
-  - [x] (喉音): 在 a, o, u, au 后 (如 *auch*, *Buch*)。
+  - (轻音): 在 i, e, ä, ö, ü, eu, äu 后 (如 *ich*, *Mädchen*)。
+  - (喉音): 在 a, o, u, au 后 (如 *auch*, *Buch*)。
 - **r**: 小舌音。在词尾通常弱化为元音 [ɐ] (如 *Mutter* -> "Muta")。
 - **sp / st**: 在词首或音节首发 [ʃp] / [ʃt] (如 *Sport* -> "许p")。
 
@@ -46,7 +48,7 @@ draft: false
 | **ihr**       | lernt             | sprecht             | fahrt             | esst             | **seid**      | habt           |
 | **sie/Sie**   | lernen            | sprechen            | fahren            | essen            | **sind**      | haben          |
 
-> [!tip]
+> [!TIP]
 > **注意**:
 >
 > 1. 换音动词（`e->i` 或 `a->ä`）通常只在 **du** 和 **er/sie/es** 发生变化。
@@ -103,7 +105,7 @@ draft: false
 | **ihr (你们)** | 动词变位形式 (即 -t)，去掉主语 ihr      | **Macht**! / **Seid** leise! / **Esst**!                            |
 | **Sie (您)**   | 动词原形 + Sie (主语保留)               | **Machen Sie**! / **Seien Sie** ruhig!                              |
 
-> [!warning] 特例
+> [!WARNING] 特例
 >
 > - `fahren` (a->ä 不换音): **Fahr(e)!**
 > - `sprechen/essen` (e->i 换音保留): **Sprich!** / **Iss!** / **Vergiss!**
