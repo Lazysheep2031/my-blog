@@ -105,10 +105,10 @@ draft: false
 | **ihr (你们)** | 动词变位形式 (即 -t)，去掉主语 ihr      | **Macht**! / **Seid** leise! / **Esst**!                            |
 | **Sie (您)**   | 动词原形 + Sie (主语保留)               | **Machen Sie**! / **Seien Sie** ruhig!                              |
 
-> [!WARNING] 特例
->
-> - `fahren` (a->ä 不换音): **Fahr(e)!**
-> - `sprechen/essen` (e->i 换音保留): **Sprich!** / **Iss!** / **Vergiss!**
+:::warning [特例]
+ - `fahren` (a->ä 不换音): **Fahr(e)!**
+ - `sprechen/essen` (e->i 换音保留): **Sprich!** / **Iss!** / **Vergiss!**
+:::
 
 ### 2. 名词与代词
 
