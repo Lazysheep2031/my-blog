@@ -2,9 +2,9 @@
 title: 如何高效地读论文
 published: 2026-01-19
 description: 科研论文阅读与筛选流程，作为我今后科研工作的长期方法论。
-tags: [科研]
+tags: [论文]
 image: ./Lazysheep2.jpg
-category: 论文
+category: 科研
 draft: false
 ---
 

@@ -1,10 +1,10 @@
 ---
 title: 德语笔记
 published: 2026-01-17
-tags: [笔记]
+tags: [德语]
 description: 德语1的期末复习笔记
 image: ./Lazysheep1.jpg
-category: 德语
+category: 笔记
 draft: false
 ---
 
