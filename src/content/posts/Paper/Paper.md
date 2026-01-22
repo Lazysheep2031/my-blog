@@ -4,7 +4,7 @@ published: 2026-01-19
 description: 科研论文阅读与筛选流程，作为我今后科研工作的长期方法论。
 tags: [科研]
 image: ./Lazysheep2.jpg
-category: 科研
+category: 论文
 draft: false
 ---
 
