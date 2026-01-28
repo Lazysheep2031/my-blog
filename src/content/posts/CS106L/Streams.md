@@ -485,7 +485,7 @@ cout << mn << " " << mx;
 这样就不用 `p.first/p.second`，更语义化。
 
 
-> [!NOTE] 一些 C++的个人疑问解答
+> [!TIP]一些 C++的个人疑问解答
 > 
 > 
 >  1️⃣ `const string&` 是什么意思？
