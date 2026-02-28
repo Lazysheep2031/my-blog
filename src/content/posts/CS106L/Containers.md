@@ -7,7 +7,7 @@ category: 笔记
 draft: false
 ---
 
-本文系统介绍了 C++ STL 中的容器（Containers），包括三大类：顺序容器（Sequence Containers）如 `vector` 和 `deque`、容器适配器（Container Adapters）如 `stack`、`queue` 和 `priority_queue`，以及关联容器（Associative Containers）如 `map`、`set` 及其无序版本。重点讲解了各容器的底层实现、时间复杂度、适用场景和常见陷阱，并通过词频统计实例展示了 `std::map` 的实际应用。
+本文系统介绍了 C++ STL 中的容器（Containers），包括三大类：顺序容器（Sequence Containers）如 `vector` 和 `deque`、容器适配器（Container Adapters）如 `stack`、`queue` 和 `priority_queue`，以及关联容器（Associative Containers）如 `map`、`set`、`multimap` 及其无序版本。重点讲解了各容器的底层实现、时间复杂度、适用场景和常见陷阱，详细说明了 `multimap` 的一对多映射特性和 `equal_range` 的用法，并通过词频统计实例展示了 `std::map` 的实际应用。
 
 ## 目录
 
@@ -24,6 +24,8 @@ draft: false
   - [无序版本](#无序版本)
   - [map vs unordered_map](#map-vs-unordered_map)
   - [set vs unordered_set](#set-vs-unordered_set)
+  - [Brief Recap](#brief-recap)
+  - [Multimaps](#multimaps)
   - [选择原则](#选择原则)
   - [Examples——词频统计](#examples词频统计)
 
@@ -550,6 +552,42 @@ Associative containers：不按顺序存储元素，而是通过 key 访问元�
 
 ---
 
+### Brief Recap
+
+- **关联容器的分类**
+  - 有序：`map / set / multimap / multiset`（按 key 排序）
+  - 无序：`unordered_map / unordered_set / unordered_multimap / unordered_multiset`（哈希）
+- **核心差异**
+  - 有序：迭代是有序的；常见操作通常是 `O(log n)`
+  - 无序：迭代无序；平均 `O(1)`，但有哈希/rehash 等注意点
+- **map vs set**
+  - `map` 存 `key -> value`
+  - `set` 只存 `key`
+- **“唯一 / 可重复”**
+  - `map/set`：key 唯一
+  - `multi*`：key 可重复
+
+---
+
+### Multimaps
+
+- **定义与用途**
+  - `std::multimap<K, V>`：允许**多个元素拥有相同 key**
+  - 适用场景：一对多映射（例如 `course -> many students`，`word -> all positions`
+- **和 `map` 的关键区别**
+  - `map`：一个 key 最多一条记录（插入重复 key 会失败或覆盖取决于接口）
+  - `multimap`：重复 key 会变成多条记录（每次 insert 都会插入）
+- **常用操作** - `insert({k, v})`：插入一条（永远插得进去）
+  - `count(k)`：这个 key 有几条
+  - `equal_range(k)`：返回 `[first, second)` 这一段迭代器范围，刚好覆盖所有 key==k 的元素
+    - 你可以把它当成：`lower_bound(k)` 和 `upper_bound(k)` 的组合
+  - `lower_bound(k)`：第一个 `>= k` 的位置
+  - `upper_bound(k)`：第一个 `> k` 的位置
+- **遍历某个 key 的所有 value 的标准写法**
+  - “先 `auto [it, end] = mm.equal_range(key);` 然后从 it 循环到 end”
+
+---
+
 | 特性       | map/set   | unordered_map/set |
 | ---------- | --------- | ----------------- |
 | 是否排序   | 是        | 否                |
@@ -646,7 +684,7 @@ I love CS106L
 
 ---
 
-#### map 的核心知识点
+#### map 的核心
 
 ```cpp
 std::map<string, int> frequencyMap;
