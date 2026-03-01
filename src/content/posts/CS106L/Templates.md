@@ -1,6 +1,6 @@
 ---
 title: Templates
-published: 2026-02-22
+published: 2026-03-01
 description: C++ Templates相关笔记
 tags: [CS106L]
 category: 笔记
