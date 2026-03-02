@@ -251,7 +251,7 @@ What is your name? Avery Wang What is your age? Where are you from? Hello Avery(
 - **输入流进入失败状态**
 - 后续所有 `>>` 操作都会立刻失败
 
-> [!WARNING]注意：
+> [!WARNING][注意：]
 >
 > `int age; cin >> age;`
 >
