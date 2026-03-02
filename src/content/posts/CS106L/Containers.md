@@ -407,26 +407,26 @@ std::vector<T>
 
 ---
 
-> [!NOTE] priority_queue 自定义排序
->
-> 默认是最大优先级在顶端。
->
-> 如果想最小优先级在顶端：
->
-> ```cpp
-> std::priority_queue<
->     int,
->     std::vector<int>,
->     std::greater<int>
-> pq;
-> ```
+:::NOTE[priority_queue 自定义排序]
 
-> [!QUESTION] 为什么默认用 deque？
-> 因为：
->
-> - stack 需要 push_back / pop_back
-> - queue 需要 push_back / pop_front
-> - deque 两端操作都是 O(1)
+默认是最大优先级在顶端。
+
+如果想最小优先级在顶端：
+```cpp
+std::priority_queue<
+    int,
+    std::vector<int>,
+    std::greater<int>
+pq;
+```
+:::
+
+:::IMPORTANT[为什么默认用 deque？]
+因为：
+- stack 需要 push_back / pop_back
+- queue 需要 push_back / pop_front
+- deque 两端操作都是 O(1)
+:::
 
 | 特性           | vector/deque | adapter |
 | -------------- | ------------ | ------- |
