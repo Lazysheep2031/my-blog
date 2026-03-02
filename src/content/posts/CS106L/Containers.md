@@ -281,7 +281,7 @@ deque：
 - 使用已有容器（如 vector / deque）
 - 限制接口，表达特定抽象语义
 
-> [!QUESTION]
+> [!IMPORTANT]
 > Why Container Adapter？
 
 1. 表达意图（intent）
