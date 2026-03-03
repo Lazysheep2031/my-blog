@@ -107,13 +107,11 @@ onMount(() => {
         </div>
         <!-- All courses button -->
         <button
-            class:list={[
-                "w-full h-10 rounded-lg transition-all text-left px-4",
-                "hover:bg-[var(--btn-plain-bg-hover)] active:bg-[var(--btn-plain-bg-active)]",
-                selectedTag === ""
-                    ? "text-[var(--primary)] font-bold"
-                    : "text-black/75 dark:text-white/75 hover:text-[var(--primary)]",
-            ]}
+            class="w-full h-10 rounded-lg transition-all text-left px-4
+                hover:bg-[var(--btn-plain-bg-hover)] active:bg-[var(--btn-plain-bg-active)]
+                text-black/75 dark:text-white/75 hover:text-[var(--primary)]"
+            class:text-primary={selectedTag === ""}
+            class:font-bold={selectedTag === ""}
             on:click={() => selectTag("")}
         >
             <div class="flex items-center justify-between">
@@ -127,13 +125,11 @@ onMount(() => {
         <!-- Individual tag buttons -->
         {#each tagList as tag}
             <button
-                class:list={[
-                    "w-full h-10 rounded-lg transition-all text-left px-4",
-                    "hover:bg-[var(--btn-plain-bg-hover)] active:bg-[var(--btn-plain-bg-active)]",
-                    selectedTag === tag.name
-                        ? "text-[var(--primary)] font-bold"
-                        : "text-black/75 dark:text-white/75 hover:text-[var(--primary)]",
-                ]}
+                class="w-full h-10 rounded-lg transition-all text-left px-4
+                    hover:bg-[var(--btn-plain-bg-hover)] active:bg-[var(--btn-plain-bg-active)]
+                    text-black/75 dark:text-white/75 hover:text-[var(--primary)]"
+                class:text-primary={selectedTag === tag.name}
+                class:font-bold={selectedTag === tag.name}
                 on:click={() => selectTag(tag.name)}
             >
                 <div class="flex items-center justify-between">
@@ -204,3 +200,12 @@ onMount(() => {
         {/if}
     </div>
 </div>
+
+<style>
+    button.text-primary {
+        color: var(--primary);
+    }
+    button.text-primary :global(span:first-child) {
+        color: var(--primary);
+    }
+</style>
