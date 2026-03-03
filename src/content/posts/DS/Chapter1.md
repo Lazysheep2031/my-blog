@@ -1,7 +1,7 @@
 ---
 title: Introduction
 published: 2026-03-03
-description:
+description: Introduction to Database Systems
 tags: [数据库系统]
 category: 笔记
 draft: false
