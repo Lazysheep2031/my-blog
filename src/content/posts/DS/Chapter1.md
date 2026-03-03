@@ -477,6 +477,8 @@ Web Server 返回 HTTP Response
 * 接收 HTML / JSON 响应
 * 展示页面
 
+---
+
 2. Web Server
 
 * 处理网络连接
@@ -496,7 +498,7 @@ Web Server 返回 HTTP Response
 ```python
 cursor.execute("SELECT * FROM instructor")
 ```
-
+---
 
 4. API 层
 
