@@ -99,8 +99,8 @@ onMount(() => {
 
 <div class="flex gap-4 w-full">
     <!-- Left: tag/course list -->
-    <div class="hidden lg:flex flex-col gap-1 w-48 min-w-[12rem] card-base pb-4 self-start sticky top-4">
-        <div class="font-bold text-lg text-neutral-900 dark:text-neutral-100 relative ml-8 mt-4 mb-2
+    <div class="hidden lg:flex flex-col gap-1 w-52 min-w-[13rem] card-base pb-4 self-start sticky top-4">
+        <div class="font-bold transition text-lg text-75 relative ml-8 mt-4 mb-2
             before:w-1 before:h-4 before:rounded-md before:bg-[var(--primary)]
             before:absolute before:left-[-16px] before:top-[5.5px]">
             课程
@@ -108,20 +108,18 @@ onMount(() => {
         <!-- All courses button -->
         <button
             class:list={[
-                "w-full h-10 rounded-lg pl-2 text-left transition-all",
+                "w-full h-10 rounded-lg transition-all text-left px-4",
                 "hover:bg-[var(--btn-plain-bg-hover)] active:bg-[var(--btn-plain-bg-active)]",
                 selectedTag === ""
-                    ? "text-[var(--primary)] font-bold pl-3"
-                    : "text-neutral-700 dark:text-neutral-300 hover:text-[var(--primary)] dark:hover:text-[var(--primary)] hover:pl-3",
+                    ? "text-[var(--primary)] font-bold"
+                    : "text-black/75 dark:text-white/75 hover:text-[var(--primary)]",
             ]}
             on:click={() => selectTag("")}
         >
-            <div class="flex items-center justify-between mr-2">
-                <span class="overflow-hidden whitespace-nowrap overflow-ellipsis">全部课程</span>
-                <span class="px-2 h-7 min-w-[2rem] rounded-lg text-sm font-bold
-                    text-[var(--btn-content)] dark:text-[var(--deep-text)]
-                    bg-[var(--btn-regular-bg)] dark:bg-[var(--primary)]
-                    flex items-center justify-center ml-4">
+            <div class="flex items-center justify-between">
+                <span class="overflow-hidden whitespace-nowrap overflow-ellipsis text-sm">全部课程</span>
+                <span class="btn-regular px-2 h-6 min-w-[1.75rem] rounded-md text-xs font-bold
+                    flex items-center justify-center ml-2 shrink-0">
                     {sortedPosts.length}
                 </span>
             </div>
@@ -130,20 +128,18 @@ onMount(() => {
         {#each tagList as tag}
             <button
                 class:list={[
-                    "w-full h-10 rounded-lg pl-2 text-left transition-all",
+                    "w-full h-10 rounded-lg transition-all text-left px-4",
                     "hover:bg-[var(--btn-plain-bg-hover)] active:bg-[var(--btn-plain-bg-active)]",
                     selectedTag === tag.name
-                        ? "text-[var(--primary)] font-bold pl-3"
-                        : "text-neutral-700 dark:text-neutral-300 hover:text-[var(--primary)] dark:hover:text-[var(--primary)] hover:pl-3",
+                        ? "text-[var(--primary)] font-bold"
+                        : "text-black/75 dark:text-white/75 hover:text-[var(--primary)]",
                 ]}
                 on:click={() => selectTag(tag.name)}
             >
-                <div class="flex items-center justify-between mr-2">
-                    <span class="overflow-hidden whitespace-nowrap overflow-ellipsis">{tag.name}</span>
-                    <span class="px-2 h-7 min-w-[2rem] rounded-lg text-sm font-bold
-                        text-[var(--btn-content)] dark:text-[var(--deep-text)]
-                        bg-[var(--btn-regular-bg)] dark:bg-[var(--primary)]
-                        flex items-center justify-center ml-4">
+                <div class="flex items-center justify-between">
+                    <span class="overflow-hidden whitespace-nowrap overflow-ellipsis text-sm">{tag.name}</span>
+                    <span class="btn-regular px-2 h-6 min-w-[1.75rem] rounded-md text-xs font-bold
+                        flex items-center justify-center ml-2 shrink-0">
                         {tag.count}
                     </span>
                 </div>
