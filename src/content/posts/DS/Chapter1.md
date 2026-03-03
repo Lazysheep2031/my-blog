@@ -17,34 +17,36 @@ draft: false
 
 ### Files vs. Databases
 
-| | 文件系统 | 数据库系统 |
-|---|---|---|
-| 架构 | App → Files | App → DBMS → Database |
-| 数据管理 | 各应用独立维护 | 集中统一管理 |
-| 问题 | 冗余、不一致、难并发、难恢复 | 由 DBMS 统一解决 |
+|          | 文件系统                     | 数据库系统            |
+| -------- | ---------------------------- | --------------------- |
+| 架构     | App → Files                  | App → DBMS → Database |
+| 数据管理 | 各应用独立维护               | 集中统一管理          |
+| 问题     | 冗余、不一致、难并发、难恢复 | 由 DBMS 统一解决      |
 
 👉 DBMS 是应用和数据库之间的中间层
 
 file system会导致:
+
 1. Data redundancy and inconsistency（数据冗余和不一致）
 2. Data isolation（数据孤立）
 3. Difficulties in accessing data（数据访问困难）
 4. Integrity problems（完整性问题）
-    - 例如：年龄不能为负数，成绩必须在0-100之间
+   - 例如：年龄不能为负数，成绩必须在0-100之间
 5. Atomicity problems（原子性问题）
-    - 例如：转账操作中，扣款成功但未到账，导致数据不一致
+   - 例如：转账操作中，扣款成功但未到账，导致数据不一致
 6. Concurrent access anomalies（并发访问异常）
-    - 例如：两个用户同时修改同一条记录，可能导致数据丢失或不一致
+   - 例如：两个用户同时修改同一条记录，可能导致数据丢失或不一致
 7. Security problems（安全问题）
-    - 例如：未经授权的用户访问敏感数据，导致数据泄露或篡改
+   - 例如：未经授权的用户访问敏感数据，导致数据泄露或篡改
 
 Characteristics of Databases:
+
 1. Data persistence(数据持久性)
 2. Convenience in accessing data(数据访问便利性)
 3. Data integrity （数据完整性）
 4. Concurrency control for multiple users(多用户并发控制)
-5. Failure recovery（故障恢复） 
-6. Security  control（安全控制）
+5. Failure recovery（故障恢复）
+6. Security control（安全控制）
 
 ---
 
@@ -140,26 +142,26 @@ Physical Level
 
 ### Physical Level（物理层）
 
-* 描述数据如何真正存储
-* 文件组织方式
-* 索引结构
-* 存储块结构
+- 描述数据如何真正存储
+- 文件组织方式
+- 索引结构
+- 存储块结构
 
 👉 关注 “how data are stored”
 
 例如：
 
-* 表是否顺序存储？
-* 是否有 B+ 树索引？
-* 数据在磁盘页中如何排列？
+- 表是否顺序存储？
+- 是否有 B+ 树索引？
+- 数据在磁盘页中如何排列？
 
 ---
 
 ### Logical Level（逻辑层）
 
-* 描述数据库存储了什么数据
-* 描述数据之间的关系
-* 定义表、属性、约束
+- 描述数据库存储了什么数据
+- 描述数据之间的关系
+- 定义表、属性、约束
 
 👉 关注 “what data are stored”
 
@@ -170,25 +172,25 @@ Instructor(ID, name, dept_name, salary)
 Department(dept_name, building, budget)
 ```
 
-*程序员和 DBA 主要工作在这一层。*
+_程序员和 DBA 主要工作在这一层。_
 
 ---
 
 ### View Level（视图层）
 
-* 只显示数据库的一部分
-* 不同用户看到不同视图
-* 用于简化使用与安全控制
+- 只显示数据库的一部分
+- 不同用户看到不同视图
+- 用于简化使用与安全控制
 
 例如：
 
 教务人员：
 
-* 只能看到 student 信息
+- 只能看到 student 信息
 
 不能看到：
 
-* instructor 的 salary
+- instructor 的 salary
 
 👉 View = 数据库的子集表示
 
@@ -205,8 +207,8 @@ Department(dept_name, building, budget)
 
 类似于编程语言中的：
 
-* type（类型）
-* variable（变量）
+- type（类型）
+- variable（变量）
 
 ---
 
@@ -220,9 +222,9 @@ Department(dept_name, building, budget)
 
 数据库包含：
 
-* customers
-* accounts
-* 以及它们之间的关系
+- customers
+- accounts
+- 以及它们之间的关系
 
 Schema 是设计，不是数据本身。
 
@@ -230,18 +232,15 @@ Schema 是设计，不是数据本身。
 
 ### 分类
 
-* **Physical Schema（物理模式）**
+- **Physical Schema（物理模式）**
+  - 数据库在物理层的设计
 
-  * 数据库在物理层的设计
+- **Logical Schema（逻辑模式）**
+  - 数据库在逻辑层的设计
+  - 最重要，应用程序依赖它
 
-* **Logical Schema（逻辑模式）**
-
-  * 数据库在逻辑层的设计
-  * 最重要，应用程序依赖它
-
-* **View Schema（视图模式）**
-
-  * 不同用户看到的子模式
+- **View Schema（视图模式）**
+  - 不同用户看到的子模式
 
 ---
 
@@ -269,8 +268,8 @@ Instance 是“数据”。
 
 例如：
 
-* 改变索引结构
-* 改变文件存储方式
+- 改变索引结构
+- 改变文件存储方式
 
 应用程序不需要修改。
 
@@ -284,8 +283,8 @@ Instance 是“数据”。
 
 例如：
 
-* 增加字段
-* 重构表结构
+- 增加字段
+- 重构表结构
 
 用户视图不需要改变。
 
@@ -297,10 +296,10 @@ Instance 是“数据”。
 
 > A collection of tools for describing:
 
-* Data（数据）
-* Data relationships（联系）
-* Data semantics（语义）
-* Data constraints（约束）
+- Data（数据）
+- Data relationships（联系）
+- Data semantics（语义）
+- Data constraints（约束）
 
 ---
 
@@ -309,12 +308,12 @@ Instance 是“数据”。
 1. **Relational Model（关系模型）**
 2. **Entity-Relationship Model（实体-联系模型）**
 3. **Object-based Data Models**
-   * Object-oriented
-   * Object-relational
+   - Object-oriented
+   - Object-relational
 4. **Semistructured Data Model（XML）**
 5. 旧模型：
-   * Network Model（网状模型）
-   * Hierarchical Model（层次模型）
+   - Network Model（网状模型）
+   - Hierarchical Model（层次模型）
 
 ---
 
@@ -324,22 +323,206 @@ Instance 是“数据”。
 
 特点：
 
-* 数据以表（table）形式表示
-* 每张表由：
-
-  * Columns（Attributes，属性）
-  * Rows（Tuples，元组）
+- 数据以表（table）形式表示
+- 每张表由：
+  - Columns（Attributes，属性）
+  - Rows（Tuples，元组）
 
 例如：
 
-| ID | name | dept_name | salary |
-| -- | ---- | --------- | ------ |
+| ID  | name | dept_name | salary |
+| --- | ---- | --------- | ------ |
 
-* 列 = 属性（Attribute）
-* 行 = 元组（Tuple）
+- 列 = 属性（Attribute）
+- 行 = 元组（Tuple）
 
 关系模型是当前最广泛使用的数据模型。
 
 👉 Chapter 2 将详细讨论。
+
+---
+
+## Database Languages
+
+### Data Definition Language (DDL)
+
+DDL 用于定义数据库的 schema（结构规范），例如：
+
+```sql
+create table instructor (
+    ID          char(5),
+    name        varchar(20),
+    dept_name   varchar(20),
+    salary      numeric(8,2),
+    primary key (ID),
+    foreign key (dept_name) references Department,
+    check (salary >= 60000)
+);
+```
+
+DDL 编译器会生成一组表模板，存储在 **数据字典（Data Dictionary）** 中。
+
+#### Data Dictionary（数据字典）
+
+数据字典保存 **元数据（Metadata，即关于数据的数据）**，包括：
+
+- **Database schema（数据库模式）**
+- **Integrity constraints（完整性约束）**
+  - **Primary key**：唯一标识一条记录
+    - 例：`ID` 唯一标识每位 instructor
+  - **Referential integrity（参照完整性）**：外键引用必须在目标表中存在
+    - 例：instructor 中的 `dept_name` 必须出现在 department 表中
+  - **Check 约束**：字段值满足指定条件
+    - 例：`salary >= 60000`
+- **Authorization（权限）**：哪些用户可以访问哪些数据
+
+---
+
+### Data Manipulation Language (DML)
+
+数据控制语言用于查询和修改数据库中的数据，例如：
+
+主要分为两类：
+1. **Procedural DML（过程式 DML）**：用户指定如何获取结果，例如：使用游标（cursor）逐行处理数据。
+    - 过程式语言是类似C语言要将怎么查找，用什么查找写出来的。
+2. **Nonprocedural DML（非过程式 DML）**：用户只指定想要什么结果，数据库系统负责如何获取，例如：SQL 查询语言。
+    - 非过程式语言是类似SQL语言只要写出想要什么结果，数据库系统会自己决定怎么查找。数据库系统会自行优化。
+
+#### SQL Query Language
+
+SQL 是最流行的非过程式 DML，具有以下特点：
+- **Declarative（声明式）**：用户只描述想要的结果，不关心实现细节。
+- **Set-oriented（面向集合）**：操作整个数据集，而不是逐行处理。
+- **High-level（高级）**：比过程式语言更抽象，易于使用。
+
+```sql
+select name from instructor where dept_name = 'Comp. Sci.';
+```
+
+### Application Program Interface（API）
+
+SQL 不是完整编程语言，
+
+应用程序必须通过嵌入式 SQL 或数据库 API 来访问数据库，
+
+数据处理与业务逻辑分离。
+
+#### Web 应用访问数据库完整流程
+
+```
+┌──────────────────────┐
+│      用户浏览器       │
+│   (Browser / Client) │
+└──────────┬───────────┘
+           │  HTTP Request
+           ▼
+┌──────────────────────┐
+│       Web Server      │
+│   (Nginx / Apache)    │
+└──────────┬───────────┘
+           │ 转发请求
+           ▼
+┌──────────────────────┐
+│    应用程序服务器     │
+│ (Java / Python / Go) │
+│  业务逻辑处理层       │
+└──────────┬───────────┘
+           │
+           │ 调用数据库 API
+           │ (JDBC / ODBC / ORM)
+           ▼
+┌──────────────────────┐
+│        DBMS          │
+│   (MySQL / PostgreSQL)│
+│  SQL解析 + 优化 + 执行 │
+└──────────┬───────────┘
+           │
+           │ 访问数据文件
+           ▼
+┌──────────────────────┐
+│       数据库文件       │
+│  (磁盘上的数据页/索引) │
+└──────────────────────┘
+```
+
+---
+
+#### 数据返回流程
+
+```
+数据库文件
+      ▲
+      │
+DBMS 执行结果
+      ▲
+      │
+API 返回结果集
+      ▲
+      │
+应用程序处理数据
+      ▲
+      │
+Web Server 返回 HTTP Response
+      ▲
+      │
+用户浏览器显示页面
+```
+
+---
+
+**每一层的职责：**
+1. 浏览器
+
+* 发送 HTTP 请求
+* 接收 HTML / JSON 响应
+* 展示页面
+
+2. Web Server
+
+* 处理网络连接
+* 转发请求给应用程序
+
+---
+
+3. 应用程序服务器（Host Language）
+
+* 编写业务逻辑
+* 构造 SQL
+* 调用数据库 API
+* 处理返回数据
+
+例如：
+
+```python
+cursor.execute("SELECT * FROM instructor")
+```
+
+
+4. API 层
+
+* JDBC / ODBC / ORM
+* 负责把 SQL 发送给数据库
+* 接收结果
+
+---
+
+5. DBMS
+
+内部做：
+
+1. SQL 解析
+2. 查询优化
+3. 执行计划生成
+4. 数据读取
+5. 事务管理
+6. 并发控制
+
+---
+
+6. 数据库文件
+
+* 数据页
+* 索引页
+* 日志文件
 
 ---
