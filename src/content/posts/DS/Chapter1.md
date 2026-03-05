@@ -7,6 +7,46 @@ category: 笔记
 draft: false
 ---
 
+## 概述
+
+本章是数据库系统的导论，回答三个核心问题：
+
+1. **为什么需要数据库系统？** — 文件系统的七大缺陷驱使我们转向 DBMS
+2. **数据库系统如何组织数据？** — 三层抽象（物理层 / 逻辑层 / 视图层）与数据独立性
+3. **数据库系统由哪些部分构成？** — 数据模型、数据库语言（DDL/DML）、数据库引擎（存储管理器 / 查询处理器 / 事务管理）、用户与 DBA
+
+---
+
+## 目录
+
+- [Database Systems](#database-systems)
+  - Files vs. Databases
+  - Database & DBMS
+  - 数据库的两种使用模式
+  - 数据库系统核心要求
+- [View of Data](#view-of-data)
+  - Three-Level Abstraction
+  - Physical / Logical / View Level
+- [Schema and Instance](#schema-and-instance)
+- [Data Independence](#data-independence)
+- [Data Models](#data-models)
+- [Relational Model](#relational-model关系模型)
+- [Database Languages](#database-languages)
+  - DDL / Data Dictionary
+  - DML / SQL / API
+- [Database Design](#database-design)
+  - Entity-Relationship Model
+  - Normalization Theory
+- [Database Engine](#database-engine)
+  - Storage Manager
+  - Query Processor
+  - Transaction Management
+- [Database Users and Administrators](#database-users-and-administrators)
+  - 四类用户
+  - DBA 职责
+
+---
+
 ## Database Systems
 
 数据库系统用于管理具有以下特征的数据集合：
@@ -528,3 +568,203 @@ cursor.execute("SELECT * FROM instructor")
 * 日志文件
 
 ---
+
+## Database Design
+
+数据库设计主要有两种方法：
+
+### Entity-Relationship Model（实体-联系模型）
+
+- 将企业建模为一组数据**实体（entities）**和**联系（relationships）**
+- 用 **E-R 图（entity-relationship diagram）** 直观表示
+
+例如，`instructor` 与 `department` 之间通过 `member` 联系：
+
+```
+┌─────────────────┐          ◇           ┌─────────────────┐
+│   instructor    │─────── member ────── │   department    │
+│─────────────────│                      │─────────────────│
+│ <u>ID</u>       │                      │ <u>dept_name</u>│
+│ name            │                      │ building        │
+│ salary          │                      │ budget          │
+└─────────────────┘                      └─────────────────┘
+```
+
+> 矩形 = 实体集，菱形 = 联系集，下划线属性 = 主键。
+
+👉 E-R 模型将在 **Part Two（Chapter 6, 7）** 详细介绍。
+
+---
+
+### Normalization Theory（规范化理论）
+
+规范化理论用于**形式化地判断哪些数据库设计是"坏"的**，并提供检验方法。
+
+考虑下面这张将 instructor 与 department 合并的表：
+
+| ID    | name       | salary | dept_name  | building | budget |
+|-------|------------|--------|------------|----------|--------|
+| 22222 | Einstein   | 95000  | Physics    | Watson   | 70000  |
+| 12121 | Wu         | 90000  | Finance    | Painter  | 120000 |
+| 32343 | El Said    | 60000  | History    | Painter  | 50000  |
+| 45565 | Katz       | 75000  | Comp. Sci. | Taylor   | 100000 |
+| 98345 | Kim        | 80000  | Elec. Eng. | Taylor   | 85000  |
+| 76766 | Crick      | 72000  | Biology    | Watson   | 90000  |
+| 10101 | Srinivasan | 65000  | Comp. Sci. | Taylor   | 100000 |
+| 58583 | Califieri  | 62000  | History    | Painter  | 50000  |
+| 83821 | Brandt     | 92000  | Comp. Sci. | Taylor   | 100000 |
+| 15151 | Mozart     | 40000  | Music      | Packard  | 80000  |
+| 33456 | Gold       | 87000  | Physics    | Watson   | 70000  |
+| 76543 | Singh      | 80000  | Finance    | Painter  | 120000 |
+
+**❓ 这个设计有什么问题？**
+
+- **数据冗余（Redundancy）**：`dept_name`、`building`、`budget` 在每个属于同一系的教师行中重复存储
+- **更新异常（Update Anomaly）**：若某系搬楼，需修改多行，容易遗漏导致不一致
+- **插入异常（Insertion Anomaly）**：若一个系还没有教师，该系的信息无法被记录
+- **删除异常（Deletion Anomaly）**：若删掉某系最后一个教师，该系的所有信息也随之丢失
+
+👉 规范化理论将在 **Part Two（Chapter 6, 7）** 详细讨论。
+
+## Database Engine
+
+数据库系统（**database engine**）被划分为若干模块，每个模块负责整体系统的一部分功能。
+
+数据库系统的功能组件可分为三大类：
+
+- **Storage Manager**（存储管理器）
+- **Query Processor**（查询处理器）
+- **Transaction Management**（事务管理组件）
+
+---
+
+### Storage Manager
+
+Storage Manager 是一个**程序模块**，提供底层数据库数据与应用程序/查询之间的接口。
+
+**负责的任务：**
+- 与 OS 文件管理器交互
+- 数据的高效存储、检索与更新
+
+**Storage Manager 的组成组件：**
+
+| 组件 | 描述 |
+|------|------|
+| **File manager** | 管理磁盘存储空间的分配及数据文件结构 |
+| **Buffer manager** | 负责将数据从磁盘读入内存，管理内存缓冲区 |
+| **Authorization and integrity manager** | 检验完整性约束，处理用户权限 |
+| **Transaction manager** | 确保在事务并发执行和系统故障时数据库保持一致状态 |
+
+**Storage Manager 实现的数据结构：**
+
+- **Data files**：存储数据库本身
+- **Data dictionary**：存储数据库结构的元数据，特别是数据库的 schema
+- **Indices**：提供对数据项的快速访问；数据库索引存储指向持有特定值的数据项的指针
+- **Statistical data**：存储关于数据的统计信息，供查询优化器使用
+
+👉 将在 **Part Five（Chapters 12, 13, 14）** 详细介绍。
+
+---
+
+### Query Processor
+
+**Query Processor 的组成组件：**
+
+- **DDL interpreter**：解释 DDL 语句，并将定义记录到数据字典中
+- **DML compiler**：将查询语言中的 DML 语句翻译为由低级指令组成的**evaluation plan**，供查询执行引擎理解
+  - DML compiler 执行**query optimization**：从多种可能的执行计划中选取代价最低的方案
+- **Query evaluation engine**：执行由 DML compiler 生成的低级指令
+
+**Query Processing 的步骤：**
+
+1. **Parsing and translation**
+2. **Optimization**
+3. **Evaluation**
+
+```
+query
+  │
+  ▼
+parser and translator  ──→  relational-algebra expression
+                                        │
+                                        ▼
+                                    optimizer  ←── statistics about data
+                                        │
+                                        ▼
+evaluation engine  ←──────────  execution plan
+  │
+  ▼
+query output
+  │
+  └── data (from data files)
+```
+
+👉 将在 **Part Six（Chapters 15, 16）** 详细介绍。
+
+---
+
+### Transaction Management
+
+**Transaction** 是执行单一逻辑功能的一组操作集合。
+
+**Transaction Management 的两大组件：**
+
+- **Recovery Manager**：确保在**系统故障**和**事务故障**发生时，数据库仍能保持一致的状态
+- **Concurrency-control manager**：控制并发事务之间的交互，确保数据库的**一致性**
+
+👉 将在 **Part Seven（Chapters 17, 18, 19）** 详细介绍。
+
+## Database Users and Administrators
+
+### 系统整体架构
+
+数据库系统的用户与组件层次如下：
+
+```
+        Naïve users          Application programmer      DBA / Data Analyst
+              │                        │                         │
+              ▼                        │                         │
+   Database application  ←─────────────┘                         │
+              │                                                  │
+              ▼                                                  │
+            API  (ODBC, JDBC, Hibernate …)                       │
+              │                                                  │
+              ▼                                                  ▼
+            DBMS  (Oracle, MySQL, PostgreSQL, 达梦, GaussDB …) ◄──┘
+              │
+              ▼
+             OS  (Unix/Linux, Windows, Mac OS …)
+              │
+              ▼
+           Database
+```
+
+---
+
+### 四类数据库用户
+
+用户根据与系统交互方式的不同进行区分：
+
+| 用户类型 | 描述 | 使用工具 |
+|----------|------|----------|
+| **Naïve users**（普通用户） | 调用已有的应用程序，不直接编写 SQL；典型例子：网页用户、银行柜员、文职人员 | Application interfaces（应用程序界面） |
+| **Application programmers**（应用程序员） | 通过 DML 调用与系统交互，编写应用程序 | Application programs（应用程序） |
+| **Sophisticated users**（高级用户 / 分析师） | 直接使用查询工具提交查询，进行数据分析 | Query tools（查询工具） |
+| **Database administrators**（数据库管理员） | 协调数据库系统的所有活动，深入了解企业信息资源与需求 | Administration tools（管理工具） |
+
+---
+
+### Database Administrator（DBA）
+
+DBA 负责协调数据库系统的所有活动，对企业的信息资源和需求有深刻理解。
+
+**DBA 的职责包括：**
+
+- **Schema definition**：定义数据库模式
+- **Storage structure and access method definition**：定义存储结构和访问方法
+- **Schema and physical organization modification**：修改模式和物理组织结构
+- **Granting user authority**：授予用户访问数据库的权限
+- **Routine maintenance**：
+  - **Performance Tuning**：监控性能，响应需求变化
+  - **Backing up**：定期将数据库备份到远程服务器
+  - **Disk space management**：确保有足够的磁盘空间用于正常运营，并按需扩容
