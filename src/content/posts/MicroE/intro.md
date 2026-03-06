@@ -16,7 +16,7 @@ draft: false
 
 ## 资源配置
 
-![image.png](https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202603061154372.png)
+![image.png|width=200](https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202603061154372.png)
 
 **Production Posibility Curve (PPC) 生产可能性曲线** :
 
@@ -96,8 +96,8 @@ draft: false
 
   * 例：财富（元）、资本存量 (K)、库存、债务余额、人口。
 * 常见关系：
-  $\text{存量}*{t}=\text{存量}*{t-1}+\text{流量}*{t}$
-  例：资本积累 ($K_t=K*{t-1}+I_t-\delta K_{t-1}$)。
+  $\text{存量}_{t}=\text{存量}_{t-1}+\text{流量}_{t}$
+  例：资本积累 ($K_t=K_{t-1}+I_t-\delta K_{t-1}$)。
 
 **3. 参数（parameter） vs 常数（constant）**
 
