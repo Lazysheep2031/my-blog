@@ -1,5 +1,5 @@
 ---
-title: Chapter1: First-Order Differential Equations
+title: First-Order Differential Equations
 published: 2026-03-06
 description: First-order ODEs
 tags: [常微分方程]
