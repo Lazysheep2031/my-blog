@@ -91,9 +91,9 @@ $$
 > [!TIP]
 > **分离变量时如果除掉了某个可能为 0 的因子，可能会漏掉解。**
 
-### 隐式解、通解、奇异解
+### Implicit, General, and Singular Solutions
 
-#### 隐式解（implicit solution）
+#### Implicit Solution
 
 例如
 
@@ -124,7 +124,7 @@ $$
 
 而初值会选定其中一个分支。
 
-#### 通解（general solution）
+#### General Solution
 带任意常数 $C$ 的解族通常叫通解。
 
 例如：
@@ -143,7 +143,7 @@ $$
 
 ---
 
-#### 奇异解（singular solution）
+#### Singular Solution
 奇异解是：
 
 > 是原方程的解，但**不能**通过通解中取某个常数得到。
@@ -372,9 +372,7 @@ $$
 ---
 
 
-### Extension 1：Equidimensional equations（齐次/等维方程）
-
-老师课件给出的形式是
+### Extension 1: Equidimensional Equations
 
 $$
 \frac{dy}{dx}=g\!\left(\frac{y}{x}\right)
@@ -404,7 +402,7 @@ $$
 
 ---
 
-#### Example 
+#### Example: Equidimensional Substitution
 
 $$
 xy'-y=\sqrt{x^2-y^2}
@@ -475,7 +473,7 @@ $$
 
 ---
 
-### Extension 2：
+### Extension 2: Linear Fractional Form
 
 $$
 \frac{dy}{dx}=
@@ -543,9 +541,9 @@ $$
 ---
 
 
-### Solveing strategy for first-order ODEs
+### Solving Strategy for First-Order ODEs
 
-Step 1：Identify
+**Step 1：Identify**
 先识别方程类型：
 
 - 是不是 separable？
@@ -554,7 +552,7 @@ Step 1：Identify
 
 ---
 
-Step 1.5：Convert（Optional）
+**Step 1.5：Convert（Optional）**
 如果不是直接 separable，尝试：
 
 - 令 $u=\frac{y}{x}$（equidimensional）
@@ -563,12 +561,12 @@ Step 1.5：Convert（Optional）
 
 ---
 
-Step 2：Solve
+**Step 2：Solve**
 分离变量并积分。
 
 ---
 
-Step 3：Check lost / special solutions
+**Step 3：Check lost / special solutions**
 检查：
 
 - 有没有在约分时漏掉的常数解
@@ -577,15 +575,541 @@ Step 3：Check lost / special solutions
 
 ---
 
-Step 4：Use initial condition
+**Step 4：Use initial condition**
 代入初值求常数，并确定正确分支。
 
 ---
 
-Step 5：State the answer clearly
+**Step 5：State the answer clearly**
 答案要写清：
 
 - 显式 or 隐式
 - 特解 or 通解
 - 是否还有额外常数解/奇异解
 - 定义区间
+
+---
+
+## Linear First-Order Equations
+
+**一阶线性微分方程**：
+
+**标准形式**：
+
+$$\boxed{y'+P(x)y=Q(x)}$$
+
+### Homogeneous vs Nonhomogeneous
+
+对线性方程
+
+$y'+P(x)y=Q(x)$
+
+
+若$Q(x)\equiv 0$,则方程为
+
+$$\boxed{y'+P(x)y=0}$$
+
+称为 **齐次（homogeneous）** 线性方程。
+
+
+若$Q(x)\not\equiv 0$,则方程为
+
+$$\boxed{y'+P(x)y=Q(x)}$$
+
+称为 **非齐次（nonhomogeneous）** 线性方程。
+
+---
+
+### Integrating Factor Method
+
+对方程
+
+$$y'+P(x)y=Q(x)$$
+
+
+我们想乘上一个函数  $\rho(x)$，使左边变成一个乘积的导数：$(\rho(x)y)'$.
+
+因为  $$(\rho y)'=\rho y'+\rho' y$$
+
+所以只要让$\rho'=\rho P(x)$,就能把$\rho y'+\rho P(x)y$认成$(\rho y)'$.
+
+
+---
+
+由
+
+$$
+\frac{\rho'}{\rho}=P(x)
+$$
+
+积分得到
+
+$$
+\ln \rho=\int P(x)\,dx
+$$
+
+所以积分因子可取为
+
+$$
+\boxed{\rho(x)=e^{\int P(x)\,dx}}
+$$
+
+---
+
+乘上积分因子后：
+
+$$
+\rho y'+\rho P y=\rho Q
+$$
+
+左边就是
+
+$$
+(\rho y)'=\rho Q
+$$
+
+然后两边积分：
+
+$$
+\rho y=\int \rho Q\,dx+C
+$$
+
+所以通解是
+
+$$
+\boxed{
+y=\frac{1}{\rho(x)}\left(\int \rho(x)Q(x)\,dx+C\right)
+}
+$$
+
+---
+
+**核心**：
+
+$$
+\boxed{(\rho(x)y)'=\rho(x)Q(x)}
+$$
+
+这才是积分因子法的本质。
+
+---
+
+#### Standard Workflow
+
+**Step 1: Rewrite to standard form**
+先写成
+
+$$
+y'+P(x)y=Q(x)
+$$
+
+特别注意：  
+**$y'$ 前面的系数必须先化成 1。**
+
+**Step 2: Find the integrating factor**
+$$
+\boxed{\rho(x)=e^{\int P(x)\,dx}}
+$$
+
+**Step 3: Multiply both sides by $\rho(x)$**
+得到
+
+$$
+(\rho y)'=\rho Q
+$$
+
+**Step 4: Integrate**
+$$
+\rho y=\int \rho Q\,dx+C
+$$
+
+**Step 5: Solve for $y$**
+$$
+\boxed{
+y=\frac{1}{\rho}\left(\int \rho Q\,dx+C\right)
+}
+$$
+
+---
+
+
+#### Example 1
+
+求解
+
+$$
+y'+y=e^x
+$$
+
+
+**Step 1: Standard form**
+这里
+
+$$
+P(x)=1,\qquad Q(x)=e^x
+$$
+
+
+**Step 2: Integrating factor**
+$$
+\rho(x)=e^{\int 1\,dx}=e^x
+$$
+
+
+**Step 3: Multiply by the integrating factor**
+$$
+e^x y'+e^x y=e^{2x}
+$$
+
+左边是$(e^x y)'$。
+
+所以
+
+$$
+(e^x y)'=e^{2x}
+$$
+
+
+**Step 4: Integrate**
+$$
+e^x y=\int e^{2x}\,dx+C=\frac12 e^{2x}+C
+$$
+
+所以
+
+$$
+\boxed{
+y=\frac12 e^x+Ce^{-x}
+}
+$$
+
+---
+
+**What this example shows**
+
+**Integrating factor works fully when $Q(x)\neq 0$.**
+它本来就是为一般的一阶线性方程设计的。
+
+**The solution naturally splits into two parts.**
+$$
+y=\underbrace{Ce^{-x}}_{\text{齐次解}}+\underbrace{\frac12 e^x}_{\text{特解}}
+$$
+
+这正好对应后面的结构定理。
+
+---
+
+#### Example 2
+
+求解
+
+$$
+x^2y'+xy=\sin x,\qquad y(1)=y_0
+$$
+
+
+**Step 1: Rewrite to standard form**
+当 $x\neq 0$ 时，除以 $x^2$：
+
+$$
+y'+\frac1x y=\frac{\sin x}{x^2}
+$$
+
+所以
+
+$$
+P(x)=\frac1x,\qquad Q(x)=\frac{\sin x}{x^2}
+$$
+
+
+**Step 2: Integrating factor**
+因为初值点在 $x_0=1$，自然考虑区间 $x>0$。
+
+$$
+\rho(x)=\exp\left(\int_1^x \frac1t\,dt\right)=e^{\ln x}=x
+$$
+
+
+**Step 3: Multiply by the integrating factor**
+$$
+x y'+y=\frac{\sin x}{x}
+$$
+
+左边是$(xy)'$。
+
+所以
+
+$$
+(xy)'=\frac{\sin x}{x}
+$$
+
+
+**Step 4: Integrate**
+从 1 积到 $x$：
+
+$$
+xy-y_0=\int_1^x \frac{\sin t}{t}\,dt
+$$
+
+于是
+
+$$
+\boxed{
+y(x)=\frac1x\left[y_0+\int_1^x \frac{\sin t}{t}\,dt\right]
+}
+$$
+
+---
+
+**Key takeaways from this example**
+
+**Why is the solution defined on the positive half-axis?**
+因为：
+- 初值点 $x_0=1$ 在正半轴
+- $P(x)=1/x$、$Q(x)=\sin x/x^2$ 在 $(0,\infty)$ 上连续
+- 但在 $x=0$ 不连续
+
+因此根据存在唯一性定理，解在整个$(0,\infty)$ 上唯一存在。
+
+**$x=0$ is not a singular solution.**
+$x=0$ 不是一条解曲线，而是方程的 **奇点（singular point）**。  
+它和前面 1.4 的 **奇异解 singular solution** 不是一回事。
+
+---
+
+## Existence and Uniqueness for Linear ODEs
+
+考虑初值问题
+
+$$
+y'+P(x)y=Q(x),\qquad y(x_0)=y_0
+$$
+
+如果 $P(x)$ 和 $Q(x)$ 在某个包含 $x_0$ 的开区间 $I$ 上连续，那么：
+
+$$
+\boxed{
+\text{该初值问题在 }I\text{ 上有且仅有一个解}
+}
+$$
+
+而且这个解在整个区间 $I$ 上存在。
+
+---
+
+### Key Consequences
+
+**Linear IVPs are highly well-behaved.**
+不像前面某些非线性例子会出现：
+- 多个解
+- 奇异解
+- 只能局部定义
+
+线性方程在系数连续时非常“安全”。
+
+---
+
+**The solution extends over the full continuity interval.**
+不是只在初值点附近，而是在 $P,Q$ 连续的整个区间上。
+
+---
+
+**First-order linear equations have no singular solutions.**
+积分因子法得到的通解已经包含所有解，  
+不会再额外冒出“通解之外的特殊解”。
+
+---
+
+## Initial-Value Integrating Factor Formula
+
+对初值问题
+
+$$
+y'+P(x)y=Q(x),\qquad y(x_0)=y_0
+$$
+
+可以直接取
+
+$$
+\boxed{
+\rho(x)=\exp\left(\int_{x_0}^{x}P(t)\,dt\right)
+}
+$$
+
+则唯一解可直接写成
+
+$$
+\boxed{
+y(x)=\frac{1}{\rho(x)}
+\left[
+y_0+\int_{x_0}^{x}\rho(t)Q(t)\,dt
+\right]
+}
+$$
+
+---
+
+### Benefits
+- 自动满足初值
+- 不用最后再额外求常数 $C$
+
+---
+
+## Structure: Homogeneous + Particular
+
+对非齐次方程
+
+$$
+y'+P(x)y=Q(x)
+$$
+
+若：
+- $Y(x)$ 是对应齐次方程
+  $$
+  y'+P(x)y=0
+  $$
+  的通解
+- $y^*(x)$ 是原方程的一个特解
+
+那么原方程的通解是
+
+$$
+\boxed{y(x)=Y(x)+y^*(x)}
+$$
+
+---
+
+
+### Linear Superposition Principle
+
+对非齐次线性方程
+
+$$
+y'+P(x)y=Q(x)
+$$
+
+通解可写为
+
+$$
+\boxed{y=Y+y^*}
+$$
+
+这是 **Principle of Linear Superposition（线性叠加原理）**。
+
+---
+
+### Bernoulli Equation
+
+**Standard form**
+$$
+\boxed{
+y'+P(x)y=Q(x)y^n,\qquad n\neq 0,1
+}
+$$
+
+这是一个非线性方程，但可以通过换元化为线性方程。
+
+---
+
+**Substitution**
+令
+
+$$
+\boxed{z=y^{1-n}}
+$$
+
+则可化成一阶线性方程：
+
+$$
+\boxed{
+z'+(1-n)P(x)z=(1-n)Q(x)
+}
+$$
+
+解出 $z$ 后，再反代回 $y$。
+
+---
+
+#### Example: Bernoulli Equation in Detail
+
+考虑几何推导得到的方程
+
+$$
+y'=\frac{y}{2x}-\frac{x}{2y}
+$$
+
+改写成
+
+$$
+y'-\frac{1}{2x}y=-\frac{x}{2}y^{-1}
+$$
+
+这是 Bernoulli 方程，参数 $n=-1$。
+
+
+**Step 1: Substitute**
+因为 $1-n=2$，令
+
+$$
+z=y^2
+$$
+
+则
+
+$$
+z'=2yy'
+$$
+
+
+**Step 2: Rewrite the original equation**
+原方程两边乘 $2y$：
+
+$$
+2yy'=\frac{y^2}{x}-x
+$$
+
+即
+
+$$
+z'=\frac{1}{x}z-x
+$$
+
+整理得
+
+$$
+z'-\frac{1}{x}z=-x
+$$
+
+这已经是一阶线性方程。
+
+
+**Step 3: Integrating factor**
+$$
+\rho(x)=e^{\int -1/x\,dx}=e^{-\ln x}=\frac1x
+$$
+
+于是
+
+$$
+\left(\frac{z}{x}\right)'=-1
+$$
+
+
+**Step 4: Integrate**
+$$
+\frac{z}{x}=-x+C
+$$
+
+所以
+
+$$
+z=Cx-x^2
+$$
+
+代回 $z=y^2$：
+
+$$
+\boxed{y^2=Cx-x^2}
+$$
+
+---
