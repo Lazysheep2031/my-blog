@@ -1,5 +1,5 @@
 ---
-title: 面对对象程序设计介绍
+title: 面对对象程序设计课程介绍
 published: 2026-03-05
 description: 面对对象程序设计课程总览
 tags: [面向对象程序设计]

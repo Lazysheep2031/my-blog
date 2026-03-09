@@ -1,5 +1,5 @@
 ---
-title: 常微分课程介绍
+title: 常微分方程课程介绍
 published: 2026-03-04
 description: 常微分方程课程总览
 tags: [常微分方程]

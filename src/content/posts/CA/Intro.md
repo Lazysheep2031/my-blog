@@ -1,5 +1,5 @@
 ---
-title: 体系结构课程介绍
+title: 计算机体系结构课程介绍
 published: 2026-03-02
 description: 计算机体系结构课程总览
 tags: [计算机体系结构]
