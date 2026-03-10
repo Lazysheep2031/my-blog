@@ -1078,20 +1078,37 @@ $$
 
 #### SQL 和关系代数的对应
 
-**普通 SQL 查询**
-
+1. 普通 SQL
 ```sql
 select A1, A2, ..., An
 from r1, r2, ..., rm
 where P
 ```
 
-对应多重集关系代数：
+可理解为：
+
+1. `from`：先把表放在一起，底层可看成笛卡尔积
+   $$
+   r_1 \times r_2 \times \dots \times r_m
+   $$
+
+2. `where`：在结果上做条件筛选
+   $$
+   \sigma_P(\cdots)
+   $$
+
+3. `select`：只保留需要的列
+   $$
+   \Pi_{A_1,\dots,A_n}(\cdots)
+   $$
+
+所以整体对应：
+
 $$
 \Pi_{A_1,\dots,A_n}(\sigma_P(r_1 \times r_2 \times \dots \times r_m))
 $$
 
-**带 group by 的聚合查询**
+2. 带 group by 的 SQL
 
 ```sql
 select A1, A2, sum(A3)
@@ -1100,15 +1117,16 @@ where P
 group by A1, A2
 ```
 
-对应多重集关系代数中的“选择 + 分组聚合”。
+逻辑上是：
 
-**结论**
+1. `from`：取基础数据
+2. `where`：筛选满足条件的行
+3. `group by A1, A2`：按 `A1, A2` 分组
+4. `sum(A3)`：对每组做聚合
 
-SQL 的核心查询结构，本质上都能看成：
+**核心理解**
 
-* from：构造笛卡尔积/连接
-* where：做选择
-* select：做投影
-* group by：做分组聚合
-
----
+* `from`：准备数据 / 构造组合
+* `where`：选行
+* `select`：选列
+* `group by`：分组聚合
