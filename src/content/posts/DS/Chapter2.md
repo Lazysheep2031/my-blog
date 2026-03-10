@@ -508,7 +508,7 @@ $$
 
 查找 **2009 Fall 或 2010 Spring** 开设过的课程：
 $$
-\Pi_{course_id}(\sigma_{semester="Fall" \land year=2009}(section)) \Cup \Pi_{course_id}(\sigma_{semester="Spring" \land year=2010}(section))
+\Pi_{course\_id}(\sigma_{semester="Fall" \land year=2009}(section)) \cup \Pi_{course\_id}(\sigma_{semester="Spring" \land year=2010}(section))
 $$
 
 **直观理解**
@@ -540,7 +540,7 @@ $$
 
 查找 **2009 Fall 开过但 2010 Spring 没开过** 的课程：
 $$
-\Pi_{course_id}(\sigma_{semester="Fall" \land year=2009}(section)) - \Pi_{course_id}(\sigma_{semester="Spring" \land year=2010}(section))
+\Pi_{course\_id}(\sigma_{semester="Fall" \land year=2009}(section)) - \Pi_{course\_id}(\sigma_{semester="Spring" \land year=2010}(section))
 $$
 
 **直观理解**
