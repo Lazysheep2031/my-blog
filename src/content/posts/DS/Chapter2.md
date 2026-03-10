@@ -783,11 +783,9 @@ $$
 **Example**
 
 查找计算机系教师及其授课课程标题：
+
 $$
-\Pi_{name,title}
-(
-\sigma_{\text{dept_name="Comp. Sci."}}(instructor \bowtie teaches \bowtie course)
-)
+\Pi_{name,title}(\sigma_{dept\_name="Comp. Sci."}(instructor \bowtie teaches \bowtie course))
 $$
 
 ---
@@ -936,8 +934,8 @@ $t \times s \subseteq r$
 **经典例子**
 
 设：
-$r(\text{ID}, \text{course_id}) = \Pi_{ID, course_id}(takes)$，
-$s(\text{course_id}) = \Pi_{\text{course_id}}(\sigma_{\text{dept_name="Biology"}}(course))$
+
+$r(ID, course\_id) = \Pi_{ID, course\_id}(takes)$，$s(course\_id) = \Pi_{course\_id}(\sigma_{dept\_name="Biology"}(course))$
 
 那么：
 $r \div s$
@@ -1012,7 +1010,7 @@ slides 列出了：
 **例子：求每个系的平均工资**
 
 $$
-\mathcal{G}_{\text{dept_name},avg(salary)\rightarrow \text{avg_salary}}(instructor)
+\mathcal{G}_{dept\_name},avg(salary)\rightarrow avg\_salary(instructor)
 $$
 
 ![image.png](https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202603102127992.png)
@@ -1027,7 +1025,7 @@ $$
 * 或在聚合表达式中直接写别名
   例如：
   $$
-  \text{dept_name}\mathcal{G} avg(salary) as \text{avg_sal} (instructor)
+  dept\_name\mathcal{G} avg(salary) as avg\_sal (instructor)
   $$
 
 
