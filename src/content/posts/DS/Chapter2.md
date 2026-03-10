@@ -297,3 +297,780 @@ instructor(ID, name, dept_name, salary)
 
 这是外键约束背后的核心思想。
 
+## Schema Diagram
+
+![image.png](https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202603101422785.png)
+
+### Schema of University Database 理解
+
+#### 数据库由多个 relations 组成
+- 一个数据库不是一张表，而是多张表共同组成
+- 企业信息会被拆成多个部分分别存储
+
+#### 两类表
+**实体表**
+- student
+- instructor
+- course
+- department
+- classroom
+- time_slot
+
+**联系表**
+- takes：学生选课
+- teaches：教师授课
+- advisor：导师关系
+- prereq：先修课关系
+
+#### 下划线含义
+- 下划线属性表示 primary key
+- 有的表主键是单属性，如 student(ID)
+- 有的表主键是复合主键，如 section(course_id, sec_id, semester, year)
+
+#### schema diagram 的含义
+- 每个 box 表示一张 relation
+- box 中列出属性
+- 主键带下划线
+- 箭头表示约束关系
+
+#### 黑色箭头
+- 表示 foreign-key constraint
+- 引用关系中的属性必须在被引用关系主键中存在
+
+#### 典型外键关系
+- student.dept_name -> department.dept_name
+- instructor.dept_name -> department.dept_name
+- course.dept_name -> department.dept_name
+- teaches.ID -> instructor.ID
+- takes.ID -> student.ID
+- advisor.s_id -> student.ID
+- advisor.i_id -> instructor.ID
+- section.course_id -> course.course_id
+- section(building, room_no) -> classroom(building, room_no)
+
+#### 红色双箭头
+- 表示 referential integrity constraint
+- 比 foreign key 更一般
+- 例：section.time_slot_id -> time_slot.time_slot_id
+- 原因：time_slot_id 不是 time_slot 表的主键，只是主键的一部分，因此不能作为普通外键
+- 
+## Relational Query Languages
+
+**查询语言的两种风格**
+- **Procedural（过程式）**：既说明要什么数据，也说明怎么得到这些数据
+- **Declarative / non-procedural（陈述式 / 非过程式）**：只说明要什么数据，不说明具体执行步骤
+
+### 三种“pure”关系查询语言
+- **Relational algebra（关系代数）**
+- **Tuple relational calculus（元组关系演算）**
+- **Domain relational calculus（域关系演算）**
+
+- 三者在 **computing power（表达能力）** 上等价
+- 即：一种能表达的查询，另外两种原则上也能表达
+
+### 关系代数的特点
+- 属于功能性/操作型查询语言
+- 输入是一个或多个 relation
+- 输出仍然是 relation
+- 不是通用编程语言，**not Turing-machine equivalent**
+
+
+## The Relational Algebra
+
+关系代数（Relational Algebra）是一种 **procedural query language（过程式查询语言）**。  
+它由一组运算组成，这些运算把 **一个或两个 relation 作为输入**，并产生 **一个新的 relation 作为输出**。
+
+- 输入是表（relation）
+- 运算结果仍然是表
+- 因此可以把多个运算不断组合，构成更复杂的查询表达式
+
+这点非常重要，因为它说明关系代数具有**封闭性**：
+> relation 运算 relation，结果还是 relation
+
+---
+
+### 关系代数的 6 个基本操作
+slides 列出的 6 个基本操作是：:contentReference[oaicite:2]{index=2}
+
+1. **Select（选择）**：$\sigma$
+2. **Project（投影）**：$\Pi$
+3. **Union（并）**：$\cup$
+4. **Set Difference（差）**：$-$
+5. **Cartesian Product（笛卡尔积）**：$\times$
+6. **Rename（重命名）**：$\rho$
+
+---
+
+#### Select（选择）$\sigma$
+
+选择操作用于从一个关系中取出 **满足给定条件的元组（行）**。
+
+$\sigma_p(r)$
+
+其中：
+- $r$ 是关系
+- $p$ 是选择谓词（selection predicate）
+
+**定义**
+$$
+\sigma_p(r) = \{\, t \mid t \in r \text{ and } p(t) \,\}
+$$
+
+**谓词**
+谓词由逻辑连接词组成：
+- $\land$：and
+- $\lor$：or
+- $\lnot$：not
+
+基本比较形式：
+- `<attribute> op <attribute>`
+- `<attribute> op <constant>`
+
+其中 `op` 可以是：
+- $=$
+- $\neq$
+- $>$
+- $\ge$
+- $<$
+- $\le$ :contentReference[oaicite:4]{index=4}
+
+
+```text
+σ dept_name="Physics"(instructor)
+σ salary > 90000(instructor)
+σ dept_name="Physics" ∧ salary > 90000(instructor)
+```
+
+**直观理解**
+
+**选择 = 选行**
+
+它很像 SQL 的：
+
+```sql
+WHERE 条件
+```
+
+---
+
+#### Project（投影）$\Pi$
+
+投影操作用于从一个关系中保留 **指定属性（列）**，把其他列删去。
+
+$\Pi_{A_1, A_2, \dots, A_k}(r)$
+
+**定义**
+
+结果是一个只包含这些属性列的新关系。
+
+**投影后要去重**，因为关系是集合。
+也就是说，若两行在保留下来的列上完全相同，则只保留一行。
+
+**例子**
+
+```text
+Π ID, name, salary (instructor)
+```
+
+**直观理解**
+
+**投影 = 选列**
+
+它很像 SQL 的：
+
+```sql
+SELECT 列名...
+```
+
+---
+
+#### Union（并）$\cup$
+
+把两个关系中的元组合并到一起。
+
+$r \cup s$
+
+**定义**
+
+$$
+r \cup s = {, t \mid t \in r \text{ or } t \in s ,}
+$$
+
+**使用条件**
+
+要使 $r \cup s$ 合法，必须满足：
+
+1. $r$ 和 $s$ 有相同的 **arity（元数）**，即列数相同
+2. 对应列的域必须兼容（compatible）
+
+**例子**
+
+查找 **2009 Fall 或 2010 Spring** 开设过的课程：
+$$
+\Pi_{course_id}(\sigma_{semester="Fall" \land year=2009}(section))
+;\cup;
+\Pi_{course_id}(\sigma_{semester="Spring" \land year=2010}(section))
+$$
+
+**直观理解**
+
+**并 = 两个结果合起来**
+
+---
+
+#### Set Difference（差）$-$
+
+找出 **在一个关系中但不在另一个关系中** 的元组。
+
+$r - s$
+
+**定义**
+
+$$
+r - s = {, t \mid t \in r \text{ and } t \notin s ,}
+$$
+
+**使用条件**
+
+和并运算一样：
+
+* 列数相同
+* 对应列兼容 
+
+**例子**
+
+查找 **2009 Fall 开过但 2010 Spring 没开过** 的课程：
+$$
+\Pi_{course_id}(\sigma_{semester="Fall" \land year=2009}(section))
+------------------------------------------------------------------
+
+\Pi_{course_id}(\sigma_{semester="Spring" \land year=2010}(section))
+$$
+
+**直观理解**
+
+**差 = 从前者里减去后者**
+
+---
+
+#### Cartesian Product（笛卡尔积）$\times$
+
+
+笛卡尔积把两个关系中的每一行两两配对，形成所有可能组合。
+
+$r \times s$
+
+**定义**
+
+$$
+r \times s = {, tq \mid t \in r \text{ and } q \in s ,}
+$$
+
+:::warning
+* $r(R)$ 和 $s(S)$ 的属性集合不相交，即 $R \cap S = \varnothing$
+如果属性名有重复，就需要先做 **rename（重命名）**。
+:::
+
+**直观理解**
+
+若：
+
+* $r$ 有 3 行
+* $s$ 有 4 行
+
+则 $r \times s$ 有 12 行。
+
+
+笛卡尔积本身通常“太大”，实际常配合选择一起使用，构成连接。
+
+---
+
+#### Rename（重命名）$\rho$
+
+重命名操作用来给关系表达式的结果起新名字，或者给属性改名。
+
+给表达式结果改名：
+$\rho_X(E)$
+
+给关系和属性一起改名：
+$$
+\rho_{X(A_1, A_2, \dots, A_n)}(E)
+$$
+
+1. 给中间结果起名，便于后续引用
+2. 一个关系需要以多个名字出现时使用
+3. 避免属性名冲突
+4. 自连接时非常重要
+
+
+在找最大工资时，用 `d` 作为 `instructor` 的一个副本：
+$$
+\rho_d(instructor)
+$$
+
+---
+### Examples
+
+关系代数表达式可以嵌套。
+
+$$
+\sigma_{A=C}(r \times s)
+$$
+
+意思是：
+
+1. 先做 $r \times s$
+2. 再从结果中选出满足 $A=C$ 的元组
+
+#### 例 1：查找 Physics 系教师名字及其教过的课程号
+
+$$
+\Pi_{instructor.name, course_id}
+\bigl(
+\sigma_{dept_name="Physics"}
+(
+\sigma_{instructor.ID=teaches.ID}(instructor \times teaches)
+)
+\bigr)
+$$
+或先筛 instructor 再乘 teaches。两种写法语义等价。
+
+### 例 2：再加上课程标题
+
+$$
+\Pi_{instructor.name,; course.course_id,; course.title}
+\bigl(
+\sigma_{dept_name="Physics" \land instructor.ID=teaches.ID \land teaches.course_id=course.course_id}
+(instructor \times teaches \times course)
+\bigr)
+$$
+
+
+---
+
+#### 最大工资例子
+
+如何不用聚合也能找最大工资。思路是：
+
+**Step 1**
+
+找出“比别人小”的工资（即不是最大值的工资）：
+$$
+\Pi_{instructor.salary}
+\bigl(
+\sigma_{instructor.salary < d.salary}
+(instructor \times \rho_d(instructor))
+\bigr)
+$$
+
+**Step 2**
+
+用所有工资减去这些“非最大工资”：
+$$
+\Pi_{salary}(instructor)
+------------------------
+
+\Pi_{instructor.salary}
+\bigl(
+\sigma_{instructor.salary < d.salary}
+(instructor \times \rho_d(instructor))
+\bigr)
+$$
+
+
+* 先找不是最大值的
+* 再从全集中删掉它们
+* 剩下的就是最大值
+
+这是关系代数很经典的构造思路。
+
+---
+
+### 关系代数的封闭性
+
+如果 $E_1$ 和 $E_2$ 是关系代数表达式，那么下面这些也是合法的关系代数表达式：
+* $E_1 \cup E_2$
+* $E_1 - E_2$
+* $E_1 \times E_2$
+* $\sigma_p(E_1)$
+* $\Pi_S(E_1)$
+* $\rho_X(E_1)$
+
+这再次体现了封闭性。
+
+---
+
+### 常见扩展操作
+
+**additional operations**：它们**不增加表达能力**，但能让常见查询写得更简洁。
+
+包括：
+
+* Intersection（交）
+* Natural Join（自然连接）
+* Semijoin（半连接）
+* Assignment（赋值）
+* Outer Join（外连接）
+* Division（除法）
+
+---
+
+#### Intersection（交）$\cap$
+
+$$
+r \cap s = {, t \mid t \in r \text{ and } t \in s ,}
+$$
+
+* 相同 arity
+* 对应列兼容 
+
+**与基本操作的关系**
+
+$$
+r \cap s = r - (r - s)
+$$
+
+
+找两个结果都包含的元组。
+
+---
+
+#### Natural Join（自然连接）$\bowtie$
+
+自然连接把两个关系中 **同名属性值相等** 的元组合并起来。
+
+设：
+
+* $r$ 在模式 $R$ 上
+* $s$ 在模式 $S$ 上
+
+则：$r \bowtie s$
+是模式 $R \cup S$ 上的关系，其中只有当两个元组在公共属性 $R \cap S$ 上取值相同，才合并。
+
+**等价写法**
+
+若公共属性是 `B` 和 `D`，则：
+$$
+r \bowtie s
+===========
+
+\Pi_{r.A,; r.B,; r.C,; r.D,; s.E}
+(\sigma_{r.B=s.B \land r.D=s.D}(r \times s))
+$$
+
+**性质**
+
+* **结合律**：$(r \bowtie s) \bowtie t = r \bowtie (s \bowtie t)$
+* **交换律**：$r \bowtie s = s \bowtie r$ 
+
+**Example**
+
+查找计算机系教师及其授课课程标题：
+$$
+\Pi_{name,; title}
+(
+\sigma_{dept_name="Comp. Sci."}(instructor \bowtie teaches \bowtie course)
+)
+$$
+
+
+---
+
+#### Theta Join（$\theta$-join）
+
+$$
+r \bowtie_\theta s = \sigma_\theta(r \times s)
+$$
+
+
+先做笛卡尔积，再按任意条件 $\theta$ 进行筛选。
+
+**自然连接 vs theta 连接**
+
+* 自然连接：自动按公共属性相等匹配
+* theta 连接：匹配条件由你显式指定
+
+---
+
+#### Outer Join（外连接）
+
+普通连接只保留“匹配成功”的元组，可能丢信息。
+外连接是为了 **避免信息丢失**。
+
+先做连接，再把没匹配上的元组补回来，缺失部分用 `null` 填充。
+
+**类型**
+
+1. **Left Outer Join**：保留左边所有元组
+2. **Right Outer Join**：保留右边所有元组
+3. **Full Outer Join**：两边都全保留 
+
+**Example**
+
+若 `instructor` 中某个老师没有出现在 `teaches` 中：
+
+* 普通 join 会把他丢掉
+* left outer join 会保留这位老师，只是 `course_id` 填 null
+
+**与 null 的关系**
+
+* `null` 表示未知或不存在
+* 所有涉及 `null` 的比较大致上都视为 false
+* 以后会进一步学习三值逻辑。
+
+---
+
+#### Semijoin（半连接）$\ltimes_\theta$
+
+**记号**
+
+$$
+r \ltimes_\theta s
+$$
+
+**含义**
+
+从 $r$ 中挑出那些 **至少能和 $s$ 中某个元组按条件 $\theta$ 匹配** 的元组。
+
+**定义**
+
+$$
+r \ltimes_\theta s = \Pi_R(r \bowtie_\theta s)
+$$
+
+其中 $R$ 是 $r$ 的属性集合。
+
+**直观理解**
+
+* 连接后只保留左表 $r$ 的列
+* 本质上是“筛左表”
+
+**和 SQL 的对应**
+
+它很接近：
+
+* `EXISTS`
+* `IN`
+  这种“判断是否存在匹配项”的查询。slides 也给了对应例子。
+
+---
+
+#### Assignment（赋值）$\leftarrow$
+
+赋值运算让复杂查询可以像“顺序程序”那样分步写。
+
+**形式**
+
+```text
+temp ← 某个关系代数表达式
+```
+
+**用途**
+
+* 把中间结果存到临时关系变量
+* 后续表达式继续使用
+
+这在写复杂查询、特别是 division 的等价表达式时很常见。
+
+---
+
+#### Division（除法）$\div$
+
+**含义**
+
+除法用于表达“**对所有**”这类查询。
+
+**定义**
+
+给定：
+
+* $r(R)$
+* $s(S)$
+* 且 $S \subseteq R$
+
+则：
+$r \div s$
+是最大的关系 $t(R-S)$，使得
+$t \times s \subseteq r$
+
+**直观理解**
+
+它用于找出那些“和 $s$ 中每个元组都配对成功”的对象。
+
+**经典例子**
+
+设：
+$r(ID, course_id) = \Pi_{ID, course_id}(takes)$，
+$s(course_id) = \Pi_{course_id}(\sigma_{dept_name="Biology"}(course))$
+
+那么：
+$r \div s$
+表示：
+
+> 选修了 **所有 Biology 系课程** 的学生 ID。 
+
+**重要理解**
+
+除法常对应自然语言中的：
+
+* “所有”
+* “全部”
+* “every”
+* “all”
+
+---
+
+### 广义投影与聚合
+
+#### Generalized Projection（广义投影）
+
+**含义**
+
+广义投影在普通投影的基础上，允许在投影列表中出现算术表达式。
+
+**形式**
+
+$$
+\Pi_{F_1,;F_2,;\dots,;F_n}(E)
+$$
+其中每个 $F_i$ 都可以是常量和属性构成的算术表达式。
+
+**例子**
+
+若 `salary` 是年薪，求月薪：
+$$
+\Pi_{ID,; name,; dept_name,; salary/12}(instructor)
+$$
+
+**作用**
+
+不仅能“选列”，还能“算新列”。
+
+---
+
+#### Aggregate Functions（聚合函数）
+
+**常见聚合函数**
+
+slides 列出了：
+
+* `avg`
+* `min`
+* `max`
+* `sum`
+* `count`
+
+它们把一组值汇总成一个值。
+
+### 聚合操作形式
+
+设 $E$ 是一个关系代数表达式：
+
+* $G_1, G_2, \dots, G_n$ 是分组属性
+* $F_i$ 是聚合函数
+* $A_i$ 是属性名
+
+则可以写成分组聚合表达式。
+
+**例子：求每个系的平均工资**
+
+$$
+\mathcal{G}_{dept_name,; avg(salary)\rightarrow avg_salary}(instructor)
+$$
+slides 展示的结果中，每个 `dept_name` 对应一个平均工资。
+
+**注意**
+
+聚合结果默认没有名字，可以：
+
+* 用 `rename`
+* 或在聚合表达式中直接写别名
+  例如：
+  $$
+  dept_name; \mathcal{G}; avg(salary); as; avg_sal; (instructor)
+  $$
+
+
+---
+
+### null 与三值逻辑
+
+**null 的逻辑语义**
+
+* 与 `null` 比较，结果不是 true/false，而可能是 **unknown**
+* 因此采用三值逻辑：true / false / unknown 
+
+**规则**
+
+* `unknown OR true = true`
+* `unknown OR false = unknown`
+* `true AND unknown = unknown`
+* `false AND unknown = false`
+* `NOT unknown = unknown` 
+
+**在选择中的影响**
+
+若选择条件计算为 `unknown`，则通常按 false 处理，不会选中该元组。
+
+---
+
+### 关系代数与 SQL 的联系
+
+#### 纯关系代数 vs 多重集关系代数
+
+* **Pure relational algebra**：去重，因为 relation 是集合
+* **Multiset relational algebra**：保留重复，更接近 SQL 语义。
+
+**为什么 SQL 更像 multiset**
+
+因为 SQL 默认允许重复行存在，除非显式 `DISTINCT`。
+
+**多重集下的规则**
+
+* selection：保留满足条件元组的重复次数
+* projection：每个输入元组都投影，重复不自动消除
+* cross product：重复次数相乘
+* union：重复次数相加
+* intersection：取较小重复次数
+* difference：做差后的剩余次数 
+
+---
+
+#### SQL 和关系代数的对应
+
+slides 最后给出了一般对应关系：
+
+**普通 SQL 查询**
+
+```sql
+select A1, A2, ..., An
+from r1, r2, ..., rm
+where P
+```
+
+对应多重集关系代数：
+$$
+\Pi_{A_1,\dots,A_n}(\sigma_P(r_1 \times r_2 \times \dots \times r_m))
+$$
+
+**带 group by 的聚合查询**
+
+```sql
+select A1, A2, sum(A3)
+from r1, r2, ..., rm
+where P
+group by A1, A2
+```
+
+对应多重集关系代数中的“选择 + 分组聚合”。
+
+**结论**
+
+SQL 的核心查询结构，本质上都能看成：
+
+* from：构造笛卡尔积/连接
+* where：做选择
+* select：做投影
+* group by：做分组聚合
+
+---
