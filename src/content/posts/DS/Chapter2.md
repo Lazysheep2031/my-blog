@@ -353,7 +353,8 @@ instructor(ID, name, dept_name, salary)
 - 比 foreign key 更一般
 - 例：section.time_slot_id -> time_slot.time_slot_id
 - 原因：time_slot_id 不是 time_slot 表的主键，只是主键的一部分，因此不能作为普通外键
-- 
+  
+
 ## Relational Query Languages
 
 **查询语言的两种风格**
@@ -390,7 +391,7 @@ instructor(ID, name, dept_name, salary)
 ---
 
 ### 关系代数的 6 个基本操作
-slides 列出的 6 个基本操作是：:contentReference[oaicite:2]{index=2}
+slides 列出的 6 个基本操作是：
 
 1. **Select（选择）**：$\sigma$
 2. **Project（投影）**：$\Pi$
@@ -432,7 +433,7 @@ $$
 - $>$
 - $\ge$
 - $<$
-- $\le$ :contentReference[oaicite:4]{index=4}
+- $\le$ 
 
 
 ```text
@@ -468,9 +469,9 @@ $\Pi_{A_1, A_2, \dots, A_k}(r)$
 
 **例子**
 
-```text
-Π ID, name, salary (instructor)
-```
+$$
+\Pi_{ID, name, salary} (instructor)
+$$
 
 **直观理解**
 
@@ -493,7 +494,7 @@ $r \cup s$
 **定义**
 
 $$
-r \cup s = {, t \mid t \in r \text{ or } t \in s ,}
+r \cup s = \{ t \mid t \in r \text{ or } t \in s \}
 $$
 
 **使用条件**
@@ -507,9 +508,7 @@ $$
 
 查找 **2009 Fall 或 2010 Spring** 开设过的课程：
 $$
-\Pi_{course_id}(\sigma_{semester="Fall" \land year=2009}(section))
-;\cup;
-\Pi_{course_id}(\sigma_{semester="Spring" \land year=2010}(section))
+\Pi_{course_id}(\sigma_{semester="Fall" \land year=2009}(section)) \Cup \Pi_{course_id}(\sigma_{semester="Spring" \land year=2010}(section))
 $$
 
 **直观理解**
@@ -527,7 +526,7 @@ $r - s$
 **定义**
 
 $$
-r - s = {, t \mid t \in r \text{ and } t \notin s ,}
+r - s = \{ t \mid t \in r \text{ and } t \notin s \}
 $$
 
 **使用条件**
@@ -541,10 +540,7 @@ $$
 
 查找 **2009 Fall 开过但 2010 Spring 没开过** 的课程：
 $$
-\Pi_{course_id}(\sigma_{semester="Fall" \land year=2009}(section))
-------------------------------------------------------------------
-
-\Pi_{course_id}(\sigma_{semester="Spring" \land year=2010}(section))
+\Pi_{course_id}(\sigma_{semester="Fall" \land year=2009}(section)) - \Pi_{course_id}(\sigma_{semester="Spring" \land year=2010}(section))
 $$
 
 **直观理解**
@@ -563,7 +559,7 @@ $r \times s$
 **定义**
 
 $$
-r \times s = {, tq \mid t \in r \text{ and } q \in s ,}
+r \times s = \{ t \quad q \mid t \in r \text{ and } q \in s \}
 $$
 
 :::warning
@@ -622,33 +618,61 @@ $$
 1. 先做 $r \times s$
 2. 再从结果中选出满足 $A=C$ 的元组
 
-#### 例 1：查找 Physics 系教师名字及其教过的课程号
+### Example Queries
 
-$$
-\Pi_{instructor.name, course_id}
-\bigl(
-\sigma_{dept_name="Physics"}
-(
-\sigma_{instructor.ID=teaches.ID}(instructor \times teaches)
-)
-\bigr)
-$$
-或先筛 instructor 再乘 teaches。两种写法语义等价。
+题目：
+- 找出 Physics 系所有教师的名字，以及他们教过的课程号 `course_id`
 
-### 例 2：再加上课程标题
+涉及关系：
+- `instructor(ID, name, dept_name, salary)`
+- `teaches(ID, course_id, sec_id, semester, year)`
 
+核心思路：
+- 用 `instructor.ID = teaches.ID` 把教师信息和授课信息连接起来
+- 再筛出 `dept_name = "Physics"` 的教师
+- 最后只保留 `name` 和 `course_id`
+
+#### Query 1
 $$
-\Pi_{instructor.name,; course.course_id,; course.title}
-\bigl(
-\sigma_{dept_name="Physics" \land instructor.ID=teaches.ID \land teaches.course_id=course.course_id}
-(instructor \times teaches \times course)
-\bigr)
+\Pi_{instructor.name,\ course\_id}
+(\sigma_{dept\_name="Physics"}
+(\sigma_{instructor.ID=teaches.ID}(instructor \times teaches)))
 $$
 
+含义：
+1. 先做 `instructor × teaches`
+2. 再选出 `instructor.ID = teaches.ID` 的匹配元组
+3. 再筛出 `dept_name = "Physics"`
+4. 最后投影出 `name` 和 `course_id`
+
+特点：
+- 先连接，后筛选
+
+#### Query 2
+$$
+\Pi_{instructor.name,\ course\_id}
+(\sigma_{instructor.ID=teaches.ID}
+(\sigma_{dept\_name="Physics"}(instructor) \times teaches))
+$$
+
+含义：
+1. 先从 `instructor` 中选出 Physics 系教师
+2. 再与 `teaches` 做笛卡尔积
+3. 再按 `ID` 匹配
+4. 最后投影出 `name` 和 `course_id`
+
+特点：
+- 先筛选，后连接
+
+#### 两者比较
+- 两个查询结果相同
+- Query 2 更高效，因为它先做选择，减少了中间结果规模
+- 关系代数表达式可以有多种等价写法
+- 尽量早做选择（selection push-down）有利于查询优化
 
 ---
 
-#### 最大工资例子
+### 最大工资例子
 
 如何不用聚合也能找最大工资。思路是：
 
@@ -667,16 +691,12 @@ $$
 
 用所有工资减去这些“非最大工资”：
 $$
-\Pi_{salary}(instructor)
-------------------------
-
-\Pi_{instructor.salary}
+\Pi_{salary}(instructor)-\Pi_{instructor.salary}
 \bigl(
 \sigma_{instructor.salary < d.salary}
 (instructor \times \rho_d(instructor))
 \bigr)
 $$
-
 
 * 先找不是最大值的
 * 再从全集中删掉它们
@@ -718,7 +738,7 @@ $$
 #### Intersection（交）$\cap$
 
 $$
-r \cap s = {, t \mid t \in r \text{ and } t \in s ,}
+r \cap s = \{ t \mid t \in r \text{ and } t \in s \}
 $$
 
 * 相同 arity
@@ -751,10 +771,7 @@ $$
 
 若公共属性是 `B` 和 `D`，则：
 $$
-r \bowtie s
-===========
-
-\Pi_{r.A,; r.B,; r.C,; r.D,; s.E}
+r \bowtie s=\Pi_{r.A,r.B,r.C,r.D,s.E}
 (\sigma_{r.B=s.B \land r.D=s.D}(r \times s))
 $$
 
@@ -767,12 +784,11 @@ $$
 
 查找计算机系教师及其授课课程标题：
 $$
-\Pi_{name,; title}
+\Pi_{name,title}
 (
-\sigma_{dept_name="Comp. Sci."}(instructor \bowtie teaches \bowtie course)
+\sigma_{\text{dept_name="Comp. Sci."}}(instructor \bowtie teaches \bowtie course)
 )
 $$
-
 
 ---
 
@@ -818,6 +834,26 @@ $$
 * 所有涉及 `null` 的比较大致上都视为 false
 * 以后会进一步学习三值逻辑。
 
+**用基本操作表示外连接**
+
+**Left Outer Join**（$r$ ⟕ $s$）：
+
+$$
+(r \bowtie s) \cup (r - \Pi_R(r \bowtie s)) \times \{(null, \ldots, null)\}
+$$
+
+**Right Outer Join**（$r$ ⟖ $s$）：
+
+$$
+(r \bowtie s) \cup \{(null, \ldots, null)\} \times (s - \Pi_S(r \bowtie s))
+$$
+
+**Full Outer Join**（$r$ ⟗ $s$）：
+
+$$
+(r \bowtie s) \cup (r - \Pi_R(r \bowtie s)) \times \{(null, \ldots, null)\} \cup \{(null, \ldots, null)\} \times (s - \Pi_S(r \bowtie s))
+$$
+
 ---
 
 #### Semijoin（半连接）$\ltimes_\theta$
@@ -843,6 +879,7 @@ $$
 **直观理解**
 
 * 连接后只保留左表 $r$ 的列
+* 先判断左表这一行能不能在右表里找到匹配；能找到就保留这行，找不到就删掉。最后只保留左表的列。
 * 本质上是“筛左表”
 
 **和 SQL 的对应**
@@ -851,7 +888,6 @@ $$
 
 * `EXISTS`
 * `IN`
-  这种“判断是否存在匹配项”的查询。slides 也给了对应例子。
 
 ---
 
@@ -900,8 +936,8 @@ $t \times s \subseteq r$
 **经典例子**
 
 设：
-$r(ID, course_id) = \Pi_{ID, course_id}(takes)$，
-$s(course_id) = \Pi_{course_id}(\sigma_{dept_name="Biology"}(course))$
+$r(\text{ID}, \text{course_id}) = \Pi_{ID, course_id}(takes)$，
+$s(\text{course_id}) = \Pi_{\text{course_id}}(\sigma_{\text{dept_name="Biology"}}(course))$
 
 那么：
 $r \div s$
@@ -931,7 +967,7 @@ $r \div s$
 **形式**
 
 $$
-\Pi_{F_1,;F_2,;\dots,;F_n}(E)
+\Pi_{F_1,F_2,\dots,F_n}(E)
 $$
 其中每个 $F_i$ 都可以是常量和属性构成的算术表达式。
 
@@ -939,8 +975,9 @@ $$
 
 若 `salary` 是年薪，求月薪：
 $$
-\Pi_{ID,; name,; dept_name,; salary/12}(instructor)
+\Pi_{ID,name,dept_name, salary/12}(instructor)
 $$
+如果不额外重命名，这一列的名字通常就只是“这个表达式本身”，也就是可以理解成一列“salary/12”。
 
 **作用**
 
@@ -962,7 +999,7 @@ slides 列出了：
 
 它们把一组值汇总成一个值。
 
-### 聚合操作形式
+**聚合操作形式**
 
 设 $E$ 是一个关系代数表达式：
 
@@ -975,9 +1012,12 @@ slides 列出了：
 **例子：求每个系的平均工资**
 
 $$
-\mathcal{G}_{dept_name,; avg(salary)\rightarrow avg_salary}(instructor)
+\mathcal{G}_{\text{dept_name},avg(salary)\rightarrow \text{avg_salary}}(instructor)
 $$
-slides 展示的结果中，每个 `dept_name` 对应一个平均工资。
+
+![image.png](https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202603102127992.png)
+
+每个 `dept_name` 对应一个平均工资。
 
 **注意**
 
@@ -987,7 +1027,7 @@ slides 展示的结果中，每个 `dept_name` 对应一个平均工资。
 * 或在聚合表达式中直接写别名
   例如：
   $$
-  dept_name; \mathcal{G}; avg(salary); as; avg_sal; (instructor)
+  \text{dept_name}\mathcal{G} avg(salary) as \text{avg_sal} (instructor)
   $$
 
 
@@ -1037,8 +1077,6 @@ slides 展示的结果中，每个 `dept_name` 对应一个平均工资。
 ---
 
 #### SQL 和关系代数的对应
-
-slides 最后给出了一般对应关系：
 
 **普通 SQL 查询**
 
