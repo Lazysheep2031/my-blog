@@ -1280,7 +1280,7 @@ $$
 P(x,y)\,y'=Q(x,y)
 $$
 
-其中 \(P,Q\) 的每一项都有相同总次数，则通常可化成 homogeneous equation。
+其中 $P,Q$ 的每一项都有相同总次数，则通常可化成 homogeneous equation。
 
 ---
 
@@ -1364,16 +1364,16 @@ $$
 
 因此：
 
-- 若 \(k>0\)，则 \(x\ge \dfrac{4}{k}\)
-- 若 \(k<0\)，则 \(x\le \dfrac{4}{k}\)
+- 若 $k>0$，则 $x\ge \dfrac{4}{k}$
+- 若 $k<0$，则 $x\le \dfrac{4}{k}$
 
 ---
 
 > [!TIP]
 > 对 homogeneous equation，解完后常要额外检查：
-> - \(\ln|x|\) 带来的区间限制
+> - $\ln|x|$ 带来的区间限制
 > - 根号带来的定义域限制
-> - 写成 \(y=\pm\sqrt{g(x)}\) 后要求 \(g(x)\ge 0\)
+> - 写成 $y=\pm\sqrt{g(x)}$ 后要求 $g(x)\ge 0$
 
 ---
 
