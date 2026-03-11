@@ -7,14 +7,53 @@ category: 笔记
 draft: false
 ---
 
-## Content
+## 概述
 
-1. Structure of Relational Databases
-2. Database Schema
-3. Keys
-4. Schema Diagrams
-5. Relational Query Languages
-6. The Relational Algebra
+本章围绕关系模型展开，主要回答三个问题：
+
+1. **关系模型如何表示数据？** 关系、属性、元组、域、原子性，以及 schema 和 instance 的区别
+2. **关系数据库如何保证正确组织与关联？** 通过主键、候选键、外键和参照完整性来刻画表内与表间约束
+3. **关系查询是如何表达的？** 从查询语言分类入手，重点介绍关系代数的基本运算、典型查询写法与扩展操作
+
+---
+
+## 目录
+
+- [Structure of Relational Databases](#structure-of-relational-databases)
+   - 关系模型的基本表示
+   - 关系的形式化定义
+   - relation schema 与 relation instance
+   - 属性与域（domain）
+   - 原子性（atomic）
+   - null（空值）
+   - 关系是无序的
+- [Database Schema](#database-schema)
+   - Database schema 的含义
+   - Database instance 的含义
+   - relation schema 与 database schema 的层次区别
+   - schema 中通常还包含什么
+- [Keys](#keys)
+   - Why key?
+   - Superkey
+   - Candidate key
+   - Primary key
+   - Foreign key
+   - Referencing relation 与 Referenced relation
+   - Referential integrity
+- [Schema Diagram](#schema-diagram)
+   - Schema of University Database 理解
+- [Relational Query Languages](#relational-query-languages)
+   - 查询语言的两种风格
+   - 三种 pure 关系查询语言
+   - 关系代数的特点
+- [The Relational Algebra](#the-relational-algebra)
+   - 关系代数的 6 个基本操作
+   - Example Queries
+   - 最大工资例子
+   - 常见扩展操作
+   - 广义投影与聚合
+   - null 与三值逻辑
+   - 关系代数与 SQL 的联系
 
 ---
 
