@@ -1113,3 +1113,825 @@ $$
 $$
 
 ---
+
+## Substitution Methods and Exact Equations
+
+### 1. Equations of the form $y'=F(ax+by+c)$
+
+若一阶方程可写成
+
+$$
+\frac{dy}{dx}=F(ax+by+c),
+$$
+
+则可令
+
+$$
+v=ax+by+c.
+$$
+
+因为
+
+$$
+y=\frac{v-ax-c}{b}
+$$
+
+（若 $b\neq 0$），对 $x$ 求导后可把原方程化成关于 $v$ 的 **separable equation**。
+
+---
+
+#### Standard substitution
+
+对最常见的形式
+
+$$
+\frac{dy}{dx}=F(x+y+c),
+$$
+
+令
+
+$$
+v=x+y+c.
+$$
+
+则
+
+$$
+y=v-x-c,\qquad \frac{dy}{dx}=\frac{dv}{dx}-1.
+$$
+
+代回后得到关于 $v$ 的一阶方程，再分离变量。
+
+---
+
+#### Classic example
+
+$$
+\frac{dy}{dx}=(x+y+3)^2
+$$
+
+令
+
+$$
+v=x+y+3,\qquad y=v-x-3
+$$
+
+则
+
+$$
+\frac{dy}{dx}=\frac{dv}{dx}-1
+$$
+
+代入得
+
+$$
+\frac{dv}{dx}=1+v^2.
+$$
+
+分离变量：
+
+$$
+\frac{dv}{1+v^2}=dx
+$$
+
+积分得
+
+$$
+\arctan v=x+C.
+$$
+
+所以
+
+$$
+v=\tan(x+C),
+$$
+
+从而
+
+$$
+\boxed{
+y(x)=\tan(x+C)-x-3
+}
+$$
+
+---
+
+> [!TIP]
+> 看到右边只依赖于某个线性组合 $ax+by+c$，就优先考虑把这个整体设为新变量。
+
+---
+
+### 2. Homogeneous Equations
+
+若方程可写成
+
+$$
+\frac{dy}{dx}=F\!\left(\frac{y}{x}\right),
+$$
+
+则称其为 **homogeneous first-order equation**。
+
+这类方程右边只依赖于比值 \(y/x\)。
+
+---
+
+#### Standard substitution
+
+令
+
+$$
+v=\frac{y}{x},
+\qquad y=vx
+$$
+
+则
+
+$$
+\frac{dy}{dx}=v+x\frac{dv}{dx}.
+$$
+
+代回原方程：
+
+$$
+v+x\frac{dv}{dx}=F(v)
+$$
+
+所以
+
+$$
+x\frac{dv}{dx}=F(v)-v.
+$$
+
+这就是一个 **separable equation**。
+
+---
+
+#### How to recognize it
+
+若微分方程能整理成
+
+$$
+\frac{dy}{dx}=F\!\left(\frac{y}{x}\right),
+$$
+
+或形如
+
+$$
+P(x,y)\,y'=Q(x,y)
+$$
+
+其中 \(P,Q\) 的每一项都有相同总次数，则通常可化成 homogeneous equation。
+
+---
+
+#### Classic example
+
+$$
+2xy\frac{dy}{dx}=4x^2+3y^2
+$$
+
+改写为
+
+$$
+\frac{dy}{dx}=2\frac{x}{y}+\frac{3}{2}\frac{y}{x}.
+$$
+
+令
+
+$$
+v=\frac{y}{x},\qquad y=vx,\qquad y'=v+xv'
+$$
+
+代入得
+
+$$
+v+x\frac{dv}{dx}=\frac{2}{v}+\frac{3}{2}v
+$$
+
+所以
+
+$$
+x\frac{dv}{dx}=\frac{v^2+4}{2v}.
+$$
+
+分离变量：
+
+$$
+\frac{2v}{v^2+4}\,dv=\frac{dx}{x}
+$$
+
+积分：
+
+$$
+\ln(v^2+4)=\ln|x|+\ln C
+$$
+
+于是
+
+$$
+v^2+4=C|x|.
+$$
+
+代回 \(v=y/x\)：
+
+$$
+\frac{y^2}{x^2}+4=C|x|.
+$$
+
+可写成
+
+$$
+\boxed{
+y^2+4x^2=kx^3
+}
+$$
+
+---
+
+#### Domain check
+
+由
+
+$$
+y^2=x^2(kx-4)\ge 0
+$$
+
+得到
+
+$$
+x^2(kx-4)\ge 0.
+$$
+
+因此：
+
+- 若 \(k>0\)，则 \(x\ge \dfrac{4}{k}\)
+- 若 \(k<0\)，则 \(x\le \dfrac{4}{k}\)
+
+---
+
+> [!TIP]
+> 对 homogeneous equation，解完后常要额外检查：
+> - \(\ln|x|\) 带来的区间限制
+> - 根号带来的定义域限制
+> - 写成 \(y=\pm\sqrt{g(x)}\) 后要求 \(g(x)\ge 0\)
+
+---
+
+### 3. A special homogeneous IVP with radical
+
+考虑
+
+$$
+x\frac{dy}{dx}=y+\sqrt{x^2-y^2},\qquad y(x_0)=0,\quad x_0>0.
+$$
+
+先除以 \(x\)：
+
+$$
+\frac{dy}{dx}=\frac{y}{x}+\sqrt{1-\left(\frac{y}{x}\right)^2}.
+$$
+
+令
+
+$$
+v=\frac{y}{x},\qquad y=vx,\qquad y'=v+xv'
+$$
+
+得
+
+$$
+v+x\frac{dv}{dx}=v+\sqrt{1-v^2}
+$$
+
+所以
+
+$$
+x\frac{dv}{dx}=\sqrt{1-v^2}.
+$$
+
+分离变量：
+
+$$
+\frac{dv}{\sqrt{1-v^2}}=\frac{dx}{x}
+$$
+
+积分得
+
+$$
+\arcsin v=\ln x + C
+$$
+
+（因为初值点 x_0>0，可在 $x>0$ 的区间上讨论，所以写 $\ln x$ 即可。）
+
+由 $v(x_0)=0$ 得
+
+$$
+C=-\ln x_0.
+$$
+
+所以
+
+$$
+v=\sin\!\left(\ln\frac{x}{x_0}\right).
+$$
+
+代回 \(v=y/x\)：
+
+$$
+\boxed{
+y(x)=x\sin\!\left(\ln\frac{x}{x_0}\right)
+}
+$$
+
+---
+
+#### Region restriction
+
+因为原方程中有根号
+
+$$
+\sqrt{x^2-y^2},
+$$
+
+必须满足
+
+$$
+x^2-y^2\ge 0
+\quad\Longleftrightarrow\quad
+|y|\le |x|.
+$$
+
+又因为这里取的是 \(x_0>0\) 的解支，所以在 \(x>0\) 上讨论，区域变成
+
+$$
+\boxed{x\ge |y|}.
+$$
+
+边界线
+
+$$
+\boxed{y=x,\qquad y=-x}
+$$
+
+本身也是解，称为 **singular solution curves**。
+
+---
+
+### 4. Exact Equations
+
+若方程写成
+
+$$
+M(x,y)\,dx+N(x,y)\,dy=0,
+$$
+
+并且左边恰好是某个函数 \(F(x,y)\) 的全微分
+
+$$
+dF=F_x\,dx+F_y\,dy,
+$$
+
+即
+
+$$
+F_x=M,\qquad F_y=N,
+$$
+
+则该方程称为 **exact equation**。
+
+这时通解直接写成
+
+$$
+\boxed{F(x,y)=C}.
+$$
+
+---
+
+#### Exactness criterion
+
+在通常的连续性条件下，若
+
+$$
+\boxed{
+\frac{\partial M}{\partial y}=\frac{\partial N}{\partial x}
+}
+$$
+
+则方程是 exact。
+
+---
+
+#### How to find the potential function \(F(x,y)\)
+
+若已知 exact，可按下面步骤求 \(F\)：
+
+1. 先由
+   $$
+   F_x=M
+   $$
+   对 \(x\) 积分：
+
+   $$
+   F(x,y)=\int M(x,y)\,dx+g(y)
+   $$
+
+2. 再对 \(y\) 求偏导，与 \(N\) 比较，确定 \(g(y)\)。
+
+也可反过来先由 \(F_y=N\) 对 \(y\) 积分。
+
+---
+
+#### Classic example
+
+$$
+y^3\,dx+3xy^2\,dy=0
+$$
+
+这里
+
+$$
+M=y^3,\qquad N=3xy^2.
+$$
+
+直接看出
+
+$$
+F(x,y)=xy^3
+$$
+
+因为
+
+$$
+F_x=y^3,\qquad F_y=3xy^2.
+$$
+
+所以原方程是 exact，其通解为
+
+$$
+\boxed{xy^3=C}
+$$
+
+也可写成
+
+$$
+\boxed{y=kx^{-1/3}}.
+$$
+
+---
+
+#### Important remark: exactness depends on the form
+
+若把上式在 \(y\neq 0\) 的区域中除以 \(y^2\)，得到
+
+$$
+y\,dx+3x\,dy=0.
+$$
+
+此时
+
+$$
+M=y,\qquad N=3x,
+$$
+
+有
+
+$$
+M_y=1,\qquad N_x=3,
+$$
+
+所以它 **不是** exact。
+
+这说明：
+
+> [!WARNING]
+> exactness 不是“解集本身”的性质，而与方程写成的具体形式 \(Mdx+Ndy=0\) 有关。
+
+---
+
+### 5. Integrating Factor for Nonexact Equations
+
+若
+
+$$
+M(x,y)\,dx+N(x,y)\,dy=0
+$$
+
+不是 exact，我们希望找到一个函数 \(\mu\)，使得
+
+$$
+\mu M\,dx+\mu N\,dy=0
+$$
+
+变成 exact。
+
+这个 \(\mu\) 叫做 **integrating factor**。
+
+---
+
+#### Exactness condition after multiplying by $\mu$
+
+需要满足
+
+$$
+\frac{\partial(\mu M)}{\partial y}=\frac{\partial(\mu N)}{\partial x}.
+$$
+
+一般直接求 \(\mu(x,y)\) 很难，所以常先试两种简单情形：
+
+---
+
+#### Case 1: \(\mu=\mu(x)\)
+
+若
+
+$$
+\frac{M_y-N_x}{N}
+$$
+
+恰好只依赖于 \(x\)，则存在积分因子
+
+$$
+\boxed{
+\mu(x)=\exp\left(\int \frac{M_y-N_x}{N}\,dx\right)
+}
+$$
+
+---
+
+#### Case 2: \(\mu=\mu(y)\)
+
+若
+
+$$
+\frac{N_x-M_y}{M}
+$$
+
+恰好只依赖于 \(y\)，则存在积分因子
+
+$$
+\boxed{
+\mu(y)=\exp\left(\int \frac{N_x-M_y}{M}\,dy\right)
+}
+$$
+
+---
+
+> [!TIP]
+> 线性方程中的积分因子
+> $$
+> \rho(x)=e^{\int P(x)\,dx}
+> $$
+> 本质上就是 exact equation 理论中的一个特殊情形。
+
+---
+
+## Reducible Second-Order Equations
+
+二阶微分方程一般写成
+
+$$
+F(x,y,y',y'')=0.
+$$
+
+若其中 **缺少 \(y\)** 或 **缺少 \(x\)**，则常可通过代换降为一阶方程。
+
+---
+
+### 1. Dependent variable \(y\) missing
+
+若方程形如
+
+$$
+F(x,y',y'')=0,
+$$
+
+则令
+
+$$
+p=y'=\frac{dy}{dx}.
+$$
+
+于是
+
+$$
+y''=\frac{dp}{dx}=p'.
+$$
+
+原方程变为
+
+$$
+F(x,p,p')=0,
+$$
+
+这是关于 \(p\) 的一阶方程。
+
+若解得
+
+$$
+p=p(x,C_1),
+$$
+
+则再由
+
+$$
+y'=p(x,C_1)
+$$
+
+积分得到
+
+$$
+\boxed{
+y(x)=\int p(x,C_1)\,dx+C_2
+}
+$$
+
+---
+
+#### Example
+
+$$
+y''+(y')^2=0
+$$
+
+令
+
+$$
+p=y'
+$$
+
+则
+
+$$
+p'+p^2=0.
+$$
+
+分离变量：
+
+$$
+\frac{dp}{p^2}=-dx
+$$
+
+积分得
+
+$$
+p=\frac{1}{x+C_1}.
+$$
+
+所以
+
+$$
+y'=\frac{1}{x+C_1}
+$$
+
+再积分：
+
+$$
+\boxed{
+y=\ln|x+C_1|+C_2
+}
+$$
+
+---
+
+### 2. Independent variable $x$ missing
+
+若方程形如
+
+$$
+F(y,y',y'')=0,
+$$
+
+则令
+
+$$
+p=y'=\frac{dy}{dx}
+$$
+
+并把 \(p\) 看成 \(y\) 的函数。
+
+这时由链式法则
+
+$$
+y''=\frac{dp}{dx}=\frac{dp}{dy}\frac{dy}{dx}=p\frac{dp}{dy}.
+$$
+
+所以原方程变为
+
+$$
+\boxed{
+F\left(y,p,p\frac{dp}{dy}\right)=0
+}
+$$
+
+这就是关于 $p(y)$ 的一阶方程。
+
+若解出
+
+$$
+p=p(y,C_1),
+$$
+
+再由
+
+$$
+\frac{dy}{dx}=p(y)
+\quad\Longrightarrow\quad
+\frac{dx}{dy}=\frac{1}{p(y)}
+$$
+
+积分得
+
+$$
+\boxed{
+x(y)=\int \frac{1}{p(y,C_1)}\,dy + C_2
+}
+$$
+
+通常最后得到的是 **隐式解**。
+
+---
+
+#### Classic example
+
+$$
+yy''=(y')^2
+$$
+
+这里缺少 \(x\)。令
+
+$$
+p=y',\qquad y''=p\frac{dp}{dy}.
+$$
+
+代入得
+
+$$
+y\,p\frac{dp}{dy}=p^2.
+$$
+
+在 \(p\neq 0\) 的情形下可分离为
+
+$$
+\frac{dp}{p}=\frac{dy}{y}.
+$$
+
+积分：
+
+$$
+\ln|p|=\ln|y|+C
+$$
+
+所以
+
+$$
+p=C_1y.
+$$
+
+即
+
+$$
+\frac{dy}{dx}=C_1y.
+$$
+
+于是
+
+$$
+\frac{dx}{dy}=\frac{1}{C_1y}.
+$$
+
+积分可得
+
+$$
+C_1x=\ln|y|+C_2.
+$$
+
+整理后：
+
+$$
+\boxed{
+y(x)=Ae^{Bx}
+}
+$$
+
+其中 \(A,B\) 为任意常数。
+
+---
+
+#### Important remark
+
+虽然推导过程中常暂时假设 \(y>0,\ p>0\) 以便写成 \(\ln y,\ \ln p\)，  
+但最后结果
+
+$$
+y=Ae^{Bx}
+$$
+
+对任意实数 \(A,B\) 都成立。
+
+例如：
+
+- \(B=0\) 时，得到所有水平直线 \(y=A\)
+- \(A<0\) 时，对应关于 \(x\) 轴的对称
+- \(B<0\) 时，对应关于 \(y\) 轴的反射型指数曲线
+
+---
