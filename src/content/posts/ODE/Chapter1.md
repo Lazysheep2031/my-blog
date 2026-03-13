@@ -1,6 +1,6 @@
 ---
 title: First-Order Differential Equations
-published: 2026-03-07
+published: 2026-03-12
 description: First-order ODEs
 tags: [常微分方程]
 category: 笔记
@@ -2717,6 +2717,8 @@ $$
 
 ---
 
+
+
 ### Why are $y=\pm 1$ singular solutions?
 
 因为对于一般解
@@ -2729,6 +2731,152 @@ $$
 它们不是一般解族中的某个成员，而是额外出现的解支。
 
 所以依然属于 singular solutions。
+
+---
+
+
+### Example 5
+
+Consider the implicit first-order ODE
+$$
+y\bigl(1+(y')^2\bigr)=1.
+$$
+
+Let
+$$
+p=y'.
+$$
+
+Then the equation becomes
+$$
+y(1+p^2)=1,
+$$
+so
+$$
+\boxed{
+y=\frac{1}{1+p^2}
+}
+$$
+
+---
+
+#### Differentiate with respect to $x$
+
+Since $p=y'$, differentiate
+$$
+y=\frac{1}{1+p^2}
+$$
+with respect to $x$:
+$$
+\frac{dy}{dx}=\frac{d}{dx}\left(\frac{1}{1+p^2}\right)=-\frac{2p}{(1+p^2)^2}\frac{dp}{dx}.
+$$
+
+Because \(\dfrac{dy}{dx}=p\), we get
+$$
+p=-\frac{2p}{(1+p^2)^2}\frac{dp}{dx}.
+$$
+
+---
+
+#### Branch 1: $p=0$
+
+If
+$$
+p=0,
+$$
+then
+$$
+y'=0,
+$$
+so $y$ is constant. Substituting into the ODE gives
+$$
+y=1.
+$$
+
+Hence
+$$
+\boxed{
+y=1
+}
+$$
+is a solution.
+
+This is a **singular solution**.
+
+---
+
+#### Branch 2: $p\neq 0$
+
+If $p\neq 0$, divide both sides by $p$:
+$$
+1=-\frac{2}{(1+p^2)^2}\frac{dp}{dx}.
+$$
+
+Thus
+$$
+\frac{dp}{dx}=-\frac{(1+p^2)^2}{2},
+\qquad
+\frac{dx}{dp}=-\frac{2}{(1+p^2)^2}.
+$$
+
+Integrating,
+$$
+x=-2\int \frac{dp}{(1+p^2)^2}+C.
+$$
+
+Using
+$$
+\int \frac{dp}{(1+p^2)^2}=\frac12\left(\arctan p+\frac{p}{1+p^2}\right),
+$$
+we obtain
+$$
+\boxed{
+x=C-\arctan p-\frac{p}{1+p^2}
+}
+$$
+
+Together with
+$$
+\boxed{
+y=\frac{1}{1+p^2}
+}
+$$
+this gives the general solution in parametric form:
+$$
+\boxed{
+x=C-\arctan p-\frac{p}{1+p^2},
+\qquad
+y=\frac{1}{1+p^2}
+}
+$$
+
+where $p$ is a free parameter.
+
+---
+
+#### Geometric remark
+
+Since
+$$
+y=\frac{1}{1+p^2},
+$$
+we always have
+$$
+0<y\le 1.
+$$
+
+When $p=0$,
+$$
+y=1.
+$$
+
+So the line
+$$
+\boxed{y=1}
+$$
+is touched by the family of parametric solution curves, and it is the envelope of the general family.
+
+Therefore \(y=1\) is a **singular solution**.
 
 ---
 
