@@ -7,6 +7,36 @@ category: 笔记
 draft: false
 ---
 
+## Overview
+
+This chapter builds a practical toolkit for first-order ODEs and related extensions.
+
+- Core ideas: classification, modeling, and meaning of solutions
+- Main methods: separable equations, integrating factor, substitution methods, exact equations
+- Key themes: initial-value problems, existence/uniqueness, singular solutions, and geometric interpretation
+- Advanced bridge: reducible second-order equations and implicit first-order equations via $p=y'$
+
+The goal is not only to solve equations, but also to identify equation types quickly and choose the right method with domain/branch checks.
+
+## Contents
+
+- [Introduction](#introduction)
+- [Separable Equations and Applications](#separable-equations-and-applications)
+  - [Implicit, General, and Singular Solutions](#implicit-general-and-singular-solutions)
+  - [Logistic model](#logistic-model)
+  - [Torricelli’s law](#torricellis-law)
+  - [Extension 1: Equidimensional Equations](#extension-1-equidimensional-equations)
+  - [Extension 2: Linear Fractional Form](#extension-2-linear-fractional-form)
+  - [Solving Strategy for First-Order ODEs](#solving-strategy-for-first-order-odes)
+- [Linear First-Order Equations](#linear-first-order-equations)
+- [Existence and Uniqueness for Linear ODEs](#existence-and-uniqueness-for-linear-odes)
+- [Initial-Value Integrating Factor Formula](#initial-value-integrating-factor-formula)
+- [Structure: Homogeneous + Particular](#structure-homogeneous--particular)
+- [Substitution Methods and Exact Equations](#substitution-methods-and-exact-equations)
+- [Reducible Second-Order Equations](#reducible-second-order-equations)
+- [Bonus: Implicit First-Order Equations, 3D Embedding, and Singular Solutions](#bonus-implicit-first-order-equations-3d-embedding-and-singular-solutions)
+- [Singular solutions](#singular-solutions)
+
 ## Introduction
 
 ### What is an ODE?
@@ -1933,5 +1963,841 @@ $$
 - \(B=0\) 时，得到所有水平直线 \(y=A\)
 - \(A<0\) 时，对应关于 \(x\) 轴的对称
 - \(B<0\) 时，对应关于 \(y\) 轴的反射型指数曲线
+
+---
+
+
+## Bonus: Implicit First-Order Equations, 3D Embedding, and Singular Solutions
+
+在前面的小节中，我们主要学习的是能够写成显式形式的一阶方程：
+
+$$
+y'=f(x,y).
+$$
+
+但很多方程天然写成 **隐式形式**
+
+$$
+\boxed{
+F(x,y,y')=0
+}
+$$
+
+这时不一定容易直接把 \(y'\) 解出来。
+
+**一种新的视角**：
+
+- 把 \(p=y'\) 当作新变量；
+- 将方程看成三维空间 \((x,y,p)\) 中的曲面
+  $$
+  F(x,y,p)=0;
+  $$
+- 在该曲面上寻找满足
+  $$
+  \frac{dy}{dx}=p
+  \qquad\Longleftrightarrow\qquad
+  dy=p\,dx
+  $$
+  的曲线。
+- 再把这条空间曲线投影回 $(x,y)$-平面，得到原微分方程的解曲线。
+
+这就是 **Parametrization with 3D Embedding**。
+
+---
+
+### Basic geometric idea
+
+对于隐式方程
+
+$$
+F(x,y,y')=0,
+$$
+
+令
+
+$$
+p=y'.
+$$
+
+则方程变成
+
+$$
+\boxed{
+F(x,y,p)=0
+}
+$$
+
+它表示三维空间中的一个曲面。
+
+但是仅仅落在这个曲面上还不够，因为 $p$ 还必须真的是曲线 $y(x)$ 的斜率。  
+因此还要满足接触条件
+
+$$
+\boxed{
+\frac{dy}{dx}=p
+\qquad\Longleftrightarrow\qquad
+dy=p\,dx
+}
+$$
+
+所以真正的任务是：
+
+> 在曲面 \(F(x,y,p)=0\) 上找一条曲线，使它同时满足 \(dy=p\,dx\)。
+
+---
+
+### General procedure of 3D embedding
+
+若能将曲面参数化为
+
+$$
+x=f(u,v),\qquad y=g(u,v),\qquad p=h(u,v),
+$$
+
+则由
+
+$$
+dy=p\,dx
+$$
+
+可得到关于参数 \(u,v\) 的一阶微分方程。
+
+因为
+
+$$
+dx=f_u\,du+f_v\,dv,\qquad
+dy=g_u\,du+g_v\,dv,
+$$
+
+代入条件 \(dy=p\,dx\)：
+
+$$
+g_u\,du+g_v\,dv=h(u,v)\bigl(f_u\,du+f_v\,dv\bigr).
+$$
+
+整理得
+
+$$
+\boxed{
+\bigl(g_u-hf_u\bigr)\,du+\bigl(g_v-hf_v\bigr)\,dv=0
+}
+$$
+
+如果能把它解成
+
+$$
+u=\varphi(v)
+\qquad\text{或}\qquad
+v=\psi(u),
+$$
+
+那么代回参数式即可得到平面中的解曲线：
+
+$$
+x=f(\varphi(v),v),\qquad y=g(\varphi(v),v),
+$$
+
+或
+
+$$
+x=f(u,\psi(u)),\qquad y=g(u,\psi(u)).
+$$
+
+---
+
+### Direct substitution as a simpler method
+
+在很多例子里，其实不必完整走“两个参数 \(u,v\)”那一套。  
+如果能把曲面方程直接写成
+
+$$
+y=\Phi(x,p)
+\qquad\text{或}\qquad
+x=\Psi(y,p),
+$$
+
+则可直接代入 \(p=y'\) 来求解。
+
+常见套路是：
+
+1. 先令
+   $$
+   p=y';
+   $$
+2. 把原方程改写成含 \(x,y,p\) 的代数关系；
+3. 用这个关系把 \(y\) 表成 \(x,p\)；
+4. 对 \(x\) 求导，并利用
+   $$
+   \frac{dy}{dx}=p;
+   $$
+5. 得到关于 \(p\) 和 \(x\) 的一阶方程；
+6. 解出后，再代回得到 \(x,y\) 的参数形式。
+
+这就是 **Direct substitution**。
+
+---
+
+## Example 1
+
+考虑
+
+$$
+(y')^2+y-x=0.
+$$
+
+令
+
+$$
+p=y',
+$$
+
+则方程化为
+
+$$
+p^2+y-x=0
+\qquad\Longrightarrow\qquad
+\boxed{
+y=x-p^2
+}
+$$
+
+---
+
+### Method 1: direct parametrization
+
+可把曲面直接参数化为
+
+$$
+x=u,\qquad y=u-v^2,\qquad p=v.
+$$
+
+因为 \(p=y'\)，所以
+
+$$
+v=\frac{dy}{dx}.
+$$
+
+而
+
+$$
+x=u,\qquad y=u-v^2.
+$$
+
+于是
+
+$$
+\frac{dy}{dx}=\frac{d(u-v^2)/du}{dx/du}=1-2v\frac{dv}{du}.
+$$
+
+由 \(p=v=y'\)，得
+
+$$
+v=1-2v\frac{dv}{du}.
+$$
+
+整理为
+
+$$
+2v\frac{dv}{du}=1-v.
+$$
+
+分离变量：
+
+$$
+\frac{2v}{1-v}\,dv=du.
+$$
+
+积分得
+
+$$
+u=-2v-2\ln|1-v|+C.
+$$
+
+由于 \(x=u\)，所以
+
+$$
+x=-2v-2\ln|1-v|+C.
+$$
+
+再由
+
+$$
+y=u-v^2
+$$
+
+得
+
+$$
+\boxed{
+y=-2v-v^2-2\ln|1-v|+C
+}
+$$
+
+其中 \(v\) 是自由参数。
+
+---
+
+### Method 2: direct substitution
+
+由
+
+$$
+y=x-p^2
+$$
+
+两边对 \(x\) 求导：
+
+$$
+\frac{dy}{dx}=\frac{d}{dx}(x-p^2)=1-2p\frac{dp}{dx}.
+$$
+
+但左边 \(\dfrac{dy}{dx}=p\)，所以
+
+$$
+p=1-2p\frac{dp}{dx}.
+$$
+
+即
+
+$$
+2p\frac{dp}{dx}=1-p.
+$$
+
+这与上面一致。
+
+分离变量：
+
+$$
+\frac{2p}{1-p}\,dp=dx.
+$$
+
+积分得
+
+$$
+x=-2p-2\ln|1-p|+C.
+$$
+
+再由
+
+$$
+y=x-p^2
+$$
+
+可得
+
+$$
+\boxed{
+x=-2p-2\ln|1-p|+C,\qquad
+y=-2p-p^2-2\ln|1-p|+C
+}
+$$
+
+这就是参数解，其中 \(p\) 是自由参数。
+
+---
+
+### Note
+
+这个例子说明：
+
+- 隐式方程不一定要先显式解出 \(y'\)；
+- 直接把 \(p=y'\) 当作参数，有时会更自然；
+- 最终答案常是 \((x(p),y(p))\) 的参数方程，而不是 \(y=f(x)\) 的显式式子。
+
+---
+
+## Example 2: Clairaut-type equation and singular solution
+
+考虑
+
+$$
+y=xy'+\frac{(y')^2}{2}.
+$$
+
+令
+
+$$
+p=y',
+$$
+
+则
+
+$$
+\boxed{
+y=xp+\frac{p^2}{2}
+}
+$$
+
+对 \(x\) 求导：
+
+$$
+\frac{dy}{dx}=\frac{d}{dx}\left(xp+\frac{p^2}{2}\right)=p+x\frac{dp}{dx}+p\frac{dp}{dx}.
+$$
+
+左边 \(\dfrac{dy}{dx}=p\)，所以
+
+$$
+p=p+(x+p)\frac{dp}{dx}.
+$$
+
+因此
+
+$$
+\boxed{
+(x+p)\frac{dp}{dx}=0
+}
+$$
+
+这给出两种可能性。
+
+---
+
+### Branch 1: $\dfrac{dp}{dx}=0$
+
+则
+
+$$
+p=C
+$$
+
+为常数。
+
+代回
+
+$$
+y=xp+\frac{p^2}{2}
+$$
+
+得
+
+$$
+\boxed{
+y=Cx+\frac{C^2}{2}
+}
+$$
+
+这是一族直线，称为 **general solution family**。
+
+---
+
+### Branch 2: $x+p=0$
+
+则
+
+$$
+p=-x.
+$$
+
+代回
+
+$$
+y=x(-x)+\frac{(-x)^2}{2}=-\frac{x^2}{2}.
+$$
+
+所以得到
+
+$$
+\boxed{
+y=-\frac{x^2}{2}
+}
+$$
+
+这条曲线并不是把某个固定常数 \(C\) 代入上一族直线得到的，因此它是一个新的解，称为
+
+$$
+\boxed{\text{singular solution}}
+$$
+
+---
+
+### Geometric interpretation
+
+对于一般解族
+
+$$
+y=Cx+\frac{C^2}{2},
+$$
+
+每个 \(C\) 对应一条直线。
+
+而曲线
+
+$$
+y=-\frac{x^2}{2}
+$$
+
+恰好是这族直线的包络线（envelope）。  
+也就是说，每条直线都与它相切。
+
+因此 singular solution 的一个典型来源就是：
+
+> 一族一般解曲线的包络线。
+
+---
+
+## Example 3
+
+考虑
+
+$$
+x(y')^2-2yy'+9x=0.
+$$
+
+令
+
+$$
+p=y',
+$$
+
+则
+
+$$
+xp^2-2yp+9x=0.
+$$
+
+若 $p\neq 0$，可解出
+
+$$
+2yp=xp^2+9x
+\qquad\Longrightarrow\qquad
+\boxed{
+y=\frac{xp}{2}+\frac{9x}{2p}
+}
+$$
+
+---
+
+### Differentiate
+
+对 \(x\) 求导：
+
+$$
+\frac{dy}{dx}=\frac{d}{dx}\left(\frac{xp}{2}+\frac{9x}{2p}\right).
+$$
+
+右边展开为
+
+$$
+\frac{p}{2}+\frac{x}{2}\frac{dp}{dx}
++\frac{9}{2p}
+-\frac{9x}{2p^2}\frac{dp}{dx}.
+$$
+
+由于左边 $\dfrac{dy}{dx}=p$，所以
+
+$$
+p=
+\frac{p}{2}+\frac{x}{2}\frac{dp}{dx}
++\frac{9}{2p}
+-\frac{9x}{2p^2}\frac{dp}{dx}.
+$$
+
+整理可化为
+
+$$
+\left(1-\frac{9}{p^2}\right)\left(x\frac{dp}{dx}-p\right)=0.
+$$
+
+因此又分成两支。
+
+---
+
+### Branch 1: $1-\dfrac{9}{p^2}=0$
+
+即
+
+$$
+p=\pm 3.
+$$
+
+代回原方程
+
+$$
+xp^2-2yp+9x=0
+$$
+
+可得
+
+$$
+\boxed{
+y=\pm 3x
+}
+$$
+
+这两条直线是 singular solutions。
+
+---
+
+### Branch 2: $x\dfrac{dp}{dx}-p=0$
+
+即
+
+$$
+\frac{dp}{dx}=\frac{p}{x}.
+$$
+
+分离变量：
+
+$$
+\frac{dp}{p}=\frac{dx}{x}.
+$$
+
+积分得
+
+$$
+p=Cx.
+$$
+
+代回
+
+$$
+y=\frac{xp}{2}+\frac{9x}{2p}
+$$
+
+得到
+
+$$
+y=\frac{x(Cx)}{2}+\frac{9x}{2Cx}=\frac{C}{2}x^2+\frac{9}{2C}.
+$$
+
+因此一般解为
+
+$$
+\boxed{
+y=\frac{C}{2}x^2+\frac{9}{2C}
+}
+$$
+
+再加上 singular solutions
+
+$$
+\boxed{
+y=\pm 3x
+}
+$$
+
+---
+
+### Important observation
+
+这个例子再次说明：
+
+- 在由隐式方程推导出的中间方程里，如果出现了乘积形式
+  $$
+  A(p,x,y)\cdot B(p,x,y)=0,
+  $$
+  那么两因子对应的分支都要讨论；
+- 其中某些分支会给出一般解族；
+- 某些分支会给出奇异解。
+
+这和前面 Example 2 的结构完全一致。
+
+---
+
+## Example 4
+
+考虑
+
+$$
+y^2+(y')^2=1.
+$$
+
+令
+
+$$
+p=y',
+$$
+
+则曲面方程为
+
+$$
+y^2+p^2=1.
+$$
+
+这是 $(y,p)$-平面中的单位圆关系，因此适合用三角参数化：
+$$
+\boxed{
+y=\cos\theta,\qquad p=\sin\theta
+}
+$$
+
+这里 $x$ 不受约束，可保留为自变量。
+
+---
+
+### Use the relation $p=y'$
+
+因为
+
+$$
+p=\sin\theta,\qquad y=\cos\theta,
+$$
+
+又 \(p=y'\)，所以
+
+$$
+\sin\theta=\frac{dy}{dx}=\frac{d(\cos\theta)}{dx}=-\sin\theta\frac{d\theta}{dx}.
+$$
+
+于是
+
+$$
+\sin\theta\left(1+\frac{d\theta}{dx}\right)=0.
+$$
+
+所以有两种可能。
+
+---
+
+### Branch 1: $\sin\theta=0$
+
+则
+
+$$
+p=0.
+$$
+
+由
+
+$$
+y^2+p^2=1
+$$
+
+可得
+
+$$
+y=\pm 1.
+$$
+
+因此有两条常数解
+
+$$
+\boxed{
+y=1,\qquad y=-1
+}
+$$
+
+---
+
+### Branch 2: $1+\dfrac{d\theta}{dx}=0$
+
+即
+
+$$
+\frac{d\theta}{dx}=-1.
+$$
+
+积分：
+
+$$
+\theta=C-x.
+$$
+
+因此
+
+$$
+y=\cos\theta=\cos(C-x).
+$$
+
+故得到一般解
+
+$$
+\boxed{
+y=\cos(C-x)
+}
+$$
+
+再加上两条 singular solutions
+
+$$
+\boxed{
+y=\pm 1
+}
+$$
+
+---
+
+### Why are $y=\pm 1$ singular solutions?
+
+因为对于一般解
+
+$$
+y=\cos(C-x),
+$$
+
+若你试图通过某个固定常数 \(C\) 让它变成恒等于 \(1\) 或 \(-1\)，是不可能的。  
+它们不是一般解族中的某个成员，而是额外出现的解支。
+
+所以依然属于 singular solutions。
+
+---
+
+## Singular solutions
+
+### Definition (informal)
+
+若某个解：
+
+- 满足原方程；
+- 但不能通过一般解族中某个特定常数值代入得到；
+
+则称其为 **singular solution**。
+
+---
+
+### Typical ways singular solutions appear
+
+#### From factorization
+在推导中出现
+
+$$
+A\cdot B=0
+$$
+
+时，一支给出一般解，另一支给出奇异解。
+
+Examples:
+
+- Example 2:
+  $$
+  (x+p)\frac{dp}{dx}=0
+  $$
+- Example 3:
+  $$
+  \left(1-\frac{9}{p^2}\right)\left(x\frac{dp}{dx}-p\right)=0
+  $$
+- Example 4:
+  $$
+  \sin\theta\left(1+\frac{d\theta}{dx}\right)=0
+  $$
+
+---
+
+#### As an envelope of the general solution family
+例如 Example 2 中
+
+$$
+y=Cx+\frac{C^2}{2}
+$$
+
+的一族直线，其包络线为
+
+$$
+y=-\frac{x^2}{2}.
+$$
+
+这条包络线就是 singular solution。
+
+---
+
+:::WARNING
+在分离变量或因式分解时，若随手除掉某个因子，往往会把 singular solution 丢掉。
+
+所以做题时要检查：
+
+- 有没有把可能为零的因子除掉；
+- 有没有额外的常数解或特殊分支；
+- 最终答案是否应写成“一般解 + singular solutions”。
+:::
 
 ---

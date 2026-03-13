@@ -7,11 +7,34 @@ category: 笔记
 draft: false
 ---
 
-## Example
+## 概述
+
+这节课核心是：
+
+- 基础输入输出（`cin` / `cout`）
+- `std::string` 作为对象的常见操作
+- 文件输入输出（`ifstream` / `ofstream`）
+- 正则替换（`regex_replace`）
+
+整体重点是理解“对象 + 成员函数 + 运算符重载”的使用方式。
+
+## 目录
+
+- [概述](#概述)
+- [目录](#目录)
+- [基础 I/O 示例](#基础-io-示例)
+- [Using Objects：string 常用操作](#using-objectsstring-常用操作)
+- [文件 I/O（fstream）](#文件-iofstream)
+- [正则表达式（regex）](#正则表达式regex)
+
+---
+
+## 基础 I/O 示例
 
 ```cpp
 #include <iostream>
-using namespace std; \\ 使用 std 命名空间
+using namespace std;
+
 int main() {
     cout << "Please enter your age:" << endl;
     int age;
@@ -20,88 +43,115 @@ int main() {
     return 0;
 }
 ```
-编译执行方式：
+
+编译执行：
+
 ```cpp
 g++ main.cpp
 ./a.out
 ```
 
-## Using Objects
+---
 
-### Examples 
+## Using Objects：string 常用操作
+
+`string` 不是 C 风格字符数组，而是类对象，可以调用成员函数、也可以用重载运算符。
+
+常见能力：
+
+- 拼接：`+`、`+=`
+- 赋值：`=`、`assign`
+- 子串：构造子串、`substr`
+- 替换：`replace`
+- 查找：`find`
+
+示例：
 
 ```cpp
 #include <iostream>
-#include<string>
+#include <string>
 using namespace std;
+
 int main() {
-    string str1 = "foo"; // 初始化
+    string str1 = "foo";
     string str2 = "bar";
-    string str3 = str1 + str2; // str1 和 str2 是对象，+ 是重载的运算符
-    cout << "str3=" << str3 << endl; // 输出 str3=foobar
+    string str3 = str1 + str2;
+    cout << "str3=" << str3 << endl;
 
-    str2 += str1; // str2 是对象，+= 是重载的运算符
-    cout << "str2=" << str2 << endl; // 输出 str2=barfoo
-    str3 = "hello world"; // 重新赋值 str3
-    cout << "str3=" << str3 << endl; // 输出 str3=hello world
+    str2 += str1;
+    cout << "str2=" << str2 << endl;
 
-    string str4("hello zju");
-    string str5(str3); // 用 str3 初始化 str5
-    string str6(str3,7,5); // 从 str3 的第 7 个字符开始，取 5 个字符，赋值给 str6
-    cout << "str4=" << str4 << endl; // 输出 str4=hello zju
-    cout << "str5=" << str5 << endl; // 输出 str5=hello world
-    cout << "str6=" << str6 << endl; // 输出 str6=world
+    str3 = "hello world";
+    cout << "substr=" << str3.substr(0, 5) << endl;
 
-    string str7 = str3.substr(0,5); // 从 str3 的第 0 个字符开始，取 5 个字符，赋值给 str7
-    cout << "str7=" << str7 << endl; // 输出 str7=hello
+    string str4 = str3;
+    str4.replace(0, 5, "hi");
+    cout << "replace=" << str4 << endl;
 
-    string str8 = str3;
-    str8.replace(0,5,"hi"); // 从 str8 的第 0 个字符开始，替换 5 个字符为 "hi"
-    cout << "str8=" << str8 << endl; // 输出 str8=hi world
-
-    str8.assign(10,"*"); // 将 str8 赋值为 10 个 '*' 字符
-    cout << "str8=" << str8 << endl; // 输出 str8=**********
-
-    string str9 = "Hello, hangzhou city";
-    string str_to_find = "hangzhou";
-    cout << str9.find(str_to_find) << endl; // 输出 str_to_find 在 str9 中的位置，输出 7
-    str9.replace(str9.find(str_to_find),str_to_find.length(),"zju"); // 将 str9 中的 str_to_find 替换为 "zju"
-    cout << str9 << endl; // 输出 str9=Hello, zju city
+    string str5 = "Hello, hangzhou city";
+    string target = "hangzhou";
+    auto pos = str5.find(target);
+    if (pos != string::npos) {
+        str5.replace(pos, target.length(), "zju");
+    }
+    cout << str5 << endl;
 
     return 0;
 }
 ```
+
+---
+
+## 文件 I/O（fstream）
 
 ```cpp
-#include<fstream>
-#include<iostream>
+#include <fstream>
+#include <iostream>
+#include <string>
 using namespace std;
-int main() {
-    string str1 = "foo, bar!";
-    ofstream fout("output.txt"); // 创建一个输出文件流对象，关联到 output.txt 文件
-    fout << str1; // 将 str1 的内容写入 output.txt 文件
 
-    ifstream fin("output.txt");  // 创建一个输入文件流对象，关联到 output.txt 文件
-    string str2,str3;
-    fin >> str2>>str3; // 从 output.txt 文件中读取一个字符串，赋值给 str2
-    cout << "str2=" << str2 << endl; // 输出 str2   
-    cout << "str3=" << str3 << endl; // 输出 str3
+int main() {
+    ofstream fout("output.txt");
+    fout << "foo, bar!";
+    fout.close();
+
+    ifstream fin("output.txt");
+    string a, b;
+    fin >> a >> b;
+    cout << "a=" << a << endl;
+    cout << "b=" << b << endl;
     return 0;
 }
 ```
+
+
+- `ofstream` 写文件
+- `ifstream` 读文件
+- 使用 `>>` 读取时按空白分词
+
+---
+
+## 正则表达式（regex）
 
 ```cpp
 #include <iostream>
-#include<regex> // 正则表达式库
+#include <regex>
 using namespace std;
+
 int main()
 {
     string s = "Hello, Students@zju!";
-    regex re("a|e|i|o|u"); // 定义一个正则表达式，匹配元音字母
-    string s1 = regex_replace(s, re, "*"); // 将 s 中的所有元音字母替换为 '*'
-    cout << s << endl; // 输出 Hello, Students@zju!
-    cout << s1 <<  endl; // 输出 H*ll*, St*d*nts@zj*!
+    regex re("a|e|i|o|u");
+    string s1 = regex_replace(s, re, "*");
+    cout << s << endl;
+    cout << s1 << endl;
     return 0;
 }
 ```
 
+速记：
+
+- `regex`：定义匹配模式
+- `regex_replace(text, pattern, new_text)`：按模式替换
+
+---
