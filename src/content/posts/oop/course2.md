@@ -25,6 +25,11 @@ draft: false
 - [选择排序：从具体到抽象](#选择排序从具体到抽象)
 - [函数模板：一份算法，多种类型](#函数模板一份算法多种类型)
   - [模板为什么通常写在头文件里](#模板为什么通常写在头文件里)
+- [`&` 引用](#-引用)
+  - [`T&`：可修改的引用](#t可修改的引用)
+  - [`const T&`：只读引用](#const-t只读引用)
+  - [`std::ostream&`：把同一个输出流继续传下去](#stdostream把同一个输出流继续传下去)
+  - [如何快速判断 `&`](#如何快速判断-)
 - [Student：自定义类型接入模板](#student自定义类型接入模板)
   - [`<` 的两种常见写法](#-的两种常见写法)
   - [`<<` 的意义](#-的意义)
@@ -38,7 +43,9 @@ draft: false
   - [`print_array` 的模板重载](#print_array-的模板重载)
   - [静态数组长度的写法](#静态数组长度的写法)
 - [面向对象与多态：`Shape` 抽象层](#面向对象与多态shape-抽象层)
+  - [`Shape` 这层到底想解决什么问题](#shape-这层到底想解决什么问题)
   - [抽象基类（接口层）](#抽象基类接口层)
+  - [`virtual` 在做什么](#virtual-在做什么)
   - [访问控制：`public / protected / private`](#访问控制public--protected--private)
   - [派生类 + override](#派生类--override)
   - [构造函数与初始化列表](#构造函数与初始化列表)
@@ -125,7 +132,6 @@ void selection_sort(T arr[], int n) { ... }
 
 所以这类小型模板算法，直接写在头文件里最省事。
 
----
 :::TIP
 为什么每个函数都要写 `template<typename T>`？
 
@@ -161,7 +167,86 @@ struct SelectionSortToolkit {
 - 函数模板版调用更自然：`selectionSort(arr, n)`
 - 类模板版模板头只写一次，但调用更长：`SelectionSortToolkit<int>::selectionSort(arr, n)`
 
+
 ---
+## `&` 引用
+
+```cpp
+void swap(T& a, T& b)
+bool operator<(const Student& s1, const Student& s2)
+std::ostream& operator<<(std::ostream& out, const Student& s)
+```
+
+这里的 `&` 不是“取地址”，而是**引用（reference）**。
+
+先把它记成一句话：
+
+- 引用 = 原对象的别名
+
+也就是说，引用不是新开一份对象，而是给原来的对象起了一个“另一个名字”。
+
+### `T&`：可修改的引用
+
+```cpp
+void swap(T& a, T& b)
+```
+
+这里 `a` 和 `b` 直接绑定到外面的两个变量。
+
+所以在函数里交换 `a`、`b`，外面的值也真的会被交换。
+
+如果写成：
+
+```cpp
+void swap(T a, T b)
+```
+
+那只是交换了两个副本，函数结束后外面不会变。
+
+### `const T&`：只读引用
+
+```cpp
+bool operator<(const Student& s1, const Student& s2)
+```
+
+这里有两层意思：
+
+- `&`：不拷贝对象，直接引用原对象
+- `const`：我承诺只读，不修改它
+
+所以 `const T&` 很常见，因为它同时做到：
+
+- 避免拷贝
+- 不修改实参
+
+### `std::ostream&`：把同一个输出流继续传下去
+
+```cpp
+std::ostream& operator<<(std::ostream& out, const Student& s)
+```
+
+这里有三处值得看：
+
+- `std::ostream& out`：`out` 是输出流对象的引用，不复制 `std::cout`
+- `const Student& s`：`s` 是学生对象的只读引用
+- 返回 `std::ostream&`：把同一个输出流返回去，支持链式输出
+
+所以这句才成立：
+
+```cpp
+std::cout << a << b << c;
+```
+
+前一次 `<<` 的结果，还是那个 `std::cout`。
+
+### 如何快速判断 `&`
+
+- `T&`：要改原对象
+- `const T&`：不想拷贝，也不想改原对象
+- `std::ostream&`：要把同一个输出流继续往后传
+
+---
+
 
 ## Student：自定义类型接入模板
 
@@ -207,6 +292,12 @@ std::ostream& operator<<(std::ostream& out, const Student& s) {
 - 返回 `std::ostream&`，支持链式输出
 - 参数用 `const Student&`，避免拷贝且不修改对象
 - 这样 `print_array` 才能直接打印 `Student`
+
+这里的 `&` 可以顺手这样看：
+
+- `std::ostream& out`：`out` 是输出流本身的别名
+- `const Student& s`：`s` 是学生对象的只读别名
+- 返回 `std::ostream&`：把同一个输出流继续传回去
 
 ---
 
@@ -478,6 +569,37 @@ int n = sizeof(arr) / sizeof(arr[0]);
 
 ## 面向对象与多态：`Shape` 抽象层
 
+这一段的核心，是用一个抽象基类把不同图形统一到同一套接口下，再配合虚函数实现多态。
+
+### `Shape` 这层到底想解决什么问题
+
+代码里有：
+
+- `Rectangle`
+- `Circle`
+- `Triangle`
+
+它们的面积公式不同、周长公式不同，但它们又都属于“图形”。
+
+所以作者先抽出一个共同的上层：
+
+- 图形都应该能算面积
+- 图形都应该能算周长
+- 图形都应该能告诉别人自己叫什么
+
+这就是 `Shape` 的作用：**先定义共同接口，再让不同图形各自实现。**
+
+这样后面就可以统一写成：
+
+```cpp
+Shape* arr[] = {
+    new Rectangle(2,3),
+    new Circle(3),
+    new Triangle(2,5,4)
+};
+```
+
+虽然数组里装的是不同类型的对象，但在这一层都被统一看成 `Shape`，因此可以用同一套代码处理。
 
 ### 抽象基类（接口层）
 
@@ -499,15 +621,129 @@ public:
 };
 ```
 
-知识点：
+这段代码可以逐行拆开看：
 
-- `=0` 是纯虚函数，`Shape` 成为抽象类，不能直接实例化
-- 虚析构函数非常关键：通过基类指针 `delete` 派生类对象才安全
-- `protected` 让派生类可访问 `area/perimeter`，外部不能直接访问
+- `class Shape`：定义“图形”这个基类
+- `area, perimeter`：面积和周长是所有图形共有的数据
+- `calc_area()`：要求所有图形都会算面积
+- `calc_perimeter()`：要求所有图形都会算周长
+- `name()`：要求所有图形都能返回名字
+- `get_area()` / `get_perimeter()`：对外提供读取接口
+- `friend operator<<`：允许直接打印图形对象
+
+这里要特别注意：`Shape` 不是某一个具体图形，它更像图形这一类对象的公共接口。
+
+### `virtual` 在做什么
+
+这一组函数前面都有 `virtual`：
+
+```cpp
+virtual ~Shape() {}
+virtual void calc_area() = 0;
+virtual void calc_perimeter() = 0;
+virtual std::string name() const = 0;
+```
+
+`virtual` 的核心作用是：
+
+- 当你通过“基类指针/基类引用”访问对象时
+- 程序会根据“对象真实类型”决定调用哪个版本
+
+例如：
+
+```cpp
+Shape* p = new Rectangle(2, 3);
+p->calc_area();
+```
+
+虽然 `p` 写成了 `Shape*`，但它实际指向的是 `Rectangle` 对象，所以这里应该执行的是 `Rectangle::calc_area()`。
+
+这就是多态：接口统一，但实际执行的函数版本由对象真实类型决定。
+
+如果没有 `virtual`，程序就很难在“统一接口”下正确区分矩形、圆形和三角形各自的实现。
+
+**`=0` 是什么意思？**
+
+```cpp
+virtual void calc_area() = 0;
+```
+
+这里的 `=0` 表示纯虚函数。
+
+它的意思不是“把函数值设为 0”，而是：
+
+- 基类这里只提要求
+- 不给出具体实现
+- 必须由子类来实现
+
+所以 `Shape` 变成了**抽象类**：
+
+- 你不能写 `Shape s;`
+- 你只能把它当成一个统一接口
+
+也就是说，`Shape` 的角色不是直接拿来创建对象，而是规定所有图形都必须提供哪些能力。
+
+**虚析构函数：`virtual ~Shape() {}`**
+
+这一句虽然短，但非常关键：
+
+```cpp
+virtual ~Shape() {}
+```
+
+析构函数的作用，是对象销毁时执行清理工作。
+
+这里把析构函数写成 `virtual`，是为了保证下面这种写法是安全的：
+
+```cpp
+Shape* p = new Rectangle(2, 3);
+delete p;
+```
+
+表面上看，`p` 的类型是 `Shape*`；但它实际指向的是 `Rectangle` 对象。
+
+如果基类析构函数不是虚函数，`delete p` 时就可能只按 `Shape` 这一层来销毁，派生类那一层的清理过程无法正确执行。
+
+把析构函数写成虚函数后，删除基类指针时会按真实类型销毁对象：
+
+- 先执行派生类析构
+- 再执行基类析构
+
+这就是“通过基类指针删除派生类对象”时必须使用虚析构函数的原因。
+
+在这份代码里，`Rectangle` / `Circle` / `Triangle` 没有自己额外管理资源，所以就算析构函数体是空的，`virtual` 仍然必须保留。
+
+**`Rectangle : public Shape` 是什么意思？**
+
+```cpp
+class Rectangle : public Shape {
+private:
+    double w, h;
+};
+```
+
+这里不是“`Rectangle` 里面再放一个 `Shape` 对象”，而是：
+
+- `Rectangle` 继承 `Shape`
+- 也就是“矩形是一种图形”
+
+这叫 `is-a` 关系：
+
+- `Rectangle is a Shape`
+- `Circle is a Shape`
+- `Triangle is a Shape`
+
+所以我们才可以把矩形对象交给 `Shape*`：
+
+```cpp
+Shape* p = new Rectangle(2, 3);
+```
+
+这句成立的前提，就是矩形本来就是图形的一种。
 
 ### 访问控制：`public / protected / private`
 
-这份代码里三种访问级别都出现了：
+代码里三种访问级别都出现了：
 
 ```cpp
 class Shape {
@@ -527,24 +763,40 @@ private:
 可以这样记：
 
 - `public`：类外也能访问，是对外接口
-- `protected`：类外不能直接访问，但派生类能用
-- `private`：只有当前类自己能直接用
+- `protected`：类外不能直接访问，但派生类能访问
+- `private`：只有当前类自己能访问
 
-所以：
+放在这份代码里：
 
-- `area / perimeter` 放 `protected`，方便子类写计算逻辑
-- `w / h / r / a / b / c` 放 `private`，表示具体实现细节
+- `area / perimeter` 放在 `protected`，因为子类算面积周长时要用到
+- `w / h / r / a / b / c` 放在 `private`，因为它们只是具体图形的内部细节
 
 ### 派生类 + override
 
-`Rectangle` / `Circle` / `Triangle` 都 `override` 了面积、周长、名称方法。
+派生类真正做的事，是把基类里的“要求”补成各自的“具体实现”。
 
-- `override` 是强约束：函数签名不匹配会编译报错
-- `Triangle` 用海伦公式求面积（`<cmath>` 的 `sqrt`）
+例如矩形会写：
+
+```cpp
+void calc_area() override {
+    area = w * h;
+}
+```
+
+圆形、三角形也会各自给出自己的公式。
+
+`override` 的意思可以记成：
+
+- “我就是在重写基类里的那个虚函数”
+
+它的好处是：
+
+- 如果函数签名写错，编译器会直接报错
+- 能防止你以为自己重写了，实际上根本没重写成功
 
 ### 构造函数与初始化列表
 
-派生类构造函数都是这种形式：
+派生类构造函数是这种形式：
 
 ```cpp
 Rectangle(double w, double h) : w(w), h(h) {}
@@ -552,21 +804,32 @@ Circle(double r) : r(r) {}
 Triangle(double a, double b, double c) : a(a), b(b), c(c) {}
 ```
 
-这里的 `: w(w), h(h)` 是**初始化列表**。
+这里 `: w(w), h(h)` 是初始化列表。
 
-- 前一个 `w` 是成员变量
-- 后一个 `w` 是形参
-- 含义是“对象创建时直接初始化成员”
+可以直接这样读：
 
-这比先默认构造、再赋值更自然，也是 C++ 很常见的写法。
+- 左边的 `w` 是成员变量
+- 右边的 `w` 是传进来的参数
+
+所以 `Rectangle(double w, double h) : w(w), h(h) {}` 的意思就是：
+
+- 用传进来的 `w` 初始化成员 `w`
+- 用传进来的 `h` 初始化成员 `h`
+
+这是 C++ 里很常见、也很标准的写法。
 
 ### 友元输出函数
 
-`Shape` 里声明了：
+`Shape` 里有这一句：
 
 ```cpp
 friend std::ostream& operator<<(std::ostream&, const Shape&);
 ```
+
+这里的 `friend` 表示：
+
+- `operator<<` 不是 `Shape` 的成员函数
+- 但我们授权它访问 `Shape` 的内部成员
 
 对应定义是：
 
@@ -577,26 +840,65 @@ std::ostream& operator<<(std::ostream& out, const Shape& s)
 }
 ```
 
-这里用 `friend`，是因为输出函数不是成员函数，但它需要访问 `Shape` 的内部数据。
+这样写的原因是：
 
-这样设计的好处：
+因为我们想保留这种自然语法：
 
-- 仍然能保持 `cout << obj` 这种自然写法
-- 又能读取 `area`、`perimeter` 这些非公有成员
-- `s.name()` 还是走虚函数，所以输出时保留多态效果
+```cpp
+std::cout << shape;
+```
+
+`<<` 通常写成非成员函数更自然，但非成员函数默认不能访问类里的非公有成员，所以这里用 `friend` 授权。
+
+同时，这里也再次体现了 `&` 的用法：
+
+- `std::ostream& out`：输出流按引用传入，不复制 `cout`
+- `const Shape& s`：图形按只读引用传入
+- 返回 `std::ostream&`：这样才能继续连写 `<<`
+
+还有一个细节：
+
+```cpp
+s.name()
+```
+
+这里 `name()` 是虚函数，所以即使 `s` 的静态类型写成 `Shape&`，真正调用的仍然会是各个派生类自己的 `name()`。
 
 ### 多态输出与排序
 
-- `Shape* arr[] = {new Rectangle(...), new Circle(...), new Triangle(...)}`
-- 先逐个 `calc_area()` / `calc_perimeter()`
-- 再按不同比较器排序并打印（面积升序、周长升序、面积降序、周长降序）
+主程序的执行流程大致是：
 
-这说明：
+1. 创建不同类型的图形对象
+2. 用 `Shape*` 统一保存它们
+3. 调用统一接口去计算面积和周长
+4. 传入不同比较器进行排序
+5. 统一打印
 
-- 算法模板（selection sort） + 多态对象（Shape*）可以组合使用
-- 排序规则通过函数指针/lambda 注入
+对应代码像这样：
 
-还有两个细节值得记：
+```cpp
+for (Shape* s : arr)
+{
+    s->calc_area();
+    s->calc_perimeter();
+}
+```
+
+这一段的关键是：
+
+- `s` 的写法是 `Shape*`
+- 但每个 `s` 实际可能指向矩形、圆形、三角形
+- 因为有 `virtual`，调用会自动分发到正确的版本
+
+因此，这一段真正体现的是：
+
+- 算法层：`selection_sort`
+- 规则层：比较器
+- 对象层：`Shape` 多态
+
+三者是可以组合起来的。
+
+还有两个小语法点：
 
 ```cpp
 s->calc_area();
@@ -606,12 +908,11 @@ s->calc_area();
 - 如果是普通对象，就写成 `obj.calc_area()`
 
 ```cpp
-virtual std::string name() const = 0;
 double get_area() const { return area; }
 ```
 
-- 末尾的 `const` 表示该成员函数不会修改对象状态
-- 读取型接口常常都写成 `const`
+- 末尾的 `const` 表示这个成员函数不会修改对象状态
+- 这种“读取型接口”通常都写成 `const`
 
 ### 资源管理提醒
 
@@ -622,7 +923,18 @@ for (Shape* s : arr)
     delete s;
 ```
 
-这是因为前面用了 `new`。现代 C++ 实践中更推荐智能指针（`std::unique_ptr`）管理生命周期。
+这是因为前面用的是 `new`，所以最后要手动释放。
+
+这里删除的是基类指针：
+
+```cpp
+Shape* p = new Rectangle(2, 3);
+delete p;
+```
+
+表面上删除的是 `Shape*`，但实际对象是 `Rectangle`。因此，析构函数必须是虚函数，程序才会按真实类型正确销毁对象。
+
+现代 C++ 更推荐用智能指针（如 `std::unique_ptr`）管理生命周期，但这份代码的重点是先理解多态和继承。
 
 
 ---
