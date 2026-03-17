@@ -842,12 +842,12 @@ $$
 - 区别在于 ALU 指令能不能直接访问内存
 
 
-| 类型 | 操作数特点 | ALU 指令是否可直接访存 | `C = A + B` 的典型写法 | 记忆点 |
-| --- | --- | --- | --- | --- |
-| Stack | 0 地址，操作数默认在 TOS | 不直接写地址，靠 `push/pop` 间接访存 | `push A; push B; add; pop C` | 栈顶隐式取数 |
-| Accumulator | 1 个隐式操作数 `acc` + 1 个显式内存操作数 | 可以，围绕 `acc` 运算 | `load A; add B; store C` | 结果始终回到累加器 |
-| Register-memory | 寄存器显式出现，ALU 可直接读内存 | 可以 | `load R1, A; add R1, B; store C, R1` | 少一次 `load`，但指令格式不规整 |
-| Load-store | ALU 只操作寄存器 | 不可以 | `load R1, A; load R2, B; add R3, R1, R2; store C, R3` | 先装入寄存器再算，最规则 |
+| 类型 | 操作数特点 | ALU 指令是否可直接访存 | 记忆点 |
+| --- | --- | --- | --- | 
+| Stack | 0 地址，操作数默认在 TOS | 不直接写地址，靠 `push/pop` 间接访存  | 栈顶隐式取数 |
+| Accumulator | 1 个隐式操作数 `acc` + 1 个显式内存操作数 | 可以，围绕 `acc` 运算  | 结果始终回到累加器 |
+| Register-memory | 寄存器显式出现，ALU 可直接读内存 | 可以 | 少一次 `load`，但指令格式不规整 |
+| Load-store | ALU 只操作寄存器 | 不可以 |  先装入寄存器再算，最规则 |
 
 补充：
 
