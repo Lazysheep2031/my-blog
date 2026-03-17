@@ -35,7 +35,8 @@ const {
 const hasBannerCredit =
 	siteConfig.banner.enable && siteConfig.banner.credit.enable;
 const hasBannerLink = !!siteConfig.banner.credit.url;
-const showToc = siteConfig.toc.enable && headings.length > 0;
+const isPostPage = !!setOGTypeArticle;
+const showToc = isPostPage && siteConfig.toc.enable && headings.length > 0;
 
 const mainPanelTop = siteConfig.banner.enable
 	? `calc(${BANNER_HEIGHT}vh - ${MAIN_PANEL_OVERLAPS_BANNER_HEIGHT}rem)`
@@ -67,10 +68,10 @@ const mainPanelTop = siteConfig.banner.enable
         <div
             id="main-grid"
             class:list={[
-                "transition duration-700 w-full left-0 right-0 grid grid-cols-[17.5rem_minmax(0,1fr)] grid-rows-[auto_1fr_auto] lg:grid-rows-[auto] mx-auto gap-4 px-0 md:px-4",
-                {
-                    "xl:grid-cols-[17.5rem_minmax(0,1fr)_16rem]": showToc,
-                },
+                "transition duration-700 w-full left-0 right-0 grid grid-rows-[auto_1fr_auto] lg:grid-rows-[auto] mx-auto gap-4 px-0 md:px-4",
+                isPostPage
+                    ? "grid-cols-1 xl:grid-cols-[minmax(0,1fr)_18rem]"
+                    : "grid-cols-[17.5rem_auto]",
             ]}
         >
             <!-- Banner image credit -->
@@ -86,15 +87,22 @@ const mainPanelTop = siteConfig.banner.enable
                 </Icon>
             </a>}
 
+            {!isPostPage && (
+                <SideBar class="mb-4 row-start-2 row-end-3 col-span-2 lg:row-start-1 lg:row-end-2 lg:col-span-1 lg:max-w-[17.5rem] onload-animation" headings={headings}></SideBar>
+            )}
 
-            <SideBar class="mb-4 row-start-2 row-end-3 col-span-2 lg:row-start-1 lg:row-end-2 lg:col-span-1 lg:max-w-[17.5rem] onload-animation" headings={headings}></SideBar>
-
-            <main id="swup-container" class="transition-swup-fade col-span-2 lg:col-span-1 overflow-hidden">
+            <main
+                id="swup-container"
+                class:list={[
+                    "transition-swup-fade overflow-hidden",
+                    isPostPage ? "col-span-1 min-w-0" : "col-span-2 lg:col-span-1",
+                ]}
+            >
                 <div id="content-wrapper" class="onload-animation">
                     <!-- the overflow-hidden here prevent long text break the layout-->
                     <!-- make id different from windows.swup global property -->
                     <slot></slot>
-                    <div class="footer col-span-2 onload-animation hidden lg:block">
+                    <div class="footer col-span-full onload-animation hidden lg:block">
                         <Footer></Footer>
                     </div>
                 </div>
@@ -104,7 +112,7 @@ const mainPanelTop = siteConfig.banner.enable
                 <aside
                     id="toc-wrapper"
                     class:list={[
-                        "hidden xl:block row-start-1 col-start-3 self-start transition onload-animation",
+                        "hidden xl:block row-start-1 col-start-2 self-start transition onload-animation",
                         { "toc-hide": siteConfig.banner.enable },
                     ]}
                     style="animation-delay: 250ms"
@@ -123,7 +131,7 @@ const mainPanelTop = siteConfig.banner.enable
                 </aside>
             )}
 
-            <div class="footer col-span-2 onload-animation block lg:hidden">
+            <div class="footer col-span-full onload-animation block lg:hidden">
                 <Footer></Footer>
             </div>
         </div>
