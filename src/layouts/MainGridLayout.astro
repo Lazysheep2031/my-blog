@@ -68,7 +68,7 @@ const mainPanelTop = siteConfig.banner.enable
         <div
             id="main-grid"
             class:list={[
-                "transition duration-700 w-full left-0 right-0 grid grid-rows-[auto_1fr_auto] lg:grid-rows-[auto] mx-auto gap-4 px-0 md:px-4",
+                "transition-swup-fade transition duration-700 w-full left-0 right-0 grid grid-rows-[auto_1fr_auto] lg:grid-rows-[auto] mx-auto gap-4 px-0 md:px-4",
                 isPostPage
                     ? "grid-cols-1 xl:grid-cols-[minmax(0,1fr)_18rem]"
                     : "grid-cols-[17.5rem_auto]",
@@ -112,7 +112,7 @@ const mainPanelTop = siteConfig.banner.enable
                 <aside
                     id="toc-wrapper"
                     class:list={[
-                        "hidden xl:block row-start-1 col-start-2 self-start transition onload-animation",
+                        "hidden xl:block row-start-1 col-start-2 transition onload-animation",
                         { "toc-hide": siteConfig.banner.enable },
                     ]}
                     style="animation-delay: 250ms"
@@ -139,7 +139,4 @@ const mainPanelTop = siteConfig.banner.enable
         <BackToTop></BackToTop>
     </div>
 </div>
-
-<!-- #toc needs to exist for Swup to work normally -->
-{!showToc && <div id="toc"></div>}
 </Layout>

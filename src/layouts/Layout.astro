@@ -404,7 +404,11 @@ const setup = () => {
 			navbar.classList.add('navbar-hidden')
 		}
 	})
-	window.swup.hooks.on('content:replace', initCustomScrollbar)
+	window.swup.hooks.on('content:replace', () => {
+		initCustomScrollbar()
+		refreshFloatingRefs()
+		scrollFunction()
+	})
 	window.swup.hooks.on('visit:start', (visit: {to: {url: string}}) => {
 		// change banner height immediately when a link is clicked
 		const bodyElement = document.querySelector('body')
@@ -454,9 +458,16 @@ if (window?.swup?.hooks) {
 	document.addEventListener('swup:enable', setup)
 }
 
-let backToTopBtn = document.getElementById('back-to-top-btn');
-let toc = document.getElementById('toc-wrapper');
-let navbar = document.getElementById('navbar-wrapper')
+let backToTopBtn: HTMLElement | null = null;
+let toc: HTMLElement | null = null;
+let navbar: HTMLElement | null = null;
+
+function refreshFloatingRefs() {
+	backToTopBtn = document.getElementById('back-to-top-btn');
+	toc = document.getElementById('toc-wrapper');
+	navbar = document.getElementById('navbar-wrapper');
+}
+
 function scrollFunction() {
 	let bannerHeight = window.innerHeight * (BANNER_HEIGHT / 100)
 
@@ -493,6 +504,8 @@ function scrollFunction() {
 		}
 	}
 }
+refreshFloatingRefs()
+scrollFunction()
 window.onscroll = scrollFunction
 
 window.onresize = () => {
