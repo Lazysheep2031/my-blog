@@ -28,38 +28,55 @@ draft: false
 
 ## 目录
 
+- [概述](#概述)
+- [目录](#目录)
 - [SQL Overview](#sql-overview)
-  - SQL 是什么
-  - DDL 与 DML
+  - [DDL 与 DML](#ddl-与-dml)
+    - [1. DDL](#1-ddl)
+    - [2. DML](#2-dml)
 - [Data Definition](#data-definition)
-  - 数据类型
-  - `create table` 与常见约束
-  - 表结构修改语句
+  - [数据类型](#数据类型)
+  - [`create table` 与常见约束](#create-table-与常见约束)
+  - [表结构修改语句](#表结构修改语句)
 - [Basic Query Structure](#basic-query-structure)
-  - 查询骨架
-  - 条件、去重与范围判断
-  - 多表查询的基本直觉
+  - [查询骨架](#查询骨架)
+  - [条件、去重与范围判断](#条件去重与范围判断)
+  - [多表查询的基本直觉](#多表查询的基本直觉)
 - [Additional Basic Operations](#additional-basic-operations)
-  - 连接操作
-  - 重命名、模式匹配与排序
+  - [连接操作](#连接操作)
+  - [重命名、模式匹配与排序](#重命名模式匹配与排序)
 - [Set Operations And Duplicate Semantics](#set-operations-and-duplicate-semantics)
-  - 集合运算
-  - `all` 版本
+  - [集合运算](#集合运算)
+    - [union](#union)
+    - [intersect](#intersect)
+    - [except](#except)
 - [Null Values](#null-values)
-  - `null` 的含义与影响
-  - 三值逻辑
+  - [`null` 的含义与影响](#null-的含义与影响)
+  - [三值逻辑](#三值逻辑)
+    - [OR](#or)
+    - [AND](#and)
+    - [NOT](#not)
 - [Aggregate Functions](#aggregate-functions)
-  - 常见聚合函数
-  - `group by / having`
-  - 聚合与 `null`
+  - [常见聚合函数](#常见聚合函数)
+    - [求平均工资](#求平均工资)
+    - [统计开课教师人数](#统计开课教师人数)
+    - [统计 course 表的元组数](#统计-course-表的元组数)
+  - [`group by / having`](#group-by--having)
+    - [where](#where)
+    - [having](#having)
+  - [聚合函数与 `null`](#聚合函数与-null)
+    - [1. `sum(salary)` 会忽略 `null`](#1-sumsalary-会忽略-null)
+    - [2. 除 `count(*)` 外，其他聚合函数都忽略聚合列中的 `null`](#2-除-count-外其他聚合函数都忽略聚合列中的-null)
+    - [3. 如果一整组全是 null](#3-如果一整组全是-null)
 - [Nested Subqueries](#nested-subqueries)
-  - 集合成员测试与集合比较
-  - 标量子查询与存在性测试
-  - `from` 子查询、`lateral` 与 `with`
+  - [子查询的作用](#子查询的作用)
+  - [集合成员测试与集合比较](#集合成员测试与集合比较)
+  - [标量子查询与存在性测试](#标量子查询与存在性测试)
+  - [`from` 子查询、`lateral` 与 `with`](#from-子查询lateral-与-with)
 - [Modification Of The Database](#modification-of-the-database)
-  - `delete`
-  - `insert`
-  - `update`
+  - [delete](#delete)
+  - [`insert`](#insert)
+  - [`update`](#update)
 
 ---
 
@@ -303,7 +320,7 @@ create table instructor (
 
 - 主键必须唯一
 - 主键不能为 `null`
-- PDF 特别强调：**primary key declaration automatically ensures not null**
+- slides 特别强调：**primary key declaration automatically ensures not null**
 
 也就是说，只要某列被声明成主键，它自动就不能是空值。
 
@@ -313,7 +330,7 @@ create table instructor (
 
 有些表单靠一列不够唯一，就需要多列一起组成主键。
 
-PDF 中 `takes` 的例子：
+slides 中 `takes` 的例子：
 
 ```sql
 create table takes (
@@ -1008,7 +1025,7 @@ where T.salary > S.salary
 
 > 不是要精确相等，而是要按某种模式匹配字符串。
 
-PDF 指出两个特殊字符：
+slides 指出两个特殊字符：
 
 - `%`：匹配任意子串
 - `_`：匹配任意单个字符
@@ -1657,7 +1674,7 @@ where (course_id, sec_id, semester, year) in (
 
 **`some`：和集合中的至少一个值比较**
 
-PDF 给出的例子：
+slides 给出的例子：
 
 ```sql
 select name
@@ -1737,8 +1754,6 @@ where salary * 10 >
 ```
 
 这里子查询返回的是某个院系的 `budget`，即一个单值。
-
-PDF 还特别提醒：
 
 > 如果标量子查询返回多行，会产生运行时错误。
 
