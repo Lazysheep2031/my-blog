@@ -22,61 +22,63 @@ The goal is not only to solve equations, but also to identify equation types qui
 
 - [Introduction](#introduction)
 - [Separable Equations and Applications](#separable-equations-and-applications)
-  - [Implicit, General, and Singular Solutions](#implicit-general-and-singular-solutions)
-  - [Logistic model](#logistic-model)
-  - [Torricelli’s law](#torricellis-law)
-  - [Extension 1: Equidimensional Equations](#extension-1-equidimensional-equations)
-  - [Extension 2: Linear Fractional Form](#extension-2-linear-fractional-form)
+  - [Solution Types: Implicit, General, and Singular](#solution-types-implicit-general-and-singular)
+  - [Applications](#applications)
+  - [Extensions and Reductions](#extensions-and-reductions)
   - [Solving Strategy for First-Order ODEs](#solving-strategy-for-first-order-odes)
 - [Linear First-Order Equations](#linear-first-order-equations)
-- [Existence and Uniqueness for Linear ODEs](#existence-and-uniqueness-for-linear-odes)
-- [Initial-Value Integrating Factor Formula](#initial-value-integrating-factor-formula)
-- [Structure: Homogeneous + Particular](#structure-homogeneous--particular)
+  - [Integrating Factor Method](#integrating-factor-method)
+  - [Existence and Uniqueness for Linear ODEs](#existence-and-uniqueness-for-linear-odes)
+  - [Bernoulli Equation](#bernoulli-equation)
 - [Substitution Methods and Exact Equations](#substitution-methods-and-exact-equations)
+  - [Homogeneous Equations](#homogeneous-equations)
+  - [Exact Equations](#exact-equations)
 - [Reducible Second-Order Equations](#reducible-second-order-equations)
-- [Bonus: Implicit First-Order Equations, 3D Embedding, and Singular Solutions](#bonus-implicit-first-order-equations-3d-embedding-and-singular-solutions)
-- [Singular solutions](#singular-solutions)
+- [Implicit First-Order Equations and 3D Embedding](#implicit-first-order-equations-and-3d-embedding)
+  - [Basic Geometric Idea](#basic-geometric-idea)
+  - [Examples](#examples)
+- [Singular Solutions](#singular-solutions)
 
 ## Introduction
 
-### What is an ODE?
+**What is an ODE?**
 An ODE is an equation involving an unknown function and its derivatives:
 
 $$F(x,y,y',\dots,y^{(n)})=0$$
 If there is only one independent variable, it is called an ordinary differential equation (ODE).
 
-### Classification
+**Classification**
 Differential equations can be classified by:
 - type: ODE / PDE
 - order: highest derivative
 - linearity: linear / nonlinear
 - homogeneity: homogeneous / nonhomogeneous
 
-### Mathematical modeling
+**Mathematical modeling**
 ODEs are used to model changing quantities in physics, ecology, engineering, etc.
 Typical variables:
 - independent variable: time, position, ...
 - dependent variable: speed, temperature, population, ...
 
-### Meaning of a solution
+**Meaning of a solution**
 A function $y=\phi(x)$ is a solution if it satisfies the ODE identically on an interval.
 
-### General vs particular solution
+**General vs particular solution**
 - General solution: a family of parametrized solutions
 - Particular solution: one specific solution selected by extra conditions
 
-### Subsidiary conditions
+**Subsidiary conditions**
 To determine a unique particular solution, we usually need:
 - initial condition
 - boundary condition
 
 Not every ODE has a solution, and not every solution is unique.
 
-### Two viewpoints
+**Two viewpoints**
 - Analytical: solve for $y=\phi(x)$
 - Geometrical: use slope fields and solution curves
 
-### Slope field
+**Slope field**
 For
 $$y'=f(x,y)$$
 the value of $f(x,y)$ gives the slope at each point $(x,y)$.
@@ -86,6 +88,7 @@ Phenomenon → Modeling → ODE + conditions → Analysis → Solve / Approximat
 
 ## Separable Equations and Applications
 
+### Basic Setup
 
 
 $$\frac{dy}{dx}=H(x,y)=g(x)h(y), \quad y(x_0)=y_0$$
@@ -121,7 +124,7 @@ $$
 > [!TIP]
 > **分离变量时如果除掉了某个可能为 0 的因子，可能会漏掉解。**
 
-### Implicit, General, and Singular Solutions
+### Solution Types: Implicit, General, and Singular
 
 #### Implicit Solution
 
@@ -262,7 +265,9 @@ $$
 这里右端 $f(x,y)=6x(y-1)^{2/3}$ 在 $y=1$ 附近关于 $y$ 的性质不够好，所以唯一性会失效。
 :::
 
-### Logistic model
+### Applications
+
+#### Logistic model
 
 $$
 \frac{dP}{dt}=kP\left(1-\frac{P}{M}\right),\qquad P(0)=P_0
@@ -339,7 +344,7 @@ $P=0$ 和 $P=M$ 也是常数解，需要单独检查；
 
 ---
 
-### Torricelli’s law
+#### Torricelli’s law
 
 考虑底部有小孔的水箱。
 
@@ -402,7 +407,9 @@ $$
 ---
 
 
-### Extension 1: Equidimensional Equations
+### Extensions and Reductions
+
+#### Equidimensional Equations
 
 $$
 \frac{dy}{dx}=g\!\left(\frac{y}{x}\right)
@@ -432,7 +439,7 @@ $$
 
 ---
 
-#### Example: Equidimensional Substitution
+##### Example: Equidimensional Substitution
 
 $$
 xy'-y=\sqrt{x^2-y^2}
@@ -503,7 +510,7 @@ $$
 
 ---
 
-### Extension 2: Linear Fractional Form
+#### Linear Fractional Form
 
 $$
 \frac{dy}{dx}=
@@ -903,11 +910,11 @@ $$
 
 **$x=0$ is not a singular solution.**
 $x=0$ 不是一条解曲线，而是方程的 **奇点（singular point）**。  
-它和前面 1.4 的 **奇异解 singular solution** 不是一回事。
+它和前面讨论的 **奇异解 singular solution** 不是一回事。
 
 ---
 
-## Existence and Uniqueness for Linear ODEs
+### Existence and Uniqueness for Linear ODEs
 
 考虑初值问题
 
@@ -927,7 +934,7 @@ $$
 
 ---
 
-### Key Consequences
+#### Key Consequences
 
 **Linear IVPs are highly well-behaved.**
 不像前面某些非线性例子会出现：
@@ -950,7 +957,7 @@ $$
 
 ---
 
-## Initial-Value Integrating Factor Formula
+### Initial-Value Integrating Factor Formula
 
 对初值问题
 
@@ -979,13 +986,13 @@ $$
 
 ---
 
-### Benefits
+#### Benefits
 - 自动满足初值
 - 不用最后再额外求常数 $C$
 
 ---
 
-## Structure: Homogeneous + Particular
+### Structure: Homogeneous + Particular
 
 对非齐次方程
 
@@ -1010,7 +1017,7 @@ $$
 ---
 
 
-### Linear Superposition Principle
+#### Linear Superposition Principle
 
 对非齐次线性方程
 
@@ -1146,7 +1153,7 @@ $$
 
 ## Substitution Methods and Exact Equations
 
-### 1. Equations of the form $y'=F(ax+by+c)$
+### Equations of the form $y'=F(ax+by+c)$
 
 若一阶方程可写成
 
@@ -1251,7 +1258,7 @@ $$
 
 ---
 
-### 2. Homogeneous Equations
+### Homogeneous Equations
 
 若方程可写成
 
@@ -1407,7 +1414,7 @@ $$
 
 ---
 
-### 3. A special homogeneous IVP with radical
+#### A Special Homogeneous IVP with Radical
 
 考虑
 
@@ -1475,7 +1482,7 @@ $$
 
 ---
 
-#### Region restriction
+##### Region restriction
 
 因为原方程中有根号
 
@@ -1507,7 +1514,7 @@ $$
 
 ---
 
-### 4. Exact Equations
+### Exact Equations
 
 若方程写成
 
@@ -1638,7 +1645,7 @@ $$
 
 ---
 
-### 5. Integrating Factor for Nonexact Equations
+### Integrating Factor for Nonexact Equations
 
 若
 
@@ -1670,7 +1677,7 @@ $$
 
 ---
 
-#### Case 1: $\mu=\mu(x)$
+##### Case 1: $\mu=\mu(x)$
 
 若
 
@@ -1688,7 +1695,7 @@ $$
 
 ---
 
-#### Case 2: $\mu=\mu(y)$
+##### Case 2: $\mu=\mu(y)$
 
 若
 
@@ -1727,7 +1734,7 @@ $$
 
 ---
 
-### 1. Dependent variable $y$ missing
+### Dependent variable $y$ missing
 
 若方程形如
 
@@ -1823,7 +1830,7 @@ $$
 
 ---
 
-### 2. Independent variable $x$ missing
+### Independent variable $x$ missing
 
 若方程形如
 
@@ -1967,7 +1974,7 @@ $$
 ---
 
 
-## Bonus: Implicit First-Order Equations, 3D Embedding, and Singular Solutions
+## Implicit First-Order Equations and 3D Embedding
 
 在前面的小节中，我们主要学习的是能够写成显式形式的一阶方程：
 
@@ -2137,7 +2144,9 @@ $$
 
 ---
 
-## Example 1
+### Examples
+
+#### Example 1
 
 考虑
 
@@ -2163,7 +2172,7 @@ $$
 
 ---
 
-### Method 1: direct parametrization
+##### Method 1: direct parametrization
 
 可把曲面直接参数化为
 
@@ -2237,7 +2246,7 @@ $$
 
 ---
 
-### Method 2: direct substitution
+##### Method 2: direct substitution
 
 由
 
@@ -2296,7 +2305,7 @@ $$
 
 ---
 
-### Note
+##### Note
 
 这个例子说明：
 
@@ -2306,7 +2315,7 @@ $$
 
 ---
 
-## Example 2: Clairaut-type equation and singular solution
+#### Example 2: Clairaut-Type Equation and Singular Solution
 
 考虑
 
@@ -2352,7 +2361,7 @@ $$
 
 ---
 
-### Branch 1: $\dfrac{dp}{dx}=0$
+##### Branch 1: $\dfrac{dp}{dx}=0$
 
 则
 
@@ -2380,7 +2389,7 @@ $$
 
 ---
 
-### Branch 2: $x+p=0$
+##### Branch 2: $x+p=0$
 
 则
 
@@ -2410,7 +2419,7 @@ $$
 
 ---
 
-### Geometric interpretation
+##### Geometric interpretation
 
 对于一般解族
 
@@ -2435,7 +2444,7 @@ $$
 
 ---
 
-## Example 3
+#### Example 3
 
 考虑
 
@@ -2467,7 +2476,7 @@ $$
 
 ---
 
-### Differentiate
+##### Differentiate
 
 对 $x$ 求导：
 
@@ -2502,7 +2511,7 @@ $$
 
 ---
 
-### Branch 1: $1-\dfrac{9}{p^2}=0$
+##### Branch 1: $1-\dfrac{9}{p^2}=0$
 
 即
 
@@ -2528,7 +2537,7 @@ $$
 
 ---
 
-### Branch 2: $x\dfrac{dp}{dx}-p=0$
+##### Branch 2: $x\dfrac{dp}{dx}-p=0$
 
 即
 
@@ -2578,7 +2587,7 @@ $$
 
 ---
 
-### Important observation
+##### Important observation
 
 这个例子再次说明：
 
@@ -2594,7 +2603,7 @@ $$
 
 ---
 
-## Example 4
+#### Example 4
 
 考虑
 
@@ -2625,7 +2634,7 @@ $$
 
 ---
 
-### Use the relation $p=y'$
+##### Use the relation $p=y'$
 
 因为
 
@@ -2649,7 +2658,7 @@ $$
 
 ---
 
-### Branch 1: $\sin\theta=0$
+##### Branch 1: $\sin\theta=0$
 
 则
 
@@ -2679,7 +2688,7 @@ $$
 
 ---
 
-### Branch 2: $1+\dfrac{d\theta}{dx}=0$
+##### Branch 2: $1+\dfrac{d\theta}{dx}=0$
 
 即
 
@@ -2719,7 +2728,7 @@ $$
 
 
 
-### Why are $y=\pm 1$ singular solutions?
+##### Why are $y=\pm 1$ singular solutions?
 
 因为对于一般解
 
@@ -2735,7 +2744,7 @@ $$
 ---
 
 
-### Example 5
+#### Example 5
 
 Consider the implicit first-order ODE
 $$
@@ -2760,7 +2769,7 @@ $$
 
 ---
 
-#### Differentiate with respect to $x$
+##### Differentiate with respect to $x$
 
 Since $p=y'$, differentiate
 $$
@@ -2778,7 +2787,7 @@ $$
 
 ---
 
-#### Branch 1: $p=0$
+##### Branch 1: $p=0$
 
 If
 $$
@@ -2805,7 +2814,7 @@ This is a **singular solution**.
 
 ---
 
-#### Branch 2: $p\neq 0$
+##### Branch 2: $p\neq 0$
 
 If $p\neq 0$, divide both sides by $p$:
 $$
@@ -2854,7 +2863,7 @@ where $p$ is a free parameter.
 
 ---
 
-#### Geometric remark
+##### Geometric remark
 
 Since
 $$
@@ -2880,9 +2889,9 @@ Therefore $y=1$ is a **singular solution**.
 
 ---
 
-## Singular solutions
+## Singular Solutions
 
-### Definition (informal)
+### Definition
 
 若某个解：
 
@@ -2893,7 +2902,7 @@ Therefore $y=1$ is a **singular solution**.
 
 ---
 
-### Typical ways singular solutions appear
+### Typical Ways Singular Solutions Appear
 
 #### From factorization
 在推导中出现
