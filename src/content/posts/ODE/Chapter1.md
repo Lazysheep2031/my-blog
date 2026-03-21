@@ -20,24 +20,106 @@ The goal is not only to solve equations, but also to identify equation types qui
 
 ## Contents
 
+- [Overview](#overview)
+- [Contents](#contents)
 - [Introduction](#introduction)
 - [Separable Equations and Applications](#separable-equations-and-applications)
+  - [Basic Setup](#basic-setup)
   - [Solution Types: Implicit, General, and Singular](#solution-types-implicit-general-and-singular)
+    - [Implicit Solution](#implicit-solution)
+    - [General Solution](#general-solution)
+    - [Singular Solution](#singular-solution)
   - [Applications](#applications)
+    - [Logistic model](#logistic-model)
+    - [Torricelli’s law](#torricellis-law)
   - [Extensions and Reductions](#extensions-and-reductions)
+    - [Equidimensional Equations](#equidimensional-equations)
+      - [Example: Equidimensional Substitution](#example-equidimensional-substitution)
+    - [Linear Fractional Form](#linear-fractional-form)
   - [Solving Strategy for First-Order ODEs](#solving-strategy-for-first-order-odes)
 - [Linear First-Order Equations](#linear-first-order-equations)
+  - [Homogeneous vs Nonhomogeneous](#homogeneous-vs-nonhomogeneous)
   - [Integrating Factor Method](#integrating-factor-method)
+    - [Standard Workflow](#standard-workflow)
+    - [Example 1](#example-1)
+    - [Example 2](#example-2)
   - [Existence and Uniqueness for Linear ODEs](#existence-and-uniqueness-for-linear-odes)
+    - [Key Consequences](#key-consequences)
+  - [Initial-Value Integrating Factor Formula](#initial-value-integrating-factor-formula)
+    - [Benefits](#benefits)
+  - [Structure: Homogeneous + Particular](#structure-homogeneous--particular)
+    - [Linear Superposition Principle](#linear-superposition-principle)
   - [Bernoulli Equation](#bernoulli-equation)
+    - [Example: Bernoulli Equation in Detail](#example-bernoulli-equation-in-detail)
 - [Substitution Methods and Exact Equations](#substitution-methods-and-exact-equations)
+  - [Equations of the form $y'=F(ax+by+c)$](#equations-of-the-form-yfaxbyc)
+    - [Standard substitution](#standard-substitution)
+    - [Classic example](#classic-example)
   - [Homogeneous Equations](#homogeneous-equations)
+    - [Standard substitution](#standard-substitution-1)
+    - [How to recognize it](#how-to-recognize-it)
+    - [Classic example](#classic-example-1)
+    - [Domain check](#domain-check)
+    - [A Special Homogeneous IVP with Radical](#a-special-homogeneous-ivp-with-radical)
+      - [Region restriction](#region-restriction)
   - [Exact Equations](#exact-equations)
+    - [Exactness criterion](#exactness-criterion)
+    - [How to find the potential function $F(x,y)$](#how-to-find-the-potential-function-fxy)
+    - [Classic example](#classic-example-2)
+    - [Important remark: exactness depends on the form](#important-remark-exactness-depends-on-the-form)
+  - [Integrating Factor for Nonexact Equations](#integrating-factor-for-nonexact-equations)
+    - [Exactness condition after multiplying by $\\mu$](#exactness-condition-after-multiplying-by-mu)
+      - [Case 1: $\\mu=\\mu(x)$](#case-1-mumux)
+      - [Case 2: $\\mu=\\mu(y)$](#case-2-mumuy)
 - [Reducible Second-Order Equations](#reducible-second-order-equations)
+  - [Dependent variable $y$ missing](#dependent-variable-y-missing)
+    - [Example](#example)
+  - [Independent variable $x$ missing](#independent-variable-x-missing)
+    - [Classic example](#classic-example-3)
+    - [Important remark](#important-remark)
 - [Implicit First-Order Equations and 3D Embedding](#implicit-first-order-equations-and-3d-embedding)
-  - [Basic Geometric Idea](#basic-geometric-idea)
+  - [Basic geometric idea](#basic-geometric-idea)
+  - [General procedure of 3D embedding](#general-procedure-of-3d-embedding)
+  - [Direct substitution as a simpler method](#direct-substitution-as-a-simpler-method)
   - [Examples](#examples)
+    - [Example 1](#example-1-1)
+      - [Method 1: direct parametrization](#method-1-direct-parametrization)
+      - [Method 2: direct substitution](#method-2-direct-substitution)
+      - [Note](#note)
+    - [Example 2: Clairaut-Type Equation and Singular Solution](#example-2-clairaut-type-equation-and-singular-solution)
+      - [Branch 1: $\\dfrac{dp}{dx}=0$](#branch-1-dfracdpdx0)
+      - [Branch 2: $x+p=0$](#branch-2-xp0)
+      - [Geometric interpretation](#geometric-interpretation)
+    - [Example 3](#example-3)
+      - [Differentiate](#differentiate)
+      - [Branch 1: $1-\\dfrac{9}{p^2}=0$](#branch-1-1-dfrac9p20)
+      - [Branch 2: $x\\dfrac{dp}{dx}-p=0$](#branch-2-xdfracdpdx-p0)
+      - [Important observation](#important-observation)
+    - [Example 4](#example-4)
+      - [Use the relation $p=y'$](#use-the-relation-py)
+      - [Branch 1: $\\sin\\theta=0$](#branch-1-sintheta0)
+      - [Branch 2: $1+\\dfrac{d\\theta}{dx}=0$](#branch-2-1dfracdthetadx0)
+      - [Why are $y=\\pm 1$ singular solutions?](#why-are-ypm-1-singular-solutions)
+    - [Example 5](#example-5)
+      - [Differentiate with respect to $x$](#differentiate-with-respect-to-x)
+      - [Branch 1: $p=0$](#branch-1-p0)
+      - [Branch 2: $p\\neq 0$](#branch-2-pneq-0)
+      - [Geometric remark](#geometric-remark)
 - [Singular Solutions](#singular-solutions)
+  - [What Singular Solutions Mean](#what-singular-solutions-mean)
+    - [Analytic definition](#analytic-definition)
+    - [Geometric definition](#geometric-definition)
+    - [General solution vs singular solution](#general-solution-vs-singular-solution)
+    - [Typical ways singular solutions appear](#typical-ways-singular-solutions-appear)
+  - [p-discriminant](#p-discriminant)
+    - [Why does it matter?](#why-does-it-matter)
+    - [Relation with singular solutions](#relation-with-singular-solutions)
+    - [How to use it in problem solving](#how-to-use-it-in-problem-solving)
+  - [**Example**](#example-1)
+    - [Method idea](#method-idea)
+    - [Key steps](#key-steps)
+    - [Final conclusion](#final-conclusion)
+  - [Bonus: Picard Local Existence and Uniqueness](#bonus-picard-local-existence-and-uniqueness)
 
 ## Introduction
 
@@ -2313,6 +2395,50 @@ $$
 - 直接把 $p=y'$ 当作参数，有时会更自然；
 - 最终答案常是 $(x(p),y(p))$ 的参数方程，而不是 $y=f(x)$ 的显式式子。
 
+从几何的角度看，这题还有一个非常重要的检查：
+
+令
+
+$$
+F(x,y,p)=p^2+y-x.
+$$
+
+则
+
+$$
+F_p=2p.
+$$
+
+由
+
+$$
+F=0,\qquad F_p=0
+$$
+
+可得
+
+$$
+p=0,\qquad y=x.
+$$
+
+也就是说，方程的 **p-discriminant candidate** 是
+
+$$
+\boxed{y=x}.
+$$
+
+但把它作为曲线代回原方程时要注意：若 $y=x$，则 $y'=1$，所以
+
+$$
+(y')^2+y-x=1+x-x=1\neq 0.
+$$
+
+因此 $y=x$ **不是** 原方程的解，更不是 singular solution。  
+这题正好说明：
+
+- p-discriminant 给出的是 **candidate curve**，不是自动成立的奇异解；
+- 找到 candidate 以后，必须再检查它是否真的是原方程的解。
+
 ---
 
 #### Example 2: Clairaut-Type Equation and Singular Solution
@@ -2891,27 +3017,82 @@ Therefore $y=1$ is a **singular solution**.
 
 ## Singular Solutions
 
-### Definition
+### What Singular Solutions Mean
+
+#### Analytic definition
 
 若某个解：
 
 - 满足原方程；
-- 但不能通过一般解族中某个特定常数值代入得到；
+- 但不能通过一般解族中某个固定常数值代入得到；
 
 则称其为 **singular solution**。
 
+$$
+\boxed{
+\text{All Solutions}=\text{General Solutions}+\text{Singular Solutions}.
+}
+$$
+
+
 ---
 
-### Typical Ways Singular Solutions Appear
+#### Geometric definition
 
-#### From factorization
-在推导中出现
+对一阶隐式方程
 
 $$
-A\cdot B=0
+F(x,y,y')=0,
 $$
 
-时，一支给出一般解，另一支给出奇异解。
+若一条解曲线
+
+$$
+\Gamma:\ y=\phi(x)
+$$
+
+满足下面的性质：
+
+> 对 $\Gamma$ 上每一点 $Q$，都存在另一条不同于 $\Gamma$ 的解曲线，在 $Q$ 与 $\Gamma$ 相切，
+
+则这条解曲线称为 singular solution。
+
+---
+
+#### General solution vs singular solution
+
+- **General solution**: 通常是一族由参数 $C$ 描述的解曲线。
+- **Singular solution**: 不是这族曲线中的某一个固定成员，而是额外出现的一条特殊解曲线。
+- 几何上，singular solution 往往是一般解族的 **envelope**，也就是包络线。
+- 因此它常常和一般解族中的某些成员相切，而不是横穿过去。
+
+例如 Example 2 中，
+
+$$
+y=Cx+\frac{C^2}{2}
+$$
+
+是一族直线，而
+
+$$
+y=-\frac{x^2}{2}
+$$
+
+是它们的包络线，所以它是 singular solution。
+
+---
+
+#### Typical ways singular solutions appear
+
+**1. From factorization**
+
+在推导过程中若出现
+
+$$
+A\cdot B=0,
+$$
+
+则往往要分支讨论：一支给出一般解，另一支给出 singular solution。
 
 Examples:
 
@@ -2930,31 +3111,290 @@ Examples:
 
 ---
 
-#### As an envelope of the general solution family
-例如 Example 2 中
+**2. From dividing by a possibly zero factor**
+
+在 separable equation 或化简过程中，如果除掉了某个可能为零的因子，就可能把特殊解支丢掉。
+
+前面分离变量部分的例子
 
 $$
-y=Cx+\frac{C^2}{2}
+\frac{dy}{dx}=6x(y-1)^{2/3}
 $$
 
-的一族直线，其包络线为
+中，$y\equiv 1$ 就是这样被漏掉的 singular solution。
+
+---
+
+**3. As an envelope of the general solution family**
+
+这是 week 3 最强调的几何图像。
+
+若一般解是一族曲线
 
 $$
-y=-\frac{x^2}{2}.
+y=\phi(x;C),
 $$
 
-这条包络线就是 singular solution。
+而存在一条曲线被这族曲线在各点附近“擦着走”，那么这条包络线就很可能是 singular solution。
+
+> [!TIP]
+> 判断 singular solution 时，不要只看“能不能代入某个常数得到”，还要看它是否是一般解族的 tangent envelope。
 
 ---
 
 :::WARNING
-在分离变量或因式分解时，若随手除掉某个因子，往往会把 singular solution 丢掉。
+在分离变量、消元、因式分解时，若随手除掉某个因子，往往会把 singular solution 丢掉。
 
 所以做题时要检查：
 
 - 有没有把可能为零的因子除掉；
 - 有没有额外的常数解或特殊分支；
-- 最终答案是否应写成“一般解 + singular solutions”。
+- 最终答案是否应写成 “general solution + singular solutions”；
+- 若你算出了 p-discriminant，它到底只是 candidate，还是已经验证过的真正解。
 :::
+
+---
+
+### p-discriminant
+
+对一阶隐式方程
+
+$$
+F(x,y,p)=0,\qquad p=y',
+$$
+
+若由联立条件
+
+$$
+F(x,y,p)=0,\qquad \frac{\partial F}{\partial p}(x,y,p)=0
+$$
+
+消去 $p$ 后得到一条曲线
+
+$$
+y=\phi(x),
+$$
+
+则这条曲线称为该方程的 **p-discriminant**。
+
+---
+
+#### Why does it matter?
+
+它的重要性不只是“多一个定义”，而是因为它给了我们一个很快的找奇异解入口。
+
+- singular solution 若存在，通常先会出现在 $F_p=0$ 这一条件里；
+- 它对应“解族对参数发生退化”的地方，也就是包络线最容易出现的地方；
+- 做题时，先算 p-discriminant，往往不用把整个方程完全解完，就能先定位 possible extra branches。
+
+所以在 implicit ODE 里，`p-discriminant` 是一个很实用的 screening tool。
+
+---
+
+#### Relation with singular solutions
+
+**Necessary condition**
+
+若 $y=\phi(x)$ 是 singular solution，则它一定是 p-discriminant。
+
+$$
+\text{singular solution} \Longrightarrow \text{p-discriminant}.
+$$
+
+---
+
+**Sufficient condition under suitable hypotheses**
+
+反过来，p-discriminant 不一定自动就是 singular solution。  
+还需要一些 regularity / nondegeneracy 条件，并且最关键的是：
+
+- 这条 candidate curve 本身真的满足原方程；
+- 在该曲线上可做正常的局部分析，例如常见的条件之一是
+  $$
+  F_y\neq 0,\qquad F_{pp}\neq 0;
+  $$
+- 同时它确实表现出与一般解族相切的 envelope 结构。
+
+在这些适当条件下，p-discriminant 也可推出 singular solution。
+
+所以逻辑上应记成：
+
+$$
+\text{singular solution} \Rightarrow \text{p-discriminant},
+$$
+
+而
+
+$$
+\text{p-discriminant} \Rightarrow \text{singular solution}
+$$
+
+只在额外条件满足时成立。
+
+---
+
+#### How to use it in problem solving
+
+面对 implicit first-order ODE，常见流程是：
+
+1. 先写成
+   $$
+   F(x,y,p)=0,\qquad p=y'.
+   $$
+2. 计算
+   $$
+   F_p=0.
+   $$
+3. 联立
+   $$
+   F=0,\qquad F_p=0
+   $$
+   消去 $p$，得到 candidate curve。
+4. **单独验证** 这条 candidate curve 是否真的是原方程的解。
+5. 若是，再判断它是否不属于一般解族，并观察是否与一般解族相切。
+
+> [!IMPORTANT]
+> p-discriminant 的作用是帮你找到“可能的奇异解”，不是直接替代验算。
+
+---
+
+### **Example**
+
+重新看讲义中的代表题：
+
+$$
+(y')^2+y-x=0.
+$$
+
+令
+
+$$
+F(x,y,p)=p^2+y-x.
+$$
+
+---
+
+#### Method idea
+
+这题分成两步看最清楚：
+
+- **Step 1**: 用 $p=y'$ 把方程化成参数形式，得到一般解族；
+- **Step 2**: 再用 p-discriminant 检查有没有额外的 singular solution。
+
+---
+
+#### Key steps
+
+由
+
+$$
+F(x,y,p)=p^2+y-x=0
+$$
+
+可写成
+
+$$
+y=x-p^2.
+$$
+
+进一步求导并利用 $p=y'$，可得到参数形式的一般解：
+
+$$
+\boxed{
+x=-2p-2\ln|1-p|+C,\qquad
+y=-2p-p^2-2\ln|1-p|+C
+}
+$$
+
+其中 $C$ 是积分常数，$p$ 是参数。
+
+接着算 p-discriminant：
+
+$$
+F_p=2p=0
+\qquad\Longrightarrow\qquad
+p=0.
+$$
+
+代回 $F=0$：
+
+$$
+y-x=0
+\qquad\Longrightarrow\qquad
+\boxed{y=x}.
+$$
+
+---
+
+#### Final conclusion
+
+曲线
+
+$$
+y=x
+$$
+
+只是 p-discriminant candidate，但它 **不是** 原方程的解。
+
+因为若 $y=x$，则
+
+$$
+y'=1,
+$$
+
+从而
+
+$$
+(y')^2+y-x=1+x-x=1\neq 0.
+$$
+
+所以最终结论是：
+
+$$
+\boxed{
+\text{this equation has no singular solution.}
+}
+$$
+
+它的解只来自前面求出的那族参数型 general solutions。
+
+---
+
+### Bonus: Picard Local Existence and Uniqueness
+
+对初值问题
+
+$$
+y'=f(x,y),\qquad y(a)=b,
+$$
+
+若在矩形
+
+$$
+R:\ |x-a|\le A,\quad |y-b|\le B
+$$
+
+上满足：
+
+- $f(x,y)$ 在 $R$ 上连续；
+- $f$ 在 $y$ 方向满足 Lipschitz condition，即存在 $L>0$ 使得
+  $$
+  |f(x,y_1)-f(x,y_2)|\le L|y_1-y_2|
+  $$
+  对矩形中任意点成立；
+
+则该 Cauchy problem 在
+
+$$
+|x-a|\le h,
+\qquad
+h=\min\left(A,\frac{B}{M}\right),
+\qquad
+M=\max_{(x,y)\in R}|f(x,y)|
+$$
+
+上存在唯一解。
+
+这就是 **Picard local existence and uniqueness theorem** 的表述。
 
 ---
