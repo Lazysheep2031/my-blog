@@ -1,5 +1,5 @@
 ---
-title: 二阶线性方程
+title: Second-order Linear Equations
 published: 2026-03-25
 description: Chapter 2 notes on second-order linear equations and related methods
 tags: [常微分方程]
