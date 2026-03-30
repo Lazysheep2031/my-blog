@@ -1027,6 +1027,16 @@ XOR   R8, R1, R9
 
 - 插入 1 个 bubble；
 - 等 `LD` 的数据到位后，再 forward 给后面的 EX。
+
+不过这里有一个 slides 里也单独举出来的**特殊情况**：
+
+```text
+LD    R5, 0(R1)
+SD    R5, 12(R1)
+```
+
+如果 `Load` 后面紧跟的是 `Store`，而相关寄存器只是作为 **store data** 被后一条指令使用，那么很多实现可以把 `LD` 读出的结果直接 forwarding 到 store 的数据通路上。  
+也就是说，这一类 `load -> store` 相关不一定需要额外停顿，不必机械地把它和普通的 load-use hazard 归为同一种情况。
   
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202603301144254.png" alt="Load-Use Hazard" style="width: 520px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
@@ -1270,6 +1280,10 @@ if (ID/EX.MemRead and
 
 - ID/EX 里的那条指令是一个要读内存的 load；
 - 它将写回的目标寄存器，正是下一条正在 ID 阶段译码指令要用的源寄存器。
+
+这里同样要注意一个实现层面的特例：  
+如果下一条指令是 `store`，并且相关寄存器只是用作待写回内存的数据，那么可以单独为 store data path 增加 forwarding，把 `load` 的结果直接送过去。  
+因此 `load -> store` 不一定都要按“普通 load-use hazard”处理成 1 个 stall。
 
 一旦检测到这种情况，就必须 stall 并插入 bubble。
 
