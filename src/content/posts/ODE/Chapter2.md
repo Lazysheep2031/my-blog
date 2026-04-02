@@ -3,7 +3,7 @@ title: Linear Equations of Higher Order
 published: 2026-04-01
 description: Chapter 2 notes on higher-order linear ODEs, nonhomogeneous equations, and boundary value problems
 tags: [常微分方程]
-category: Notes
+category: 笔记
 draft: false
 ---
 
