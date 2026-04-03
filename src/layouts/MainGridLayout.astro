@@ -37,6 +37,8 @@ const hasBannerCredit =
 const hasBannerLink = !!siteConfig.banner.credit.url;
 const isPostPage = !!setOGTypeArticle;
 const showToc = isPostPage && siteConfig.toc.enable && headings.length > 0;
+const lightBannerSrc = siteConfig.banner.lightSrc ?? siteConfig.banner.src;
+const darkBannerSrc = siteConfig.banner.darkSrc ?? siteConfig.banner.src;
 
 const mainPanelTop = siteConfig.banner.enable
 	? `calc(${BANNER_HEIGHT}vh - ${MAIN_PANEL_OVERLAPS_BANNER_HEIGHT}rem)`
@@ -55,8 +57,12 @@ const mainPanelTop = siteConfig.banner.enable
 
 <!-- Banner -->
 {siteConfig.banner.enable && <div id="banner-wrapper" class={`absolute z-10 w-full transition duration-700 overflow-hidden`} style={`top: -${BANNER_HEIGHT_EXTEND}vh`}>
-    <ImageWrapper id="banner" alt="Banner image of the blog" class:list={["object-cover h-full transition duration-700 opacity-0 scale-105"]}
-                  src={siteConfig.banner.src} position={siteConfig.banner.position}
+    <ImageWrapper alt="Banner image of the blog" class:list={["banner-image object-cover h-full transition duration-700 opacity-0 scale-105 dark:hidden"]}
+                  src={lightBannerSrc} position={siteConfig.banner.position}
+    >
+    </ImageWrapper>
+    <ImageWrapper alt="Banner image of the blog" class:list={["banner-image hidden object-cover h-full transition duration-700 opacity-0 scale-105 dark:block"]}
+                  src={darkBannerSrc} position={siteConfig.banner.position}
     >
     </ImageWrapper>
 </div>}

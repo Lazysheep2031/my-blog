@@ -173,10 +173,10 @@ const bannerOffset =
 		@apply h-[var(--banner-height-home)]
 	}
 
-	.enable-banner.is-home #banner {
+	.enable-banner.is-home .banner-image {
 		@apply h-[var(--banner-height-home)] translate-y-0
 	}
-	.enable-banner #banner {
+	.enable-banner .banner-image {
 		@apply h-[var(--banner-height-home)] translate-y-[var(--bannerOffset)]
 	}
 	.enable-banner.is-home #main-grid {
@@ -354,13 +354,15 @@ function initCustomScrollbar() {
 function showBanner() {
 	if (!siteConfig.banner.enable) return;
 
-	const banner = document.getElementById('banner');
-	if (!banner) {
-		console.error('Banner element not found');
+	const banners = document.querySelectorAll('.banner-image');
+	if (banners.length === 0) {
+		console.error('Banner elements not found');
 		return;
 	}
 
-	banner.classList.remove('opacity-0', 'scale-105');
+	for (const banner of banners) {
+		banner.classList.remove('opacity-0', 'scale-105');
+	}
 }
 
 function init() {

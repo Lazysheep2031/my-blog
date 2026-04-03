@@ -18,6 +18,8 @@ export const siteConfig: SiteConfig = {
 	banner: {
 		enable: true,
 		src: "assets/images/banner3.jpg", // Relative to the /src directory. Relative to the /public directory if it starts with '/'
+		lightSrc: "assets/images/banner4.png", // Banner used when the site is in light mode
+		darkSrc: "assets/images/banner3.jpg", // Banner used when the site is in dark mode
 		position: "center", // Equivalent to object-position, only supports 'top', 'center', 'bottom'. 'center' by default
 		credit: {
 			enable: false, // Display the credit text of the banner image
