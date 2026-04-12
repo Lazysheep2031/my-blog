@@ -1285,6 +1285,8 @@ relationship 的属性应该挂在哪里?
 
 - 一个 `person` 只能是 `student` 或 `employee` 其中之一
 
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202604121454338.png" alt="Disjoint" style="width: 320px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
 #### Overlapping
 
 重叠。
@@ -1297,6 +1299,8 @@ relationship 的属性应该挂在哪里?
 - 也是 `employee`
 
 比如研究生助教就是这种典型例子。
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202604121453987.png" alt="Overlapping" style="width: 320px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
 ### Total vs Partial Completeness
 
