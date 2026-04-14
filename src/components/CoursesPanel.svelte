@@ -5,95 +5,94 @@ import { i18n } from "../i18n/translation";
 import { getPostUrlBySlug } from "../utils/url-utils";
 
 interface Post {
-    slug: string;
-    data: {
-        title: string;
-        tags: string[];
-        category?: string | null;
-        published: Date;
-    };
+	slug: string;
+	data: {
+		title: string;
+		tags: string[];
+		category?: string | null;
+		published: Date;
+	};
 }
 
 interface TagItem {
-    name: string;
-    count: number;
+	name: string;
+	count: number;
 }
 
 interface Group {
-    year: number;
-    posts: Post[];
+	year: number;
+	posts: Post[];
 }
 
 export let sortedPosts: Post[] = [];
 
 let tagList: TagItem[] = [];
-let selectedTag: string = "";
+let selectedTag = "";
 let groups: Group[] = [];
 
 function formatDate(date: Date) {
-    const month = (date.getMonth() + 1).toString().padStart(2, "0");
-    const day = date.getDate().toString().padStart(2, "0");
-    return `${month}-${day}`;
+	const month = (date.getMonth() + 1).toString().padStart(2, "0");
+	const day = date.getDate().toString().padStart(2, "0");
+	return `${month}-${day}`;
 }
 
 function formatTag(tagList: string[]) {
-    return tagList.map((t) => `#${t}`).join(" ");
+	return tagList.map((t) => `#${t}`).join(" ");
 }
 
 function buildGroups(filtered: Post[]) {
-    const grouped = filtered.reduce(
-        (acc, post) => {
-            const year = post.data.published.getFullYear();
-            if (!acc[year]) acc[year] = [];
-            acc[year].push(post);
-            return acc;
-        },
-        {} as Record<number, Post[]>,
-    );
+	const grouped = filtered.reduce(
+		(acc, post) => {
+			const year = post.data.published.getFullYear();
+			if (!acc[year]) acc[year] = [];
+			acc[year].push(post);
+			return acc;
+		},
+		{} as Record<number, Post[]>,
+	);
 
-    const arr = Object.keys(grouped).map((y) => ({
-        year: Number.parseInt(y, 10),
-        posts: grouped[Number.parseInt(y, 10)],
-    }));
-    arr.sort((a, b) => b.year - a.year);
-    return arr;
+	const arr = Object.keys(grouped).map((y) => ({
+		year: Number.parseInt(y, 10),
+		posts: grouped[Number.parseInt(y, 10)],
+	}));
+	arr.sort((a, b) => b.year - a.year);
+	return arr;
 }
 
 function selectTag(tag: string) {
-    selectedTag = tag;
-    const url = new URL(window.location.href);
-    if (tag) {
-        url.searchParams.set("tag", tag);
-    } else {
-        url.searchParams.delete("tag");
-    }
-    window.history.pushState({}, "", url.toString());
+	selectedTag = tag;
+	const url = new URL(window.location.href);
+	if (tag) {
+		url.searchParams.set("tag", tag);
+	} else {
+		url.searchParams.delete("tag");
+	}
+	window.history.pushState({}, "", url.toString());
 
-    const filtered = tag
-        ? sortedPosts.filter(
-              (p) =>
-                  Array.isArray(p.data.tags) && p.data.tags.includes(tag),
-          )
-        : sortedPosts;
-    groups = buildGroups(filtered);
+	const filtered = tag
+		? sortedPosts.filter(
+				(p) => Array.isArray(p.data.tags) && p.data.tags.includes(tag),
+			)
+		: sortedPosts;
+	groups = buildGroups(filtered);
 }
 
 onMount(() => {
-    // Build tag list from posts
-    const countMap: Record<string, number> = {};
-    for (const post of sortedPosts) {
-        for (const tag of post.data.tags ?? []) {
-            countMap[tag] = (countMap[tag] ?? 0) + 1;
-        }
-    }
-    tagList = Object.keys(countMap)
-        .sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()))
-        .map((name) => ({ name, count: countMap[name] }));
+	// Build tag list from posts
+	const countMap: Record<string, number> = {};
+	for (const post of sortedPosts) {
+		for (const tag of post.data.tags ?? []) {
+			countMap[tag] = (countMap[tag] ?? 0) + 1;
+		}
+	}
+	tagList = Object.keys(countMap)
+		.sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()))
+		.map((name) => ({ name, count: countMap[name] }));
 
-    // Read initial tag from URL
-    const params = new URLSearchParams(window.location.search);
-    const urlTag = params.get("tag") ?? "";
-    selectTag(urlTag);
+	// Read initial tag from URL
+	const params = new URLSearchParams(window.location.search);
+	const urlTag = params.get("tag") ?? "";
+	selectTag(urlTag);
 });
 </script>
 
