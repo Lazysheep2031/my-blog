@@ -3,6 +3,7 @@ title: Astro + Vercel 内容缓存排查记录
 published: 2026-04-14
 description: "记录一次博客文章上线后正文不更新的问题：现象、误判点、根因与最终修复。"
 tags: [博客]
+image: ./Lazysheep3.jpg
 category: 日志
 draft: false
 ---
