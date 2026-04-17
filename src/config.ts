@@ -29,7 +29,7 @@ export const siteConfig: SiteConfig = {
 	},
 	toc: {
 		enable: true, // Display the table of contents on the right side of the post
-		depth: 2, // Maximum heading depth to show in the table, from 1 to 3
+		depth: 4, // Maximum Markdown heading depth to show in the table, e.g. 4 means show up to ####
 	},
 	favicon: [
 		// Leave this array empty to use the default favicon
