@@ -30,36 +30,40 @@ const removeTailingHash = (text: string) => {
 let heading1Count = 1;
 
 const maxDepth = siteConfig.toc.depth;
+const visibleHeadings = headings
+	.filter((heading) => heading.depth >= minDepth && heading.depth <= maxDepth)
+	.map((heading) => ({
+		...heading,
+		levelOffset: heading.depth - minDepth,
+	}));
 ---
 {isPostsRoute &&
 <table-of-contents class:list={[className, "group flex flex-col gap-1"]}>
-    {headings.filter((heading) => heading.depth >= minDepth && heading.depth <= maxDepth).map((heading) => {
-            const levelOffset = heading.depth - minDepth;
-            return (
+    {visibleHeadings.map((heading) => (
             <a href={`#${heading.slug}`} class="toc-entry px-2 flex gap-2 relative transition w-full min-h-9 rounded-xl
         hover:bg-[var(--toc-btn-hover)] active:bg-[var(--toc-btn-active)] py-2
     ">
                 <div class:list={["toc-badge transition w-5 h-5 shrink-0 rounded-lg text-xs flex items-center justify-center font-bold",
                     {
-                        "bg-[var(--toc-badge-bg)] text-[var(--btn-content)]": levelOffset == 0,
-                        "ml-4": levelOffset == 1,
-                        "ml-8": levelOffset == 2,
-                        "ml-12": levelOffset == 3,
+                        "bg-[var(--toc-badge-bg)] text-[var(--btn-content)]": heading.levelOffset == 0,
+                        "ml-4": heading.levelOffset == 1,
+                        "ml-8": heading.levelOffset == 2,
+                        "ml-12": heading.levelOffset == 3,
                     }
                 ]}
                 >
-                    {levelOffset == 0 && heading1Count++}
-                    {levelOffset == 1 && <div class="transition w-2 h-2 rounded-[0.1875rem] bg-[var(--toc-badge-bg)]"></div>}
-                    {levelOffset == 2 && <div class="transition w-1.5 h-1.5 rounded-sm bg-black/5 dark:bg-white/10"></div>}
-                    {levelOffset == 3 && <div class="transition w-1.5 h-1.5 rounded-full bg-black/5 dark:bg-white/10"></div>}
+                    {heading.levelOffset == 0 && heading1Count++}
+                    {heading.levelOffset == 1 && <div class="transition w-2 h-2 rounded-[0.1875rem] bg-[var(--toc-badge-bg)]"></div>}
+                    {heading.levelOffset == 2 && <div class="transition w-1.5 h-1.5 rounded-sm bg-black/5 dark:bg-white/10"></div>}
+                    {heading.levelOffset == 3 && <div class="transition w-1.5 h-1.5 rounded-full bg-black/5 dark:bg-white/10"></div>}
                 </div>
                 <div class:list={["toc-title transition text-sm leading-6", {
-                    "text-50": levelOffset == 0 || levelOffset == 1,
-                    "text-30": levelOffset >= 2,
+                    "text-50": heading.levelOffset == 0 || heading.levelOffset == 1,
+                    "text-30": heading.levelOffset >= 2,
                 }]}>{removeTailingHash(heading.text)}</div>
             </a>
-    )})}
-    <div id="active-indicator" style="opacity: 0" class:list={[{'hidden': headings.length == 0}, "-z-10 absolute bg-[var(--toc-btn-hover)] left-0 right-0 rounded-xl transition-all " +
+    ))}
+    <div id="active-indicator" style="opacity: 0" class:list={[{'hidden': visibleHeadings.length == 0}, "-z-10 absolute bg-[var(--toc-btn-hover)] left-0 right-0 rounded-xl transition-all " +
         "group-hover:bg-transparent border-2 border-[var(--toc-btn-hover)] group-hover:border-[var(--toc-btn-active)] border-dashed"]}></div>
 </table-of-contents>}
 
