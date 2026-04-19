@@ -466,16 +466,16 @@
 
     .rail {
       position: relative;
-      min-height: 128px;
-      padding: 10px 0 16px;
-      overflow: hidden;
+      min-height: 160px;
+      padding: 22px 0 28px;
+      overflow: visible;
     }
 
     .rail-line {
       position: absolute;
       left: 6%;
       right: 6%;
-      top: 58px;
+      top: 74px;
       height: 2px;
       background:
         repeating-linear-gradient(90deg, rgba(145, 162, 177, 0.8), rgba(145, 162, 177, 0.8) 10px, transparent 10px, transparent 18px);
@@ -484,7 +484,7 @@
 
     .node {
       position: absolute;
-      top: 58px;
+      top: 74px;
       transform: translate(-50%, -50%);
       min-width: 126px;
       padding: 12px 14px;
@@ -501,7 +501,7 @@
     }
 
     .node.wide {
-      min-width: 212px;
+      min-width: 228px;
     }
 
     .node.cpu { left: 10%; }
@@ -510,7 +510,10 @@
     .node.vc-l1 { left: 31%; }
     .node.vc-victim { left: 56%; }
     .node.vc-mem { left: 82%; }
-    .node.tw-set { left: 45%; }
+    .node.tw-set {
+      left: 44%;
+      min-width: 250px;
+    }
     .node.tw-mem { left: 81%; }
 
     .node-title {
