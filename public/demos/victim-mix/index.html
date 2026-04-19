@@ -1,0 +1,2545 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Victim Cache 交互演示与实验面板</title>
+  <style>
+    :root {
+      --bg: #f3f6f9;
+      --card: #ffffff;
+      --card-2: #f8fbfd;
+      --ink: #20313f;
+      --muted: #5f7285;
+      --line: #d6dfe8;
+      --line-strong: #aebdca;
+      --blue: #41627a;
+      --blue-2: #68879d;
+      --blue-3: #e9f0f5;
+      --navy: #2f4b60;
+      --gold: #e8a93d;
+      --green: #3c9b74;
+      --red: #d46d69;
+      --purple: #796ed6;
+      --shadow: 0 14px 36px rgba(38, 59, 79, 0.08);
+      --radius: 18px;
+      --hit-bg: #edf9f3;
+      --miss-bg: #fff4f4;
+      --swap-bg: #f4f1ff;
+      --fill-bg: #fff8ea;
+      --lane-dm: #d46d69;
+      --lane-vc: #41627a;
+      --lane-tw: #3c9b74;
+      --packet: #f0b44c;
+      --mono: "SFMono-Regular", "Consolas", "Menlo", monospace;
+      --sans: "Avenir Next", "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at top left, rgba(109, 142, 166, 0.08), transparent 28%),
+        radial-gradient(circle at bottom right, rgba(232, 169, 61, 0.08), transparent 20%),
+        var(--bg);
+      color: var(--ink);
+      font-family: var(--sans);
+      line-height: 1.45;
+      padding: 22px;
+    }
+
+    .page {
+      max-width: 1460px;
+      margin: 0 auto;
+    }
+
+    .card {
+      background: linear-gradient(180deg, #fff, #fbfdfe);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .hero {
+      padding: 24px 28px;
+      margin-bottom: 18px;
+    }
+
+    .hero h1 {
+      margin: 0;
+      font-size: 32px;
+      letter-spacing: 0.01em;
+      color: var(--navy);
+    }
+
+    .hero p {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .top-grid {
+      display: grid;
+      grid-template-columns: 380px 1fr;
+      gap: 18px;
+      margin-bottom: 18px;
+      align-items: start;
+    }
+
+    .controls,
+    .demo-stage,
+    .experiments {
+      padding: 20px;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .section-head h2 {
+      margin: 0;
+      font-size: 22px;
+      color: var(--navy);
+    }
+
+    .section-tag,
+    .mini-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: #f4f8fb;
+      color: var(--blue);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    .controls-grid {
+      display: grid;
+      gap: 14px;
+    }
+
+    .field {
+      display: grid;
+      gap: 6px;
+    }
+
+    .field label {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--muted);
+    }
+
+    select,
+    input[type="text"],
+    input[type="number"],
+    input[type="range"] {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 11px 12px;
+      font-size: 14px;
+      color: var(--ink);
+      background: #fff;
+      outline: none;
+      transition: border-color 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    input[type="range"] {
+      padding: 0;
+      accent-color: var(--blue);
+    }
+
+    select:focus,
+    input[type="text"]:focus,
+    input[type="number"]:focus {
+      border-color: var(--blue-2);
+      box-shadow: 0 0 0 4px rgba(104, 135, 157, 0.12);
+    }
+
+    .range-row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .range-value,
+    .status-pill,
+    .trace-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      white-space: nowrap;
+      min-width: 86px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: #f2f7fa;
+      color: var(--blue);
+      border: 1px solid var(--line);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .btn-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .btn {
+      border: 1px solid transparent;
+      border-radius: 12px;
+      padding: 11px 14px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      color: #fff;
+      background: var(--blue);
+      transition: transform 0.15s ease, filter 0.15s ease, opacity 0.15s ease, background 0.15s ease;
+    }
+
+    .btn:hover:not(:disabled) {
+      filter: brightness(0.96);
+      transform: translateY(-1px);
+    }
+
+    .btn.secondary { background: var(--blue-2); }
+    .btn.warn { background: var(--gold); color: #24323d; }
+    .btn.light {
+      background: #eff5f8;
+      color: var(--blue);
+      border-color: var(--line);
+    }
+
+    .btn:disabled {
+      opacity: 0.58;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .trace-console {
+      display: grid;
+      gap: 10px;
+      padding: 14px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, #fafdff, #f5f9fb);
+    }
+
+    .console-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .trace-view {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      min-height: 48px;
+    }
+
+    .token {
+      width: 38px;
+      height: 38px;
+      border-radius: 11px;
+      border: 1px solid var(--line);
+      background: #f0f5f8;
+      color: var(--blue);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      transition: transform 0.16s ease, background 0.16s ease, color 0.16s ease;
+    }
+
+    .token.done {
+      background: #dfe8ef;
+      color: #5a6a78;
+    }
+
+    .token.now {
+      background: var(--gold);
+      color: #25323b;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 18px rgba(232, 169, 61, 0.28);
+    }
+
+    .control-status {
+      min-height: 52px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: #f4f8fa;
+      color: var(--ink);
+      font-size: 14px;
+    }
+
+    .param-card {
+      padding: 14px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, #fbfdff, #f5f9fb);
+    }
+
+    .param-title {
+      margin: 0;
+      color: var(--blue);
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .param-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .param-grid {
+      display: grid;
+      gap: 8px;
+    }
+
+    .param-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: center;
+      padding: 8px 10px;
+      border-radius: 11px;
+      background: #ffffff;
+      border: 1px solid var(--line);
+    }
+
+    .param-row .label {
+      color: var(--ink);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .param-input {
+      width: 110px;
+      padding: 8px 10px !important;
+      font-size: 13px !important;
+      font-weight: 800;
+      color: var(--navy);
+      font-family: var(--mono);
+      text-align: right;
+      background: #fbfdff;
+    }
+
+    .param-footnote {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .demo-top {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .metric-card {
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, #fbfdff, #f5f9fc);
+    }
+
+    .metric-card .k {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .metric-card .v {
+      margin-top: 6px;
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--navy);
+      line-height: 1.15;
+    }
+
+    .metric-card .s {
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .lanes {
+      display: grid;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+
+    .lane {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: linear-gradient(180deg, #fbfdff, #f6fafc);
+      padding: 14px;
+    }
+
+    .lane-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .lane-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 17px;
+      font-weight: 800;
+      color: var(--navy);
+    }
+
+    .lane-dot {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      background: var(--blue);
+      box-shadow: 0 0 0 5px rgba(65, 98, 122, 0.12);
+    }
+
+    .lane[data-kind="dm"] .lane-dot { background: var(--lane-dm); box-shadow: 0 0 0 5px rgba(212, 109, 105, 0.13); }
+    .lane[data-kind="vc"] .lane-dot { background: var(--lane-vc); box-shadow: 0 0 0 5px rgba(65, 98, 122, 0.12); }
+    .lane[data-kind="tw"] .lane-dot { background: var(--lane-tw); box-shadow: 0 0 0 5px rgba(60, 155, 116, 0.13); }
+
+    .lane-status {
+      padding: 6px 11px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      border: 1px solid var(--line);
+      color: var(--blue);
+      background: #f3f7fa;
+      min-width: 80px;
+      text-align: center;
+    }
+
+    .lane-status.hit {
+      background: var(--hit-bg);
+      color: var(--green);
+      border-color: rgba(60, 155, 116, 0.24);
+    }
+
+    .lane-status.miss {
+      background: var(--miss-bg);
+      color: var(--red);
+      border-color: rgba(212, 109, 105, 0.24);
+    }
+
+    .lane-status.vc-hit,
+    .lane-status.swap {
+      background: var(--swap-bg);
+      color: var(--purple);
+      border-color: rgba(121, 110, 214, 0.22);
+    }
+
+    .lane-status.fill {
+      background: var(--fill-bg);
+      color: #9a6a11;
+      border-color: rgba(232, 169, 61, 0.28);
+    }
+
+    .rail {
+      position: relative;
+      min-height: 128px;
+      padding: 10px 0 16px;
+      overflow: hidden;
+    }
+
+    .rail-line {
+      position: absolute;
+      left: 6%;
+      right: 6%;
+      top: 58px;
+      height: 2px;
+      background:
+        repeating-linear-gradient(90deg, rgba(145, 162, 177, 0.8), rgba(145, 162, 177, 0.8) 10px, transparent 10px, transparent 18px);
+      opacity: 0.9;
+    }
+
+    .node {
+      position: absolute;
+      top: 58px;
+      transform: translate(-50%, -50%);
+      min-width: 126px;
+      padding: 12px 14px;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: #fff;
+      box-shadow: 0 10px 22px rgba(47, 75, 96, 0.05);
+      z-index: 2;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+    }
+
+    .node.small {
+      min-width: 118px;
+    }
+
+    .node.wide {
+      min-width: 212px;
+    }
+
+    .node.cpu { left: 10%; }
+    .node.dm-l1 { left: 43%; }
+    .node.dm-mem { left: 80%; }
+    .node.vc-l1 { left: 31%; }
+    .node.vc-victim { left: 56%; }
+    .node.vc-mem { left: 82%; }
+    .node.tw-set { left: 45%; }
+    .node.tw-mem { left: 81%; }
+
+    .node-title {
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .node-main {
+      font-size: 17px;
+      font-weight: 800;
+      color: var(--navy);
+      line-height: 1.12;
+    }
+
+    .node-sub {
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 12px;
+      min-height: 18px;
+    }
+
+    .node-meta {
+      margin-top: 8px;
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 38px;
+      padding: 5px 8px;
+      border-radius: 10px;
+      background: #eef4f7;
+      color: var(--blue);
+      font-size: 12px;
+      font-weight: 800;
+      border: 1px solid var(--line);
+      font-family: var(--mono);
+    }
+
+    .chip.empty {
+      color: var(--muted);
+    }
+
+    .node.is-target {
+      border-color: var(--blue-2);
+      box-shadow: 0 12px 24px rgba(65, 98, 122, 0.1);
+      transform: translate(-50%, -50%) translateY(-2px);
+    }
+
+    .node.is-hit {
+      background: var(--hit-bg);
+      border-color: rgba(60, 155, 116, 0.34);
+      box-shadow: 0 12px 28px rgba(60, 155, 116, 0.16);
+    }
+
+    .node.is-miss {
+      background: var(--miss-bg);
+      border-color: rgba(212, 109, 105, 0.34);
+      box-shadow: 0 12px 28px rgba(212, 109, 105, 0.16);
+    }
+
+    .node.is-fill {
+      background: var(--fill-bg);
+      border-color: rgba(232, 169, 61, 0.34);
+      box-shadow: 0 12px 28px rgba(232, 169, 61, 0.18);
+    }
+
+    .node.is-swap {
+      background: var(--swap-bg);
+      border-color: rgba(121, 110, 214, 0.36);
+      box-shadow: 0 12px 28px rgba(121, 110, 214, 0.18);
+    }
+
+    .mini-grid {
+      display: grid;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .mini-row {
+      display: grid;
+      grid-template-columns: 54px 1fr;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      background: #fbfdfe;
+    }
+
+    .mini-row .label {
+      padding: 6px 8px;
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--blue);
+      background: #eef4f7;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .mini-row .value {
+      padding: 6px 8px;
+      font-size: 12px;
+      font-weight: 800;
+      font-family: var(--mono);
+      color: var(--ink);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .packet {
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, #fff6d1 0%, #f1ba4d 52%, #d99321 100%);
+      box-shadow: 0 6px 16px rgba(232, 169, 61, 0.34);
+      opacity: 0;
+      pointer-events: none;
+      z-index: 3;
+      transform: translate(-50%, -50%);
+    }
+
+    .lane-note {
+      margin-top: 8px;
+      padding-top: 10px;
+      border-top: 1px dashed var(--line);
+      color: var(--ink);
+      font-size: 13px;
+      min-height: 30px;
+    }
+
+    .demo-log {
+      min-height: 58px;
+      padding: 13px 15px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: #f4f8fa;
+      font-size: 14px;
+      color: var(--ink);
+    }
+
+    .panels {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+
+    .panel-toolbar {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 12px;
+      margin: 0 0 14px;
+    }
+
+    .panel-toolbar .panel-hint {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .panel {
+      padding: 18px;
+    }
+
+    .panel-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .panel-head .title {
+      font-size: 19px;
+      font-weight: 800;
+      color: var(--navy);
+    }
+
+    .panel-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .box-title {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .line-grid,
+    .slot-grid,
+    .set-grid {
+      display: grid;
+      gap: 7px;
+    }
+
+    .cache-line,
+    .cache-slot {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fff;
+      overflow: hidden;
+      display: grid;
+      grid-template-columns: 86px 1fr;
+      min-height: 50px;
+      transition: background 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .cache-line .index,
+    .cache-slot .index {
+      background: #eef4f7;
+      color: var(--blue);
+      font-size: 13px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-right: 1px solid var(--line);
+    }
+
+    .cache-line .payload,
+    .cache-slot .payload {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--mono);
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--ink);
+      padding: 8px;
+    }
+
+    .cache-line.hit,
+    .cache-slot.hit,
+    .set-way.hit {
+      background: var(--hit-bg);
+      border-color: rgba(60, 155, 116, 0.3);
+      box-shadow: inset 0 0 0 1px rgba(60, 155, 116, 0.12);
+    }
+
+    .cache-line.miss,
+    .cache-slot.miss,
+    .set-way.miss {
+      background: var(--miss-bg);
+      border-color: rgba(212, 109, 105, 0.3);
+      box-shadow: inset 0 0 0 1px rgba(212, 109, 105, 0.12);
+    }
+
+    .cache-line.fill,
+    .cache-slot.fill,
+    .set-way.fill {
+      background: var(--fill-bg);
+      border-color: rgba(232, 169, 61, 0.32);
+      box-shadow: inset 0 0 0 1px rgba(232, 169, 61, 0.14);
+    }
+
+    .cache-line.swap,
+    .cache-slot.swap,
+    .set-way.swap {
+      background: var(--swap-bg);
+      border-color: rgba(121, 110, 214, 0.32);
+      box-shadow: inset 0 0 0 1px rgba(121, 110, 214, 0.14);
+    }
+
+    .cache-line.target,
+    .cache-slot.target,
+    .set-card.target {
+      outline: 2px solid rgba(104, 135, 157, 0.38);
+      outline-offset: 2px;
+    }
+
+    .set-card {
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      background: #fbfdfe;
+      padding: 10px;
+      transition: outline 0.16s ease;
+    }
+
+    .set-name {
+      color: var(--blue);
+      font-size: 13px;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    .set-ways {
+      display: grid;
+      gap: 7px;
+    }
+
+    .set-way {
+      border: 1px solid var(--line);
+      border-radius: 11px;
+      overflow: hidden;
+      display: grid;
+      grid-template-columns: 70px 1fr;
+      min-height: 46px;
+      background: #fff;
+    }
+
+    .set-way .way-label {
+      background: #eef4f7;
+      border-right: 1px solid var(--line);
+      color: var(--blue);
+      font-size: 12px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .set-way .way-value {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--mono);
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--ink);
+      padding: 8px;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .stat {
+      padding: 10px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: #f6fafc;
+      text-align: center;
+    }
+
+    .stat .k {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--muted);
+    }
+
+    .stat .v {
+      margin-top: 4px;
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--navy);
+    }
+
+    .panel-log {
+      min-height: 54px;
+      padding: 12px 13px;
+      border-radius: 13px;
+      border: 1px dashed var(--line-strong);
+      background: #fafcfd;
+      font-size: 13px;
+      color: var(--ink);
+    }
+
+    .experiments .controls-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    .experiment-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .result-summary {
+      min-height: 54px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: #f4f8fa;
+      color: var(--ink);
+      font-size: 14px;
+    }
+
+    .charts {
+      display: grid;
+      grid-template-columns: 1.15fr 1fr;
+      gap: 18px;
+      margin-top: 14px;
+    }
+
+    .chart-card {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: linear-gradient(180deg, #fbfdff, #f7fafc);
+      padding: 14px;
+    }
+
+    .chart-caption {
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+    }
+
+    .chart-card svg {
+      width: 100%;
+      height: auto;
+      display: block;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: linear-gradient(180deg, #ffffff, #fbfdff);
+      margin-top: 8px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      font-size: 13px;
+    }
+
+    th,
+    td {
+      border: 1px solid var(--line);
+      padding: 8px 9px;
+      text-align: center;
+    }
+
+    th {
+      background: #eef4f7;
+      color: var(--blue);
+      font-weight: 800;
+    }
+
+    .busy {
+      opacity: 0.72;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      border: 0;
+    }
+
+    @media (max-width: 1240px) {
+      .top-grid,
+      .charts,
+      .panels {
+        grid-template-columns: 1fr;
+      }
+
+      .demo-top {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 760px) {
+      body {
+        padding: 14px;
+      }
+
+      .hero,
+      .controls,
+      .demo-stage,
+      .panel,
+      .experiments {
+        padding: 16px;
+      }
+
+      .demo-top {
+        grid-template-columns: 1fr;
+      }
+
+      .btn-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .cache-line,
+      .cache-slot {
+        grid-template-columns: 74px 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="hero card">
+      <h1>Victim Cache 交互演示与实验面板</h1>
+      <p>Direct-Mapped / Victim Cache / 2-Way Set-Associative</p>
+    </header>
+
+    <section class="top-grid">
+      <div class="controls card">
+        <div class="section-head">
+          <h2>设置区</h2>
+          <span class="section-tag">Trace Controller</span>
+        </div>
+
+        <div class="controls-grid">
+          <div class="field">
+            <label for="scenarioSelect">预设 trace</label>
+            <select id="scenarioSelect">
+              <option value="ABABABABABAB" selected>Two-block ping-pong · ABABABABABAB</option>
+              <option value="ABCABCABCABC">Three-block rotation · ABCABCABCABC</option>
+              <option value="ABABCCABABCCABAB">Burst-C conflict · ABABCCABABCCABAB</option>
+              <option value="ABCDEFGHABCDEFGH">Large mixed set · ABCDEFGHABCDEFGH</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="customTrace">自定义 trace</label>
+            <input id="customTrace" type="text" value="ABABABABABAB" placeholder="例如 ABABABABABAB" />
+          </div>
+
+          <div class="field">
+            <label for="speedRange">自动播放速度</label>
+            <div class="range-row">
+              <input id="speedRange" type="range" min="280" max="1100" step="40" value="640" />
+              <span class="range-value" id="speedValue">640 ms</span>
+            </div>
+          </div>
+
+          <div class="btn-grid">
+            <button class="btn" id="btnLoad">载入 Trace</button>
+            <button class="btn secondary" id="btnStep">单步执行</button>
+            <button class="btn warn" id="btnAuto">自动播放</button>
+            <button class="btn light" id="btnReset">重置</button>
+          </div>
+
+          <div class="trace-console">
+            <div class="console-row">
+              <span class="trace-pill">当前 trace</span>
+              <span class="trace-pill" id="traceSummary">ABABABABABAB</span>
+            </div>
+            <div id="traceView" class="trace-view"></div>
+          </div>
+
+          <div class="control-status" id="controlStatus">等待执行。</div>
+
+          <div class="param-card">
+            <div class="param-head">
+              <div class="param-title">参数说明</div>
+              <button class="btn light" id="btnLatencyReset" type="button">恢复默认</button>
+            </div>
+            <div class="param-grid" id="latencyParams"></div>
+            <div class="param-footnote">修改后会立即重算面板 AMAT 和下方实验图表。</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="demo-stage card">
+        <div class="section-head">
+          <h2>演示区</h2>
+          <span class="section-tag">Synchronized Step View</span>
+        </div>
+
+        <div class="demo-top">
+          <div class="metric-card">
+            <div class="k">当前请求</div>
+            <div class="v" id="currentBlock">—</div>
+            <div class="s">当前访问的 block</div>
+          </div>
+          <div class="metric-card">
+            <div class="k">步骤</div>
+            <div class="v" id="currentStep">0 / 0</div>
+            <div class="s">同步推进三种模型</div>
+          </div>
+          <div class="metric-card">
+            <div class="k">Direct-Mapped Index</div>
+            <div class="v" id="currentIndex">—</div>
+            <div class="s">当前 L1 目标位置</div>
+          </div>
+          <div class="metric-card">
+            <div class="k">2-Way Set</div>
+            <div class="v" id="currentSet">—</div>
+            <div class="s">当前目标 set</div>
+          </div>
+        </div>
+
+        <div class="lanes">
+          <div class="lane" data-kind="dm">
+            <div class="lane-head">
+              <div class="lane-title">
+                <span class="lane-dot"></span>
+                <span>Direct-Mapped</span>
+              </div>
+              <div class="lane-status" id="laneStatusDm">IDLE</div>
+            </div>
+            <div class="rail" id="rail-dm">
+              <div class="rail-line"></div>
+              <div class="node cpu is-target" id="node-dm-cpu">
+                <div class="node-title">CPU</div>
+                <div class="node-main" id="dmCpuBlock">—</div>
+                <div class="node-sub">发起请求</div>
+              </div>
+              <div class="node dm-l1" id="node-dm-l1">
+                <div class="node-title">L1 Direct-Mapped</div>
+                <div class="node-main" id="dmStageIndex">Index —</div>
+                <div class="node-sub" id="dmStageMeta">等待访问</div>
+                <div class="node-meta">
+                  <span class="chip empty" id="dmStageValue">Empty</span>
+                </div>
+              </div>
+              <div class="node dm-mem wide" id="node-dm-mem">
+                <div class="node-title">Lower-level Memory</div>
+                <div class="node-main">L2 / DRAM</div>
+                <div class="node-sub" id="dmMemMeta">仅 miss 时访问</div>
+              </div>
+              <div class="packet" id="packet-dm"></div>
+            </div>
+            <div class="lane-note" id="laneNoteDm">等待执行。</div>
+          </div>
+
+          <div class="lane" data-kind="vc">
+            <div class="lane-head">
+              <div class="lane-title">
+                <span class="lane-dot"></span>
+                <span>DM + Victim Cache</span>
+              </div>
+              <div class="lane-status" id="laneStatusVc">IDLE</div>
+            </div>
+            <div class="rail" id="rail-vc">
+              <div class="rail-line"></div>
+              <div class="node cpu is-target" id="node-vc-cpu">
+                <div class="node-title">CPU</div>
+                <div class="node-main" id="vcCpuBlock">—</div>
+                <div class="node-sub">同一步同步访问</div>
+              </div>
+              <div class="node vc-l1" id="node-vc-l1">
+                <div class="node-title">L1 Direct-Mapped</div>
+                <div class="node-main" id="vcStageIndex">Index —</div>
+                <div class="node-sub" id="vcStageMeta">等待访问</div>
+                <div class="node-meta">
+                  <span class="chip empty" id="vcStageValue">Empty</span>
+                </div>
+              </div>
+              <div class="node vc-victim wide" id="node-vc-victim">
+                <div class="node-title">Victim Cache</div>
+                <div class="node-main">Recently Evicted Blocks</div>
+                <div class="mini-grid" id="vcStageSlots"></div>
+              </div>
+              <div class="node vc-mem wide" id="node-vc-mem">
+                <div class="node-title">Lower-level Memory</div>
+                <div class="node-main">L2 / DRAM</div>
+                <div class="node-sub" id="vcMemMeta">VC miss 时访问</div>
+              </div>
+              <div class="packet" id="packet-vc"></div>
+            </div>
+            <div class="lane-note" id="laneNoteVc">等待执行。</div>
+          </div>
+
+          <div class="lane" data-kind="tw">
+            <div class="lane-head">
+              <div class="lane-title">
+                <span class="lane-dot"></span>
+                <span>2-Way Set-Associative</span>
+              </div>
+              <div class="lane-status" id="laneStatusTw">IDLE</div>
+            </div>
+            <div class="rail" id="rail-tw">
+              <div class="rail-line"></div>
+              <div class="node cpu is-target" id="node-tw-cpu">
+                <div class="node-title">CPU</div>
+                <div class="node-main" id="twCpuBlock">—</div>
+                <div class="node-sub">访问目标 set</div>
+              </div>
+              <div class="node tw-set wide" id="node-tw-set">
+                <div class="node-title">Target Set</div>
+                <div class="node-main" id="twStageSet">Set —</div>
+                <div class="node-sub" id="twStageMeta">等待访问</div>
+                <div class="mini-grid" id="twStageWays"></div>
+              </div>
+              <div class="node tw-mem wide" id="node-tw-mem">
+                <div class="node-title">Lower-level Memory</div>
+                <div class="node-main">L2 / DRAM</div>
+                <div class="node-sub" id="twMemMeta">set miss 时访问</div>
+              </div>
+              <div class="packet" id="packet-tw"></div>
+            </div>
+            <div class="lane-note" id="laneNoteTw">等待执行。</div>
+          </div>
+        </div>
+
+        <div class="demo-log" id="globalLog">等待执行。</div>
+      </div>
+    </section>
+
+    <section class="panels">
+      <div class="panel-toolbar" style="grid-column: 1 / -1;">
+        <button class="btn secondary" id="btnPanelStep">单步运行</button>
+        <span class="panel-hint">就近推进下方三种 cache 状态面板</span>
+      </div>
+
+      <div class="panel card">
+        <div class="panel-head">
+          <div class="title">Direct-Mapped</div>
+          <span class="mini-tag">4 lines</span>
+        </div>
+        <div class="panel-grid">
+          <div>
+            <div class="box-title">L1 Cache</div>
+            <div class="line-grid" id="panelDmLines"></div>
+          </div>
+          <div class="stats" id="panelDmStats"></div>
+          <div class="panel-log" id="panelDmLog">等待执行。</div>
+        </div>
+      </div>
+
+      <div class="panel card">
+        <div class="panel-head">
+          <div class="title">DM + Victim Cache</div>
+          <span class="mini-tag">L1 + 2-entry VC</span>
+        </div>
+        <div class="panel-grid">
+          <div>
+            <div class="box-title">L1 Cache</div>
+            <div class="line-grid" id="panelVcLines"></div>
+          </div>
+          <div>
+            <div class="box-title">Victim Cache</div>
+            <div class="slot-grid" id="panelVcSlots"></div>
+          </div>
+          <div class="stats" id="panelVcStats"></div>
+          <div class="panel-log" id="panelVcLog">等待执行。</div>
+        </div>
+      </div>
+
+      <div class="panel card">
+        <div class="panel-head">
+          <div class="title">2-Way Set-Associative</div>
+          <span class="mini-tag">2 sets × 2 ways</span>
+        </div>
+        <div class="panel-grid">
+          <div>
+            <div class="box-title">Sets &amp; Ways</div>
+            <div class="set-grid" id="panelTwSets"></div>
+          </div>
+          <div class="stats" id="panelTwStats"></div>
+          <div class="panel-log" id="panelTwLog">等待执行。</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="experiments card">
+      <div class="section-head">
+        <h2>实验结果</h2>
+        <span class="section-tag">Offline SVG Charts</span>
+      </div>
+
+      <div class="controls-row">
+        <div class="experiment-actions">
+          <button class="btn" id="btnRunSuite">运行 workload 对比实验</button>
+          <button class="btn secondary" id="btnSweep">运行 VC 大小扫描</button>
+        </div>
+        <div class="status-pill" id="experimentStamp">默认结果已载入</div>
+      </div>
+
+      <div class="result-summary" id="resultSummary">等待实验执行。</div>
+
+      <div class="charts">
+        <div class="chart-card">
+          <div class="box-title">Grouped Bar Chart · Normalized AMAT</div>
+          <svg id="barChart" viewBox="0 0 760 420" aria-labelledby="barTitle" role="img">
+            <title id="barTitle">workload 对比实验 Normalized AMAT 柱状图</title>
+          </svg>
+          <table id="suiteTable"></table>
+        </div>
+
+        <div class="chart-card">
+          <div class="box-title">Line Chart · Normalized AMAT vs VC Size</div>
+          <div class="chart-caption" id="sweepTraceCaption">Current Trace: ABABABABABAB</div>
+          <svg id="lineChart" viewBox="0 0 620 420" aria-labelledby="lineTitle" role="img">
+            <title id="lineTitle">victim cache 大小扫描 Normalized AMAT 折线图</title>
+          </svg>
+          <table id="sweepTable"></table>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    (() => {
+      const DEFAULT_LATENCY = Object.freeze({
+        dmL1Hit: 1.00,
+        victimL1Hit: 1.00,
+        victimLookupSwap: 0.60,
+        twoWayL1Hit: 1.15,
+        lowerLevelPenalty: 12.0
+      });
+
+      const LATENCY_FIELDS = [
+        { key: "dmL1Hit", label: "DM / VC 基础 L1 hit time", step: "0.05" },
+        { key: "victimLookupSwap", label: "Victim Cache 额外 lookup / swap", step: "0.05" },
+        { key: "twoWayL1Hit", label: "2-Way L1 hit time", step: "0.05" },
+        { key: "lowerLevelPenalty", label: "Lower-level memory penalty", step: "0.1" }
+      ];
+
+      const CONFIG = {
+        defaultTrace: "ABABABABABAB",
+        defaultVcSize: 2,
+        latency: { ...DEFAULT_LATENCY },
+        suiteScenarios: [
+          { name: "Two-block ping-pong", trace: "ABABABABABAB" },
+          { name: "Three-block rotation", trace: "ABCABCABCABC" },
+          { name: "Burst-C conflict", trace: "ABABCCABABCCABAB" },
+          { name: "Large mixed set", trace: "ABCDEFGHABCDEFGH" }
+        ],
+        map4: { A: 1, B: 1, C: 1, D: 0, E: 2, F: 3, G: 0, H: 2, I: 3, J: 0, K: 2, L: 3 }
+      };
+
+      const DOM = {
+        scenarioSelect: document.getElementById("scenarioSelect"),
+        customTrace: document.getElementById("customTrace"),
+        speedRange: document.getElementById("speedRange"),
+        speedValue: document.getElementById("speedValue"),
+        btnLoad: document.getElementById("btnLoad"),
+        btnStep: document.getElementById("btnStep"),
+        btnPanelStep: document.getElementById("btnPanelStep"),
+        btnAuto: document.getElementById("btnAuto"),
+        btnReset: document.getElementById("btnReset"),
+        btnLatencyReset: document.getElementById("btnLatencyReset"),
+        btnRunSuite: document.getElementById("btnRunSuite"),
+        btnSweep: document.getElementById("btnSweep"),
+        traceSummary: document.getElementById("traceSummary"),
+        traceView: document.getElementById("traceView"),
+        controlStatus: document.getElementById("controlStatus"),
+        globalLog: document.getElementById("globalLog"),
+        currentBlock: document.getElementById("currentBlock"),
+        currentStep: document.getElementById("currentStep"),
+        currentIndex: document.getElementById("currentIndex"),
+        currentSet: document.getElementById("currentSet"),
+        experimentStamp: document.getElementById("experimentStamp"),
+        resultSummary: document.getElementById("resultSummary"),
+        latencyParams: document.getElementById("latencyParams"),
+        barChart: document.getElementById("barChart"),
+        lineChart: document.getElementById("lineChart"),
+        sweepTraceCaption: document.getElementById("sweepTraceCaption"),
+        suiteTable: document.getElementById("suiteTable"),
+        sweepTable: document.getElementById("sweepTable"),
+        panelDmLines: document.getElementById("panelDmLines"),
+        panelVcLines: document.getElementById("panelVcLines"),
+        panelVcSlots: document.getElementById("panelVcSlots"),
+        panelTwSets: document.getElementById("panelTwSets"),
+        lanes: {
+          dm: {
+            rail: document.getElementById("rail-dm"),
+            packet: document.getElementById("packet-dm"),
+            status: document.getElementById("laneStatusDm"),
+            note: document.getElementById("laneNoteDm"),
+            nodes: {
+              cpu: document.getElementById("node-dm-cpu"),
+              l1: document.getElementById("node-dm-l1"),
+              mem: document.getElementById("node-dm-mem")
+            }
+          },
+          vc: {
+            rail: document.getElementById("rail-vc"),
+            packet: document.getElementById("packet-vc"),
+            status: document.getElementById("laneStatusVc"),
+            note: document.getElementById("laneNoteVc"),
+            nodes: {
+              cpu: document.getElementById("node-vc-cpu"),
+              l1: document.getElementById("node-vc-l1"),
+              vc: document.getElementById("node-vc-victim"),
+              mem: document.getElementById("node-vc-mem")
+            }
+          },
+          tw: {
+            rail: document.getElementById("rail-tw"),
+            packet: document.getElementById("packet-tw"),
+            status: document.getElementById("laneStatusTw"),
+            note: document.getElementById("laneNoteTw"),
+            nodes: {
+              cpu: document.getElementById("node-tw-cpu"),
+              set: document.getElementById("node-tw-set"),
+              mem: document.getElementById("node-tw-mem")
+            }
+          }
+        }
+      };
+
+      const AppState = {
+        trace: normalizeTrace(CONFIG.defaultTrace),
+        pos: 0,
+        models: null,
+        isAnimating: false,
+        isAutoPlaying: false,
+        isExperimentBusy: false,
+        lastStep: null,
+        suiteRunCount: 0,
+        sweepRunCount: 0
+      };
+
+      function normalizeTrace(raw) {
+        return String(raw || "")
+          .toUpperCase()
+          .replace(/[^A-Z]/g, "")
+          .split("")
+          .filter(Boolean);
+      }
+
+      function indexForBlock(block) {
+        if (CONFIG.map4[block] != null) return CONFIG.map4[block];
+        const code = block.charCodeAt(0) - 65;
+        return ((code % 4) + 4) % 4;
+      }
+
+      function setForBlock(block) {
+        return indexForBlock(block) % 2;
+      }
+
+      function sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+      }
+
+      function escapeHtml(text) {
+        return String(text)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+      }
+
+      function hitRate(stats) {
+        if (!stats.accesses) return "0%";
+        return `${Math.round((stats.hits / stats.accesses) * 100)}%`;
+      }
+
+      function normalizedAmat(stats, modelKind) {
+        const lat = CONFIG.latency;
+        const accesses = stats.accesses || 1;
+        let total = 0;
+
+        if (modelKind === "dm") {
+          total =
+            stats.hits * lat.dmL1Hit +
+            stats.misses * (lat.dmL1Hit + lat.lowerLevelPenalty);
+        } else if (modelKind === "vc") {
+          total =
+            stats.hits * lat.victimL1Hit +
+            stats.vcHits * (lat.victimL1Hit + lat.victimLookupSwap) +
+            stats.lower * (lat.victimL1Hit + lat.victimLookupSwap + lat.lowerLevelPenalty);
+        } else if (modelKind === "tw") {
+          total =
+            stats.hits * lat.twoWayL1Hit +
+            stats.misses * (lat.twoWayL1Hit + lat.lowerLevelPenalty);
+        } else {
+          throw new Error(`Unknown model kind: ${modelKind}`);
+        }
+
+        return +(total / accesses).toFixed(2);
+      }
+
+      function formatAmat(value) {
+        return Number(value).toFixed(2);
+      }
+
+      function formatLatency(value) {
+        if (Number.isInteger(value)) return Number(value).toFixed(1);
+        return Number(value).toFixed(2);
+      }
+
+      class DMEngine {
+        constructor() {
+          this.l1 = [null, null, null, null];
+          this.hits = 0;
+          this.misses = 0;
+          this.lower = 0;
+          this.vcHits = 0;
+        }
+
+        snapshot() {
+          return { l1: [...this.l1], stats: this.stats() };
+        }
+
+        stats() {
+          return {
+            accesses: this.hits + this.misses,
+            hits: this.hits,
+            misses: this.misses,
+            vcHits: 0,
+            lower: this.lower
+          };
+        }
+
+        access(block) {
+          const idx = indexForBlock(block);
+          const current = this.l1[idx];
+          if (current === block) {
+            this.hits += 1;
+            return {
+              type: "hit",
+              block,
+              idx,
+              evicted: null,
+              note: `Index ${idx} 命中，${block} 直接返回。`,
+              short: `L1 hit on Index ${idx}`
+            };
+          }
+
+          this.misses += 1;
+          this.lower += 1;
+          this.l1[idx] = block;
+          return {
+            type: "miss",
+            block,
+            idx,
+            evicted: current,
+            note: current
+              ? `Index ${idx} miss，从内存装入 ${block}，替换 ${current}。`
+              : `Index ${idx} miss，从内存装入 ${block}。`,
+            short: current ? `Miss, replace ${current}` : "Miss, fill empty line"
+          };
+        }
+      }
+
+      class DMVCEngine {
+        constructor(size = 2) {
+          this.l1 = [null, null, null, null];
+          this.vc = [];
+          this.vcSize = size;
+          this.hits = 0;
+          this.misses = 0;
+          this.vcHits = 0;
+          this.lower = 0;
+        }
+
+        snapshot() {
+          const vc = [];
+          for (let i = 0; i < this.vcSize; i += 1) vc.push(this.vc[i] || null);
+          return { l1: [...this.l1], vc, stats: this.stats() };
+        }
+
+        stats() {
+          return {
+            accesses: this.hits + this.misses,
+            hits: this.hits,
+            misses: this.misses,
+            vcHits: this.vcHits,
+            lower: this.lower
+          };
+        }
+
+        insertVictim(block) {
+          if (!block) return { dropped: null, insertedIndex: null };
+          const existing = this.vc.indexOf(block);
+          if (existing !== -1) this.vc.splice(existing, 1);
+          this.vc.unshift(block);
+          let dropped = null;
+          if (this.vc.length > this.vcSize) dropped = this.vc.pop();
+          return { dropped, insertedIndex: 0 };
+        }
+
+        access(block) {
+          const idx = indexForBlock(block);
+          const current = this.l1[idx];
+
+          if (current === block) {
+            this.hits += 1;
+            return {
+              type: "hit",
+              block,
+              idx,
+              vcIndex: null,
+              vcInsertedIndex: null,
+              evicted: null,
+              vcVictim: null,
+              note: `Index ${idx} 直接命中，Victim Cache 不参与。`,
+              short: `L1 hit on Index ${idx}`
+            };
+          }
+
+          this.misses += 1;
+          const vcIndex = this.vc.indexOf(block);
+          if (vcIndex !== -1) {
+            this.vcHits += 1;
+            this.vc.splice(vcIndex, 1);
+            this.l1[idx] = block;
+            const insertion = current ? this.insertVictim(current) : { insertedIndex: null, dropped: null };
+            return {
+              type: "vc-hit",
+              block,
+              idx,
+              vcIndex,
+              vcInsertedIndex: insertion.insertedIndex,
+              evicted: current,
+              vcVictim: insertion.dropped,
+              note: current
+                ? `L1 miss，但 VC 命中 ${block}；与 L1 中的 ${current} 发生 swap。`
+                : `L1 miss，但 VC 命中 ${block}；直接回填 L1。`,
+              short: current ? `VC hit, swap with ${current}` : "VC hit, refill L1"
+            };
+          }
+
+          this.lower += 1;
+          this.l1[idx] = block;
+          const insertion = current ? this.insertVictim(current) : { insertedIndex: null, dropped: null };
+          return {
+            type: "miss",
+            block,
+            idx,
+            vcIndex: null,
+            vcInsertedIndex: insertion.insertedIndex,
+            evicted: current,
+            vcVictim: insertion.dropped,
+            note: current
+              ? `L1 miss，VC 也 miss；从内存装入 ${block}，把 ${current} 推入 VC${insertion.dropped ? `，淘汰 ${insertion.dropped}` : ""}。`
+              : `L1 miss，VC 也 miss；从内存装入 ${block}。`,
+            short: current ? `Memory fill, push ${current} to VC` : "Memory fill"
+          };
+        }
+      }
+
+      class TwoWayEngine {
+        constructor() {
+          this.sets = [[], []];
+          this.hits = 0;
+          this.misses = 0;
+          this.lower = 0;
+          this.vcHits = 0;
+        }
+
+        snapshot() {
+          return {
+            sets: this.sets.map(set => [set[0] || null, set[1] || null]),
+            stats: this.stats()
+          };
+        }
+
+        stats() {
+          return {
+            accesses: this.hits + this.misses,
+            hits: this.hits,
+            misses: this.misses,
+            vcHits: 0,
+            lower: this.lower
+          };
+        }
+
+        access(block) {
+          const setIdx = setForBlock(block);
+          const set = this.sets[setIdx];
+          const hitWayBefore = set.indexOf(block);
+
+          if (hitWayBefore !== -1) {
+            this.hits += 1;
+            set.splice(hitWayBefore, 1);
+            set.unshift(block);
+            return {
+              type: "hit",
+              block,
+              setIdx,
+              hitWayBefore,
+              hitWayAfter: 0,
+              evicted: null,
+              note: `Set ${setIdx} 命中，${block} 更新为 MRU。`,
+              short: `Set ${setIdx} hit`
+            };
+          }
+
+          this.misses += 1;
+          this.lower += 1;
+          let evicted = null;
+          if (set.length >= 2) evicted = set.pop();
+          set.unshift(block);
+          return {
+            type: "miss",
+            block,
+            setIdx,
+            hitWayBefore: null,
+            hitWayAfter: 0,
+            evicted,
+            note: evicted
+              ? `Set ${setIdx} miss，从内存装入 ${block}，按 LRU 替换 ${evicted}。`
+              : `Set ${setIdx} miss，从内存装入 ${block}。`,
+            short: evicted ? `Miss, replace ${evicted}` : "Miss, fill empty way"
+          };
+        }
+      }
+
+      const CacheModels = {
+        create(vcSize = CONFIG.defaultVcSize) {
+          return {
+            dm: new DMEngine(),
+            vc: new DMVCEngine(vcSize),
+            tw: new TwoWayEngine()
+          };
+        }
+      };
+
+      const StepOrchestrator = {
+        nextStep(block) {
+          const before = {
+            dm: AppState.models.dm.snapshot(),
+            vc: AppState.models.vc.snapshot(),
+            tw: AppState.models.tw.snapshot()
+          };
+          const dmEvent = AppState.models.dm.access(block);
+          const vcEvent = AppState.models.vc.access(block);
+          const twEvent = AppState.models.tw.access(block);
+          const after = {
+            dm: AppState.models.dm.snapshot(),
+            vc: AppState.models.vc.snapshot(),
+            tw: AppState.models.tw.snapshot()
+          };
+          return {
+            block,
+            position: AppState.pos + 1,
+            total: AppState.trace.length,
+            index: indexForBlock(block),
+            set: setForBlock(block),
+            before,
+            after,
+            events: {
+              dm: dmEvent,
+              vc: vcEvent,
+              tw: twEvent
+            }
+          };
+        }
+      };
+
+      const Renderer = {
+        renderLatencyParams() {
+          const lat = CONFIG.latency;
+          DOM.latencyParams.innerHTML = LATENCY_FIELDS.map(field => `
+            <div class="param-row">
+              <label class="label" for="latency-${field.key}">${field.label}</label>
+              <input
+                class="param-input"
+                id="latency-${field.key}"
+                data-latency-key="${field.key}"
+                type="number"
+                min="0"
+                step="${field.step}"
+                value="${formatLatency(lat[field.key])}"
+              />
+            </div>`).join("");
+        },
+
+        renderTrace() {
+          DOM.traceView.innerHTML = "";
+          DOM.traceSummary.textContent = AppState.trace.join("");
+          AppState.trace.forEach((block, index) => {
+            const token = document.createElement("div");
+            token.className = "token";
+            if (index < AppState.pos) token.classList.add("done");
+            if (index === AppState.pos) token.classList.add("now");
+            token.textContent = block;
+            DOM.traceView.appendChild(token);
+          });
+        },
+
+        renderControlStatus() {
+          DOM.speedValue.textContent = `${DOM.speedRange.value} ms`;
+          if (AppState.isAutoPlaying) {
+            DOM.controlStatus.textContent = "自动播放中。当前步骤完成后会继续推进。";
+            return;
+          }
+          if (AppState.isAnimating) {
+            DOM.controlStatus.textContent = "当前步骤动画进行中。";
+            return;
+          }
+          if (AppState.pos >= AppState.trace.length && AppState.trace.length) {
+            DOM.controlStatus.textContent = "Trace 已执行完。可重置或重新载入。";
+            return;
+          }
+          DOM.controlStatus.textContent = `已载入 ${AppState.trace.length} 步 trace。当前位置 ${AppState.pos}/${AppState.trace.length}。`;
+        },
+
+        renderButtons() {
+          const blocked = AppState.isAnimating || AppState.isAutoPlaying;
+          DOM.btnLoad.disabled = blocked;
+          DOM.btnStep.disabled = blocked || AppState.pos >= AppState.trace.length;
+          DOM.btnPanelStep.disabled = blocked || AppState.pos >= AppState.trace.length;
+          DOM.btnReset.disabled = blocked;
+          DOM.btnAuto.disabled = AppState.isAnimating && !AppState.isAutoPlaying;
+          DOM.btnAuto.textContent = AppState.isAutoPlaying ? "停止播放" : "自动播放";
+        },
+
+        renderDemo(step = AppState.lastStep) {
+          const currentDm = step ? step.after.dm : AppState.models.dm.snapshot();
+          const currentVc = step ? step.after.vc : AppState.models.vc.snapshot();
+          const currentTw = step ? step.after.tw : AppState.models.tw.snapshot();
+
+          DOM.currentBlock.textContent = step ? step.block : "—";
+          DOM.currentStep.textContent = step ? `${step.position} / ${step.total}` : `${AppState.pos} / ${AppState.trace.length}`;
+          DOM.currentIndex.textContent = step ? `Index ${step.index}` : "—";
+          DOM.currentSet.textContent = step ? `Set ${step.set}` : "—";
+
+          document.getElementById("dmCpuBlock").textContent = step ? step.block : "—";
+          document.getElementById("vcCpuBlock").textContent = step ? step.block : "—";
+          document.getElementById("twCpuBlock").textContent = step ? step.block : "—";
+
+          const dmIdx = step ? step.index : 1;
+          document.getElementById("dmStageIndex").textContent = `Index ${step ? step.index : "—"}`;
+          document.getElementById("dmStageMeta").textContent = step ? step.events.dm.short : "等待访问";
+          this.renderChip(document.getElementById("dmStageValue"), currentDm.l1[dmIdx]);
+          document.getElementById("dmMemMeta").textContent = step && step.events.dm.type === "miss" ? "本步访问了下级内存" : "仅 miss 时访问";
+
+          document.getElementById("vcStageIndex").textContent = `Index ${step ? step.index : "—"}`;
+          document.getElementById("vcStageMeta").textContent = step ? step.events.vc.short : "等待访问";
+          this.renderChip(document.getElementById("vcStageValue"), currentVc.l1[dmIdx]);
+          document.getElementById("vcMemMeta").textContent = step && step.events.vc.type === "miss" ? "本步访问了下级内存" : "VC hit 可避免内存访问";
+          document.getElementById("vcStageSlots").innerHTML = currentVc.vc.map((block, i) => `
+            <div class="mini-row">
+              <div class="label">VC ${i}</div>
+              <div class="value">${block || "Empty"}</div>
+            </div>`).join("");
+
+          const setIdx = step ? step.set : 1;
+          document.getElementById("twStageSet").textContent = `Set ${step ? step.set : "—"}`;
+          document.getElementById("twStageMeta").textContent = step ? step.events.tw.short : "等待访问";
+          document.getElementById("twStageWays").innerHTML = currentTw.sets[setIdx].map((block, i) => `
+            <div class="mini-row">
+              <div class="label">Way ${i}</div>
+              <div class="value">${block || "Empty"}</div>
+            </div>`).join("");
+          document.getElementById("twMemMeta").textContent = step && step.events.tw.type === "miss" ? "本步访问了下级内存" : "命中时不访问内存";
+
+          this.applyLaneVisualState(step);
+          DOM.lanes.dm.note.textContent = step ? step.events.dm.note : "等待执行。";
+          DOM.lanes.vc.note.textContent = step ? step.events.vc.note : "等待执行。";
+          DOM.lanes.tw.note.textContent = step ? step.events.tw.note : "等待执行。";
+
+          DOM.globalLog.innerHTML = step
+            ? `<b>Step ${step.position}/${step.total}</b> · 请求 <b>${escapeHtml(step.block)}</b> · DM ${step.events.dm.type.toUpperCase()} / VC ${step.events.vc.type.toUpperCase()} / 2-Way ${step.events.tw.type.toUpperCase()}`
+            : "等待执行。";
+        },
+
+        renderChip(el, value) {
+          el.textContent = value || "Empty";
+          el.className = `chip${value ? "" : " empty"}`;
+        },
+
+        resetLaneClasses() {
+          Object.values(DOM.lanes).forEach(lane => {
+            lane.status.className = "lane-status";
+            const nodes = lane.nodes;
+            Object.values(nodes).forEach(node => {
+              node.classList.remove("is-hit", "is-miss", "is-fill", "is-swap", "is-target");
+            });
+            if (nodes.cpu) nodes.cpu.classList.add("is-target");
+          });
+        },
+
+        applyLaneVisualState(step) {
+          this.resetLaneClasses();
+          const statuses = {
+            hit: { text: "HIT", cls: "hit" },
+            miss: { text: "MISS", cls: "miss" },
+            "vc-hit": { text: "VC HIT", cls: "vc-hit" }
+          };
+
+          if (!step) {
+            DOM.lanes.dm.status.textContent = "IDLE";
+            DOM.lanes.vc.status.textContent = "IDLE";
+            DOM.lanes.tw.status.textContent = "IDLE";
+            return;
+          }
+
+          const dmStatus = statuses[step.events.dm.type];
+          DOM.lanes.dm.status.textContent = dmStatus.text;
+          DOM.lanes.dm.status.classList.add(dmStatus.cls);
+          DOM.lanes.dm.nodes.l1.classList.add(step.events.dm.type === "hit" ? "is-hit" : "is-miss");
+          if (step.events.dm.type === "miss") DOM.lanes.dm.nodes.mem.classList.add("is-fill");
+
+          const vcStatus = statuses[step.events.vc.type] || { text: "IDLE", cls: "" };
+          DOM.lanes.vc.status.textContent = vcStatus.text;
+          if (vcStatus.cls) DOM.lanes.vc.status.classList.add(vcStatus.cls);
+          if (step.events.vc.type === "hit") {
+            DOM.lanes.vc.nodes.l1.classList.add("is-hit");
+          } else if (step.events.vc.type === "vc-hit") {
+            DOM.lanes.vc.nodes.l1.classList.add("is-swap");
+            DOM.lanes.vc.nodes.vc.classList.add("is-swap");
+          } else {
+            DOM.lanes.vc.nodes.l1.classList.add("is-miss");
+            DOM.lanes.vc.nodes.vc.classList.add("is-miss");
+            DOM.lanes.vc.nodes.mem.classList.add("is-fill");
+          }
+
+          const twStatus = statuses[step.events.tw.type];
+          DOM.lanes.tw.status.textContent = twStatus.text;
+          DOM.lanes.tw.status.classList.add(twStatus.cls);
+          DOM.lanes.tw.nodes.set.classList.add(step.events.tw.type === "hit" ? "is-hit" : "is-miss");
+          if (step.events.tw.type === "miss") DOM.lanes.tw.nodes.mem.classList.add("is-fill");
+        },
+
+        renderPanels(step = AppState.lastStep) {
+          const dmState = step ? step.after.dm : AppState.models.dm.snapshot();
+          const vcState = step ? step.after.vc : AppState.models.vc.snapshot();
+          const twState = step ? step.after.tw : AppState.models.tw.snapshot();
+
+          DOM.panelDmLines.innerHTML = dmState.l1.map((value, idx) => {
+            const classes = ["cache-line"];
+            if (step && step.events.dm.idx === idx) {
+              classes.push("target");
+              classes.push(step.events.dm.type === "hit" ? "hit" : "fill");
+            }
+            return `
+              <div class="${classes.join(" ")}">
+                <div class="index">Index ${idx}</div>
+                <div class="payload">${value || "Empty"}</div>
+              </div>`;
+          }).join("");
+
+          DOM.panelVcLines.innerHTML = vcState.l1.map((value, idx) => {
+            const classes = ["cache-line"];
+            if (step && step.events.vc.idx === idx) {
+              classes.push("target");
+              if (step.events.vc.type === "hit") classes.push("hit");
+              if (step.events.vc.type === "miss") classes.push("fill");
+              if (step.events.vc.type === "vc-hit") classes.push("swap");
+            }
+            return `
+              <div class="${classes.join(" ")}">
+                <div class="index">Index ${idx}</div>
+                <div class="payload">${value || "Empty"}</div>
+              </div>`;
+          }).join("");
+
+          DOM.panelVcSlots.innerHTML = vcState.vc.map((value, idx) => {
+            const classes = ["cache-slot"];
+            if (step) {
+              if (step.events.vc.type === "vc-hit" && idx === 0) classes.push("swap", "target");
+              if (step.events.vc.type === "miss" && step.events.vc.vcInsertedIndex === idx) classes.push("fill", "target");
+            }
+            return `
+              <div class="${classes.join(" ")}">
+                <div class="index">VC ${idx}</div>
+                <div class="payload">${value || "Empty"}</div>
+              </div>`;
+          }).join("");
+
+          DOM.panelTwSets.innerHTML = twState.sets.map((ways, setIdx) => {
+            const setTarget = step && step.events.tw.setIdx === setIdx ? " target" : "";
+            return `
+              <div class="set-card${setTarget}">
+                <div class="set-name">Set ${setIdx}</div>
+                <div class="set-ways">
+                  ${ways.map((value, wayIdx) => {
+                    const classes = ["set-way"];
+                    if (step && step.events.tw.setIdx === setIdx) {
+                      if (step.events.tw.type === "hit" && wayIdx === 0 && value === step.block) classes.push("hit");
+                      if (step.events.tw.type === "miss" && wayIdx === 0 && value === step.block) classes.push("fill");
+                    }
+                    return `
+                      <div class="${classes.join(" ")}">
+                        <div class="way-label">Way ${wayIdx}</div>
+                        <div class="way-value">${value || "Empty"}</div>
+                      </div>`;
+                  }).join("")}
+                </div>
+              </div>`;
+          }).join("");
+
+          this.renderStats("panelDmStats", dmState.stats, false);
+          this.renderStats("panelVcStats", vcState.stats, true);
+          this.renderStats("panelTwStats", twState.stats, false);
+
+          document.getElementById("panelDmLog").textContent = step ? step.events.dm.note : "等待执行。";
+          document.getElementById("panelVcLog").textContent = step ? step.events.vc.note : "等待执行。";
+          document.getElementById("panelTwLog").textContent = step ? step.events.tw.note : "等待执行。";
+        },
+
+        renderStats(id, stats, includeVcHits) {
+          const root = document.getElementById(id);
+          const items = includeVcHits
+            ? [
+                ["Accesses", stats.accesses],
+                ["Hits", stats.hits],
+                ["Misses", stats.misses],
+                ["VC Hits", stats.vcHits],
+                ["Lower Lv", stats.lower],
+                ["Normalized AMAT", formatAmat(normalizedAmat(stats, "vc"))]
+              ]
+            : [
+                ["Accesses", stats.accesses],
+                ["Hits", stats.hits],
+                ["Misses", stats.misses],
+                ["Lower Lv", stats.lower],
+                ["Hit Rate", hitRate(stats)],
+                ["Normalized AMAT", formatAmat(normalizedAmat(stats, id === "panelTwStats" ? "tw" : "dm"))]
+              ];
+          root.innerHTML = items.map(([k, v]) => `
+            <div class="stat">
+              <div class="k">${k}</div>
+              <div class="v">${v}</div>
+            </div>`).join("");
+        },
+
+        renderAll(step = AppState.lastStep) {
+          this.renderTrace();
+          this.renderButtons();
+          this.renderControlStatus();
+          this.renderDemo(step);
+          this.renderPanels(step);
+        }
+      };
+
+      const AnimationDirector = {
+        getDuration() {
+          return Math.max(180, Math.round(Number(DOM.speedRange.value) * 0.48));
+        },
+
+        async animateStep(step) {
+          const tasks = [
+            this.animateLane("dm", this.buildDmSegments(step.events.dm)),
+            this.animateLane("vc", this.buildVcSegments(step.events.vc)),
+            this.animateLane("tw", this.buildTwSegments(step.events.tw))
+          ];
+          await Promise.all(tasks);
+        },
+
+        buildDmSegments(event) {
+          if (event.type === "hit") {
+            return [["cpu", "l1"], ["l1", "cpu"]];
+          }
+          return [["cpu", "l1"], ["l1", "mem"], ["mem", "l1"], ["l1", "cpu"]];
+        },
+
+        buildVcSegments(event) {
+          if (event.type === "hit") {
+            return [["cpu", "l1"], ["l1", "cpu"]];
+          }
+          if (event.type === "vc-hit") {
+            return [["cpu", "l1"], ["l1", "vc"], ["vc", "l1"], ["l1", "cpu"]];
+          }
+          return [["cpu", "l1"], ["l1", "vc"], ["vc", "mem"], ["mem", "l1"], ["l1", "cpu"]];
+        },
+
+        buildTwSegments(event) {
+          if (event.type === "hit") {
+            return [["cpu", "set"], ["set", "cpu"]];
+          }
+          return [["cpu", "set"], ["set", "mem"], ["mem", "set"], ["set", "cpu"]];
+        },
+
+        async animateLane(kind, segments) {
+          const lane = DOM.lanes[kind];
+          for (const [fromKey, toKey] of segments) {
+            await this.movePacket(lane.packet, lane.rail, lane.nodes[fromKey], lane.nodes[toKey], this.getDuration());
+            await sleep(40);
+          }
+          lane.packet.style.opacity = "0";
+        },
+
+        async movePacket(packet, rail, fromEl, toEl, duration) {
+          const railRect = rail.getBoundingClientRect();
+          const fromRect = fromEl.getBoundingClientRect();
+          const toRect = toEl.getBoundingClientRect();
+          const startX = fromRect.left + fromRect.width / 2 - railRect.left;
+          const startY = fromRect.top + fromRect.height / 2 - railRect.top;
+          const endX = toRect.left + toRect.width / 2 - railRect.left;
+          const endY = toRect.top + toRect.height / 2 - railRect.top;
+
+          packet.style.transition = "none";
+          packet.style.left = `${startX}px`;
+          packet.style.top = `${startY}px`;
+          packet.style.opacity = "1";
+
+          await new Promise(requestAnimationFrame);
+          packet.style.transition = `left ${duration}ms cubic-bezier(.22,.61,.36,1), top ${duration}ms cubic-bezier(.22,.61,.36,1), opacity 120ms ease`;
+          packet.style.left = `${endX}px`;
+          packet.style.top = `${endY}px`;
+          await sleep(duration);
+        }
+      };
+
+      const TraceController = {
+        initTrace(trace) {
+          AppState.trace = trace;
+          AppState.pos = 0;
+          AppState.lastStep = null;
+          AppState.models = CacheModels.create(CONFIG.defaultVcSize);
+          Renderer.renderAll(null);
+          if (typeof refreshSweepForCurrentTrace === "function") {
+            refreshSweepForCurrentTrace(true);
+            DOM.experimentStamp.textContent = "VC 扫描已同步到当前 trace";
+          }
+        },
+
+        loadTraceFromInput() {
+          this.stopAuto();
+          const trace = normalizeTrace(DOM.customTrace.value);
+          if (!trace.length) {
+            window.alert("请输入至少一个字母，例如 ABABABABABAB");
+            return;
+          }
+          this.initTrace(trace);
+        },
+
+        reset() {
+          this.stopAuto();
+          this.initTrace(AppState.trace);
+        },
+
+        async runStep(animated = true) {
+          if (AppState.isAnimating || AppState.pos >= AppState.trace.length) {
+            if (AppState.pos >= AppState.trace.length) {
+              Renderer.renderButtons();
+              Renderer.renderControlStatus();
+            }
+            return false;
+          }
+
+          AppState.isAnimating = true;
+          Renderer.renderButtons();
+          Renderer.renderControlStatus();
+
+          const block = AppState.trace[AppState.pos];
+          const step = StepOrchestrator.nextStep(block);
+          Renderer.renderDemo(step);
+
+          if (animated) {
+            await AnimationDirector.animateStep(step);
+          }
+
+          AppState.lastStep = step;
+          AppState.pos += 1;
+          AppState.isAnimating = false;
+          Renderer.renderAll(step);
+
+          if (AppState.pos >= AppState.trace.length) {
+            DOM.globalLog.innerHTML = `<b>Trace 执行完毕</b> · DM ${step.events.dm.type.toUpperCase()} / VC ${step.events.vc.type.toUpperCase()} / 2-Way ${step.events.tw.type.toUpperCase()}`;
+          }
+
+          return true;
+        },
+
+        async toggleAuto() {
+          if (AppState.isAutoPlaying) {
+            this.stopAuto();
+            return;
+          }
+          if (AppState.pos >= AppState.trace.length || AppState.isAnimating) return;
+
+          AppState.isAutoPlaying = true;
+          Renderer.renderButtons();
+          Renderer.renderControlStatus();
+
+          while (AppState.isAutoPlaying && AppState.pos < AppState.trace.length) {
+            const stepped = await this.runStep(true);
+            if (!stepped) break;
+            if (AppState.isAutoPlaying && AppState.pos < AppState.trace.length) {
+              await sleep(Number(DOM.speedRange.value));
+            }
+          }
+
+          this.stopAuto();
+        },
+
+        stopAuto() {
+          AppState.isAutoPlaying = false;
+          Renderer.renderButtons();
+          Renderer.renderControlStatus();
+        }
+      };
+
+      const ExperimentRunner = {
+        cloneRun(trace, vcSize = CONFIG.defaultVcSize) {
+          const dm = new DMEngine();
+          const vc = new DMVCEngine(vcSize);
+          const tw = new TwoWayEngine();
+          trace.forEach(block => {
+            dm.access(block);
+            vc.access(block);
+            tw.access(block);
+          });
+          const dmStats = dm.stats();
+          const vcStats = vc.stats();
+          const twStats = tw.stats();
+          return {
+            dm: { ...dmStats, amat: normalizedAmat(dmStats, "dm") },
+            vc: { ...vcStats, amat: normalizedAmat(vcStats, "vc") },
+            tw: { ...twStats, amat: normalizedAmat(twStats, "tw") }
+          };
+        },
+
+        runSuite() {
+          return CONFIG.suiteScenarios.map(item => {
+            const trace = normalizeTrace(item.trace);
+            return {
+              name: item.name,
+              trace: trace.join(""),
+              data: this.cloneRun(trace, CONFIG.defaultVcSize)
+            };
+          });
+        },
+
+        sweepVc(traceInput = AppState.trace) {
+          const trace = normalizeTrace(traceInput.join ? traceInput.join("") : traceInput);
+          const points = [];
+          for (let size = 0; size <= 4; size += 1) {
+            if (size === 0) {
+              const dm = new DMEngine();
+              trace.forEach(block => dm.access(block));
+              const dmStats = dm.stats();
+              points.push({
+                size,
+                vcHits: 0,
+                lower: dmStats.lower,
+                amat: normalizedAmat(dmStats, "dm")
+              });
+            } else {
+              const vc = new DMVCEngine(size);
+              trace.forEach(block => vc.access(block));
+              const vcStats = vc.stats();
+              points.push({
+                size,
+                vcHits: vcStats.vcHits,
+                lower: vcStats.lower,
+                amat: normalizedAmat(vcStats, "vc")
+              });
+            }
+          }
+
+          const tw = new TwoWayEngine();
+          trace.forEach(block => tw.access(block));
+          const twStats = tw.stats();
+          return {
+            points,
+            twoWay: {
+              vcHits: 0,
+              lower: twStats.lower,
+              amat: normalizedAmat(twStats, "tw")
+            }
+          };
+        },
+
+        renderSuiteTable(results) {
+          DOM.suiteTable.innerHTML = `
+            <tr>
+              <th>Workload</th>
+              <th>Trace</th>
+              <th>DM Lower</th>
+              <th>DM+VC Lower</th>
+              <th>2-Way Lower</th>
+              <th>VC Hits</th>
+              <th>DM AMAT</th>
+              <th>DM+VC AMAT</th>
+              <th>2-Way AMAT</th>
+            </tr>
+            ${results.map(row => `
+              <tr>
+                <td>${row.name}</td>
+                <td>${row.trace}</td>
+                <td>${row.data.dm.lower}</td>
+                <td>${row.data.vc.lower}</td>
+                <td>${row.data.tw.lower}</td>
+                <td>${row.data.vc.vcHits}</td>
+                <td>${formatAmat(row.data.dm.amat)}</td>
+                <td>${formatAmat(row.data.vc.amat)}</td>
+                <td>${formatAmat(row.data.tw.amat)}</td>
+              </tr>`).join("")}
+          `;
+        },
+
+        renderSweepTable(payload) {
+          DOM.sweepTable.innerHTML = `
+            <tr>
+              <th>VC Size</th>
+              <th>Lower-Level Accesses</th>
+              <th>VC Hits</th>
+              <th>Normalized AMAT</th>
+            </tr>
+            ${payload.points.map(point => `
+              <tr>
+                <td>${point.size}</td>
+                <td>${point.lower}</td>
+                <td>${point.vcHits}</td>
+                <td>${formatAmat(point.amat)}</td>
+              </tr>`).join("")}
+            <tr>
+              <th>2-way baseline</th>
+              <th>${payload.twoWay.lower}</th>
+              <th>${payload.twoWay.vcHits}</th>
+              <th>${formatAmat(payload.twoWay.amat)}</th>
+            </tr>
+          `;
+        },
+
+        renderBarChart(results) {
+          const W = 760;
+          const H = 420;
+          const margin = { top: 38, right: 28, bottom: 92, left: 60 };
+          const plotW = W - margin.left - margin.right;
+          const plotH = H - margin.top - margin.bottom;
+          const maxY = Math.max(...results.flatMap(row => [row.data.dm.amat, row.data.vc.amat, row.data.tw.amat]), 1);
+          const groupW = plotW / results.length;
+          const barW = Math.min(28, groupW / 5);
+          const colors = { dm: "#d46d69", vc: "#41627a", tw: "#3c9b74" };
+
+          let svg = `<rect x="0" y="0" width="${W}" height="${H}" fill="transparent"/>`;
+          for (let i = 0; i <= 5; i += 1) {
+            const y = margin.top + plotH - (plotH * i / 5);
+            const label = +(maxY * i / 5).toFixed(1);
+            svg += `<line x1="${margin.left}" y1="${y}" x2="${W - margin.right}" y2="${y}" stroke="#e5edf3" stroke-width="1"/>`;
+            svg += `<text x="${margin.left - 10}" y="${y + 4}" text-anchor="end" font-size="12" fill="#5f7285">${label}</text>`;
+          }
+
+          svg += `<line x1="${margin.left}" y1="${margin.top}" x2="${margin.left}" y2="${margin.top + plotH}" stroke="#95a8b8" stroke-width="1.4"/>`;
+          svg += `<line x1="${margin.left}" y1="${margin.top + plotH}" x2="${W - margin.right}" y2="${margin.top + plotH}" stroke="#95a8b8" stroke-width="1.4"/>`;
+
+          results.forEach((row, index) => {
+            const baseX = margin.left + index * groupW + groupW * 0.18;
+            const values = [row.data.dm.amat, row.data.vc.amat, row.data.tw.amat];
+            const keys = ["dm", "vc", "tw"];
+            values.forEach((value, inner) => {
+              const height = plotH * value / maxY;
+              const x = baseX + inner * (barW + 10);
+              const y = margin.top + plotH - height;
+              svg += `<rect x="${x}" y="${y}" width="${barW}" height="${height}" rx="5" fill="${colors[keys[inner]]}" opacity="0.94"/>`;
+              svg += `<text x="${x + barW / 2}" y="${y - 6}" text-anchor="middle" font-size="12" fill="#334654">${formatAmat(value)}</text>`;
+            });
+            svg += `<text x="${baseX + barW + 10}" y="${margin.top + plotH + 20}" text-anchor="middle" font-size="11.5" fill="#415463">${row.name}</text>`;
+          });
+
+          svg += `
+            <g transform="translate(${W - 205}, 16)">
+              <rect x="0" y="0" width="12" height="12" rx="2" fill="#d46d69"></rect>
+              <text x="18" y="10" font-size="12" fill="#415463">DM</text>
+              <rect x="60" y="0" width="12" height="12" rx="2" fill="#41627a"></rect>
+              <text x="78" y="10" font-size="12" fill="#415463">DM+VC</text>
+              <rect x="140" y="0" width="12" height="12" rx="2" fill="#3c9b74"></rect>
+              <text x="158" y="10" font-size="12" fill="#415463">2-Way</text>
+            </g>`;
+
+          DOM.barChart.innerHTML = svg;
+        },
+
+        renderLineChart(payload) {
+          const W = 620;
+          const H = 420;
+          const margin = { top: 34, right: 34, bottom: 60, left: 60 };
+          const plotW = W - margin.left - margin.right;
+          const plotH = H - margin.top - margin.bottom;
+          const maxY = Math.max(...payload.points.map(point => point.amat), payload.twoWay.amat, 1);
+          const xStep = plotW / Math.max(payload.points.length - 1, 1);
+
+          let svg = `<rect x="0" y="0" width="${W}" height="${H}" fill="transparent"/>`;
+          for (let i = 0; i <= 5; i += 1) {
+            const y = margin.top + plotH - plotH * i / 5;
+            const label = +(maxY * i / 5).toFixed(1);
+            svg += `<line x1="${margin.left}" y1="${y}" x2="${W - margin.right}" y2="${y}" stroke="#e5edf3" stroke-width="1"/>`;
+            svg += `<text x="${margin.left - 10}" y="${y + 4}" text-anchor="end" font-size="12" fill="#5f7285">${label}</text>`;
+          }
+          svg += `<line x1="${margin.left}" y1="${margin.top}" x2="${margin.left}" y2="${margin.top + plotH}" stroke="#95a8b8" stroke-width="1.4"/>`;
+          svg += `<line x1="${margin.left}" y1="${margin.top + plotH}" x2="${W - margin.right}" y2="${margin.top + plotH}" stroke="#95a8b8" stroke-width="1.4"/>`;
+
+          const points = payload.points.map((point, index) => ({
+            ...point,
+            x: margin.left + index * xStep,
+            y: margin.top + plotH - plotH * point.amat / maxY
+          }));
+          const path = points.map((point, index) => `${index === 0 ? "M" : "L"} ${point.x} ${point.y}`).join(" ");
+          svg += `<path d="${path}" fill="none" stroke="#41627a" stroke-width="3"/>`;
+          points.forEach(point => {
+            svg += `<circle cx="${point.x}" cy="${point.y}" r="5.5" fill="#41627a"/>`;
+            svg += `<text x="${point.x}" y="${point.y - 11}" text-anchor="middle" font-size="12" fill="#334654">${formatAmat(point.amat)}</text>`;
+            svg += `<text x="${point.x}" y="${margin.top + plotH + 22}" text-anchor="middle" font-size="12" fill="#415463">${point.size}</text>`;
+          });
+
+          const yBaseline = margin.top + plotH - plotH * payload.twoWay.amat / maxY;
+          svg += `<line x1="${margin.left}" y1="${yBaseline}" x2="${W - margin.right}" y2="${yBaseline}" stroke="#3c9b74" stroke-width="2.2" stroke-dasharray="7 6"/>`;
+          svg += `<text x="${W - margin.right - 6}" y="${yBaseline - 8}" text-anchor="end" font-size="12" fill="#3c7b5f">2-way = ${formatAmat(payload.twoWay.amat)}</text>`;
+          svg += `<text x="${W / 2}" y="${H - 12}" text-anchor="middle" font-size="12" fill="#5f7285">Victim Cache size (entries)</text>`;
+
+          DOM.lineChart.innerHTML = svg;
+        },
+
+        summarizeSuite(results) {
+          const focus = results[1] || results[0];
+          const best = [...results].sort((a, b) => a.data.vc.amat - b.data.vc.amat)[0];
+          return `最新 workload 对比：${focus.name} 下，DM AMAT = ${formatAmat(focus.data.dm.amat)}，DM+VC = ${formatAmat(focus.data.vc.amat)}，2-Way = ${formatAmat(focus.data.tw.amat)}。当前 DM+VC 在 ${best.name} 场景中给出最低 AMAT。`;
+        },
+
+        summarizeSweep(payload) {
+          const saturate = payload.points.find(point => point.size >= 2 && point.amat === payload.points[2].amat) || payload.points[payload.points.length - 1];
+          return `当前 trace = ${AppState.trace.join("")}。VC 大小扫描结果：size 0 时 AMAT = ${formatAmat(payload.points[0].amat)}，size 2 时降到 ${formatAmat(payload.points[2].amat)}，2-Way baseline = ${formatAmat(payload.twoWay.amat)}。当前曲线在 VC size ${saturate.size} 左右开始趋稳。`;
+        }
+      };
+
+      function refreshSweepForCurrentTrace(updateSummary = false) {
+        const payload = ExperimentRunner.sweepVc(AppState.trace);
+        ExperimentRunner.renderLineChart(payload);
+        ExperimentRunner.renderSweepTable(payload);
+        DOM.sweepTraceCaption.textContent = `Current Trace: ${AppState.trace.join("")}`;
+        if (updateSummary) {
+          DOM.resultSummary.textContent = ExperimentRunner.summarizeSweep(payload);
+        }
+        return payload;
+      }
+
+      function refreshAllMetricsForLatencyChange() {
+        Renderer.renderAll(AppState.lastStep);
+        const suite = ExperimentRunner.runSuite();
+        ExperimentRunner.renderBarChart(suite);
+        ExperimentRunner.renderSuiteTable(suite);
+        refreshSweepForCurrentTrace(false);
+        DOM.resultSummary.textContent = `AMAT 参数已更新。当前 trace = ${AppState.trace.join("")}；面板、固定 workload 对比和 VC 大小扫描都已按新参数重算。`;
+        DOM.experimentStamp.textContent = "AMAT 参数已更新";
+      }
+
+      function updateLatencyValue(key, rawValue) {
+        const parsed = Number(rawValue);
+        if (!Number.isFinite(parsed) || parsed < 0) return;
+        CONFIG.latency[key] = parsed;
+        refreshAllMetricsForLatencyChange();
+      }
+
+      function resetLatencyDefaults() {
+        Object.keys(DEFAULT_LATENCY).forEach(key => {
+          CONFIG.latency[key] = DEFAULT_LATENCY[key];
+        });
+        Renderer.renderLatencyParams();
+        refreshAllMetricsForLatencyChange();
+      }
+
+      async function handleRunSuite() {
+        if (AppState.isExperimentBusy) return;
+        AppState.isExperimentBusy = true;
+        DOM.btnRunSuite.disabled = true;
+        DOM.btnSweep.disabled = true;
+        DOM.btnRunSuite.textContent = "运行中...";
+        DOM.experimentStamp.textContent = "正在刷新 workload 图表";
+        await sleep(120);
+
+        const results = ExperimentRunner.runSuite();
+        ExperimentRunner.renderBarChart(results);
+        ExperimentRunner.renderSuiteTable(results);
+        AppState.suiteRunCount += 1;
+        DOM.resultSummary.textContent = ExperimentRunner.summarizeSuite(results);
+        DOM.experimentStamp.textContent = `Workload 实验已刷新 ${AppState.suiteRunCount} 次`;
+
+        AppState.isExperimentBusy = false;
+        DOM.btnRunSuite.disabled = false;
+        DOM.btnSweep.disabled = false;
+        DOM.btnRunSuite.textContent = "运行 workload 对比实验";
+      }
+
+      async function handleSweep() {
+        if (AppState.isExperimentBusy) return;
+        AppState.isExperimentBusy = true;
+        DOM.btnRunSuite.disabled = true;
+        DOM.btnSweep.disabled = true;
+        DOM.btnSweep.textContent = "扫描中...";
+        DOM.experimentStamp.textContent = "正在刷新 VC 扫描";
+        await sleep(120);
+
+        const payload = refreshSweepForCurrentTrace(true);
+        AppState.sweepRunCount += 1;
+        DOM.experimentStamp.textContent = `VC 扫描已刷新 ${AppState.sweepRunCount} 次`;
+
+        AppState.isExperimentBusy = false;
+        DOM.btnRunSuite.disabled = false;
+        DOM.btnSweep.disabled = false;
+        DOM.btnSweep.textContent = "运行 VC 大小扫描";
+      }
+
+      function syncScenarioToInput() {
+        DOM.customTrace.value = DOM.scenarioSelect.value;
+      }
+
+      function renderInitialExperiments() {
+        const suite = ExperimentRunner.runSuite();
+        ExperimentRunner.renderBarChart(suite);
+        ExperimentRunner.renderSuiteTable(suite);
+        refreshSweepForCurrentTrace(false);
+        DOM.resultSummary.textContent = "默认结果已载入。可点击按钮重新运行 workload 对比或 VC 大小扫描。";
+      }
+
+      function bindEvents() {
+        DOM.scenarioSelect.addEventListener("change", syncScenarioToInput);
+        DOM.speedRange.addEventListener("input", () => Renderer.renderControlStatus());
+        DOM.latencyParams.addEventListener("input", event => {
+          const target = event.target;
+          if (!target || !target.dataset || !target.dataset.latencyKey) return;
+          updateLatencyValue(target.dataset.latencyKey, target.value);
+        });
+        DOM.btnLoad.addEventListener("click", () => TraceController.loadTraceFromInput());
+        DOM.btnStep.addEventListener("click", async () => {
+          await TraceController.runStep(true);
+        });
+        DOM.btnPanelStep.addEventListener("click", async () => {
+          await TraceController.runStep(true);
+        });
+        DOM.btnAuto.addEventListener("click", async () => {
+          await TraceController.toggleAuto();
+        });
+        DOM.btnReset.addEventListener("click", () => TraceController.reset());
+        DOM.btnLatencyReset.addEventListener("click", resetLatencyDefaults);
+        DOM.btnRunSuite.addEventListener("click", handleRunSuite);
+        DOM.btnSweep.addEventListener("click", handleSweep);
+      }
+
+      function boot() {
+        AppState.models = CacheModels.create(CONFIG.defaultVcSize);
+        Renderer.renderLatencyParams();
+        syncScenarioToInput();
+        TraceController.initTrace(normalizeTrace(CONFIG.defaultTrace));
+        bindEvents();
+        renderInitialExperiments();
+      }
+
+      boot();
+    })();
+  </script>
+</body>
+</html>

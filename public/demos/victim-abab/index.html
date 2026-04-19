@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>Victim Cache 架构交互演示</title>
+    <style>
+        :root {
+            --bg-color: #fafafa;
+            --primary-blue: #4a6572;
+            --secondary-blue: #344955;
+            --accent-blue: #f9aa33;
+            --text-color: #232f34;
+            --border-color: #cfd8dc;
+            --hit-color: #3ba272;
+            --miss-color: #d36b6b;
+            --vc-hit-color: #7a6fd1;
+            --fill-color: #f9aa33;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: "Segoe UI", Tahoma, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            margin: 0;
+        }
+
+        .container {
+            width: 1000px;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 26px;
+        }
+
+        header p {
+            margin: 8px 0 0;
+            color: #596a75;
+        }
+
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 14px;
+        }
+
+        .legend-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 6px 10px;
+            border-radius: 999px;
+            border: 1px solid var(--border-color);
+            background: #f7fafb;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .dot-hit { background: var(--hit-color); }
+        .dot-miss { background: var(--miss-color); }
+        .dot-vc { background: var(--vc-hit-color); }
+        .dot-fill { background: var(--fill-color); }
+
+        .diagram {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 40px;
+            position: relative;
+            padding: 36px 0 24px;
+        }
+
+        .row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 100px;
+            width: 100%;
+        }
+
+        .component {
+            border: 2px solid var(--primary-blue);
+            background: #fff;
+            border-radius: 6px;
+            padding: 15px;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+        }
+
+        .component.hit {
+            border-color: var(--hit-color);
+            box-shadow: 0 0 0 4px rgba(59,162,114,0.12);
+            background: rgba(59,162,114,0.05);
+        }
+
+        .component.miss {
+            border-color: var(--miss-color);
+            box-shadow: 0 0 0 4px rgba(211,107,107,0.12);
+            background: rgba(211,107,107,0.05);
+        }
+
+        .component.vc-hit {
+            border-color: var(--vc-hit-color);
+            box-shadow: 0 0 0 4px rgba(122,111,209,0.12);
+            background: rgba(122,111,209,0.05);
+        }
+
+        .component.fill {
+            border-color: var(--fill-color);
+            box-shadow: 0 0 0 4px rgba(249,170,51,0.15);
+            background: rgba(249,170,51,0.06);
+        }
+
+        .cpu {
+            width: 110px;
+            height: 84px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            background: #e1f5fe;
+        }
+
+        .cache { width: 220px; }
+
+        .memory {
+            width: 600px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #eceff1;
+        }
+
+        .cache-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 5px;
+            font-size: 14px;
+        }
+
+        .cache-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 6px;
+        }
+
+        .cache-line {
+            border: 1px solid var(--border-color);
+            min-height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            border-radius: 4px;
+            transition: background 0.25s ease, border-color 0.25s ease, color 0.25s ease, box-shadow 0.25s ease;
+        }
+
+        .cache-line.hit {
+            background: rgba(59,162,114,0.10);
+            border-color: var(--hit-color);
+            color: #225b43;
+            box-shadow: inset 0 0 0 1px rgba(59,162,114,0.12);
+        }
+
+        .cache-line.miss {
+            background: rgba(211,107,107,0.10);
+            border-color: var(--miss-color);
+            color: #7f3b3b;
+            box-shadow: inset 0 0 0 1px rgba(211,107,107,0.12);
+        }
+
+        .cache-line.vc-hit {
+            background: rgba(122,111,209,0.11);
+            border-color: var(--vc-hit-color);
+            color: #4f459a;
+            box-shadow: inset 0 0 0 1px rgba(122,111,209,0.12);
+        }
+
+        .cache-line.fill {
+            background: rgba(249,170,51,0.13);
+            border-color: var(--fill-color);
+            color: #8b5b12;
+            box-shadow: inset 0 0 0 1px rgba(249,170,51,0.16);
+        }
+
+        .controls {
+            margin-top: 28px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            background: #f1f3f4;
+            padding: 20px;
+            border-radius: 8px;
+            gap: 20px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            background: var(--primary-blue);
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+
+        .btn:hover { background: var(--secondary-blue); }
+        .btn:disabled { background: #ccc; cursor: not-allowed; }
+
+        .status-box {
+            margin-top: 20px;
+            padding: 15px;
+            border-left: 4px solid var(--primary-blue);
+            background: #e8eaed;
+            min-height: 68px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .status-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 92px;
+            padding: 6px 10px;
+            border-radius: 999px;
+            border: 1px solid var(--border-color);
+            background: #f3f6f8;
+            color: var(--primary-blue);
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .status-badge.hit {
+            color: var(--hit-color);
+            border-color: rgba(59,162,114,0.28);
+            background: rgba(59,162,114,0.10);
+        }
+
+        .status-badge.miss {
+            color: var(--miss-color);
+            border-color: rgba(211,107,107,0.28);
+            background: rgba(211,107,107,0.10);
+        }
+
+        .status-badge.vc-hit {
+            color: var(--vc-hit-color);
+            border-color: rgba(122,111,209,0.28);
+            background: rgba(122,111,209,0.10);
+        }
+
+        .status-badge.fill {
+            color: #8b5b12;
+            border-color: rgba(249,170,51,0.28);
+            background: rgba(249,170,51,0.12);
+        }
+
+        .status-text {
+            line-height: 1.6;
+        }
+
+        .packet {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: var(--accent-blue);
+            border-radius: 50%;
+            display: none;
+            z-index: 10;
+            box-shadow: 0 0 0 6px rgba(249,170,51,0.16);
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Victim Cache 架构交互模拟</h1>
+        <p>演示 L1 直接映射缓存与牺牲缓存（Victim Cache）之间的交互</p>
+        <div class="legend">
+            <span class="legend-item"><span class="legend-dot dot-hit"></span>Hit</span>
+            <span class="legend-item"><span class="legend-dot dot-miss"></span>Miss</span>
+            <span class="legend-item"><span class="legend-dot dot-vc"></span>Victim Hit / Swap</span>
+            <span class="legend-item"><span class="legend-dot dot-fill"></span>Memory Fill</span>
+        </div>
+    </header>
+
+    <div class="diagram" id="mainDiagram">
+        <div class="row">
+            <div class="component cpu" id="comp-cpu">CPU</div>
+
+            <div class="component cache" id="comp-l1">
+                <div class="cache-title">L1 Direct-Mapped</div>
+                <div class="cache-grid" id="l1-grid">
+                    <div class="cache-line" id="l1-0">Index 0: Empty</div>
+                    <div class="cache-line" id="l1-1">Index 1: Empty</div>
+                    <div class="cache-line" id="l1-2">Index 2: Empty</div>
+                    <div class="cache-line" id="l1-3">Index 3: Empty</div>
+                </div>
+            </div>
+
+            <div class="component cache" id="comp-vc">
+                <div class="cache-title">Victim Cache (Fully-Assoc)</div>
+                <div class="cache-grid" id="vc-grid">
+                    <div class="cache-line" id="vc-0">Slot 0: Empty</div>
+                    <div class="cache-line" id="vc-1">Slot 1: Empty</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row" style="margin-top: 60px;">
+            <div class="component memory" id="comp-mem">下级内存 (L2 / DRAM)</div>
+        </div>
+
+        <div id="packet" class="packet"></div>
+    </div>
+
+    <div class="controls">
+        <div>
+            <strong>模拟操作：</strong><br><br>
+            <button class="btn" id="btnA">访问数据 A (映射到 Index 1)</button>
+            <button class="btn" id="btnB">访问数据 B (映射到 Index 1)</button>
+            <button class="btn" id="btnReset">重置</button>
+        </div>
+        <div>
+            <strong>参数：</strong><br><br>
+            延迟速度: <input type="range" id="speed" min="200" max="1500" value="800">
+        </div>
+    </div>
+
+    <div class="status-box">
+        <div class="status-top">
+            <strong>当前状态</strong>
+            <span class="status-badge" id="statusBadge">IDLE</span>
+        </div>
+        <div class="status-text" id="status">
+            等待操作... 点击按钮模拟 CPU 内存请求。
+        </div>
+    </div>
+</div>
+
+<script>
+    const l1 = [null, null, null, null];
+    const vc = [null, null];
+    let isRunning = false;
+
+    function clearHighlights() {
+        const lineIds = ['l1-0', 'l1-1', 'l1-2', 'l1-3', 'vc-0', 'vc-1'];
+        lineIds.forEach(id => {
+            document.getElementById(id).className = 'cache-line';
+        });
+
+        ['comp-cpu', 'comp-l1', 'comp-vc', 'comp-mem'].forEach(id => {
+            const el = document.getElementById(id);
+            el.classList.remove('hit', 'miss', 'vc-hit', 'fill');
+        });
+    }
+
+    function setBadge(kind, text) {
+        const badge = document.getElementById('statusBadge');
+        badge.className = `status-badge${kind ? ` ${kind}` : ''}`;
+        badge.textContent = text;
+    }
+
+    function updateUI(highlight = {}) {
+        for (let i = 0; i < 4; i++) {
+            const el = document.getElementById(`l1-${i}`);
+            el.innerText = `Index ${i}: ${l1[i] || 'Empty'}`;
+            el.className = 'cache-line';
+            if (highlight.l1Index === i && highlight.l1State) {
+                el.classList.add(highlight.l1State);
+            }
+        }
+
+        for (let i = 0; i < 2; i++) {
+            const el = document.getElementById(`vc-${i}`);
+            el.innerText = `Slot ${i}: ${vc[i] || 'Empty'}`;
+            el.className = 'cache-line';
+            if (highlight.vcIndex === i && highlight.vcState) {
+                el.classList.add(highlight.vcState);
+            }
+        }
+    }
+
+    function log(msg, kind = '') {
+        document.getElementById('status').innerText = msg;
+        setBadge(kind, kind ? kind.toUpperCase() : 'IDLE');
+    }
+
+    async function movePacket(fromId, toId) {
+        const p = document.getElementById('packet');
+        const f = document.getElementById(fromId).getBoundingClientRect();
+        const t = document.getElementById(toId).getBoundingClientRect();
+        const container = document.getElementById('mainDiagram').getBoundingClientRect();
+
+        p.style.display = 'block';
+        const startX = f.left + f.width / 2 - container.left;
+        const startY = f.top + f.height / 2 - container.top;
+        const endX = t.left + t.width / 2 - container.left;
+        const endY = t.top + t.height / 2 - container.top;
+
+        const duration = 2000 - document.getElementById('speed').value;
+
+        p.style.left = startX + 'px';
+        p.style.top = startY + 'px';
+
+        await new Promise(r => setTimeout(r, 50));
+        p.style.transition = `all ${duration}ms ease-in-out`;
+        p.style.left = endX + 'px';
+        p.style.top = endY + 'px';
+
+        await new Promise(r => setTimeout(r, duration));
+        p.style.display = 'none';
+        p.style.transition = 'none';
+    }
+
+    async function simulateAccess(tag) {
+        if (isRunning) return;
+        isRunning = true;
+        const index = 1;
+
+        clearHighlights();
+        updateUI({ l1Index: index, l1State: 'fill' });
+        document.getElementById('comp-cpu').classList.add('fill');
+        document.getElementById('comp-l1').classList.add('fill');
+        log(`CPU 请求数据 ${tag}... 检查 L1 Index ${index}`, 'fill');
+        await movePacket('comp-cpu', 'comp-l1');
+
+        if (l1[index] === tag) {
+            clearHighlights();
+            document.getElementById('comp-l1').classList.add('hit');
+            document.getElementById('comp-cpu').classList.add('hit');
+            updateUI({ l1Index: index, l1State: 'hit' });
+            log(`L1 命中 (Hit)：数据 ${tag} 已经在 Index ${index}，直接返回 CPU。`, 'hit');
+            await movePacket('comp-l1', 'comp-cpu');
+            isRunning = false;
+            return;
+        }
+
+        clearHighlights();
+        document.getElementById('comp-l1').classList.add('miss');
+        document.getElementById('comp-vc').classList.add('fill');
+        updateUI({ l1Index: index, l1State: 'miss' });
+        log(`L1 未命中 (Miss)。继续检查 Victim Cache...`, 'miss');
+        await movePacket('comp-l1', 'comp-vc');
+
+        const vcIndex = vc.indexOf(tag);
+        if (vcIndex !== -1) {
+            clearHighlights();
+            document.getElementById('comp-l1').classList.add('vc-hit');
+            document.getElementById('comp-vc').classList.add('vc-hit');
+            document.getElementById('comp-cpu').classList.add('vc-hit');
+
+            const oldL1 = l1[index];
+            l1[index] = tag;
+            vc[vcIndex] = oldL1;
+
+            updateUI({
+                l1Index: index,
+                l1State: 'vc-hit',
+                vcIndex: vcIndex,
+                vcState: 'vc-hit'
+            });
+            log(`Victim Cache 命中：${tag} 在 Slot ${vcIndex} 中，与 L1[Index ${index}] 的 ${oldL1 || 'Empty'} 交换。`, 'vc-hit');
+            await movePacket('comp-vc', 'comp-cpu');
+            isRunning = false;
+            return;
+        }
+
+        clearHighlights();
+        document.getElementById('comp-vc').classList.add('miss');
+        document.getElementById('comp-mem').classList.add('fill');
+        log(`Victim Cache 也未命中。从下级内存读取数据 ${tag}...`, 'fill');
+        await movePacket('comp-vc', 'comp-mem');
+        await movePacket('comp-mem', 'comp-l1');
+
+        const evicted = l1[index];
+        if (evicted) {
+            vc.unshift(evicted);
+            vc.pop();
+        }
+        l1[index] = tag;
+
+        clearHighlights();
+        document.getElementById('comp-l1').classList.add('fill');
+        document.getElementById('comp-cpu').classList.add('fill');
+        if (evicted) {
+            document.getElementById('comp-vc').classList.add('fill');
+        }
+
+        updateUI({
+            l1Index: index,
+            l1State: 'fill',
+            vcIndex: evicted ? 0 : null,
+            vcState: evicted ? 'fill' : ''
+        });
+        log(
+            evicted
+                ? `发生冲突：将 ${tag} 载入 L1[Index ${index}]，并把被替换的 ${evicted} 放入 Victim Cache。`
+                : `L1[Index ${index}] 原来为空：将 ${tag} 从下级内存载入。`,
+            'fill'
+        );
+
+        isRunning = false;
+    }
+
+    function resetSim() {
+        if (isRunning) return;
+        l1.fill(null);
+        vc.fill(null);
+        clearHighlights();
+        updateUI();
+        log('模拟器已重置。', '');
+    }
+
+    document.getElementById('btnA').addEventListener('click', () => simulateAccess('A'));
+    document.getElementById('btnB').addEventListener('click', () => simulateAccess('B'));
+    document.getElementById('btnReset').addEventListener('click', resetSim);
+
+    updateUI();
+</script>
+
+</body>
+</html>
