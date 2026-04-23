@@ -86,22 +86,44 @@ draft: false
   - [AMAT](#amat)
   - [Example](#example-4)
 - [Improve Cache Performance](#improve-cache-performance)
-  - [Reduce Miss Penalty](#reduce-miss-penalty)
+  - [Reducing the Hit Time](#reducing-the-hit-time)
+    - [Small and Simple First-Level Caches](#small-and-simple-first-level-caches)
+    - [Way Prediction](#way-prediction)
+  - [Increasing Cache Bandwidth](#increasing-cache-bandwidth)
+    - [Pipelined Caches](#pipelined-caches)
+    - [Multibanked Caches](#multibanked-caches)
+    - [Nonblocking Caches](#nonblocking-caches)
+  - [Reducing the Miss Penalty](#reducing-the-miss-penalty)
     - [Multilevel Caches](#multilevel-caches)
     - [Critical Word First / Early Restart](#critical-word-first--early-restart)
     - [Read Miss Priority Over Write Miss](#read-miss-priority-over-write-miss)
     - [Merging Write Buffers](#merging-write-buffers)
     - [Victim Cache](#victim-cache)
-  - [Reduce Miss Rate](#reduce-miss-rate)
+  - [Reducing the Miss Rate](#reducing-the-miss-rate)
     - [Larger Block Size](#larger-block-size)
     - [Larger Cache Size](#larger-cache-size)
     - [Higher Associativity](#higher-associativity)
     - [Compiler Optimizations](#compiler-optimizations)
-  - [Reduce Hit Time](#reduce-hit-time)
-    - [Small and Simple First-Level Caches](#small-and-simple-first-level-caches)
-    - [Split I-cache / D-cache](#split-i-cache--d-cache)
-    - [Avoiding Address Translation During Cache Indexing](#avoiding-address-translation-during-cache-indexing)
-  - [用 Parallelism 降低有效代价](#用-parallelism-降低有效代价)
+      - [Loop Interchange](#loop-interchange)
+      - [Blocking / Tiling](#blocking--tiling)
+  - [Reducing Miss Penalty or Miss Rate via Parallelism](#reducing-miss-penalty-or-miss-rate-via-parallelism)
+    - [Hardware Prefetching](#hardware-prefetching)
+    - [Compiler-Controlled Prefetching](#compiler-controlled-prefetching)
+  - [Extending the Memory Hierarchy](#extending-the-memory-hierarchy)
+    - [Using HBM to Extend the Memory Hierarchy](#using-hbm-to-extend-the-memory-hierarchy)
+    - [Using CXL to Extend the Memory Hierarchy](#using-cxl-to-extend-the-memory-hierarchy)
+    - [Using UnifiedBus to Extend the Memory Hierarchy](#using-unifiedbus-to-extend-the-memory-hierarchy)
+- [Additional Techniques Often Discussed with Cache Optimization](#additional-techniques-often-discussed-with-cache-optimization)
+  - [Skewed-Associative Cache](#skewed-associative-cache)
+  - [Pseudo-Associative Cache](#pseudo-associative-cache)
+  - [Cache Coloring](#cache-coloring)
+  - [System-Level Cache](#system-level-cache)
+- [GPU Memory and Cache-Related Topics](#gpu-memory-and-cache-related-topics)
+  - [GPU Shared Memory](#gpu-shared-memory)
+  - [GPU Memory Hierarchy](#gpu-memory-hierarchy)
+  - [Unified Memory Architecture](#unified-memory-architecture)
+- [How to Compare These Techniques](#how-to-compare-these-techniques)
+- [A Compact Takeaway Table](#a-compact-takeaway-table)
 
 ---
 
@@ -1843,221 +1865,745 @@ $$
 - **哪怕 miss rate 只有 2%，只要 miss penalty 足够大，cache 仍然会深刻影响整体性能**
 
 ---
-
 ## Improve Cache Performance
 
-优化思路大体分成四类：
+衡量 cache 优化，最核心的还是三件事：
 
-1. **Reduce the miss penalty**
-2. **Reduce the miss rate**
-3. **Reduce the time to hit in the cache**
-4. **Reduce the effective cost via parallelism**
+$$
+AMAT = \text{Hit time} + \text{Miss rate} \times \text{Miss penalty}
+$$
 
-<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202604171142229.png" alt="cache optimization summary" style="width: 620px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+但在现代处理器里，只看这个式子还不够。因为很多优化还会影响：
+
+- **cache bandwidth（缓存带宽）**
+- **power / area（功耗与面积）**
+- **clock cycle time（时钟周期）**
+- **complexity（实现复杂度）**
+
+所以判断一种方法是否“值得”，不能只看 `miss rate` 是否下降，还要看它会不会拖慢 hit path、增加功耗，或者让控制逻辑复杂很多。
 
 :::TIP
-- 很多优化不是单向提升；
-- 它们往往是在 **hit time / miss rate / miss penalty / complexity** 之间做 trade-off。
-- 一种方法也许能降低 miss rate；
-- 但同时可能提高 hit time，或者增加硬件复杂度；
-- 所以真正的设计从来不是参数越大越好，而是折中。
+一个很重要的判断原则是：
+
+- **hit path 上付代价**：每次访问都要承担；
+- **miss path 上付代价**：只有 miss 时才承担。
+
+很多方法的设计思想，本质上就是在这两种代价之间做折中。
 :::
 
-### Reduce Miss Penalty
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202604231329256.png" alt="Cache Optimization Summary" style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
-#### Multilevel Caches
-
-**multilevel caches（多级 cache）** 是最直接的办法之一。
-
-思路很简单：
-
-- L1 miss 时，不一定直接掉到 main memory；
-- 先去 L2、再去 L3；
-- 这样能把很多本来非常贵的 miss，变成相对便宜的下一级 hit。
-
-它主要改善的是：
-
-- **effective miss penalty**
-
-但代价是：
-
-- hierarchy 更复杂；
-- 不同层 block size、inclusive/exclusive 等问题会更难处理。
-
-#### Critical Word First / Early Restart
-
-如果 block 很大，而处理器当前其实只急着用其中一个 word，那么可以考虑：
-
-- **critical word first**
-- **early restart**
-
-思路是：
-
-- 先把当前最需要的那个 word 尽快拿回来；
-- 剩余部分稍后再继续传输。
-
-这并不一定减少总传输量，但可以降低：
-
-- 处理器实际感受到的等待时间。
-
-#### Read Miss Priority Over Write Miss
-
-因为 read miss 往往直接卡住程序继续执行，而 write 在很多场景下还能靠 buffer 暂存，所以一个常见策略是：
-
-- **优先处理 read miss，而不是 write miss**
-
-这能够降低关键路径上的 stall。
-
-#### Merging Write Buffers
-
-如果多个写操作恰好落在相近区域，write buffer 可以做合并：
-
-- 减少总线事务次数；
-- 降低对下层 memory 的压力；
-- 间接减轻 miss penalty。
-
-#### Victim Cache
-
-**victim cache** 的作用可以理解成：
-
-- 在主 cache 旁边再放一个很小的缓冲区；
-- 专门接住那些“刚被替换掉”的 block。
-
-这样如果程序很快又要用到刚才被挤掉的数据：
-
-- 不一定要直接回主存；
-- 可以先去 victim cache 找。
-
-它对某些 conflict miss 很有效。
-
-### Reduce Miss Rate
-
-#### Larger Block Size
-
-增大 block size 的直觉最直接：
-
-- 一次 miss 时，多带一点邻近数据；
-- 更能利用 spatial locality；
-- 因此 **compulsory miss** 往往会下降。
-
-但代价也很明显：
-
-- miss penalty 变大；
-- 同样容量的 cache 中，block 变大意味着 block 数减少；
-- 可能让 conflict miss 或 capacity miss 反而变严重。
-
-所以它不是“越大越好”，而是要和程序的 locality 配合。
-
-#### Larger Cache Size
-
-增大 cache size 一般最直接缓解的是：
-
-- **capacity miss**
-
-因为能留下更多 block，不那么容易被挤掉。
-
-但它也会带来：
-
-- 更高成本；
-- 更大面积和功耗；
-- 更可能拉长 hit time。
-
-因此：
-
-- L1 通常不会做得过大；
-- 更大的容量一般放到 L2 / L3。
-
-#### Higher Associativity
-
-提高 associativity 能减少：
-
-- **conflict miss**
-
-因为本来只能去一个位置的 block，现在可以在同一组里有多个候选位置。
-
-但代价是：
-
-- 组内 tag 比较更复杂；
-- replacement 逻辑更重；
-- hit time 往往变长。
-
-所以 associativity 的使用也很典型地体现了 trade-off：
-
-- direct mapped：快，但冲突多；
-- higher associativity：冲突少，但更慢更复杂。
-
-#### Compiler Optimizations
-
-有些 miss rate 的改善并不完全靠硬件，也可以靠编译器和程序组织方式。
-
-典型思路包括：
-
-- 调整访问顺序；
-- 让循环更好地利用空间局部性；
-- 让反复使用的数据尽量集中在一个较短时间窗口内，以提升时间局部性。
-
-也就是说：
-
-- locality 不是天生固定不变的；
-- 程序写法本身也会改变 cache 行为。
-
-### Reduce Hit Time
+### Reducing the Hit Time
 
 #### Small and Simple First-Level Caches
 
-如果 L1 太大、太复杂，那么虽然 miss rate 也许会变低，但 hit time 可能被拖慢。  
-而 L1 是几乎每次访问都要经过的一级，所以：
+L1 cache 几乎每次访存都会经过，所以 **L1 的 hit time 往往比它的 miss rate 更敏感**。
 
-- **small and simple L1** 往往更重要。
+核心思路：
 
-这也是为什么很多系统会选择：
+- L1 不做得太大；
+- associativity 不做得太高；
+- 让 tag compare、data access、way select 这条关键路径尽量短。
 
-- 小一些但很快的 L1；
-- 再用更大的 L2/L3 去兜住 miss。
+优点：
 
-#### Split I-cache / D-cache
+- hit 更快；
+- 往往也更省电。
 
-把 L1 分成 instruction cache 和 data cache，除了带宽更高外，也常有利于：
+代价：
 
-- 缩短单次访问路径；
-- 降低冲突；
-- 让前端和数据访问不至于互相抢同一个端口。
+- 容量小、相联度低时，可能增加 miss rate；
+- 需要依赖更大的 L2 / L3 来兜底。
 
-从 hit time 角度看，这也是常见优化之一。
+所以经典设计通常是：
 
-#### Avoiding Address Translation During Cache Indexing
-
-它要解决的是：
-
-- 如果每次 cache 访问都必须先完整做地址翻译，再去索引 cache；
-- 那 hit time 可能会被拖长。
-
-这部分和后续地址翻译相关内容关系很紧密。  
-当前这版 Chapter 3 先不展开细节，但先记住一个结论就够了：
-
-- **地址翻译如果卡在 cache 关键路径上，会伤 hit time**
-
-### 用 Parallelism 降低有效代价
-
-有些优化并不是直接减少 `miss rate` 或 `miss penalty` 的绝对值，而是靠 **parallelism（并行性）** 把等待隐藏掉。
-
-常见思路包括：
-
-- **nonblocking cache**
-  - 允许 hit under miss；
-  - 一个 miss 在处理时，后续某些访问不必全部停住。
-
-- **prefetch**
-  - 在真正访问之前，提前把可能要用的数据搬近一点；
-  - 这样可以把将来的 miss penalty 提前消化掉一部分。
-
-- **更高带宽的数据通路**
-  - 让 block 传输更快完成；
-  - 或者在多个请求之间更好地重叠。
-
-这类方法的核心共同点是：
-
-- **不一定减少总工作量**
-- **但减少了处理器真正干等的时间**
+- **小而快的 L1**
+- **大而慢的 L2 / L3**
 
 ---
+
+#### Way Prediction
+
+组相联 cache 的问题在于：  
+为了知道哪一 way 命中，通常要比较多个 tag，再做数据选择，这会拉长 hit time。
+
+**way prediction** 的做法是：
+
+- 先预测“这次大概率命中哪一 way”；
+- 先按这个预测去访问；
+- 如果预测正确，就接近 direct-mapped 的 hit path；
+- 如果预测错误，再补查其他 way，付出额外延迟。
+
+本质上它是在做这样的折中：
+
+- **用少量预测状态**
+- 换取 **平均 hit time 的下降**
+
+适合场景：
+
+- 组相联 cache；
+- 对 hit time 很敏感的前端 / L1。
+
+代价：
+
+- 预测错时会有额外 penalty；
+- 数据 cache 上做 way prediction 一般比 I-cache 更麻烦，因为误判更容易影响后续流水线。
+
+
+### Increasing Cache Bandwidth
+
+这一类方法的目标，不是直接减少单次访问延迟，而是让 cache **在单位时间内能接更多请求**。
+
+#### Pipelined Caches
+
+把一次 cache access 拆成多个 pipeline stage，例如：
+
+- 地址/index 处理
+- tag compare
+- data array access
+- 返回结果
+
+这样做的好处是：
+
+- 可以提高时钟频率；
+- cache 本身吞吐更高。
+
+但要注意：
+
+- **带宽上升，不代表单次访问 latency 下降**
+- 有时 latency 反而更高了
+
+影响：
+
+- I-cache pipeline 更深，会放大 branch misprediction 的代价；
+- D-cache pipeline 更深，会增加 load-use latency。
+
+所以 pipelined cache 更像是在用 **更长的访问流水**，换 **更高的频率和吞吐**。
+
+#### Multibanked Caches
+
+把一个 cache 分成多个独立 bank，让不同访问可以并行落到不同 bank：
+
+- 若两个请求去不同 bank，可以同周期并行；
+- 若两个请求撞到同一个 bank，就会出现 **bank conflict**。
+
+优点：
+
+- 提高并发访问能力；
+- 对 superscalar、多发射、多 load/store 系统尤其重要。
+
+代价：
+
+- bank 映射和仲裁逻辑更复杂；
+- 存在 bank conflict；
+- 程序访问模式会直接影响收益。
+
+所以它本质上是在做：
+
+- **把一个大缓存拆成多个可并行的小通道**
+
+#### Nonblocking Caches
+
+传统 blocking cache 在 miss 时会卡住后续访问。  
+**nonblocking cache** 则允许：
+
+- **hit under miss**：一个 miss 正在处理时，后续 hit 还能继续；
+- **miss under miss**：甚至允许多个 miss 并行在途。
+
+直观理解：
+
+- miss 不再把整个 cache 前端“封死”；
+- 处理器能把部分等待隐藏掉。
+
+关键实现点：
+
+- 要记录多个 outstanding misses；
+- 常见做法是用 **MSHR（Miss Status Handling Register）** 跟踪每个 miss 的去向、返回数据该填到哪里、唤醒哪条 load/store。
+
+优点：
+
+- 显著降低 effective miss penalty；
+- 对 memory-level parallelism 较高的程序很有效。
+
+代价：
+
+- 控制逻辑明显更复杂；
+- 需要处理返回乱序、命中/失效碰撞、coherence 等问题。
+
+
+### Reducing the Miss Penalty
+
+#### Multilevel Caches
+
+这是最基本也最常见的方法：
+
+- L1 miss 后先查 L2；
+- L2 miss 后再查 L3；
+- 最后才去 main memory。
+
+作用：
+
+- 把“直接掉到主存”的昂贵 miss，改成“更低一级 cache hit”的相对便宜 miss；
+- 从而降低 **effective miss penalty**。
+
+代价：
+
+- hierarchy 更复杂；
+- inclusive / exclusive / non-inclusive 等策略会影响设计；
+- 多级之间的一致性和替换关系更复杂。
+
+
+#### Critical Word First / Early Restart
+
+一次 miss 往往是按 block 为单位搬运的。  
+但处理器真正急需的，常常只是其中一个 word。
+
+因此可以：
+
+- **Critical Word First**：先取当前最需要的那个 word；
+- **Early Restart**：只要关键 word 到了，就先让处理器继续执行，剩余部分稍后补齐。
+
+作用：
+
+- 不一定减少总传输量；
+- 但可以减少处理器真正“卡住”的时间。
+
+适合场景：
+
+- block 较大；
+- miss penalty 中“首字返回延迟”占比较高。
+
+
+#### Read Miss Priority Over Write Miss
+
+读 miss 往往直接阻塞程序继续执行；  
+写请求很多时候可以先暂存在 write buffer 里。
+
+所以常见策略是：
+
+- **读优先于写**
+- 尤其是 **read miss priority over write miss**
+
+这样做可以：
+
+- 让关键路径上的 stall 更少；
+- 避免写流量把读请求拖住。
+
+
+#### Merging Write Buffers
+
+如果 write buffer 中有多次写，目标恰好落在同一 cache line 或相邻区域，就可以合并：
+
+- 减少总线事务数；
+- 减少下层存储压力；
+- 降低写流量对读 miss 的干扰。
+
+优点：
+
+- 对 write-through cache 特别常见；
+- 硬件代价通常不算太夸张。
+
+代价：
+
+- 需要检测可合并性；
+- buffer 管理更复杂。
+
+
+#### Victim Cache
+
+**victim cache** 是一个很小的、通常是 fully-associative 的缓冲区，  
+专门保存 **刚从主 cache 被替换出去的 block**。
+
+工作方式：
+
+- L1 hit：直接返回；
+- L1 miss 且 victim cache hit：通常执行 **swap**，把 victim cache 中的目标块和 L1 中冲突块交换；
+- L1 miss 且 victim cache miss：再访问下层存储。
+
+它针对的核心问题是：
+
+- **conflict miss**
+- 且通常是 **被替换后很快又重用** 的那类 conflict miss
+
+优点：
+
+- 不把额外复杂度放到 L1 正常 hit path 上；
+- 对 direct-mapped cache 很有吸引力；
+- 常能以很小硬件代价显著缓解“ABAB 式冲突抖动”。
+
+局限：
+
+- 对 capacity miss 帮助有限；
+- 对长 reuse distance、流式访问帮助也有限；
+- 它不是一个“正常的额外 cache level”，而是一个 **专门接住 victim line 的小旁路结构**。
+
+
+### Reducing the Miss Rate
+
+#### Larger Block Size
+
+block 变大以后，一次 miss 会顺带把附近更多数据带上来，因此：
+
+- **spatial locality** 利用更充分；
+- **compulsory miss** 往往下降。
+
+但副作用也很明显：
+
+- miss penalty 变大；
+- 同样 cache 容量下，block 数变少；
+- 可能加重 conflict miss / capacity miss。
+
+所以 block size 永远是 locality 和 penalty 的折中。
+
+
+#### Larger Cache Size
+
+cache 更大时，能留下更多 block，因此：
+
+- **capacity miss** 一般下降。
+
+但代价是：
+
+- 成本和面积增加；
+- 功耗上升；
+- hit time 可能变长。
+
+因此：
+
+- L1 通常不会做得很大；
+- 更大的容量往往放到 L2 / L3 / LLC。
+
+#### Higher Associativity
+
+提高 associativity 的核心作用是：
+
+- 把“只能放一个位置”变成“能在同组多个位置中选一个”
+- 从而减少 **conflict miss**
+
+优点：
+
+- 对冲突敏感的工作负载常常有效。
+
+代价：
+
+- tag compare 更多；
+- replacement 逻辑更复杂；
+- hit time 往往更长；
+- 功耗也会增加。
+
+所以常见的理解就是：
+
+- **direct-mapped：快，但脆弱**
+- **higher associativity：稳，但贵**
+
+#### Compiler Optimizations
+
+有些 miss 不是硬件“命不好”，而是程序访问顺序本身写得不友好。
+
+编译器常见优化包括：
+
+##### Loop Interchange
+
+通过交换嵌套循环次序，让数组访问更接近其内存布局顺序。
+
+作用：
+
+- 提高 spatial locality；
+- 让一个 cache block 中的数据尽可能被连续用完。
+
+##### Blocking / Tiling
+
+把大问题切成能留在 cache 里的小块，再对子块反复运算。
+
+作用：
+
+- 提高 temporal locality；
+- 在数据被替换前多用几次。
+
+这一类优化说明一个关键事实：
+
+- **locality 不只是硬件属性，也是程序组织属性**
+
+
+### Reducing Miss Penalty or Miss Rate via Parallelism
+
+#### Hardware Prefetching
+
+核心思想：
+
+- 在处理器真正发出 demand access 之前，
+- 预测它很快会用到哪些数据，
+- 然后提前取回来。
+
+常见形式：
+
+- next-line prefetch
+- stream buffer
+- stride prefetch
+- 更复杂的相关性预取
+
+优点：
+
+- 若预取及时，可把后续 miss 变成 hit；
+- 若不够及时，也能降低 miss penalty。
+
+代价：
+
+- 预取错会浪费带宽；
+- 还可能污染 cache；
+- 对功耗也可能有负面影响。
+
+所以 prefetch 的本质是：
+
+- **用多做一点“可能没必要的工作”**
+- 去换 **关键时刻少等一点**
+
+#### Compiler-Controlled Prefetching
+
+这类方法由编译器显式插入 prefetch 指令：
+
+- 在真正用到数据之前若干迭代，先发预取；
+- 目标通常是让访问和计算重叠。
+
+优点：
+
+- 编译器更了解循环结构和访问模式；
+- 对规则数组访问特别有效。
+
+前提：
+
+- 必须给预取留出足够“提前量”；
+- cache 通常需要是 **nonblocking** 的，否则预取本身又会把执行卡住。
+
+代价：
+
+- 会增加指令数；
+- 预取距离不好选；
+- 程序行为稍变，效果可能就明显波动。
+
+
+### Extending the Memory Hierarchy
+
+这一类方法关注的已经不只是“传统 cache 怎么做更好”，而是：
+
+- **如何把更大容量、更高带宽、更多设备的内存也纳入同一 hierarchy**
+
+#### Using HBM to Extend the Memory Hierarchy
+
+**HBM（High Bandwidth Memory）** 是把 DRAM 堆叠起来，放得更靠近处理器/加速器的一种近存储方案。
+
+特点：
+
+- 总线非常宽；
+- 带宽很高；
+- 容量通常不如外部大容量 DRAM；
+- 成本和封装要求更高。
+
+在 hierarchy 中，HBM 常见角色是：
+
+- 作为高带宽近内存；
+- 作为比 DDR 更快但更贵的一层；
+- 有时也可视作 **L4 / near-memory cache**。
+
+它解决的主要矛盾是：
+
+- **传统 DDR 容量够，但带宽不够**
+- **HBM 带宽很强，但容量和成本受限**
+
+#### Using CXL to Extend the Memory Hierarchy
+
+**CXL（Compute Express Link）** 可以把外部内存设备、加速器和主机以 cache-coherent 的方式连起来。
+
+从 memory hierarchy 视角看，它的重要价值是：
+
+- 支持 **memory expansion（内存扩展）**
+- 支持 **memory pooling（内存池化）**
+- 支持 **memory sharing（内存共享）**
+- 让部分“原本不在本机板上的内存”也能进入层次结构
+
+可以把它理解成：
+
+- 在本地 DDR / HBM 之下，
+- 引入一层 **更远、通常更慢、但更灵活、更大** 的扩展内存层。
+
+优点：
+
+- 提升容量弹性；
+- 资源利用率更高；
+- 对数据中心和大规模异构系统很重要。
+
+代价：
+
+- 延迟通常高于本地 DRAM；
+- QoS、coherence、资源管理都更复杂；
+- 更适合作为“较远的一层内存”，不适合作为最靠近核心的高速层。
+
+
+#### Using UnifiedBus to Extend the Memory Hierarchy
+
+这里把 **UnifiedBus** 理解为近年来“**统一互连 / memory-semantic fabric / 资源池化总线**”这一类方案。
+
+它的目标通常是：
+
+- 把 CPU、GPU、NPU、内存和 I/O 设备放到更统一的互连语义下；
+- 让远端内存、池化内存、异构设备内存更容易被系统按层次结构使用；
+- 支持更大范围的资源共享与扩展。
+
+直观理解：
+
+- 传统 memory hierarchy 多是在单机板内分层；
+- UnifiedBus 这类方案是在 **更大系统范围** 上继续分层。
+
+优点：
+
+- 容量扩展强；
+- 资源池化能力强；
+- 对大规模 AI / 数据中心系统有吸引力。
+
+代价：
+
+- 延迟一定高于本地 cache / DRAM；
+- 流控、QoS、容错、隔离、安全都更难；
+- 软件栈和资源调度复杂度明显上升。
+
+## Additional Techniques Often Discussed with Cache Optimization
+
+### Skewed-Associative Cache
+
+普通组相联 cache 中，同一个 block 先确定 set，再在该 set 里挑 way。  
+**skewed-associative cache** 的特殊点在于：
+
+- **不同的 way 使用不同的索引/哈希函数**
+- 因此两个在某一 way 中冲突的 block，可能在另一 way 中并不冲突
+
+作用：
+
+- 进一步降低 conflict miss；
+- 尤其适合那些“普通组相联里仍然老撞同一组”的模式。
+
+优点：
+
+- 比直接增加 associativity 更有针对性；
+- 有时能以较低 way 数取得不错效果。
+
+代价：
+
+- 索引和替换逻辑更复杂；
+- 查找路径也更难实现得非常规整。
+
+---
+
+### Pseudo-Associative Cache
+
+它想同时保住两件事：
+
+- direct-mapped 的快 hit time；
+- set-associative 的较低 conflict miss
+
+基本思路：
+
+- 先按 direct-mapped 的主位置查一次；
+- 如果主位置没命中，再去查一个“备用位置”；
+- 若备用位置命中，这种命中叫 **pseudo-hit**
+
+因此它的访问特征是：
+
+- 正常 hit 很快；
+- pseudo-hit 比正常 hit 慢；
+- miss rate 介于 direct-mapped 和 set-associative 之间。
+
+本质上它是在做：
+
+- **把部分 associativity 延迟到第二次检查**
+
+
+### Cache Coloring
+
+**cache coloring** 更多是 OS / allocator 级别的方法，也常叫 **page coloring**。
+
+核心想法：
+
+- 物理页号会影响它映射到 LLC 的哪些 set；
+- OS 可以控制不同页面分配到哪些“颜色”；
+- 从而减少热点数据在 LLC 中互相冲突。
+
+用途：
+
+- 减少 cache conflicts；
+- 做 cache partition / isolation；
+- 提高多程序系统中的可预测性。
+
+这类方法说明：
+
+- cache 行为并不完全由硬件决定；
+- **内存分配策略也能改变 cache 冲突模式**
+
+---
+
+### System-Level Cache
+
+**system-level cache（系统级缓存）** 常见于 SoC：
+
+- 它不只服务 CPU；
+- 还可能同时服务 GPU、NPU、DSP、ISP、媒体单元等。
+
+作用：
+
+- 降低多个 IP 对外部 DRAM 的访问压力；
+- 减少跨设备数据搬运；
+- 提高整个 SoC 的能效。
+
+优点：
+
+- 对异构 SoC 很重要；
+- 能显著减少 off-chip traffic。
+
+代价：
+
+- coherence 更复杂；
+- 多主设备竞争更激烈；
+- QoS / priority / partitioning 都更关键。
+
+---
+
+## GPU Memory and Cache-Related Topics
+
+GPU 的优化重点和 CPU 不完全一样。  
+CPU 通常更依赖 cache 去降低延迟；  
+GPU 除了使用 cache，还大量依赖：
+
+- **multithreading**
+- **coalescing**
+- **shared memory / scratchpad**
+- **高带宽显存**
+
+### GPU Shared Memory
+
+GPU shared memory 本质上是：
+
+- 每个 SM / 线程块附近的一块 **on-chip scratchpad**
+- 延迟低、带宽高
+- 由程序员显式管理
+
+作用：
+
+- 保存会被线程块内多次复用的数据；
+- 减少反复访问全局显存；
+- 让局部数据交换不经过更慢的 global memory。
+
+优点：
+
+- 非常快；
+- 可控性强；
+- 对 tile-based 算法尤其有效。
+
+代价：
+
+- 容量小；
+- 需要程序员显式管理；
+- 会有 **bank conflict** 问题。
+
+### GPU Memory Hierarchy
+
+GPU 常见的 memory hierarchy 可以粗略理解为：
+
+- registers
+- shared memory / scratchpad
+- L1 / texture cache
+- L2 cache
+- HBM / GDDR global memory
+- host memory
+
+和 CPU 相比，GPU 的几个特点是：
+
+- 更强调 **高带宽**；
+- 更依赖 **大量线程隐藏延迟**；
+- cache 往往没有 CPU 那么“全能”，shared memory 反而很关键；
+- 访存模式是否能 **coalescing（合并访存）** 非常重要。
+
+所以 GPU memory hierarchy 的优化重点通常是：
+
+- 提高带宽利用率；
+- 减少 global memory traffic；
+- 增强 locality；
+- 降低线程间资源争用。
+
+
+### Unified Memory Architecture
+
+GPU 的 **unified memory** 指的是：
+
+- CPU 和 GPU 共享一个统一虚拟地址空间；
+- 数据页可以在 CPU 与 GPU 之间按需迁移；
+- 程序员不必总是手写显式 memcpy。
+
+优点：
+
+- 编程简单很多；
+- CPU/GPU 协同更自然；
+- 适合复杂数据结构和快速原型开发。
+
+代价：
+
+- 页迁移和 page fault 会带来额外开销；
+- 若访问模式不好，可能频繁来回迁移，性能下降很明显。
+
+所以 unified memory 更像是：
+
+- **用更强的软件透明性**
+- 换取 **对访问模式更高的要求**
+
+---
+
+## How to Compare These Techniques
+
+更稳妥的比较维度是：
+
+1. **它主要针对哪一类问题？**
+   - hit time
+   - bandwidth
+   - miss penalty
+   - miss rate
+   - system-level capacity / sharing
+
+2. **它把代价放在 hit path 还是 miss path？**
+
+3. **它最擅长处理哪种 miss？**
+   - conflict
+   - capacity
+   - compulsory
+   - streaming / predictable access
+
+4. **它的代价是什么？**
+   - latency
+   - power
+   - area
+   - complexity
+   - programmability
+
+---
+
+## A Compact Takeaway Table
+
+| Technique | Main Goal | Best For | Main Cost |
+|---|---|---|---|
+| Small/simple L1 | Reduce hit time | latency-sensitive L1 | higher miss rate |
+| Way prediction | Reduce average hit time | set-associative L1 | misprediction penalty |
+| Pipelined cache | Increase bandwidth / freq | high-frequency cores | higher access latency |
+| Multibanked cache | Increase bandwidth | multiple accesses per cycle | bank conflicts |
+| Nonblocking cache | Hide miss latency | MLP-rich workloads | high control complexity |
+| Critical word first / early restart | Reduce miss penalty | large block refill | refill control complexity |
+| Merging write buffer | Reduce write-related penalty | write-through / heavy write traffic | merge logic |
+| Compiler optimization | Reduce miss rate | regular loop kernels | compile dependence |
+| Hardware prefetch | Reduce miss penalty / rate | predictable streams | bandwidth waste / pollution |
+| Compiler prefetch | Reduce miss penalty / rate | regular loops with lookahead | instruction overhead |
+| Victim cache | Reduce conflict miss | short-reuse conflicts | small extra buffer |
+| Skewed-associative | Reduce conflict miss | stubborn conflict patterns | hashing/replacement complexity |
+| Pseudo-associative | Reduce conflict miss with fast first hit | between DM and SA | pseudo-hit latency |
+| Cache coloring | Reduce LLC conflicts | OS-level placement / isolation | allocator complexity |
+| System-level cache | Reduce off-chip traffic | heterogeneous SoC | coherence/QoS complexity |
+| HBM | Extend bandwidth-rich memory layer | bandwidth-bound systems | cost / packaging |
+| CXL | Extend/pool memory hierarchy | servers / composable systems | higher latency, management complexity |
+| UnifiedBus | Extend system-scale memory hierarchy | large heterogeneous systems | software+fabric complexity |
+| GPU shared memory | programmer-managed fast reuse | tiled GPU kernels | small capacity, bank conflicts |
+| Unified memory | simplify CPU-GPU memory use | heterogeneous programming | migration overhead |
