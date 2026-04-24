@@ -170,8 +170,6 @@ $$
 - 两侧箭头都远离 critical point $\Rightarrow$ unstable；
 - 一侧靠近、一侧远离 $\Rightarrow$ **semistable**。
 
-> [插图占位：插入 1D phase line 的示意图，标出 $f(x)>0$ 与 $f(x)<0$ 时的箭头方向]
-
 ### Logistic equation
 
 考虑 logistic equation
