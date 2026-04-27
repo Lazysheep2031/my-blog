@@ -1,5 +1,5 @@
 ---
-title: Templates,Comparators, and Polymorphic Shapes
+title: A quick tour of C++
 published: 2026-03-14
 description: Starting from selection sort, we will abstract the algorithm with templates, then apply it to a polymorphic array of shapes.
 tags: [面向对象程序设计]
@@ -9,7 +9,7 @@ draft: false
 
 ## 概述
 
-这节课在讲一个很完整的主线：
+主线：
 
 - 从具体实现（`int` 的选择排序）到抽象封装（`min_element` / `swap`）
 - 从函数重载到函数模板（同一份算法适配多类型）
@@ -24,16 +24,15 @@ draft: false
 - [目录](#目录)
 - [选择排序：从具体到抽象](#选择排序从具体到抽象)
 - [函数模板：一份算法，多种类型](#函数模板一份算法多种类型)
-  - [模板为什么通常写在头文件里](#模板为什么通常写在头文件里)
+  - [模板通常写在头文件里](#模板通常写在头文件里)
 - [`&` 引用](#-引用)
   - [`T&`：可修改的引用](#t可修改的引用)
   - [`const T&`：只读引用](#const-t只读引用)
   - [`std::ostream&`：把同一个输出流继续传下去](#stdostream把同一个输出流继续传下去)
-  - [如何快速判断 `&`](#如何快速判断-)
 - [Student：自定义类型接入模板](#student自定义类型接入模板)
   - [`<` 的两种常见写法](#-的两种常见写法)
   - [`<<` 的意义](#-的意义)
-- [比较器 Compare（按需切换排序规则）](#比较器-compare按需切换排序规则)
+- [比较器 Compare](#比较器-compare)
   - [带比较器的模板形态](#带比较器的模板形态)
   - [比较器函数 vs lambda](#比较器函数-vs-lambda)
 - [泛型设计](#泛型设计)
@@ -45,7 +44,7 @@ draft: false
 - [面向对象与多态：`Shape` 抽象层](#面向对象与多态shape-抽象层)
   - [`Shape` 这层到底想解决什么问题](#shape-这层到底想解决什么问题)
   - [抽象基类（接口层）](#抽象基类接口层)
-  - [`virtual` 在做什么](#virtual-在做什么)
+  - [`virtual`](#virtual)
   - [访问控制：`public / protected / private`](#访问控制public--protected--private)
   - [派生类 + override](#派生类--override)
   - [构造函数与初始化列表](#构造函数与初始化列表)
@@ -114,9 +113,9 @@ void print_array(T arr[], int n) { ... }
 - 你只写一份算法代码
 - 编译器按实参推导 `T`，实例化出具体版本
 
-### 模板为什么通常写在头文件里
+### 模板通常写在头文件里
 
-这节课的模板代码放在了 `xchen_algorithm.h`，这是很常见的写法。
+模板代码放在了 `xchen_algorithm.h`，这是很常见的写法。
 
 ```cpp
 // xchen_algorithm.h
@@ -124,7 +123,7 @@ template<typename T>
 void selection_sort(T arr[], int n) { ... }
 ```
 
-原因很直接：
+原因：
 
 - 模板不是普通函数，它通常要在**使用点**看到完整定义
 - 编译器看到 `selection_sort(arr, n)` 时，才会按 `T=int`、`T=Student` 等去实例化
@@ -144,7 +143,7 @@ void selection_sort(T arr[], int n) { ... }
 - 写在 `selectionSort` 前面，`T` 只能用于 `selectionSort`
 - 写在 `print_array` 前面，`T` 只能用于 `print_array`
 
-这不是“每种类型要手写一遍”，而是“每个模板函数都要声明自己的模板参数”。
+每个模板函数都要声明自己的模板参数。
 :::
 
 
@@ -169,6 +168,7 @@ struct SelectionSortToolkit {
 
 
 ---
+
 ## `&` 引用
 
 ```cpp
@@ -239,8 +239,6 @@ std::cout << a << b << c;
 
 前一次 `<<` 的结果，还是那个 `std::cout`。
 
-### 如何快速判断 `&`
-
 - `T&`：要改原对象
 - `const T&`：不想拷贝，也不想改原对象
 - `std::ostream&`：要把同一个输出流继续往后传
@@ -301,8 +299,7 @@ std::ostream& operator<<(std::ostream& out, const Student& s) {
 
 ---
 
-## 比较器 Compare（按需切换排序规则）
-
+## 比较器 Compare
 
 - 保留默认 `selection_sort(T arr[], int n)`
 - 再提供带比较器版本 `selection_sort(T arr[], int n, Compare comp)`
@@ -374,9 +371,7 @@ int min_element(T arr[], int begin, int end, Compare comp) {
 if (comp(arr[i], arr[min_idx]))
 ```
 
-也就是说，模板并不关心“到底按面积比，还是按周长比”。
-
-它只要求你传进来一个 `comp`，并且这个 `comp` 能回答这样一个问题：
+模板只要求你传进来一个 `comp`，并且这个 `comp` 能回答这样一个问题：
 
 - “`arr[i]` 应不应该排在 `arr[min_idx]` 前面？”
 
@@ -406,12 +401,6 @@ less_shape_area(arr[i], arr[min_idx])
 - 如果 `arr[i]` 的面积更小，就返回 `true`
 - 所以排序结果会变成“按面积升序”
 
-这个写法的优点是名字很明确：
-
-- `less_shape_area`：按面积小的在前
-- `less_shape_perimeter`：按周长小的在前
-- `greater_shape_area`：按面积大的在前
-
 只看函数名，基本就知道排序规则。
 
 **第二种：传 lambda**
@@ -430,11 +419,7 @@ xchen::selection_sort(
 
 它等价于“临时写一个比较器，然后立刻传进去”。
 
-这里的逻辑是：
-
-- 如果 `s1` 的周长比 `s2` 大，就返回 `true`
-- 所以“更大”的元素会被当成“更靠前”
-- 最终结果就是“按周长降序”
+这里的逻辑是按周长降序
 
 可以把它脑补成这种临时函数：
 
@@ -460,7 +445,7 @@ bool temp(Shape* s1, Shape* s2)
 comp(arr[i], arr[min_idx])
 ```
 
-所以真正要抓住的不是“语法长得不一样”，而是：
+所以：
 
 - 你传进去的东西，必须能接收两个元素
 - 它必须返回 `bool`
@@ -508,7 +493,7 @@ namespace xchen {
 - 避免重复定义错误
 - 对这种模板头文件尤其常见
 
-它可以理解成“这个头文件本次编译只展开一次”。
+可以理解成“这个头文件本次编译只展开一次”。
 
 ### 命名空间
 
@@ -541,8 +526,6 @@ void print_array(T* arr[], int n) {
 ```
 
 这就是为什么 `Shape* arr[]` 也能直接被打印。
-
-对照理解：
 
 - `Student arr[]` 是“对象数组”，元素本身就是对象
 - `Shape* arr[]` 是“指针数组”，元素是指向对象的指针
@@ -621,8 +604,6 @@ public:
 };
 ```
 
-这段代码可以逐行拆开看：
-
 - `class Shape`：定义“图形”这个基类
 - `area, perimeter`：面积和周长是所有图形共有的数据
 - `calc_area()`：要求所有图形都会算面积
@@ -631,9 +612,9 @@ public:
 - `get_area()` / `get_perimeter()`：对外提供读取接口
 - `friend operator<<`：允许直接打印图形对象
 
-这里要特别注意：`Shape` 不是某一个具体图形，它更像图形这一类对象的公共接口。
+`Shape` 不是某一个具体图形，它更像图形这一类对象的公共接口。
 
-### `virtual` 在做什么
+### `virtual`
 
 这一组函数前面都有 `virtual`：
 
@@ -669,8 +650,6 @@ virtual void calc_area() = 0;
 ```
 
 这里的 `=0` 表示纯虚函数。
-
-它的意思不是“把函数值设为 0”，而是：
 
 - 基类这里只提要求
 - 不给出具体实现
@@ -708,8 +687,6 @@ delete p;
 
 - 先执行派生类析构
 - 再执行基类析构
-
-这就是“通过基类指针删除派生类对象”时必须使用虚析构函数的原因。
 
 在这份代码里，`Rectangle` / `Circle` / `Triangle` 没有自己额外管理资源，所以就算析构函数体是空的，`virtual` 仍然必须保留。
 
@@ -785,11 +762,7 @@ void calc_area() override {
 
 圆形、三角形也会各自给出自己的公式。
 
-`override` 的意思可以记成：
-
-- “我就是在重写基类里的那个虚函数”
-
-它的好处是：
+`override` 的意思是在重写基类里的那个虚函数
 
 - 如果函数签名写错，编译器会直接报错
 - 能防止你以为自己重写了，实际上根本没重写成功
@@ -803,10 +776,6 @@ Rectangle(double w, double h) : w(w), h(h) {}
 Circle(double r) : r(r) {}
 Triangle(double a, double b, double c) : a(a), b(b), c(c) {}
 ```
-
-这里 `: w(w), h(h)` 是初始化列表。
-
-可以直接这样读：
 
 - 左边的 `w` 是成员变量
 - 右边的 `w` 是传进来的参数
@@ -931,10 +900,6 @@ for (Shape* s : arr)
 Shape* p = new Rectangle(2, 3);
 delete p;
 ```
-
-表面上删除的是 `Shape*`，但实际对象是 `Rectangle`。因此，析构函数必须是虚函数，程序才会按真实类型正确销毁对象。
-
-现代 C++ 更推荐用智能指针（如 `std::unique_ptr`）管理生命周期，但这份代码的重点是先理解多态和继承。
-
+先析构Rectangle，再析构Shape。
 
 ---

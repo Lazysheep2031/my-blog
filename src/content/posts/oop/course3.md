@@ -24,19 +24,19 @@ draft: false
   - [Containers](#containers)
   - [Algorithms](#algorithms)
   - [Iterators](#iterators)
-- [Containers：容器分类总览](#containers容器分类总览)
+- [Containers](#containers-1)
   - [Sequential containers](#sequential-containers)
   - [Associative containers](#associative-containers)
   - [Unordered associative containers](#unordered-associative-containers)
   - [Container adaptors](#container-adaptors)
 - [vector：最常用的动态顺序容器](#vector最常用的动态顺序容器)
-  - [vector 的使用特点](#vector-的使用特点)
+  - [vector 的特点](#vector-的特点)
   - [vector 的常见操作](#vector-的常见操作)
 - [list：链表式顺序容器](#list链表式顺序容器)
-  - [list 的直观特点](#list-的直观特点)
+  - [list 的特点](#list-的特点)
 - [map：键值对容器](#map键值对容器)
 - [stack：容器适配器](#stack容器适配器)
-- [Algorithms：STL 的另一半](#algorithmsstl-的另一半)
+- [Algorithms](#algorithms-1)
 - [Iterators：连接容器与算法](#iterators连接容器与算法)
 - [Typedef、using 与 auto](#typedefusing-与-auto)
   - [typedef](#typedef)
@@ -44,10 +44,10 @@ draft: false
   - [auto](#auto)
 - [自定义类如何接入 STL](#自定义类如何接入-stl)
 - [Pitfalls](#pitfalls)
-  - [1. vector 非法下标访问](#1-vector-非法下标访问)
-  - [2. map 的 silent insertion](#2-map-的-silent-insertion)
-  - [3. list.size() vs empty()](#3-listsize-vs-empty)
-  - [4. erase 后 iterator 失效](#4-erase-后-iterator-失效)
+  - [vector 非法下标访问](#vector-非法下标访问)
+  - [map 的 silent insertion](#map-的-silent-insertion)
+  - [list.size() vs empty()](#listsize-vs-empty)
+  - [erase 后 iterator 失效](#erase-后-iterator-失效)
 
 ---
 
@@ -56,18 +56,14 @@ draft: false
 `STL` 是 `Standard Template Library`，也就是 C++ 标准库中和泛型编程密切相关的一部分。
 
 > STL 提供了一套常用的数据结构和算法，并且这些工具可以通过模板适配不同类型。
-
-所以学 STL，不只是学几个容器名字，而是在学一种更现代的 C++ 编程方式：
-
 - 尽量复用标准库已有能力
 - 用统一接口操作不同数据结构
 - 少自己造轮子
 
----
 
 **为什么使用 STL** ?
 
-核心原因有这些：
+核心原因：
 
 - **Reduced development time**：很多常用结构和算法已经写好，不必自己从零实现
 - **Code readability**：看到 `vector`、`map`、`sort`，代码意图往往比手写数组和循环更清楚
@@ -119,7 +115,7 @@ STL 可以先拆成三块来看:
 
 ---
 
-## Containers：容器分类总览
+## Containers
 
 ### Sequential containers
 
@@ -199,7 +195,7 @@ int main() {
 - 用 `push_back` 逐个加入元素
 - 用 iterator 从 `begin()` 走到 `end()`
 
-### vector 的使用特点
+### vector 的特点
 
 - 本质上是动态数组
 - 元素连续存储
@@ -299,7 +295,7 @@ int main() {
 - 一样可以用 iterator 遍历
 - 但遍历条件通常写成 `p != s.end()`，而不是像 `vector` 那样用 `<`
 
-### list 的直观特点
+### list 的特点
 
 - 适合频繁插入、删除的场景
 - 不适合像数组那样按下标快速随机访问
@@ -378,36 +374,22 @@ map 的重点
 
 你可以把它理解成“只能从一端放入和拿出元素”的容器接口。
 
-**为什么说它是 adaptor** ?
-
- `stack` 是一种 **container adaptor**。
-
-意思不是它自己发明了一套完全独立的新存储方式，而是：
-
+`stack` 是一种 **container adaptor**。
 - 底层可以基于别的容器
 - 对外只暴露符合 stack 抽象的那部分操作
 
-这样做的好处是接口更清晰。  
+好处是接口更清晰。  
 当你说“这里用 stack”时，别人马上知道你的数据访问模式是 LIFO，而不是任意位置都能操作。
-
-所以这里的 `adapter design pattern`，课堂层面先记这个意思就够了：
-
-- 不是强调底层实现花样
-- 而是强调“限制接口，让抽象更明确”
 
 ---
 
-## Algorithms：STL 的另一半
+## Algorithms
 
-如果说容器负责“装数据”，那么 algorithms 负责“处理数据”。
-
-课上强调 STL 算法通常工作在一个区间上：
+STL 算法通常工作在一个区间上：
 
 $$
 [first, last)
 $$
-
-这是一个非常重要的记号，表示：
 
 - 包含 `first`
 - 不包含 `last`
@@ -453,7 +435,6 @@ $$
 ## Iterators：连接容器与算法
 
 iterator 可以理解成 **generalized pointer**。
-
 也就是说，它和普通指针很像，但服务对象不只是一块裸数组，而是各种 STL 容器。
 
 它的核心作用是：
@@ -496,8 +477,6 @@ typedef map<Name, list<PhoneNum>> PB;
 PB phonebook;
 PB::iterator finger;
 ```
-
-这样做的意义很简单：
 
 - 给复杂类型起一个短名字
 - 降低阅读负担
@@ -554,16 +533,10 @@ map<full_name, int> phonebook;
 - `map` 需要知道 key 之间如何比较
 - 如果 key 是你自定义的类型，那你就要提供比较规则
 
-也就是说，STL 容器不是“自动懂你这个类怎么排大小”，而是你必须告诉它：
-
-- 什么叫相等
-- 什么叫更小
-- 什么叫能复制、能赋值
-
 
 ## Pitfalls
 
-### 1. vector 非法下标访问
+### vector 非法下标访问
 
 现象：
 
@@ -593,7 +566,7 @@ vector<int> w(101);
 w[100] = 1;
 ```
 
-### 2. map 的 silent insertion
+### map 的 silent insertion
 
 现象：
 
@@ -623,12 +596,10 @@ if (foo.contains("bob")) {
 }
 ```
 
-也就是说：
-
 - 想“查有没有这个 key”，优先用 `count()` / `contains()`
 - 想“真的取值”，再用 `operator[]`
 
-### 3. list.size() vs empty()
+### list.size() vs empty()
 
 在较早标准里，`list.size()` 不一定保证常数时间。
 
@@ -652,11 +623,10 @@ if (my_list.empty()) {
 
 - 语义更直接
 - 就是在表达“这个容器是不是空的”
-- 不需要把“空”翻译成“大小等于 0”
 
 即使在现代标准下这件事没那么敏感，`empty()` 依然是更清晰的表达。
 
-### 4. erase 后 iterator 失效
+### erase 后 iterator 失效
 
 现象：
 

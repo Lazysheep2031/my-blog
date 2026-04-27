@@ -9,7 +9,7 @@ draft: false
 
 ## 概述
 
-核心主线可以概括成：
+主线：
 
 - 从 `struct + 函数` 过渡到 `class + member function`
 - 理解 **对象 = 属性 + 服务**
@@ -36,9 +36,9 @@ draft: false
   - [对象和类分别是什么](#对象和类分别是什么)
   - [消息、方法与状态变化](#消息方法与状态变化)
   - [封装、抽象、模块化](#封装抽象模块化)
-    - [1. Encapsulation：封装](#1-encapsulation封装)
-    - [2. Abstraction：抽象](#2-abstraction抽象)
-    - [3. Modularization：模块化](#3-modularization模块化)
+    - [Encapsulation：封装](#encapsulation封装)
+    - [Abstraction：抽象](#abstraction抽象)
+    - [Modularization：模块化](#modularization模块化)
 - [Example](#example)
 - [类的定义与程序组织](#类的定义与程序组织)
   - [头文件和源文件分离](#头文件和源文件分离)
@@ -62,9 +62,10 @@ draft: false
   - [聚合初始化](#聚合初始化)
   - [默认构造函数](#默认构造函数)
   - [初始化列表](#初始化列表)
-    - [1. 函数体里的赋值不是初始化](#1-函数体里的赋值不是初始化)
-    - [2. 真正的初始化顺序由**字段声明顺序**决定](#2-真正的初始化顺序由字段声明顺序决定)
+    - [函数体里的赋值不是初始化](#函数体里的赋值不是初始化)
+    - [真正的初始化顺序由**字段声明顺序**决定](#真正的初始化顺序由字段声明顺序决定)
   - [初始化 vs 赋值](#初始化-vs-赋值)
+  - [初始化 vs 赋值：可观测实验](#初始化-vs-赋值可观测实验)
 - [字段、局部变量与 `this`](#字段局部变量与-this)
   - [字段和局部变量的区别](#字段和局部变量的区别)
     - [局部变量](#局部变量)
@@ -74,18 +75,21 @@ draft: false
   - [为什么有 `const` 成员函数](#为什么有-const-成员函数)
   - [常对象能调用什么](#常对象能调用什么)
   - [`const` 成员函数内部不能做什么](#const-成员函数内部不能做什么)
+  - [const 重载](#const-重载)
   - [`const` 字段](#const-字段)
 - [`static` 成员](#static-成员)
   - [静态成员变量](#静态成员变量)
   - [静态成员函数](#静态成员函数)
   - [类内编译期常量](#类内编译期常量)
   - [如何使用静态成员](#如何使用静态成员)
+  - [静态成员与初始化列表](#静态成员与初始化列表)
 - [`inline` 函数](#inline-函数)
   - [函数调用开销](#函数调用开销)
   - [`inline` 的作用与代价](#inline-的作用与代价)
   - [`inline` vs 宏](#inline-vs-宏)
   - [编译器不一定真的内联](#编译器不一定真的内联)
   - [类内定义函数为什么默认 inline](#类内定义函数为什么默认-inline)
+  - [C++17 `inline` 变量](#c17-inline-变量)
 
 ---
 
@@ -179,8 +183,6 @@ int main()
 
 ### C++ 风格：把数据和操作封装进类
 
-C++ 版本对应 slides 里的 `class Point`：
-
 ```cpp
 #include <iostream>
 using namespace std;
@@ -270,10 +272,6 @@ private:
 - `Point` 是类
 - `p`、`a`、`b` 是对象
 
-就像：
-
-- `猫` 是类
-- `我家这只猫` 是对象
 
 ### 消息、方法与状态变化
 
@@ -307,7 +305,7 @@ p.move(2, 3);
 
 这一块是一组非常核心的 OOP 概念。
 
-#### 1. Encapsulation：封装
+#### Encapsulation：封装
 
 封装就是：
 
@@ -319,7 +317,7 @@ p.move(2, 3);
 
 > 你可以使用对象，但不必知道对象内部到底怎么实现。
 
-#### 2. Abstraction：抽象
+#### Abstraction：抽象
 
 抽象就是：
 
@@ -333,7 +331,7 @@ p.move(2, 3);
 
 而不是关心编译器最终怎么把它放在内存里。
 
-#### 3. Modularization：模块化
+#### Modularization：模块化
 
 模块化是：
 
@@ -388,15 +386,12 @@ private:
 };
 ```
 
-这说明类设计的一般套路是：
+类设计的套路：
 
 1. 先找出对象的**状态**
 2. 再找出对象能做的**行为**
 3. 决定哪些内容对外公开，哪些内容应该隐藏
 
-这个过程本质上就是：
-
-> **从现实问题中抽出对象模型。**
 
 ---
 
@@ -474,8 +469,6 @@ g++ main.cpp point.cpp
 ./a.out
 ```
 
-更规范地说：
-
 - `point.h` 是别人如何使用 `Point` 的说明书
 - `point.cpp` 是 `Point` 内部到底怎么做的实现细节
 
@@ -512,8 +505,6 @@ void S::f() {
 }
 ```
 
-其中：
-
 - `::f()` 表示调用**全局作用域**里的 `f`
 - `S::f()` 表示调用 **S 类作用域**里的 `f`
 
@@ -522,8 +513,6 @@ void S::f() {
 > **告诉编译器：这个名字属于哪个作用域。**
 
 ### 编译单元、头文件、链接
-
-这一部分和上一讲 memory model 的**编译单元**能很好接上。
 
 - 一个 `.cpp` 文件是一个 **compile unit / translation unit**
 - 编译器一次只看一个 `.cpp`
@@ -918,9 +907,6 @@ int foo(int a) {
 ### RAII
 
 RAII = **Resource Acquisition Is Initialization**。
-
-它的意思不是“资源 = 初始化”，而是：
-
 > **把资源的获取和对象的生命周期绑定起来。**
 
 原则是：
@@ -994,8 +980,6 @@ void bar() {
 
 - 当 `up` 析构时会自动释放这块动态内存
 - 避免了忘记 `delete[]`
-
-这也对应你上一讲 memory model 里关于 `new/delete` 的知识。
 
 ---
 
@@ -1103,7 +1087,7 @@ public:
 
 这里的重点有两个：
 
-#### 1. 函数体里的赋值不是初始化
+#### 函数体里的赋值不是初始化
 
 ```cpp
 Point(float xa, float ya) {
@@ -1119,7 +1103,7 @@ Point(float xa, float ya) {
 
 对于 `const` 字段，这甚至根本不合法。
 
-#### 2. 真正的初始化顺序由**字段声明顺序**决定
+#### 真正的初始化顺序由**字段声明顺序**决定
 
 不是看初始化列表里谁写在前面，而是看类里字段谁先声明。
 
@@ -1173,6 +1157,44 @@ Student::Student(string s) { name = s; }
 所以：
 
 > **成员对象、`const` 字段、引用字段，优先用初始化列表。**
+
+### 初始化 vs 赋值：可观测实验
+
+下面这段代码可以非常直观地看到“默认构造 + 赋值”和“初始化列表直接构造”的差别：
+
+```cpp
+#include <iostream>
+using namespace std;
+
+struct Y {
+  int i;
+  Y(int ii) : i(ii) {
+    cout << "Y:Y(int)\n";
+  }
+  Y() {
+    cout << "Y:Y()\n";
+  }
+  Y& operator=(int ii) {
+    i = ii;
+    cout << "Y:operator=(int)\n";
+    return *this;
+  }
+};
+
+struct X {
+  Y y;
+  X() {            // 对比：X() : y(10) {}
+    y = 10;
+    cout << "X:X()\n";
+  }
+};
+
+int main() {
+  X x;
+}
+```
+
+当 `X()` 写成 `y = 10;` 时，`y` 先被默认构造，再发生赋值；写成 `X() : y(10) {}` 时，`y` 会被直接按目标值构造。对于复杂类型，这个差异在性能和语义上都很关键。
 
 ---
 
@@ -1355,6 +1377,28 @@ int Date::get_day() const {
 
 这不仅语义更清晰，也能让常对象正常使用这些方法。
 
+### const 重载
+
+这两种成员函数可以同时存在：
+
+```cpp
+class X {
+public:
+  void foo();
+  void foo() const;
+};
+```
+
+它们能重载的本质是隐藏参数类型不同：
+
+- 非 `const` 版本近似为 `foo(X* this)`
+- `const` 版本近似为 `foo(const X* this)`
+
+调用规则：
+
+- 非 `const` 对象优先调用非 `const` 版本
+- `const` 对象只能调用 `const` 版本
+
 ### `const` 字段
 
 ```cpp
@@ -1495,6 +1539,19 @@ x.n = 10;
 
 但从语义上更推荐第一种，因为静态成员本来就不依赖具体对象。
 
+### 静态成员与初始化列表
+
+静态数据成员不属于某个对象，因此不能放进构造函数初始化列表：
+
+```cpp
+struct X {
+  static int n;
+  X() /* : n(1) */ {} // 错误：n 不是对象子成员
+};
+```
+
+应在类外定义（或在 C++17 及以上用 `inline static`）。
+
 ---
 
 ## `inline` 函数
@@ -1634,5 +1691,17 @@ public:
 > **允许多个翻译单元看到同一个函数定义。**
 
 > Nowadays, the keyword `inline` comes to mean “multiple definitions are permitted” rather than “inlining is preferred”.
+
+### C++17 `inline` 变量
+
+从 C++17 开始，变量也可以使用 `inline`：
+
+```cpp
+struct Config {
+  inline static const char* name = "demo";
+};
+```
+
+这样可以把静态成员变量直接放在头文件里定义，并允许多个翻译单元包含，不会触发重复定义错误。
 
 ---

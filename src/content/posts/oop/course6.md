@@ -9,695 +9,72 @@ draft: false
 
 ## 概述
 
-- **对象内部最基本的构造与访问机制**
-  - 字段应该如何初始化
-  - 成员函数如何访问字段
-  - `this` 到底是什么
-- **类的约束与类级别成员**
-  - `const object` 能调用什么函数
-  - `const member function` 修饰的其实是谁
-  - `static` 成员为什么不属于某个对象
-- **工程实践层面的关键词**：`inline`
-  - 最初是为了减少函数调用开销
-  - 现代 C++ 里更重要的意义是“允许多重定义”，所以适合写在头文件里
-- **代码复用（reuse）**的两种核心方式
-  - **composition**：`has-a`
-  - **inheritance**：`is-a`
+1. 一个类能不能直接包含另一个类的对象？——这就是 **composition**。
+2. 一个类能不能扩展另一个类的接口和实现？——这就是 **inheritance**。
+3. 类与类之间能访问哪些成员？——这就是 **access protection**。
+
+判断标准：
+
+| 关系 | 英文表达 | 典型语义 | C++ 实现方式 |
+|---|---|---|---|
+| 组合 | `A has a B` | A 拥有 / 使用 B | 把 `B` 作为 `A` 的成员字段 |
+| 继承 | `A is a B` | A 是一种 B | `class A : public B` |
+| 实现复用 | `A is implemented in terms of B` | A 内部用 B 实现 | 通常优先用组合 |
 
 ---
 
 ## 目录
 
-- [概述](#概述)
-- [目录](#目录)
-- [初始化列表 initializer list](#初始化列表-initializer-list)
-  - [初始化 vs 赋值](#初始化-vs-赋值)
-  - [初始化顺序由字段声明顺序决定](#初始化顺序由字段声明顺序决定)
-- [Local variable vs Field：局部变量与字段](#local-variable-vs-field局部变量与字段)
-  - [生命周期差别](#生命周期差别)
-  - [`this`：成员函数里的隐藏参数](#this成员函数里的隐藏参数)
-- [const objects 与 const member functions](#const-objects-与-const-member-functions)
-  - [const 成员函数修饰的本质](#const-成员函数修饰的本质)
-  - [const 重载](#const-重载)
-  - [const 字段](#const-字段)
-- [static 成员](#static-成员)
-  - [static 数据成员](#static-数据成员)
-  - [static 成员函数](#static-成员函数)
-  - [类内编译期常量](#类内编译期常量)
-- [inline：从性能提示到头文件语义](#inline从性能提示到头文件语义)
-  - [inline 最初想解决什么问题](#inline-最初想解决什么问题)
-  - [inline vs 宏](#inline-vs-宏)
-  - [现代 C++ 中 inline 更重要的意义](#现代-c-中-inline-更重要的意义)
 - [Composition：组合复用](#composition组合复用)
-  - [组合的语义：has-a](#组合的语义has-a)
-  - [两种组合方式：direct owns vs by reference shares](#两种组合方式direct-owns-vs-by-reference-shares)
-    - [1. 直接拥有](#1-直接拥有)
-    - [2. 间接引用 / 共享](#2-间接引用--共享)
-  - [组合对象如何初始化](#组合对象如何初始化)
-  - [组合后的函数实现：把工作转派出去](#组合后的函数实现把工作转派出去)
 - [Inheritance：继承复用](#inheritance继承复用)
-  - [继承的语义：is-a](#继承的语义is-a)
-  - [基类 / 派生类术语](#基类--派生类术语)
-  - [继承中的构造与析构顺序](#继承中的构造与析构顺序)
-  - [继承后的成员访问与复用](#继承后的成员访问与复用)
-  - [name hiding：同名函数隐藏](#name-hiding同名函数隐藏)
-  - [访问控制与继承方式](#访问控制与继承方式)
-  - [替换原则与 upcasting](#替换原则与-upcasting)
-- [组合 vs 继承](#组合-vs-继承)
-  - [适合组合时](#适合组合时)
-  - [适合继承时](#适合继承时)
-  - [再进一步：实现复用时优先警惕误用继承](#再进一步实现复用时优先警惕误用继承)
-
----
-
-## 初始化列表 initializer list
-
-> **对象的正规初始化位置是在构造函数的初始化列表，而不是构造函数花括号内部。**
-
-### 初始化 vs 赋值
-
-```cpp
-#include<iostream>
-using namespace std;
-
-struct Y {
-    int i;
-    Y(int ii) : i(ii) {
-        cout << "Y:Y(int)\n" << endl;
-    }
-    Y() {
-        cout << "Y:Y()\n" << endl;
-    }
-    Y& operator=(int ii) {
-        i = ii;
-        cout << "Y:operator=(int)\n" << endl;
-        return *this;
-    }
-};
-
-struct X {
-    Y y;
-    X() /* : y(10) */ {
-        y = 10;
-        cout << "X:X()\n";
-    }
-};
-
-int main() {
-    X x;
-}
-```
-
-
-```cpp
-X() { y = 10; }
-```
-
-看起来像初始化 `y`，其实做的不是初始化，而是：
-
-1. 先想办法把 `y` **构造出来**。
-2. 然后再执行 `y = 10;` 这个**赋值操作**。
-
-如果 `Y` 没有默认构造函数，连第 1 步都做不了，所以会直接报错。
-
-如果 `Y` 有默认构造函数，那么事情会变成：
-
-1. 先调用 `Y()` 默认构造 `y`
-2. 再构造一个临时对象 `Y(10)` 或等价赋值来源
-3. 再调用 `operator=` 把值赋给 `y`
-
-所以：
-
-- **初始化列表里的 `y(10)` 才是初始化**
-- **函数体里的 `y = 10` 已经是赋值**
-
-这个差别对内置类型（如 `int`）看起来不明显，对自定义类型就非常明显。
-
-**自定义类型一定优先放到初始化列表里**
-
-```cpp
-struct X {
-    Y y;
-    X() : y(10) {
-        cout << "X:X()\n";
-    }
-};
-```
-
-此时含义很直接：
-
-- `X` 被创建时，字段 `y` 直接按 `Y(10)` 构造
-
-这不仅效率更好，更重要的是语义正确。
-
-:::TIP
-看到字段是自定义类型 / `const` 字段 / 引用字段 / 基类部分，默认反应都应该是：
-
-**放初始化列表。**
-:::
-
-### 初始化顺序由字段声明顺序决定
-
-这也是这节课一个很容易考、也很容易写错的点。
-
-```cpp
-class Point {
-private:
-    const float x, y;
-public:
-    Point(float xa, float ya) : y(ya), x(xa) {}
-};
-```
-
-虽然初始化列表写的是 `y(ya), x(xa)`，但真正的初始化顺序仍然是：
-
-1. 先初始化 `x`
-2. 再初始化 `y`
-
-因为顺序由**字段声明顺序**决定：
-
-```cpp
-const float x, y;
-```
-
-不是由初始化列表里谁写前面决定。
-
-- **真正顺序由上面的成员声明决定**
-
----
-
-## Local variable vs Field：局部变量与字段
-
-```cpp
-int TicketMachine::refundBalance() {
-    int amountToRefund;
-    amountToRefund = balance;
-    balance = 0;
-    return amountToRefund;
-}
-```
-
-### 生命周期差别
-
-这里有两个变量：
-
-- `amountToRefund`：局部变量（local variable）
-- `balance`：字段 / 数据成员（field / data member）
-
-它们最关键的区别是**生命周期**。
-
-`amountToRefund`：
-
-- 只跟这次函数调用绑定
-- 函数开始时创建
-- 函数结束时销毁
-
-`balance`：
-
-- 跟对象绑定
-- 只要对象还活着，这个字段就还在
-- 它代表对象当前的内部状态
-
-所以 `refundBalance()` 调完之后：
-
-- `amountToRefund` 没了
-- `balance` 还在，只是它的值变成了 `0`
-
-这正是**对象保存状态**的意思。
-
-### `this`：成员函数里的隐藏参数
-
-```cpp
-#include<iostream>
-using namespace std;
-
-struct X {
-    int y;
-    void print() {}
-};
-
-int main() {
-    X x;
-    x.print();
-}
-```
-
-从语法表面看，调用是：
-
-```cpp
-x.print();
-```
-
-但从机制上理解，可以把它近似看成：
-
-```cpp
-X::print(&x);
-```
-
-也就是说，成员函数其实都有一个隐藏参数：
-
-```cpp
-void X::print(X* this)
-```
-
-于是：
-
-- `this` 指向“当前调用该成员函数的对象”
-- 成员函数访问字段，本质上是通过 `this` 去访问
-
-例如：
-
-```cpp
-balance
-```
-
-本质上可以理解为：
-
-```cpp
-this->balance
-```
-
-所以
-- 字段是跟对象走的
-- 成员函数调用时，当前对象地址会通过隐藏参数 `this` 传进去
-- 函数体内部再通过 `this` 找到这个对象的字段
-
-这就是成员函数能天然访问字段的根本原因。
-
----
-
-## const objects 与 const member functions
-
-> 如果一个对象是 `const`，那它还能调用哪些成员函数？
-
-### const 成员函数修饰的本质
-
-```cpp
-#include <iostream>
-using namespace std;
-
-class X {
-private:
-    int data;
-public:
-    X(int d) : data(d) {}
-
-    void foo() {
-        data = data * data;
-        cout << "This is non-const foo()" << endl;
-    }
-
-    void foo() const {
-        cout << data << endl;
-        cout << "This is const foo()" << endl;
-    }
-
-    void bar() const {
-        cout << data << endl;
-        cout << "This is bar()" << endl;
-    }
-};
-```
-
-这背后真正的本质仍然跟 `this` 有关。
-
-一个普通成员函数可以近似理解为：
-
-```cpp
-void foo(X* this)
-```
-
-一个 `const` 成员函数可以近似理解为：
-
-```cpp
-void foo(const X* this)
-```
-
-所以加在函数后面的这个 `const`，本质上是在说：
-
-- 这个函数里的 `this` 是“指向 const 对象的指针”
-- 通过这个 `this`，不能修改对象状态
-
-因此在 `const` 成员函数中：
-
-- 读字段可以
-- 改字段不行
-- 调用非 `const` 成员函数也不行
-
-例如：
-
-```cpp
-int Date::get_day() const {
-    // day++;       // 错
-    // set_day(12); // 错
-    return day;
-}
-```
-
-### const 重载
-
-```cpp
-void foo();
-void foo() const;
-```
-
-这两个函数可以共存。
-
-原因是从编译器视角看，它们对应的隐藏参数类型不同：
-
-- 一个是 `X* this`
-- 一个是 `const X* this`
-
-所以可以构成重载。
-
-调用规则是：
-
-```cpp
-X a(10);
-a.foo();
-```
-
-优先调用非 `const` 版本。
-
-```cpp
-const X b(10);
-b.foo();
-```
-
-只能调用 `const` 版本。
-
-> **所有“只读函数”都应该习惯性地写成 `const member function`。**
-- 语义更准确
-- 常量对象也能调用
-- 编译器还能帮你检查“不小心改了对象状态”的错误
-
-### const 字段
-
-```cpp
-class A {
-    const int i;
-};
-```
-
-这类字段的含义是：
-
-- 对象一旦构造完成，这个字段值就不能再改
-- 所以它必须在初始化阶段就确定下来
-
-因此 `const` 字段必须放在构造函数初始化列表里初始化：
-
-```cpp
-class A {
-private:
-    const int i;
-public:
-    A(int x) : i(x) {}
-};
-```
-
-不能在函数体里写：
-
-```cpp
-A(int x) {
-    i = x; // 错
-}
-```
-
-因为这已经是赋值，而不是初始化了。
-
----
-
-## static 成员
-
-> `static` 成员属于类，不属于某个对象。
-
-### static 数据成员
-
-先看标准形式：
-
-```cpp
-struct X {
-    static int n;   // 声明
-};
-
-int X::n = 7;      // 定义
-```
-
-这有两个层次：
-
-1. **类内声明**：告诉编译器“`X` 这个类有一个静态成员 `n`”
-2. **类外定义**：真正给它分配存储空间
-
-因为静态成员变量：
-
-- 不是每个对象一份
-- 而是整个类共享一份
-- 更像“带类作用域的全局变量”
-
-所以它不能跟着构造函数初始化列表走。
-
-例如：
-
-```cpp
-struct X {
-    static int data;
-    void setData(int i) { data = i; }
-    void print() const { cout << data << endl; }
-};
-
-int X::data = 0;
-```
-
-如果创建：
-
-```cpp
-X x1;
-X x2;
-```
-
-那么：
-
-- `x1` 和 `x2` 看到的是同一个 `data`
-- 改 `x1.data`，`x2.data` 看到的也会变
-
-这正是“共享”的含义。
-
-### static 成员函数
-
-```cpp
-struct X {
-    static int n;
-    static void f();
-};
-```
-
-静态成员函数的关键特点是：
-
-- 没有隐含的 `this`
-- 因为它不是“对某个对象发消息”
-- 而是“对类本身调用”
-
-所以它：
-
-- 可以访问静态成员
-- 不能直接访问普通字段
-
-例如：
-
-```cpp
-struct X {
-    static int n;
-    int mdata;
-
-    static void f() {
-        n = 1;     // 可以
-        // mdata = 2; // 不可以
-    }
-};
-```
-
-原因很直观：
-
-- `n` 属于类，本来就不需要对象
-- `mdata` 属于对象，没有 `this` 就不知道该访问哪个对象的 `mdata`
-
-### 类内编译期常量
-
-```cpp
-class HasArray {
-    static const int size = 100;
-    int array[size];
-};
-```
-
-为什么这里要加 `static`？
-
-因为如果 `size` 是普通成员：
-
-```cpp
-const int size;
-```
-
-那它是**每个对象一份**的字段，不能作为这里这种类定义阶段的数组长度。
-
-把它写成：
-
-```cpp
-static const int size = 100;
-```
-
-意思就变成：
-
-- 这是整个类共享的一份常量
-- 可以在类定义阶段直接使用
-
----
-
-## inline：从性能提示到头文件语义
-
-`inline` 的**历史动机**和它在**现代 C++ 工程里的主要作用**，已经不完全一样了。
-
-### inline 最初想解决什么问题
-
-普通函数调用有额外开销：
-
-- 传参数
-- 保存返回地址
-- 建立栈帧
-- 返回后再恢复
-
-所以如果函数特别小，例如：
-
-```cpp
-int f(int a, int n) {
-    return std::pow(a, n);
-}
-```
-
-从早期编译器的角度，会希望把调用处直接展开成函数体，避免那一层函数调用开销。
-
-也就是类似：
-
-```cpp
-b = f(a, n);
-```
-
-被近似替换成：
-
-```cpp
-b = std::pow(a, n);
-```
-
-这就是 `inline` 最初“内联展开”的含义。
-
-### inline vs 宏
-
-宏本质上是**文本替换**，例如：
-
-```cpp
-#define ABS(x) ((x) > 0 ? (x) : -(x))
-```
-
-如果调用：
-
-```cpp
-ABS(i++)
-```
-
-那么 `i++` 可能被替换多次，产生副作用。
-
-而 `inline function` 仍然是函数：
-
-```cpp
-inline int abs_safe(int x) {
-    return x > 0 ? x : -x;
-}
-```
-
-这里参数求值规则仍然按正常函数走，不会出现宏那种“把表达式原样塞进去造成多次求值”的问题。
-
-- `inline` 和宏都可能减少调用层
-- 但 `inline` 仍然保留了函数的类型检查与正常语义
-- 因此比宏安全得多
-
-### 现代 C++ 中 inline 更重要的意义
-
-现在编译器是否真的做**内联展开**，往往由编译器自己决定。
-
-也就是说：
-
-- 你写了 `inline`
-- 不等于它一定会在机器码层面展开
-
-现代 C++ 里，`inline` 更重要的一个语义是：
-
-> **允许这个函数在多个编译单元中重复定义，只要定义一致。**
-
-这正是为什么：
-
-- 类里面直接定义的成员函数
-- 放在头文件里的小函数
-
-通常不会导致 multiple definition / duplicate symbol 错误。
-
-例如：
-
-```cpp
-class Cup {
-    rgb color;
-public:
-    rgb getColor() { return color; }
-    void setColor(rgb color) { this->color = color; }
-};
-```
-
-这些写在类体内的成员函数，默认就具有 `inline` 属性。
-
-1. **历史上**：`inline` 是为了减少函数调用开销
-2. **今天更实用的理解**：`inline` 让函数适合安全地写在头文件里
+- [Access protection：成员访问控制](#access-protection成员访问控制)
+- [继承方式：public / protected / private](#继承方式public--protected--private)
+- [Public inheritance、LSP 与 Upcasting](#public-inheritancelsp-与-upcasting)
+- [Name hiding：同名函数隐藏](#name-hiding同名函数隐藏)
+- [组合 vs 继承：设计判断](#组合-vs-继承设计判断)
 
 ---
 
 ## Composition：组合复用
 
-这一部分开始进入设计层面了。
-
 ### 组合的语义：has-a
 
-组合（composition）是：
+组合（composition）指：
 
-> 用已有对象作为字段，拼出一个新对象。
+> 用已有对象作为字段，构造出一个新对象。
 
 它表达的是：
 
-> **has-a**
+> **has-a**，即“有一个”。
 
-即“有一个”。
-
-例如：
+典型例子：
 
 - `car has an engine`
 - `car has tyres`
 - `SavingsAccount has a Person`
 - `SavingsAccount has a Currency`
 
-如果一句话念出来是通顺的 “A has a B”，那通常就该考虑组合。
+如果一句话念出来是通顺的 “A has a B”，通常就应该先考虑组合。
 
-*Effective C++ Item 38* 的观点
+Effective C++ Item 38 的观点：
 
-- 在应用领域里，composition 常表示 **has-a**
-- 在实现领域里，composition 也可以表示 **is-implemented-in-terms-of**
+- 在应用领域里，composition 常表示 **has-a**；
+- 在实现领域里，composition 也可以表示 **is-implemented-in-terms-of**。
 
-这也是为什么很多时候**内部复用某个类的实现**更适合组合，而不是公有继承。
+所以，很多时候如果只是想复用某个类的内部实现，更适合用组合，而不是公有继承。
 
-### 两种组合方式：direct owns vs by reference shares
+### 两种组合方式
 
-1. **Direct, owns**
-2. **By reference, shares**
+组合主要有两种方式：
 
-#### 1. 直接拥有
+| 方式 | 英文 | 成员写法 | 语义 |
+|---|---|---|---|
+| 直接拥有 | Direct, owns | `Y y;` | `X` 拥有 `Y`，生命周期绑定 |
+| 间接引用 / 共享 | By reference, shares | `Y* p;` / `Y& r;` | `X` 指向 / 借用 / 共享外部 `Y` |
 
-字段直接就是对象本身：
+#### 直接拥有
+
+字段直接是对象本身：
 
 ```cpp
 class X {
@@ -708,11 +85,21 @@ private:
 
 含义：
 
-- `X` 直接拥有这些 `Y` 对象
-- `X` 的生命周期结束，这些 `Y` 也结束
-- 绑定关系紧密
+- `X` 直接拥有这些 `Y` 对象；
+- `X` 的生命周期结束，这些 `Y` 成员对象也会结束；
+- 绑定关系紧密；
+- 适合表示真正属于对象内部状态的部分。
 
-#### 2. 间接引用 / 共享
+例如，一个 `Employee` 的下面这些信息通常和员工对象绑定紧密：
+
+- `Name`
+- `Address`
+- `Health Plan`
+- `Salary History`
+
+它们适合被 `Employee` 直接拥有。
+
+#### 间接引用 / 共享
 
 字段存的是指针或引用：
 
@@ -728,16 +115,26 @@ private:
 
 含义：
 
-- `X` 不一定拥有这些 `Y`
-- 更像“引用 / 借用 / 指向 / 共享”
-- 生命周期管理可能不归 `X` 全权负责
+- `X` 不一定拥有这些 `Y` 对象；
+- 更像“引用 / 借用 / 指向 / 共享”；
+- 生命周期管理可能不归 `X` 全权负责；
+- 适合表示外部已有对象之间的关联。
 
-`Employee` ：
+例如 `Employee` 的 `Supervisor` 虽然也和员工相关，但 supervisor 本身也是另一个 `Employee`。此时更合理的实现通常是指针或引用：
 
-- `Name`、`Address`、`Health Plan`、`Salary History` 这些和员工绑定很紧，适合直接拥有
-- `Supervisor` 虽然也和员工相关，但它其实是另一个 `Employee`，更适合用间接引用
+```cpp
+class Employee {
+private:
+    // Name, Address, HealthPlan, SalaryHistory 可以直接拥有
+    Employee* supervisor;  // 指向另一个 Employee，不直接拥有
+};
+```
 
-### 组合对象如何初始化
+### 组合对象的初始化
+
+组合对象本质上也是成员字段，所以应该在 **constructor initializer list（构造函数初始化列表）** 中完成初始化。
+
+例子：
 
 ```cpp
 class Person { /* ... */ };
@@ -748,6 +145,7 @@ public:
     SavingsAccount(const string& name,
                    const string& address,
                    int cents);
+    ~SavingsAccount();
     void print();
 private:
     Person m_saver;
@@ -766,12 +164,13 @@ SavingsAccount::SavingsAccount(const string& name,
 {}
 ```
 
-这和前面**初始化列表**那一节刚好闭环：
+这里的含义是：
 
-- 组合对象本质上也是字段
-- 所以它们也应该在初始化列表里完成构造
+- `m_saver(name, address)` 调用 `Person` 的构造函数；
+- `m_balance(0, cents)` 调用 `Currency` 的构造函数；
+- 初始化列表把参数直接传给成员对象的子构造函数。
 
-不建议写成：
+#### 不推荐的写法
 
 ```cpp
 SavingsAccount::SavingsAccount(const string& name,
@@ -783,33 +182,48 @@ SavingsAccount::SavingsAccount(const string& name,
 }
 ```
 
-因为这样会先默认构造 `m_saver` / `m_balance`，再慢慢改值，语义和效率都更差。
+问题：
+
+- 进入构造函数体之前，`m_saver` 和 `m_balance` 已经被默认构造了；
+- 函数体里再调用 `set_...`，本质是“先默认初始化，再赋值修改”；
+- 如果成员对象没有默认构造函数，这种写法会直接编译失败；
+- 即使能编译，语义和效率也更差。
+
+结论：成员对象需要构造参数时，应优先使用初始化列表。
 
 ### 组合后的函数实现：把工作转派出去
 
-> 组合以后，不要自己越过抽象边界去“扒”被组合对象的内部数据；应该把任务转派给它自己公开的方法。
+组合以后，不应该越过抽象边界去读取被组合对象的内部数据。更好的做法是：
 
-例如 `SavingsAccount::print()`，更自然的写法是：
+> 把任务转派给真正负责该信息的对象。
+
+例如 `SavingsAccount::print()`：
 
 ```cpp
-void SavingsAccount::print() {
+void SavingsAccount::print()
+{
     m_saver.print();
     m_balance.print();
 }
 ```
 
-而不是：
+这段代码的设计含义：
 
-- 伸手去读 `m_saver` 里面的每个字段
-- 自己拼一遍打印逻辑
+- `m_saver` 自己知道怎么打印 `Person` 信息；
+- `m_balance` 自己知道怎么打印 `Currency` 信息；
+- `SavingsAccount` 只负责组织整体流程。
 
-因为那会破坏封装。
+不推荐的思路：
 
-组合的正确使用方式，不只是“把对象塞进去”，还包括：
+- 直接伸手去读 `m_saver` 内部每个字段；
+- 在 `SavingsAccount` 里重新拼一遍 `Person` 的打印逻辑；
+- 破坏封装，使得 `Person` 内部结构一变，`SavingsAccount` 也要跟着改。
 
-- 保持抽象边界
-- 通过对方暴露出来的接口工作
-- 把职责分派给真正负责该信息的对象
+组合的正确使用方式包括：
+
+- 保持抽象边界；
+- 通过公开接口协作；
+- 把职责分派给真正拥有该数据的对象。
 
 ---
 
@@ -817,13 +231,15 @@ void SavingsAccount::print() {
 
 ### 继承的语义：is-a
 
-继承（inheritance）描述的是另一种关系：
+继承（inheritance）表示：
 
-> **is-a**
+> 一个类是另一个类的一种特殊形式。
 
-即“是一个”。
+它表达的是：
 
-例如：
+> **is-a**，即“是一个”。
+
+典型例子：
 
 - `Student is a Person`
 - `Professor is a Person`
@@ -831,15 +247,42 @@ void SavingsAccount::print() {
 
 如果这句话说得通，那么继承才有语义基础。
 
-- **composition**：`has-a`
-- **inheritance**：`is-a`
+| 关系 | 判断句式 | 例子 |
+|---|---|---|
+| composition | `A has a B` | `Car has an engine` |
+| inheritance | `A is a B` | `Manager is an Employee` |
 
 ### 基类 / 派生类术语
 
-- **Base class / Super / Parent**：基类、父类
-- **Derived class / Sub / Child**：派生类、子类
+| 英文 | 中文 | 说明 |
+|---|---|---|
+| Base class | 基类 | 被继承的类 |
+| Super class | 超类 | 同 base class |
+| Parent class | 父类 | 同 base class |
+| Derived class | 派生类 | 继承别人的类 |
+| Sub class | 子类 | 同 derived class |
+| Child class | 子类 | 同 derived class |
 
 例如：
+
+```cpp
+class Employee {
+    // ...
+};
+
+class Manager : public Employee {
+    // ...
+};
+```
+
+这里：
+
+- `Employee` 是 base class / parent class；
+- `Manager` 是 derived class / child class。
+
+### Employee / Manager 例子
+
+#### 声明基类 `Employee`
 
 ```cpp
 class Employee {
@@ -854,7 +297,57 @@ protected:
 };
 ```
 
-然后：
+这里要注意：
+
+- `m_name` 和 `m_ssn` 被声明为 `protected`；
+- 派生类可以直接访问 `protected` 成员；
+- 类外仍然不能直接访问。
+
+`protected` 的完整规则放在后面的 [Access protection](#access-protection成员访问控制) 中统一讲。
+
+#### `Employee` 构造函数
+
+```cpp
+Employee::Employee(const string& name, const string& ssn)
+    : m_name(name), m_ssn(ssn)
+{
+    // initializer list sets up the values!
+}
+```
+
+这里依然使用初始化列表，因为 `m_name` 和 `m_ssn` 是成员字段，应在构造阶段完成初始化。
+
+#### `Employee` 成员函数
+
+```cpp
+const string& Employee::get_name() const
+{
+    return m_name;
+}
+
+void Employee::print(ostream& out) const
+{
+    out << m_name << endl;
+    out << m_ssn << endl;
+}
+
+void Employee::print(ostream& out, const string& msg) const
+{
+    out << msg << endl;
+    print(out);
+}
+```
+
+这里有两个 `print`，构成重载：
+
+```cpp
+void print(ostream& out) const;
+void print(ostream& out, const string& msg) const;
+```
+
+后面会看到，派生类中重新定义同名 `print` 时，会触发 **name hiding**。
+
+#### 声明派生类 `Manager`
 
 ```cpp
 class Manager : public Employee {
@@ -872,12 +365,13 @@ private:
 
 这里：
 
-- `Employee` 是基类
-- `Manager` 是派生类
+- `Manager : public Employee` 表示公有继承；
+- `Manager` 继承了 `Employee` 的接口和实现；
+- `Manager` 自己新增了 `m_title`。
 
 ### 继承中的构造与析构顺序
 
-构造函数写法：
+派生类构造函数写法：
 
 ```cpp
 Manager::Manager(const string& name,
@@ -887,59 +381,910 @@ Manager::Manager(const string& name,
 {}
 ```
 
-- 基类部分就像“嵌在派生类对象内部的一块子对象”
-- 所以构造派生类时，必须先把基类部分构造好
+这里的 `Employee(name, ssn)` 表示：
 
-顺序规律：
+> 先调用基类 `Employee` 的构造函数，构造出派生类对象内部的基类子对象。
 
-1. **先构造基类**
-2. 再构造派生类自己的成员
-3. 最后进入派生类构造函数体
+可以把派生类对象理解成：
 
-析构顺序完全反过来：
+```text
+Manager object
+├── Employee base subobject
+│   ├── m_name
+│   └── m_ssn
+└── Manager's own part
+    └── m_title
+```
 
-1. 先析构派生类自己的部分
-2. 再析构基类部分
+构造顺序：
 
-所以一个非常稳定的记忆法是：
+```text
+Base class
+→ Derived class's member fields
+→ Derived class constructor body
+```
+
+也就是：
+
+```text
+Employee(name, ssn)
+→ m_title(title)
+→ Manager constructor body
+```
+
+如果没有显式给基类传参：
+
+```cpp
+Manager::Manager(...) : m_title(title) {}
+```
+
+编译器会尝试调用 `Employee` 的默认构造函数。若 `Employee` 没有默认构造函数，会编译失败。
+
+析构顺序与构造顺序严格相反：
+
+```text
+Derived class destructor body
+→ Derived class's member fields
+→ Base class
+```
 
 > **构造从上到下，析构从下到上。**
 
 ### 继承后的成员访问与复用
 
-派生类可以直接复用基类已经有的成员函数与字段（前提是访问权限允许）。
-
-例如：
+派生类可以复用基类已经写好的成员函数。
 
 ```cpp
-void Manager::print(ostream& out) const {
-    Employee::print(out);
+void Manager::print(ostream& out) const
+{
+    Employee::print(out); // call the base class print
     out << m_title << endl;
 }
 ```
 
-这段代码特别典型：
+这里的逻辑：
 
-- 先调用基类版本 `Employee::print(out)`
-- 再补充自己新增的 `m_title`
+- 先调用 `Employee::print(out)`，打印员工共有信息；
+- 再输出 `m_title`，打印 `Manager` 自己新增的信息。
 
-这正是继承复用的常见写法。
+这体现了继承复用的常见模式：
 
-再如：
+> 先复用基类行为，再补充派生类自己的行为。
+
+其他成员函数：
 
 ```cpp
-const string Manager::title_name() const {
+const string& Manager::get_title() const
+{
+    return m_title;
+}
+
+const string Manager::title_name() const
+{
     return string(m_title + ": " + m_name);
+    // access base m_name
 }
 ```
 
-这里 `m_name` 是基类 `Employee` 中的 `protected` 成员，所以派生类可以直接访问。
+这里 `title_name()` 能直接访问 `m_name`，原因是：
 
-### name hiding：同名函数隐藏
+- `m_name` 是 `Employee` 的 `protected` 成员；
+- `Manager` 是 `Employee` 的派生类；
+- 派生类内部可以直接访问基类的 `protected` 成员。
 
-如果派生类重新定义了一个同名成员函数，那么基类中其他同名重载版本可能会被隐藏。
+#### 使用例子
+
+```cpp
+int main () {
+    Employee bob("Bob Jones", "555-44-0000");
+    Manager bill("Bill Smith", "666-55-1234", "ImportantPerson");
+
+    // okay Manager inherits Employee
+    string name = bill.get_name();
+
+    // Error -- bob is an Employee!
+    string title = bob.get_title();
+
+    cout << bill.title_name() << '\n' << endl;
+
+    bob.print(cout);
+    bob.print(cout, "Employee:");
+    bill.print(cout);
+    bill.print(cout, "Employee:"); // Error -- hidden!
+}
+```
+
+关键点：
+
+- `bill.get_name()` 合法，因为 `Manager` 继承了 `Employee::get_name()`；
+- `bob.get_title()` 不合法，因为 `Employee` 不是 `Manager`，没有 `get_title()`；
+- `bill.print(cout, "Employee:")` 不合法，原因是 **name hiding**，后面单独讲。
+
+---
+
+## Access protection：成员访问控制
+
+### `private` / `protected` / `public`
+
+访问控制用于决定：
+
+> 当前代码位置能不能访问某个成员。
+
+总表：
+
+| specifier | within same class | in derived class | outside the class |
+|---|---:|---:|---:|
+| `private` | Yes | No | No |
+| `protected` | Yes | Yes | No |
+| `public` | Yes | Yes | Yes |
+
+### `private`
+
+```cpp
+class Employee {
+private:
+    std::string m_ssn;
+};
+```
+
+含义：
+
+- `Employee` 自己的成员函数可以访问 `m_ssn`；
+- `Manager : public Employee` 这样的派生类不能直接访问 `m_ssn`；
+- 类外也不能访问 `m_ssn`。
+
+例子：
+
+```cpp
+class Employee {
+private:
+    std::string m_ssn;
+public:
+    Employee(const std::string& ssn) : m_ssn(ssn) {}
+};
+
+class Manager : public Employee {
+public:
+    Manager(const std::string& ssn) : Employee(ssn) {}
+
+    void foo() {
+        // std::cout << m_ssn; // 错：private 成员对派生类不可见
+    }
+};
+```
+
+### `protected`
+
+```cpp
+class Employee {
+protected:
+    std::string m_name;
+};
+```
+
+含义：
+
+- 基类自己能访问；
+- 派生类也能访问；
+- 类外仍然不能访问。
+
+例子：
+
+```cpp
+class Employee {
+protected:
+    std::string m_name;
+public:
+    Employee(const std::string& name) : m_name(name) {}
+};
+
+class Manager : public Employee {
+public:
+    Manager(const std::string& name) : Employee(name) {}
+
+    void print_name() const {
+        std::cout << m_name << '\n'; // 对：protected 对派生类可见
+    }
+};
+```
+
+这也是 `Manager::title_name()` 能直接使用基类 `m_name` 的原因。
+
+### `public`
+
+```cpp
+class Date {
+public:
+    int get_day() const;
+};
+```
+
+含义：
+
+- 类内能访问；
+- 派生类能访问；
+- 类外也能访问。
+
+`public` 成员通常构成类的对外接口。
+
+### `class` 与 `struct` 的默认权限
+
+`class` 和 `struct` 在 C++ 中有两个默认值不同：
+
+| 项目 | `class` | `struct` |
+|---|---|---|
+| 成员默认访问权限 | `private` | `public` |
+| 默认继承方式 | `private` inheritance | `public` inheritance |
+
+#### 成员默认访问权限
+
+`class` 默认是 `private`：
+
+```cpp
+class A {
+    int x;
+};
+```
+
+等价于：
+
+```cpp
+class A {
+private:
+    int x;
+};
+```
+
+`struct` 默认是 `public`：
+
+```cpp
+struct B {
+    int x;
+};
+```
+
+等价于：
+
+```cpp
+struct B {
+public:
+    int x;
+};
+```
+
+例子：
+
+```cpp
+#include <iostream>
+using namespace std;
+
+class A {
+    int x = 1;   // 默认 private
+public:
+    int get() const { return x; }
+};
+
+struct B {
+    int x = 2;   // 默认 public
+};
+
+int main() {
+    A a;
+    B b;
+
+    // cout << a.x << '\n'; // 错：A::x 默认 private
+    cout << a.get() << '\n';
+    cout << b.x << '\n';    // 对：B::x 默认 public
+}
+```
+
+实际写代码时建议显式写出继承方式：
+
+```cpp
+class Manager : public Employee {
+    // ...
+};
+```
+
+### `friend`：显式授予访问权
+
+`friend` 的含义：
+
+> Grant access explicitly.
+
+也就是：
+
+> 某个类自己决定，把自己的私有 / 保护成员开放给谁。
+
+友元可以是：
+
+- free function（自由函数）；
+- another class's member function（另一个类的成员函数）；
+- an entire class（整个类）。
+
+#### 友元函数
+
+```cpp
+#include <iostream>
+using namespace std;
+
+class Box {
+private:
+    int secret;
+public:
+    Box(int x) : secret(x) {}
+
+    friend void reveal(const Box& b);
+};
+
+void reveal(const Box& b) {
+    cout << b.secret << '\n'; // 对：reveal 是 Box 的 friend
+}
+
+int main() {
+    Box b(42);
+    reveal(b);
+}
+```
+
+这里 `reveal()` 不是 `Box` 的成员函数，但因为被声明成 `friend`，所以可以访问 `Box::secret`。
+
+#### 友元类
+
+```cpp
+#include <iostream>
+using namespace std;
+
+class Vault {
+private:
+    int password = 123456;
+
+    friend class Inspector;
+};
+
+class Inspector {
+public:
+    void check(const Vault& v) const {
+        cout << v.password << '\n'; // 对：Inspector 整个类都是友元
+    }
+};
+```
+
+#### 友元的注意点
+
+友元有三个重要性质：
+
+- 友元不是继承关系：`friend class B;` 只表示 `A` 允许 `B` 访问自己的私有实现，不表示 `B is-an A`。
+- 友元不是双向的：`A` 声明 `B` 为 friend，只表示 `B` 能访问 `A`，不表示 `A` 能访问 `B`。
+- 友元不是传递的：`A` 把权限给 `B`，`B` 把权限给 `C`，不意味着 `C` 也能访问 `A`。
+
+```cpp
+class A {
+    friend class B;
+};
+```
+
+#### 友元的合理使用场景
+
+常见场景：
+
+- 运算符重载，比如 `operator<<`；
+- 两个类实现上高度协作；
+- 测试代码或调试工具需要深入访问内部状态。
+
+典型例子：
+
+```cpp
+#include <iostream>
+using namespace std;
+
+class Point {
+private:
+    int x, y;
+public:
+    Point(int x, int y) : x(x), y(y) {}
+
+    friend ostream& operator<<(ostream& os, const Point& p);
+};
+
+ostream& operator<<(ostream& os, const Point& p) {
+    return os << '(' << p.x << ", " << p.y << ')';
+}
+```
+
+### `private is to class, not to object`
+
+> `private` 限制的是“哪些类 / 函数的代码可以访问”，不是限制“某个具体对象只能访问自己的 private”。
+
+只要代码处在同一个类的成员函数内部，就可以访问这个类的任意对象的私有成员。
+
+#### 同类对象之间互访私有成员
+
+```cpp
+#include <iostream>
+using namespace std;
+
+class Point {
+private:
+    int x;
+public:
+    Point(int x) : x(x) {}
+
+    bool same_as(const Point& other) const {
+        return x == other.x;           // 对：访问另一个 Point 对象的 private
+    }
+
+    int diff(const Point& other) const {
+        return x - other.x;            // 对：访问另一个 Point 对象的 private
+    }
+};
+```
+
+`other.x` 是 `private`，但这里合法，因为当前代码位于 `Point` 类自己的成员函数中。
+
+另一个例子：
+
+```cpp
+class Counter {
+private:
+    int value;
+public:
+    Counter(int v) : value(v) {}
+
+    void swap_with(Counter& other) {
+        int tmp = value;
+        value = other.value;      // 对：访问另一个 Counter 对象的 private
+        other.value = tmp;        // 对
+    }
+};
+```
+
+判断访问是否合法，看的是：
+
+> 当前代码所在的位置，是否属于这个类授权的代码范围。
+
+#### pointer 间接读写 private 成员
+
+
+- 如果你已经在这个类的成员函数内部；
+- 即使通过 `this` 指针，或者另一个同类对象指针；
+- 仍然可以访问该类的私有成员。
+
+例子：
+
+```cpp
+class Node {
+private:
+    int data;
+public:
+    Node(int x) : data(x) {}
+
+    void copy_from(const Node* p) {
+        data = p->data;  // 对：虽然通过指针访问，但仍在 Node 类内部
+    }
+};
+```
+
+注意：
+
+> 这不表示类外拿到指针就能绕过 `private`。
+
+类外代码仍然不能写：
+
+```cpp
+Node* p = new Node(1);
+// p->data = 2; // 错：类外不能访问 private 成员
+```
+
+---
+
+## 继承方式：`public` / `protected` / `private`
+
+### 继承方式的本质
+
+继承关键字：
+
+```cpp
+class Derived1 : public Base {};
+class Derived2 : protected Base {};
+class Derived3 : private Base {};
+```
+
+它们决定的是：
+
+> 继承之后，基类的 `public` / `protected` 成员在派生类里被重新映射成什么访问级别。
+
+总表：
+
+| inheritance type | public members in Base | protected members in Base | private members in Base |
+|---|---|---|---|
+| `class B : public A` | `public` in B | `protected` in B | not accessible |
+| `class B : protected A` | `protected` in B | `protected` in B | not accessible |
+| `class B : private A` | `private` in B | `private` in B | not accessible |
+
+对应图示：
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202604161025618.png" alt="Inheritance Access Control" style="width: 360px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+注意：
+
+- 基类的 `private` 成员始终不能被派生类直接访问；
+- 继承方式只影响基类的 `public` 和 `protected` 成员在派生类中的访问级别；
+- 最常见、最符合 `is-a` 语义的是 `public` 继承。
+
+### `public` 继承
+
+```cpp
+class B : public A {};
+```
+
+映射规则：
+
+- `A` 的 `public` 成员，在 `B` 中仍是 `public`；
+- `A` 的 `protected` 成员，在 `B` 中仍是 `protected`；
+- `A` 的 `private` 成员，在 `B` 中仍不可直接访问。
+
+这是最自然的 **is-a** 关系。
+
+例子：
+
+```cpp
+class A {
+public:
+    void pub() {}
+protected:
+    void prot() {}
+private:
+    void priv() {}
+};
+
+class B : public A {
+public:
+    void test() {
+        pub();    // 对
+        prot();   // 对
+        // priv(); // 错
+    }
+};
+
+int main() {
+    B b;
+    b.pub();      // 对：public 继承后仍然 public
+    // b.prot();  // 错：类外不能访问 protected
+}
+```
+
+### `protected` 继承
+
+```cpp
+class B : protected A {};
+```
+
+映射规则：
+
+- `A` 的 `public` 成员，在 `B` 中变成 `protected`；
+- `A` 的 `protected` 成员，在 `B` 中仍是 `protected`；
+- `A` 的 `private` 成员仍不可直接访问。
+
+例子：
+
+```cpp
+class A {
+public:
+    void pub() {}
+protected:
+    void prot() {}
+};
+
+class B : protected A {
+public:
+    void test() {
+        pub();
+        prot();
+    }
+};
+
+int main() {
+    B b;
+    // b.pub(); // 错：现在 pub 在 B 外部看来已经不是 public 了
+}
+```
+
+`protected` 继承可以让派生类继续使用基类能力，但不把基类接口公开给外部。
+
+### `private` 继承
+
+```cpp
+class B : private A {};
+```
+
+映射规则：
+
+- `A` 的 `public` 成员，在 `B` 中变成 `private`；
+- `A` 的 `protected` 成员，在 `B` 中也变成 `private`；
+- `A` 的 `private` 成员仍不可直接访问。
+
+例子：
+
+```cpp
+class A {
+public:
+    void pub() {}
+protected:
+    void prot() {}
+};
+
+class B : private A {
+public:
+    void test() {
+        pub();
+        prot();
+    }
+};
+
+int main() {
+    B b;
+    // b.pub(); // 错：对外已经变成 private 了
+}
+```
+
+`private` 继承更偏向实现复用，不表达自然的 `is-a` 关系。外部不能把 `B` 当作 `A` 使用。
+
+---
+
+## Public inheritance、LSP 与 Upcasting
+
+### 替换原则 LSP
+
+> Public inheritance should imply substitution.
+> 如果 `B is-an A`，那么任何需要 `A` 的地方都应该可以使用 `B`。
+
+这就是 **Liskov Substitution Principle（LSP，里氏替换原则）**。
+
+如果：
+
+```cpp
+class Manager : public Employee {
+    // ...
+};
+```
+
+那么理论上：
+
+- 任何要求 `Employee` 的函数；
+- 都应该可以传入 `Manager` 对象。
+
+例子：
+
+```cpp
+#include <iostream>
+#include <string>
+using namespace std;
+
+class Employee {
+public:
+    Employee(string name) : m_name(std::move(name)) {}
+    const string& get_name() const { return m_name; }
+protected:
+    string m_name;
+};
+
+class Manager : public Employee {
+public:
+    Manager(string name, string title)
+        : Employee(std::move(name)), m_title(std::move(title)) {}
+private:
+    string m_title;
+};
+
+void print_employee_name(const Employee& e) {
+    cout << e.get_name() << '\n';
+}
+
+int main() {
+    Manager m("Bill", "CTO");
+    print_employee_name(m);  // 对：Manager 可以当 Employee 用
+}
+```
+
+### Upcasting：上转型
+
+Upcasting 指：
+
+> 把派生类对象当成基类对象来看待。
+
+它通常发生在：
+
+- 基类指针；
+- 基类引用。
 
 例如：
+
+```cpp
+Manager pete("Pete", "444-55-6666", "Bakery");
+Employee* ep = &pete; // Upcast
+Employee& er = pete;  // Upcast
+```
+
+这里：
+
+- `pete` 的真实类型是 `Manager`；
+- `ep` 的静态类型是 `Employee*`；
+- `er` 的静态类型是 `Employee&`；
+- 通过 `ep` / `er` 使用对象时，只能看到 `Employee` 接口视角。
+
+上转型只对引用和指针自然成立，因为它们仍然指向 / 引用原来的对象。
+
+### 引用 / 指针上转型与按值切片
+
+#### 指针上转型
+
+```cpp
+Manager pete("Pete", "444-55-6666", "Bakery");
+Employee* ep = &pete;
+```
+
+`ep` 指向的实际对象仍然是 `Manager`，只是当前通过 `Employee*` 视角访问。
+
+#### 引用上转型
+
+```cpp
+Employee& er = pete;
+```
+
+`er` 是 `pete` 的一个基类引用视角，没有复制对象。
+
+#### 按值赋值会发生 object slicing
+
+如果写成：
+
+```cpp
+Employee e = pete;
+```
+
+这不是上转型引用，而是创建了一个新的 `Employee` 对象副本。此时会发生 **object slicing（对象切片）**：
+
+- `Manager` 中属于 `Employee` 的基类部分被拷贝出来；
+- `Manager` 自己新增的 `m_title` 等字段被切掉；
+- 得到的是一个独立的 `Employee` 对象。
+
+例子：
+
+```cpp
+#include <iostream>
+#include <string>
+using namespace std;
+
+class Employee {
+public:
+    Employee(string name) : m_name(std::move(name)) {}
+    void print() const {
+        cout << "Employee: " << m_name << '\n';
+    }
+protected:
+    string m_name;
+};
+
+class Manager : public Employee {
+public:
+    Manager(string name, string title)
+        : Employee(std::move(name)), m_title(std::move(title)) {}
+
+    void print_manager() const {
+        cout << "Manager: " << m_name << ", " << m_title << '\n';
+    }
+private:
+    string m_title;
+};
+
+int main() {
+    Manager m("Alice", "Director");
+
+    Employee& ref = m;  // 上转型，还是同一个对象
+    ref.print();
+
+    Employee copy = m;  // 切片，产生一个独立的 Employee 子对象副本
+    copy.print();
+}
+```
+
+总结：
+
+| 写法 | 是否复制对象 | 是否保留完整 `Manager` 对象 | 结果 |
+|---|---:|---:|---|
+| `Employee* p = &m;` | 否 | 是 | 指针上转型 |
+| `Employee& r = m;` | 否 | 是 | 引用上转型 |
+| `Employee e = m;` | 是 | 否 | 对象切片 |
+
+### 上转型后的静态绑定与动态绑定
+
+> Lose type information of the object: `ep->print(cout); // The base print() is called`
+
+意思是：
+
+- 通过基类指针 / 引用访问时，编译器当前只看到基类接口；
+- 如果函数不是 `virtual`，调用会按照静态类型绑定；
+- `Employee* ep` 调用 `ep->print(cout)` 时，会调用 `Employee::print`。
+
+#### 非 virtual：静态绑定
+
+```cpp
+#include <iostream>
+using namespace std;
+
+class Employee {
+public:
+    void print() const {
+        cout << "Employee::print\n";
+    }
+};
+
+class Manager : public Employee {
+public:
+    void print() const {
+        cout << "Manager::print\n";
+    }
+};
+
+int main() {
+    Manager m;
+    Employee* p = &m;
+
+    p->print(); // 输出 Employee::print
+}
+```
+
+原因：
+
+- `p` 的静态类型是 `Employee*`；
+- `print()` 不是 virtual；
+- 编译器按静态类型决定调用 `Employee::print()`。
+
+#### virtual：动态绑定
+
+如果想让基类指针 / 引用根据对象真实类型调用派生类版本，需要使用 `virtual`。
+
+```cpp
+#include <iostream>
+using namespace std;
+
+class Employee {
+public:
+    virtual void print() const {
+        cout << "Employee::print\n";
+    }
+    virtual ~Employee() = default;
+};
+
+class Manager : public Employee {
+public:
+    void print() const override {
+        cout << "Manager::print\n";
+    }
+};
+
+int main() {
+    Manager m;
+    Employee* p = &m;
+    p->print(); // 输出 Manager::print
+}
+```
+
+补充：
+
+- `virtual` 表示允许运行时动态分派；
+- `override` 表示这个函数确实覆盖了基类虚函数；
+- 如果一个类准备用作多态基类，析构函数通常也应该声明为 `virtual`。
+
+---
+
+## Name hiding：同名函数隐藏
+
+### 问题现象
+
+如果派生类重新定义了一个同名成员函数，基类中其他同名重载版本可能会被隐藏。
+
+例子：
 
 ```cpp
 class Employee {
@@ -954,130 +1299,168 @@ public:
 };
 ```
 
-那么：
+此时：
 
 ```cpp
-bill.print(cout, "Employee:");
+Manager bill("Bill Smith", "666-55-1234", "ImportantPerson");
+bill.print(cout, "Employee:"); // Error -- hidden!
 ```
 
-可能会报错。
+原因：
 
-不是因为基类没有这个版本，而是因为派生类里出现了同名 `print`，导致基类重载集合被隐藏了。
+- `Manager` 中声明了同名函数 `print`；
+- 名字查找先在 `Manager` 作用域中找到 `print`；
+- 找到后，基类 `Employee` 中同名重载集合被挡住；
+- 编译器只在 `Manager::print` 这一组中匹配参数；
+- `Manager::print(ostream&)` 不能接受两个参数，所以报错。
 
-这里你要记住的是：
+关键结论：
 
-- **派生类同名函数会触发 name hiding**
-- 这不是“只隐藏同签名版本”，而是可能把同名重载整组挡住
+> 派生类中的同名函数会隐藏基类中整个同名重载集合。
 
-### 访问控制与继承方式
+它不是只隐藏“同参数列表”的版本。
 
-访问控制本身：
-
-- `private`：类内可访问，类外不可访问，派生类也不能直接访问
-- `protected`：类内可访问，派生类可访问，类外不可访问
-- `public`：都可访问
-
-而继承关键字又会进一步影响“继承后这些可见成员在派生类中变成什么权限”。
-
-三种继承方式：
+### 问题代码
 
 ```cpp
-class Derived1 : public Base {}
-class Derived2 : protected Base {}
-class Derived3 : private Base {}
+#include <iostream>
+using namespace std;
+
+class Employee {
+public:
+    void print(ostream& out) const {
+        out << "Employee base print\n";
+    }
+
+    void print(ostream& out, const string& msg) const {
+        out << msg << '\n';
+        print(out);
+    }
+};
+
+class Manager : public Employee {
+public:
+    void print(ostream& out) const {
+        out << "Manager print\n";
+    }
+};
+
+int main() {
+    Manager m;
+    // m.print(cout, "hello"); // 错：被 name hiding 挡住了
+}
 ```
 
-最常用的是：
+### 修复方式：`using Base::func;`
+
+可以在派生类中把基类同名重载重新引入当前作用域：
 
 ```cpp
-class Manager : public Employee {}
+class Manager : public Employee {
+public:
+    using Employee::print;  // 把基类同名重载重新引入当前作用域
+
+    void print(ostream& out) const {
+        out << "Manager print\n";
+    }
+};
 ```
 
-因为 public inheritance 语义最符合“`Manager is-an Employee`”。
-
-### 替换原则与 upcasting
-
-> Public inheritance should imply substitution.
-
-也就是如果 `B public` 继承自 `A`，那就应该满足：
-
-- `B` 可以在任何需要 `A` 的地方使用
-- 关于 `A` 成立的性质，对 `B` 也应该合理成立
-
-这就是常说的 **Liskov Substitution Principle（替换原则）**。
-
-**upcasting**：
-
-> 把派生类对象当成基类对象来看待。
-
-典型发生在：
-
-- 基类引用
-- 基类指针
-
-例如：
+此时：
 
 ```cpp
-Employee& e = bill;
-Employee* p = &bill;
+int main() {
+    Manager m;
+    m.print(cout);              // 调用派生类版本
+    m.print(cout, "hello");     // 调用基类重载版本
+}
 ```
 
-这里的 `bill` 本来是 `Manager`，但因为 `Manager is-an Employee`，所以可以上转型为 `Employee` 来使用。
+总结：
 
-这个操作只对**公有继承**的 “is-a” 关系才真正自然成立。
+| 情况 | 结果 |
+|---|---|
+| 派生类定义同名函数，但没有 `using Base::func;` | 基类同名重载集合被隐藏 |
+| 派生类写 `using Base::func;` | 基类同名重载重新参与重载解析 |
 
 ---
 
-## 组合 vs 继承
+## 组合 vs 继承：设计判断
 
-### 适合组合时
+### 适合组合的情况
 
-如果：
+如果可以说：
 
 > `A has a B`
 
-说得通，优先考虑 **composition**。
+就优先考虑组合。
 
-例如：
+例子：
 
 - `SavingsAccount has a Person`
+- `SavingsAccount has a Currency`
 - `Car has an engine`
-- `Employee has a supervisor`（通常通过引用/指针）
+- `Employee has a supervisor`（通常通过引用 / 指针）
 
-### 适合继承时
+组合强调：
 
-如果：
+- 拥有；
+- 包含；
+- 使用；
+- 内部实现。
+
+### 适合继承的情况
+
+如果可以说：
 
 > `A is a B`
 
-说得通，才考虑 **inheritance**。
+才考虑继承。
 
-例如：
+例子：
 
 - `Manager is an Employee`
 - `Student is a Person`
+- `Professor is a Person`
 
-### 再进一步：实现复用时优先警惕误用继承
+继承强调：
 
-*Effective C++ Item 38*:
+- 类型扩展；
+- 接口复用；
+- 可以被当作基类使用；
+- 满足替换原则。
 
-有时候两个类之间看起来“底层实现像”，但语义上并不是 `is-a`。
+### 警惕为了实现复用而滥用继承
+
+Effective C++ Item 38 的核心观点：
+
+> 有时候两个类之间实现上很像，但语义上并不满足 `is-a`。
 
 经典例子：
 
-- `Set` 可以用 `list` 来实现
-- 但 `Set` 不是 `list`
+```cpp
+class Set : public std::vector<int> {
+    // 很可疑
+};
+```
 
-因为：
+问题：
 
-- `list` 可以有重复元素
-- `Set` 不允许重复元素
+- `vector` 允许重复元素；
+- `Set` 通常要求元素唯一；
+- 所以 `Set is-a vector` 语义不成立。
 
-所以这里正确关系是：
+更合理的关系：
 
-- `Set has-a list` / `Set is-implemented-in-terms-of list`
-- 不是 `Set is-a list`
+```cpp
+class Set {
+private:
+    std::vector<int> data;
+};
+```
 
-这也是为什么：
+即：
 
-> **实现复用默认优先考虑组合，只有语义上真的满足 is-a 再用公有继承。**
+- `Set has-a vector`；
+- `Set is implemented in terms of vector`；
+- `vector` 只是 `Set` 的内部实现细节。

@@ -20,12 +20,12 @@ draft: false
 
 - [概述](#概述)
 - [目录](#目录)
-- [Memory Model：程序运行时的几块区域](#memory-model程序运行时的几块区域)
+- [Memory Model](#memory-model)
   - [不同变量通常放在哪里](#不同变量通常放在哪里)
-  - [局部变量：automatic storage duration](#局部变量automatic-storage-duration)
-  - [全局变量与静态变量：persistent storage](#全局变量与静态变量persistent-storage)
+  - [局部变量](#局部变量)
+  - [全局变量与静态变量](#全局变量与静态变量)
 - [编译单元、声明、定义与 linkage](#编译单元声明定义与-linkage)
-  - [什么是编译单元](#什么是编译单元)
+  - [编译单元](#编译单元)
   - [全局变量/函数：definition 与 declaration](#全局变量函数definition-与-declaration)
   - [`extern`](#extern)
   - [`static`：两种常见含义](#static两种常见含义)
@@ -53,7 +53,7 @@ draft: false
     - [引用常用于更干净的参数传递](#引用常用于更干净的参数传递)
   - [生命周期问题](#生命周期问题)
   - [引用的限制](#引用的限制)
-- [Constant / const](#constant--const)
+- [Constant](#constant)
   - [`const` 的基本含义](#const-的基本含义)
   - [非局部 `const` 的一个特点](#非局部-const-的一个特点)
   - [编译期常量与运行期常量](#编译期常量与运行期常量)
@@ -66,7 +66,7 @@ draft: false
 
 ---
 
-## Memory Model：程序运行时的几块区域
+## Memory Model
 
 一个 C++ 程序运行时，通常可以粗略分成下面几块区域：
 
@@ -75,13 +75,8 @@ draft: false
 3. **栈（stack）**：放函数调用过程中产生的局部变量、参数等。
 4. **堆（heap）**：放运行时动态申请出来的对象，也就是 `new` / `malloc` 得到的内存。
 
-最重要的不是死记地址大小规律，而是先分清：
-
-> 一个对象到底属于哪种 **storage duration（存储期）**，它通常就在哪类区域里。
 
 ### 不同变量通常放在哪里
-
-先看经典例子：
 
 ```cpp
 int i;          // global vars.
@@ -167,7 +162,7 @@ int main() {
 +------------------+
 ```
 
-### 局部变量：automatic storage duration
+### 局部变量
 
 局部变量最核心的性质是 **automatic storage duration（自动存储期）**。
 
@@ -191,19 +186,15 @@ int foo(int x) {
 
 这也是为什么递归函数可以有很多层“自己的局部变量”，因为每一层调用都有自己的栈帧。
 
-### 全局变量与静态变量：persistent storage
-
+### 全局变量与静态变量
 定义在函数外部的变量，以及用 `static` 声明出来的静态变量，具有更长的生命周期。它们通常在程序开始时就存在，到程序结束时才销毁。
-
-因此可以把它们先记成：
-
 > **persistent storage：状态可以在整个程序运行期间持续保存。**
 
 ---
 
 ## 编译单元、声明、定义与 linkage
 
-### 什么是编译单元
+### 编译单元
 
 一个 `.cpp` 文件连同它 `#include` 展开的头文件内容，构成一个 **translation unit（编译单元）**。
 
@@ -236,10 +227,8 @@ int global_f(int) {    // function definition
 
 这里：
 
-- `int global_x = 3;` 是**定义（definition）**
-- `int global_f(int) { ... }` 是**定义（definition）**
-
-定义的意思是：
+- `int global_x = 3;` 是**定义**
+- `int global_f(int) { ... }` 是**定义**
 
 > 真正创建了这个实体。
 
@@ -259,7 +248,7 @@ int global_f(int);     // function declaration
 
 ### `extern`
 
-`extern` 最典型的用途就是：
+`extern` 的用途就是：
 
 > 在当前文件里声明一个全局变量，它的定义在别的源文件中。
 
@@ -334,7 +323,7 @@ static int f(int);
 - 这个名字只能在当前编译单元里被使用
 - 它具有 **internal linkage（内部链接）**
 
-可以先近似理解成：
+可以近似理解成：
 
 > **这个全局变量/自由函数只能在这个 `.cpp` 文件里用。**
 
@@ -524,7 +513,7 @@ size_t *pc = (size_t*) pa;
 比如元素个数，也就是常说的 **array cookie**。
 如果查看 `pc - 1`，本质上是在“往前看一格，看看前面是不是藏了 size”。
 
-是很多实现中的常见做法，不是你在业务代码里应该依赖的标准接口。
+是很多实现中的常见做法
 :::
 
 这也就解释了
@@ -752,20 +741,15 @@ void f(int*& p); // ok
 
 4. **No arrays of references**
 
-这些限制的本质都在强调：
-
 > 引用不是一个可自由操作、可嵌套储存的“普通对象”，它更像一种语言层面的别名机制。
 
 ---
 
-## Constant / const
+## Constant
 
 ### `const` 的基本含义
 
 > `const` is a type qualifier.
-
-也就是：
-
 > **`const` 不是单独的数据类型，而是一种类型限定。**
 
 它表示：
