@@ -2,7 +2,7 @@
 title: Design
 published: 2026-04-23
 description: Newton's method、class design、coupling、cohesion、Template Method、functional interface、SOLID
-tags: [面向对象程序设计, C++]
+tags: [面向对象程序设计]
 category: 笔记
 draft: false
 ---
