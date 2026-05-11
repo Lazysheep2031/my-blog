@@ -16,27 +16,45 @@ draft: false
 ---
 
 ## 目录
-
+- [概述](#概述)
+- [目录](#目录)
 - [Review: Dependences and Hazards](#review-dependences-and-hazards)
-  - dependence 和 hazard 的区别
-  - RAW / WAR / WAW
-  - 课堂复习例子
+  - [dependence 和 hazard 的区别](#dependence-和-hazard-的区别)
+  - [三类主要 dependence](#三类主要-dependence)
+    - [Data Dependence](#data-dependence)
+    - [Name Dependence](#name-dependence)
+    - [Control Dependence](#control-dependence)
+  - [三类主要 hazard](#三类主要-hazard)
+  - [Example](#example)
 - [Dynamic Scheduling](#dynamic-scheduling)
-  - 顺序流水线的限制
-  - 乱序执行的基本思想
-  - WAR / WAW 为什么在乱序中变成问题
+  - [顺序流水线的限制](#顺序流水线的限制)
+  - [动态调度的基本思想](#动态调度的基本思想)
+  - [乱序执行带来的新问题](#乱序执行带来的新问题)
 - [Scoreboard Algorithm](#scoreboard-algorithm)
-  - 基本结构
-  - IS / RO / EX / WB 四个阶段
-  - 三张状态表
-  - Scoreboard 的局限
-- [课堂例题：Scoreboard 时序填写](#课堂例题scoreboard-时序填写)
-  - 题目条件
-  - 完整答案
-  - 关键依赖关系
-  - 易错点总结
-- [本节课讲到的位置](#本节课讲到的位置)
-
+  - [Example](#example-1)
+  - [基本思想](#基本思想)
+  - [从 ID 拆成 IS 和 RO](#从-id-拆成-is-和-ro)
+  - [Scoreboard 的四个阶段](#scoreboard-的四个阶段)
+    - [IS：检查结构冲突](#is检查结构冲突)
+    - [RO：等待操作数 ready](#ro等待操作数-ready)
+    - [EX：执行](#ex执行)
+    - [WB：写回并检查 WAR](#wb写回并检查-war)
+  - [三张状态表](#三张状态表)
+    - [Instruction Status](#instruction-status)
+    - [Function Component Status](#function-component-status)
+    - [Register Status](#register-status)
+    - [关键时刻 2：`FMUL.D` 准备写回](#关键时刻-2fmuld-准备写回)
+    - [关键时刻 3：`FDIV.D` 准备写回](#关键时刻-3fdivd-准备写回)
+  - [Scoreboard 的局限](#scoreboard-的局限)
+  - [Scoreboard 时序填写](#scoreboard-时序填写)
+    - [条件](#条件)
+    - [答案](#答案)
+    - [`FLD F6, 34(R2)`](#fld-f6-34r2)
+    - [`FLD F2, 45(R3)`](#fld-f2-45r3)
+    - [`FMUL.D F0, F2, F4`](#fmuld-f0-f2-f4)
+    - [`FSUB.D F8, F2, F6`](#fsubd-f8-f2-f6)
+    - [`FDIV.D F10, F0, F6`](#fdivd-f10-f0-f6)
+    - [`FADD.D F6, F8, F2`](#faddd-f6-f8-f2)
 ---
 
 ## Review: Dependences and Hazards
