@@ -9,10 +9,22 @@ draft: false
 
 ## 概述
 
-这一章讨论的是**当处理器越来越快，而主存没有跟着一样快地提升时，系统怎样靠层次化存储把大容量和高速度尽量兼顾起来**。
+这一章讨论的是 **memory hierarchy（存储层次）**：当 CPU 速度远高于主存，而主存又远小于外存时，系统如何通过多级存储结构，在 **速度、容量、成本、功耗** 之间取得折中。
 
-- **cache 的目标不是让每次访存都更快，而是让平均访存时间更低**；
-- cache 能成立的根本前提是 **temporal locality（时间局部性）** 和 **spatial locality（空间局部性）**；
+本章主线可以分成两部分：
+
+1. **Cache**
+   - 利用 temporal locality 和 spatial locality，把近期或相邻的数据保存在更靠近 CPU 的小而快存储中；
+   - 围绕四个基本问题展开：block 放在哪里、如何查找、miss 时替换谁、write 时如何处理；
+   - 通过 AMAT、memory stall cycles 等公式分析 cache 对 CPU 性能的影响；
+   - 进一步讨论降低 hit time、miss rate、miss penalty，以及提高 cache bandwidth 的典型优化方法。
+
+2. **Virtual Memory**
+   - 在 OS 和 MMU 的配合下，把程序看到的 virtual address 映射到 physical address；
+   - 让进程拥有连续、独立的虚拟地址空间，而物理内存可以不连续分配；
+   - 通过 page table、TLB、page fault、protection bits 等机制，实现内存扩展、进程隔离、共享与保护。
+
+本章的核心是理解：**存储系统的设计本质上是在不同层级之间转移访问代价**。Cache 试图让大多数访问停留在更快层级；Virtual Memory 则进一步把主存和外存纳入统一的地址空间管理中。两者共同构成现代计算机系统中 CPU、OS 和 memory system 协同工作的基础。
 
 ---
 
@@ -124,6 +136,53 @@ draft: false
   - [Unified Memory Architecture](#unified-memory-architecture)
 - [How to Compare These Techniques](#how-to-compare-these-techniques)
 - [A Compact Takeaway Table](#a-compact-takeaway-table)
+- [Virtual Memory](#virtual-memory)
+  - [OS、MMU 与 Virtual Memory](#osmmu-与-virtual-memory)
+  - [Program Thinks vs Program Uses](#program-thinks-vs-program-uses)
+  - [Virtual Memory 的三个核心作用](#virtual-memory-的三个核心作用)
+    - [扩容：Main Memory + Secondary Storage](#扩容main-memory--secondary-storage)
+    - [灵活管理：物理地址可以不连续](#灵活管理物理地址可以不连续)
+    - [隔离与保护：每个进程有自己的地址空间](#隔离与保护每个进程有自己的地址空间)
+  - [Cache vs Virtual Memory](#cache-vs-virtual-memory)
+  - [Virtual Memory Allocation](#virtual-memory-allocation)
+    - [Paged Virtual Memory](#paged-virtual-memory)
+    - [Segmented Virtual Memory](#segmented-virtual-memory)
+    - [Paging vs Segmentation](#paging-vs-segmentation)
+  - [Four Questions for Virtual Memory](#four-questions-for-virtual-memory)
+    - [Q1：Where can a block be placed in main memory?](#q1where-can-a-block-be-placed-in-main-memory)
+    - [Q2：How is a block found if it is in main memory?](#q2how-is-a-block-found-if-it-is-in-main-memory)
+    - [Q3：Which block should be replaced on a virtual memory miss?](#q3which-block-should-be-replaced-on-a-virtual-memory-miss)
+    - [Q4：What happens on a write?](#q4what-happens-on-a-write)
+  - [Address Translation](#address-translation)
+    - [Page Table 的基本作用](#page-table-的基本作用)
+    - [Page Table Size Example](#page-table-size-example)
+    - [为什么需要 TLB？](#为什么需要-tlb)
+  - [Translation Lookaside Buffer](#translation-lookaside-buffer)
+    - [TLB Hit](#tlb-hit)
+    - [TLB Miss](#tlb-miss)
+    - [TLB Access Steps](#tlb-access-steps)
+  - [Page Size Selection](#page-size-selection)
+    - [Larger Page Size 的优点](#larger-page-size-的优点)
+    - [Larger Page Size 的代价](#larger-page-size-的代价)
+    - [Smaller Page Size 的优点](#smaller-page-size-的优点)
+    - [Multiple Page Sizes](#multiple-page-sizes)
+  - [Address Translation with Cache](#address-translation-with-cache)
+    - [基本位宽](#基本位宽)
+    - [TLB 位宽](#tlb-位宽)
+    - [L1 Cache 位宽](#l1-cache-位宽)
+    - [L2 Cache 位宽](#l2-cache-位宽)
+    - [地址翻译伪代码](#地址翻译伪代码)
+  - [现代处理器中的访问路径](#现代处理器中的访问路径)
+  - [Protection and Sharing among Programs](#protection-and-sharing-among-programs)
+    - [Multiprogramming](#multiprogramming)
+    - [Process](#process)
+    - [Process Protection](#process-protection)
+    - [Proprietary Page Tables](#proprietary-page-tables)
+    - [Rings](#rings)
+    - [Keys and Locks](#keys-and-locks)
+  - [Virtual Memory and Virtual Machine](#virtual-memory-and-virtual-machine)
+    - [Virtual Memory](#virtual-memory-1)
+    - [Virtual Machine](#virtual-machine)
 
 ---
 
@@ -2607,3 +2666,804 @@ GPU 的 **unified memory** 指的是：
 | UnifiedBus | Extend system-scale memory hierarchy | large heterogeneous systems | software+fabric complexity |
 | GPU shared memory | programmer-managed fast reuse | tiled GPU kernels | small capacity, bank conflicts |
 | Unified memory | simplify CPU-GPU memory use | heterogeneous programming | migration overhead |
+
+---
+
+## Virtual Memory
+
+Virtual memory 放在 memory hierarchy 的最后一层来理解。它看起来像是在扩容 memory，实际更关键的是：
+
+1. **给每个进程提供连续、独立的虚拟地址空间**；
+2. **把虚拟地址映射到不连续的物理内存，必要时再映射到 secondary storage**；
+3. **通过 page table 做进程隔离、共享和权限保护**。
+
+
+### OS、MMU 与 Virtual Memory
+
+从系统角度看，CPU 设计的最终目标是支持软件运行。离硬件最近的软件层就是 **OS（operating system）**。
+
+OS 负责管理：
+
+- process management；
+- file system；
+- device management；
+- memory management；
+- protection 与 isolation。
+
+Virtual memory 是 OS memory management 中最重要的机制之一。它让用户程序不需要直接关心：
+
+- 真实物理内存有多大；
+- 数据现在在 cache、main memory 还是 disk；
+- 物理内存是否连续；
+- 其他进程的地址空间在哪里。
+
+程序看到的是一套由 OS 提供的**虚拟地址空间**。硬件中的 **MMU（Memory Management Unit）** 负责把虚拟地址翻译成物理地址，并配合权限位检查访问是否合法。
+
+:::TIP
+可以把 virtual memory 看成 OS 做的一层“抽象”：
+
+- 程序使用 virtual address；
+- OS 维护 virtual address 到 physical address 的映射；
+- MMU 在硬件路径上快速完成地址翻译；
+- 出现找不到映射或权限错误时，触发 page fault，由 OS 接管。
+:::
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202605111833668.png" alt="Virtual Memory Mapping" style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+### Program Thinks vs Program Uses
+
+Virtual memory 的核心现象是：
+
+- **Program thinks**：自己拥有一段连续、很大的地址空间；
+- **Program uses**：底层可能使用不连续的物理内存，甚至一部分数据暂时在 secondary storage 上。
+
+也就是说，虚拟地址空间可以是连续的：
+
+```text
+Virtual address space:
+0      4K      8K      12K
+|  A  |  B  |  C  |  D  |
+```
+
+对应到物理空间时可能是非连续的：
+
+```text
+Physical memory:
+|  C  |     |  A  |     |  B  |
+
+Disk / secondary storage:
+|  D  |
+```
+
+程序只需要按照连续的 virtual address 访问 `A/B/C/D`，它不需要知道这些块在物理内存中具体放在哪里。
+
+这带来两个直接好处：
+
+1. **更大的逻辑空间**
+   - 程序可以认为自己有很大的地址空间；
+   - 不常用的数据可以暂时放在 disk 上，需要时再调入 memory。
+
+2. **更灵活的物理分配**
+   - 物理内存不要求连续；
+   - OS 只要维护好 page table，就可以把不同虚拟页映射到任意可用物理页。
+
+### Virtual Memory 的三个核心作用
+
+#### 扩容：Main Memory + Secondary Storage
+
+```text
+Virtual Memory = Main Memory + Secondary Storage
+```
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202605111835036.png" alt="Virtual Memory Expansion" style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+也就是：
+
+- main memory 保存当前活跃的数据和指令；
+- secondary storage 保存暂时不在内存中的页；
+- OS 通过 page fault / page replacement 在两者之间调入调出。
+
+这和 cache hierarchy 的思想是一致的：
+
+- CPU 希望大多数访问都在快层级命中；
+- 访问不到时，再去慢层级取。
+
+区别是：virtual memory 的下一级可能是 disk / SSD，miss penalty 极大，因此设计上会尽量降低 virtual memory miss 的概率。
+
+#### 灵活管理：物理地址可以不连续
+
+没有 virtual memory 时，程序如果直接使用 physical address，就必须面对真实物理内存的布局。多个进程运行、换入换出之后，物理内存容易出现碎片。
+
+有 virtual memory 后：
+
+- 进程看到的是连续 virtual address；
+- OS 可以把它映射到不连续 physical frames；
+- 页表记录这种映射关系。
+
+这让物理内存分配更灵活，也方便 OS 在多进程场景下管理空间。
+
+#### 隔离与保护：每个进程有自己的地址空间
+
+Virtual memory 的另一个关键作用是 **process isolation**。
+
+每个进程都有自己的 page table：
+
+```text
+Process A virtual address  ── Page Table A ──> Physical pages for A
+Process B virtual address  ── Page Table B ──> Physical pages for B
+```
+
+即使两个进程使用了相同的 virtual address，例如都访问 `0x4000`，它们也可以通过不同的 page table 映射到不同的 physical page。
+
+这样可以做到：
+
+- A 访问不到 B 的私有物理页；
+- B 访问不到 A 的私有物理页；
+- OS 可以显式决定哪些页允许共享；
+- 用户程序不能随便修改 page table。
+
+:::WARNING
+Virtual memory 提供的是机制上的隔离基础，不代表系统绝对安全。攻击和防护都可能围绕 page table、权限位、地址空间隔离、进程上下文展开。
+:::
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202605111835739.png" alt="Virtual Memory Isolation" style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+### Cache vs Virtual Memory
+
+Cache 和 virtual memory 都属于 memory hierarchy，但它们的管理粒度、代价和目标不同。
+
+| 对比项 | First-level cache | Virtual memory |
+|---|---:|---:|
+| 管理单位 | block / cache line | page |
+| 典型大小 | 16-128 bytes | 4KB-64KB，现代系统也支持 huge page |
+| Hit time | 约 1-3 cycles | 约 100-200 cycles |
+| Miss penalty | 几个到几十个 cycles | 可达到百万级 cycles |
+| Miss rate | 相对更高，可接受 | 必须极低 |
+| 地址映射 | physical address 到 cache address | virtual address 到 physical address |
+| 管理主体 | 主要由硬件管理 | OS + hardware 协同 |
+
+关键差别在 miss penalty：
+
+- cache miss 通常访问下一级 cache 或 main memory；
+- virtual memory miss 可能需要访问 secondary storage；
+- 代价差几个数量级。
+
+所以在 cache 里，direct mapped 带来的 conflict miss 有时可以接受；在 virtual memory 里，页放置通常采用更接近 **fully associative** 的策略，尽量避免因为放置限制导致 miss。
+
+
+### Virtual Memory Allocation
+
+Virtual memory 的分配主要有两类思想：
+
+1. **Paged virtual memory（分页）**
+2. **Segmented virtual memory（分段）**
+
+#### Paged Virtual Memory
+
+分页把虚拟地址空间切成固定大小的 page。
+
+地址形式：
+
+```text
+page address = page number || page offset
+```
+
+例如 4KB page：
+
+- page size = $2^{12}$ bytes；
+- page offset = 12 bits；
+- 剩下的高位作为 page number。
+
+优点：
+
+- 每个 page 大小相同；
+- 替换和分配简单；
+- 适合用 page table 建立索引。
+
+缺点：
+
+- 会产生 **internal fragmentation（内部碎片）**；
+- 如果程序只用了一个 page 的一部分，剩余空间仍然被这个 page 占用。
+
+#### Segmented Virtual Memory
+
+分段按逻辑模块或程序结构划分，每个 segment 可以有不同大小。
+
+地址形式：
+
+```text
+segment address = segment number + offset
+```
+
+优点：
+
+- 更贴近程序逻辑结构；
+- 不同 segment 可以按实际需要分配不同大小。
+
+缺点：
+
+- segment 大小不固定；
+- 替换、分配、压缩更复杂；
+- 容易产生 **external fragmentation（外部碎片）**。
+
+#### Paging vs Segmentation
+
+| 机制 | 管理单位 | 地址形式 | 主要优点 | 主要问题 |
+|---|---|---|---|---|
+| Paging | 固定大小 page | page # + offset | 替换简单，页表索引清晰 | 内部碎片 |
+| Segmentation | 可变大小 segment | segment # + offset | 符合程序逻辑结构 | 外部碎片，管理复杂 |
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202605111836491.png" alt="Paging vs Segmentation" style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+现代系统通常会组合使用分段与分页的思想
+
+### Four Questions for Virtual Memory
+
+#### Q1：Where can a block be placed in main memory?
+
+**fully associative strategy**。
+
+在 virtual memory 层级中，一个 virtual page 可以放到 main memory 中几乎任意一个可用 physical frame。
+
+原因：
+
+- virtual memory miss penalty 极大；
+- 如果因为“固定映射位置”导致冲突 miss，代价无法接受；
+- 因此 OS 通常允许 page 放在任意可用 frame 中。
+
+这和 cache 的 direct mapped 形成对比：
+
+- cache 追求 hit path 简单、速度快；
+- virtual memory 更重视降低 miss rate。
+
+#### Q2：How is a block found if it is in main memory?
+
+通过 **page table**。
+
+Virtual address 可以拆成：
+
+```text
+Virtual Address = VPN || page offset
+```
+
+Physical address 可以拆成：
+
+```text
+Physical Address = PPN || page offset
+```
+
+其中：
+
+- `VPN`：Virtual Page Number；
+- `PPN`：Physical Page Number / Physical Page Frame Number；
+- `page offset`：页内偏移，翻译前后保持不变。
+
+地址翻译的核心就是：
+
+```text
+VPN ──查 Page Table──> PPN
+PPN || page offset ──> Physical Address
+```
+
+:::NOTE
+Page table 记录的是 page-level 的映射，所以它只需要翻译页号部分；页内偏移不需要改变。
+:::
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202605111838334.png" alt="Address Translation" style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+#### Q3：Which block should be replaced on a virtual memory miss?
+
+通常希望替换 **least recently used page**，实际 OS 会用近似算法。
+
+LRU 在 virtual memory 中通常通过 **use bit / reference bit** 近似实现：
+
+- page 被访问时，硬件或 OS 逻辑设置 use bit；
+- OS 周期性清除 use bit；
+- 之后再观察哪些 page 被重新访问；
+- 长时间未被访问的 page 更可能被替换。
+
+完全精确的 LRU 维护成本很高，因此 OS 通常采用 Clock / Second Chance 等近似策略。
+
+#### Q4：What happens on a write?
+
+采用 **write-back strategy**。
+
+原因：
+
+- virtual memory 的下一级可能是 disk / SSD；
+- 每次写都同步写回 secondary storage 成本太高；
+- 只有 page 被替换且内容被修改过时，才需要写回。
+
+这需要 **dirty bit**：
+
+- dirty = 0：page 内容没有被修改，替换时可以直接丢弃；
+- dirty = 1：page 内容已经修改，替换前必须写回 secondary storage。
+
+### Address Translation
+
+#### Page Table 的基本作用
+
+Page table 的作用是保存 virtual page 到 physical page 的映射关系。
+
+```text
+virtual address = VPN || page offset
+                     |
+                     v
+                Page Table
+                     |
+                     v
+physical address = PPN || page offset
+```
+
+一次地址翻译可以写成：
+
+```text
+VPN    = virtual_address[high bits]
+offset = virtual_address[page-offset bits]
+PPN    = page_table[VPN]
+physical_address = PPN || offset
+```
+
+#### Page Table Size Example
+
+假设：
+
+- virtual address = 32 bits；
+- page size = 4KB = $2^{12}$ bytes；
+- PTE（page table entry）大小 = 4 bytes = $2^2$ bytes。
+
+则虚拟页数量为：
+
+$$
+\frac{2^{32}}{2^{12}} = 2^{20}
+$$
+
+page table 总大小为：
+
+$$
+2^{20} \times 2^2 = 2^{22}\text{ bytes} = 4\text{ MB}
+$$
+
+所以即使只是 32-bit virtual address，单级页表也可能很大。
+
+
+:::TIP
+page table size 和两个因素直接相关：
+
+- virtual address space 越大，VPN 数量越多，page table 越大；
+- page size 越大，VPN 数量越少，page table 越小。
+:::
+
+#### 为什么需要 TLB？
+
+Page table 通常存放在 main memory 中。
+
+如果没有 TLB，一次 data access 逻辑上需要两次 memory access：
+
+1. 访问 page table，得到 PPN；
+2. 用 physical address 访问真正的数据。
+
+这会让访存时间近似翻倍。
+
+解决方法是增加一个专门缓存地址翻译结果的小 cache：
+
+```text
+TLB = Translation Lookaside Buffer
+```
+
+TLB 保存最近用过的 virtual page 到 physical page 的翻译关系。
+
+### Translation Lookaside Buffer
+
+TLB 可以理解成专门服务于地址翻译的 cache。
+
+TLB entry 通常包含：
+
+- tag：virtual address 的一部分，通常来自 VPN；
+- data：physical page frame number / PPN；
+- valid bit；
+- protection field；
+- use / reference bit；
+- dirty bit。
+
+#### TLB Hit
+
+TLB hit 时：
+
+```text
+VA = VPN || offset
+TLB[VPN] -> PPN
+PA = PPN || offset
+```
+
+此时不需要访问 page table，地址翻译非常快。
+
+#### TLB Miss
+
+TLB miss 时：
+
+1. 需要通过 page table walker 查询 page table；
+2. 找到 PTE 后得到 PPN 和权限信息；
+3. 把新的翻译结果填入 TLB；
+4. 再次访问时即可 TLB hit。
+
+如果 page table 中没有有效映射，或者权限不满足，就会触发 **page fault**。
+
+#### TLB Access Steps
+
+1. **发送虚拟地址到所有 tag**
+   - TLB 中的多个 entry 同时比较；
+   - 只有 valid entry 才参与匹配。
+
+2. **检查访问类型和权限**
+   - load / store / instruction fetch 对权限要求不同；
+   - protection field 决定当前访问是否合法。
+
+3. **匹配 tag 并选择 PPN**
+   - 命中的 entry 通过 mux 输出对应的 physical page frame number。
+
+4. **拼接 page offset**
+   - `PPN || page offset` 形成最终 physical address。
+
+:::NOTE
+TLB 和 cache 的思想相同：把近期常用信息保存在小而快的结构中。区别在于 cache 缓存数据，TLB 缓存地址翻译结果。
+:::
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202605111839497.png" alt="Address Translation with Cache" style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+### Page Size Selection
+
+Page size 会影响 page table、TLB、page fault penalty 和空间浪费。
+
+#### Larger Page Size 的优点
+
+更大的 page size 会带来：
+
+- page table 更小；
+- 同样数量的 TLB entry 可以覆盖更大的地址范围；
+- TLB miss 次数可能减少；
+- 从 secondary storage 调入调出时，较大块传输更高效。
+
+这类似 cache 中较大 block size 对 spatial locality 的利用。
+
+#### Larger Page Size 的代价
+
+更大的 page 也有明显代价：
+
+- 内部碎片更严重；
+- page fault 时一次调入更多数据，单次 miss penalty 更高；
+- 如果程序局部性不好，会搬入很多用不到的数据。
+
+#### Smaller Page Size 的优点
+
+更小的 page size 可以：
+
+- 减少内部碎片；
+- 更精细地管理内存；
+- 对小对象和稀疏访问更友好。
+
+#### Multiple Page Sizes
+
+现代处理器常支持 multiple page sizes，例如常规页和 huge page。
+
+原因：
+
+- 小页适合细粒度管理；
+- 大页适合大连续内存区域；
+- 大页能减少 TLB miss；
+- 某些程序中，TLB miss 对 CPI 的影响可以接近 cache miss。
+
+
+### Address Translation with Cache
+
+一个完整的地址翻译例子：
+
+- virtual address：64-bit；
+- physical address：41-bit；
+- page size：8KB；
+- two-level direct-mapped caches；
+- block size：64B；
+- L1：8KB；
+- L2：4MB；
+- TLB：256 entries。
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202605111841040.png" alt="Address Translation with Cache" style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+#### 基本位宽
+
+page size = 8KB：
+
+$$
+8KB = 2^{13}\text{ bytes}
+$$
+
+所以：
+
+```text
+page offset = 13 bits
+VPN = 64 - 13 = 51 bits
+PPN = 41 - 13 = 28 bits
+```
+
+physical address：
+
+```text
+Physical Address = PPN || page offset
+                 = 28 bits || 13 bits
+                 = 41 bits
+```
+
+#### TLB 位宽
+
+TLB 有 256 entries：
+
+$$
+256 = 2^8
+$$
+
+在这个例子中，可以理解为：
+
+```text
+TLB index = 8 bits
+TLB tag   = VPN - TLB index = 51 - 8 = 43 bits
+```
+
+TLB 命中后输出 `PPN = 28 bits`，再与 13-bit page offset 拼接成 41-bit physical address。
+
+#### L1 Cache 位宽
+
+L1 cache = 8KB = $2^{13}$ bytes，block size = 64B = $2^6$ bytes。
+
+因此 L1 line 数为：
+
+$$
+\frac{2^{13}}{2^6}=2^7
+$$
+
+所以：
+
+```text
+L1 block offset = 6 bits
+L1 index        = 7 bits
+L1 tag          = 41 - 7 - 6 = 28 bits
+```
+
+注意这里：
+
+```text
+L1 index + block offset = 7 + 6 = 13 bits = page offset
+```
+
+page offset 在地址翻译前后不变，因此 L1 的 index 可以直接从 virtual address 的低 13 位中取出；同时，真正的 tag 比较仍然依赖翻译得到的 physical address 高位。
+
+:::TIP
+这就是很多处理器中常见的思路：
+
+- 用 page offset 中的位先索引 L1；
+- TLB 并行翻译得到 physical tag；
+- 再用 physical tag 做最终比较。
+
+这样可以把 TLB lookup 和 L1 access 尽量并行化。
+:::
+
+#### L2 Cache 位宽
+
+L2 cache = 4MB = $2^{22}$ bytes，block size = 64B = $2^6$ bytes。
+
+L2 line 数为：
+
+$$
+\frac{2^{22}}{2^6}=2^{16}
+$$
+
+因此：
+
+```text
+L2 block offset = 6 bits
+L2 index        = 16 bits
+L2 tag          = 41 - 16 - 6 = 19 bits
+```
+
+访问过程可以概括为：
+
+```text
+1. CPU 产生 virtual address
+2. TLB 查询 VPN -> PPN
+3. 同时用 page offset 中的一部分索引 L1
+4. TLB 输出 physical tag 后，与 L1 tag 比较
+5. L1 hit：返回数据
+6. L1 miss：用 physical address 继续查 L2
+7. L2 miss：访问 main memory
+```
+
+#### 地址翻译伪代码
+
+```text
+function access(virtual_address):
+    vpn    = virtual_address[63:13]
+    offset = virtual_address[12:0]
+
+    if TLB.hit(vpn):
+        ppn = TLB[vpn].ppn
+    else:
+        pte = page_table_walk(vpn)
+        if !pte.valid or !pte.permission_ok:
+            raise page_fault
+        ppn = pte.ppn
+        TLB.insert(vpn, ppn, pte.permission)
+
+    physical_address = ppn || offset
+
+    if L1.hit(physical_address):
+        return L1.data
+    else if L2.hit(physical_address):
+        fill_L1_from_L2()
+        return L2.data
+    else:
+        fetch_from_memory()
+        fill_L2_and_L1()
+        return data
+```
+
+### 现代处理器中的访问路径
+
+两个实际处理器的 memory hierarchy：
+
+1. **ARM Cortex-A53**
+   - 区分 instruction access path 和 data access path；
+   - 常见结构是 I-side / D-side 分开，再汇合到更低层级 cache / memory。
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202605111843119.png" alt="ARM Cortex-A53 Memory Hierarchy" style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202605111843671.png" alt="ARM Cortex-A53 Memory Hierarchy" style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+2. **Intel Core i7 6700**
+   - 具有多级 cache；
+   - L1、L2、L3 与 TLB 共同组成访存路径；
+   - 地址翻译和 cache access 在硬件中被尽可能并行化。
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202605111843808.png" alt="Intel Core i7 6700 Memory Hierarchy" style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+这说明 virtual memory 不是 OS 的纯软件概念，它直接影响处理器取指、访存、cache lookup、异常处理的硬件路径。
+
+### Protection and Sharing among Programs
+
+#### Multiprogramming
+
+Multiprogramming 允许多个程序并发运行，共享同一台机器。
+
+因此系统需要同时解决：
+
+- protection：一个程序不能随便破坏另一个程序；
+- sharing：某些资源又需要被多个程序共享。
+
+#### Process
+
+一个 process 可以理解为：
+
+> 一个正在运行的程序，加上它继续运行所需的全部状态。
+
+Process state 包括：
+
+- PC；
+- registers；
+- stack；
+- heap；
+- page table；
+- OS 维护的进程控制信息。
+
+Time-sharing 让多个用户或多个程序共享 CPU 和 memory，并给每个程序一种“自己独占机器”的假象。
+
+当 OS 从一个 process 切换到另一个 process 时，需要进行 **context switch**：
+
+- 保存旧进程的处理器状态；
+- 加载新进程的处理器状态；
+- 切换地址空间相关信息，例如 page table base。
+
+#### Process Protection
+
+进程保护依赖体系结构和操作系统共同完成。
+
+硬件设计者需要保证：
+
+- 处理器状态可以被保存和恢复；
+- 用户态不能随便执行高权限操作；
+- 地址翻译与权限检查不能被用户程序绕过。
+
+OS 设计者需要保证：
+
+- 不同进程的 page table 指向正确的 physical pages；
+- 用户程序不能修改自己的 page table；
+- 共享页必须由 OS 显式建立。
+
+#### Proprietary Page Tables
+
+最基本的隔离方式是每个进程拥有自己的 page table。
+
+```text
+Process A page table -> A 的 physical pages
+Process B page table -> B 的 physical pages
+```
+
+如果需要共享内存，OS 可以让两个 page table 的某些 entry 指向同一个 physical page：
+
+```text
+Process A page table entry ─┐
+                            ├── shared physical page
+Process B page table entry ─┘
+```
+
+这样既能隔离私有空间，又能支持共享库、共享内存、copy-on-write 等机制。
+
+#### Rings
+
+Rings 是一种多级权限保护结构。
+
+大致思想：
+
+- 最内层权限最高，可以访问所有资源；
+- 外层权限逐渐降低；
+- 普通用户程序在最低权限层，只能访问受限资源。
+
+在 RISC-V 中，类似思想体现为 privilege levels：
+
+- M-mode：Machine mode，最高权限；
+- S-mode：Supervisor mode，通常运行 OS kernel；
+- U-mode：User mode，运行用户程序。
+
+#### Keys and Locks
+
+Keys and locks 是另一类保护思想：
+
+- 数据像被 lock 保护；
+- 程序必须持有对应 key / capability 才能访问。
+
+关键点是：
+
+- key 不能由普通程序伪造；
+- 硬件和 OS 必须能安全地传递 key；
+- 权限本身必须受到保护。
+
+### Virtual Memory and Virtual Machine
+
+Virtual memory 和 virtual machine 容易混淆，但层次不同。
+
+#### Virtual Memory
+
+Virtual memory 主要虚拟的是 memory：
+
+```text
+virtual address space -> physical memory / secondary storage
+```
+
+它解决的是：
+
+- 地址空间抽象；
+- 地址翻译；
+- 内存扩容；
+- 进程隔离；
+- 页级保护与共享。
+
+#### Virtual Machine
+
+Virtual machine 虚拟的是整台机器。
+
+在 CPU 和 OS 之间有一层：
+
+```text
+Hardware / CPU
+      |
+VMM / Hypervisor
+      |
+Guest OS
+      |
+Applications
+```
+
+VMM / hypervisor 向 guest OS 提供一个“像真实硬件一样”的抽象，让多个 OS 可以共享同一台物理机器。
+
+因此：
+
+- virtual memory 是 OS + MMU 提供的地址空间机制；
+- virtual machine 是 hypervisor 提供的机器级虚拟化机制；
+- 两者都会涉及地址翻译、权限保护和资源隔离。
