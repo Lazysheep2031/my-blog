@@ -9,7 +9,7 @@ draft: false
 
 ## 概述
 
-本章围绕指令级并行（ILP）展开，先区分 dependence 与 hazard，说明为什么流水线会被依赖关系限制。随后用 Scoreboard 与 Tomasulo 展示动态调度如何实现乱序执行，并通过保留站与重命名消除 WAR/WAW。最后引入 ROB，把“乱序执行 / 顺序提交”串成一条主线，解释精确异常与推测执行的关系。
+本章围绕指令级并行（ILP）展开，先区分 dependence 与 hazard，说明为什么流水线会被依赖关系限制。随后用 Scoreboard 与 Tomasulo 展示动态调度如何实现乱序执行，并通过保留站与重命名消除 WAR/WAW；再引入 ROB，把“乱序执行 / 顺序提交”串成一条主线，解释精确异常与推测执行的关系。最后讨论进一步提高 ILP 的多发射技术：比较 Superscalar、VLIW 与 Superpipelining，并结合双发射动态调度、VLIW 循环展开和 MIPS R4000 分析它们的性能收益与限制。
 
 
 ---
@@ -83,6 +83,26 @@ draft: false
   - [Example](#example-2)
   - [Hardware-Based Speculation 时序填写](#hardware-based-speculation-时序填写)
   - [三种方法对比](#三种方法对比)
+- [Exploiting ILP Using Multiple Issue and Static Scheduling](#exploiting-ilp-using-multiple-issue-and-static-scheduling)
+  - [从 Single-Issue 到 Multiple-Issue](#从-single-issue-到-multiple-issue)
+  - [两类 Multiple-Issue Processor](#两类-multiple-issue-processor)
+    - [Superscalar](#superscalar)
+    - [VLIW：Very Long Instruction Word](#vliwvery-long-instruction-word)
+  - [多发射实现方式对比](#多发射实现方式对比)
+  - [Static-Scheduled Superscalar](#static-scheduled-superscalar)
+    - [MIPS 式双发射](#mips-式双发射)
+  - [Dynamic-Scheduled Multiple Issue](#dynamic-scheduled-multiple-issue)
+    - [Extended Tomasulo：双发射](#extended-tomasulo双发射)
+    - [Example：向量元素加标量](#example向量元素加标量)
+    - [不带 ROB：分支之后的指令不能提前执行](#不带-rob分支之后的指令不能提前执行)
+    - [带 ROB 与推测执行：跨过分支继续执行](#带-rob-与推测执行跨过分支继续执行)
+  - [VLIW 的静态调度](#vliw-的静态调度)
+    - [Example：循环展开后的 VLIW 打包](#example循环展开后的-vliw-打包)
+    - [VLIW 的局限](#vliw-的局限)
+  - [Superpipelining Processor](#superpipelining-processor)
+    - [MIPS R4000：八段 Superpipeline](#mips-r4000八段-superpipeline)
+    - [深流水仍然存在 Load Delay](#深流水仍然存在-load-delay)
+  - [方法对比](#方法对比)
 
 ---
 
@@ -1440,3 +1460,450 @@ Out-of-Order Execution / Writeback.
 | Scoreboard | 顺序 | 可乱序 | 可能因 WAR 等待 | 写回即完成 | 检测后等待 | 较难保证 |
 | Tomasulo | 顺序 | 乱序 | 乱序 | 写回即完成 | 通过重命名消除 | 不能自然保证 |
 | Tomasulo + ROB | 顺序 | 乱序 | 乱序 | 顺序 commit | 通过重命名消除 | 可以保证 |
+
+---
+
+## Exploiting ILP Using Multiple Issue and Static Scheduling
+
+前面讨论的动态调度、寄存器重命名和 ROB，重点在于**减少依赖造成的等待**：只要一条指令的操作数已准备好，就允许它越过阻塞指令先执行。  
+接下来进一步提高性能的方法是 **Multiple Issue（多发射 / 多流出）**：让处理器在一个 clock cycle 内发射多条指令，从而直接降低理想 CPI、提高 IPC。
+
+理想情况下，若处理器最多每周期发射 $n$ 条指令，则：
+
+$$
+IPC_{\max}=n,\qquad CPI_{\min}=\frac{1}{n}
+$$
+
+但真实执行速度还受到以下因素限制：
+
+- 程序中可利用的 ILP 是否足够；
+- 同周期发射的指令之间是否存在数据依赖或结构冲突；
+- 功能部件、寄存器端口、旁路网络和写回通路是否足够；
+- 分支判断、Load Delay、Cache Miss 等长延迟事件是否阻塞执行。
+
+### 从 Single-Issue 到 Multiple-Issue
+
+在普通单发射流水线中，每个 cycle 最多只有一条新指令进入流水线。多发射处理器希望在同一 cycle 发射两条甚至更多指令，例如：
+
+```text
+cycle 1: issue I1, I2
+cycle 2: issue I3, I4
+cycle 3: issue I5, I6
+```
+<div style="display: flex; gap: 16px; justify-content: center; align-items: flex-start; flex-wrap: wrap; margin: 12px 0;">
+  <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260526112959.png" style="width: 420px; max-width: 48%; height: auto;" />
+  <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260526113021.png" style="width: 420px; max-width: 48%; height: auto;" />
+</div>
+这样可以在多个功能部件之间并行执行独立操作。但它带来的硬件压力不只发生在 Issue 阶段：
+
+- IF 必须一次取出多条指令；
+- ID / Issue 必须同时译码并检测多条指令间的冲突；
+- EX 需要多套可以并行工作的功能部件；
+- MEM 与 WB 需要更多访问端口、写回端口和旁路路径。
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260526112851.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+### 两类 Multiple-Issue Processor
+
+#### Superscalar
+
+**Superscalar（超标量）** 处理器每周期可发射的指令数目是不固定的：处理器设定一个发射上限，实际能发射几条取决于当前指令是否独立、资源是否可用。
+
+若一个处理器每周期最多发射 $n$ 条指令，则称为 **$n$-issue superscalar**。
+
+其特点是：
+
+- 每个 cycle 的实际发射数量可以从 `0` 到上限变化；
+- 指令仍以普通标量指令形式存在，处理器在运行时判断哪些指令可以并行发射；
+- 可以采用静态调度，也可以结合 Tomasulo、ROB 等机制进行动态调度和推测执行；
+- 二进制程序对微结构较透明，旧程序仍可运行，只是未必充分利用更宽的发射能力。
+
+Superscalar 是通用处理器中最成功的多发射实现方式。
+
+#### VLIW：Very Long Instruction Word
+
+**VLIW（Very Long Instruction Word，超长指令字）** 把若干个能够并行执行的操作在编译阶段打包成一条很长的指令，通常也称为一个 **instruction packet**。
+
+其特点是：
+
+- 每条长指令包含固定数目的 operation slots；
+- 每个 slot 通常直接控制一个功能部件，例如两个访存槽、两个浮点槽和一个整数/分支槽；
+- 指令之间的并行关系由编译器显式决定；
+- 硬件不需要在运行时进行同样复杂的动态发射判断；
+- 更适合 DSP、多媒体等执行模式规则、并行性容易被编译器识别的应用。
+
+:::TIP
+Superscalar 的核心是：**硬件在运行时寻找并行性**。  
+VLIW 的核心是：**编译器在编译时把并行性写进指令包**。
+:::
+
+### 多发射实现方式对比
+
+常见多发射处理器归纳为以下几类：
+
+| 类型 | Issue Structure | Hazard Detection | Scheduling | 主要特征 | 典型应用 / 处理器 |
+|---|---|---|---|---|---|
+| Superscalar（静态） | 动态发射 | 硬件检测 | 静态 | 通常顺序执行 | MIPS、ARM 等 |
+| Superscalar（动态） | 动态发射 | 硬件检测 | 动态 | 允许一定程度的乱序执行 | 课程中作为算法扩展讨论 |
+| Superscalar（推测） | 动态发射 | 硬件检测 | 动态 + 推测 | 乱序执行、顺序提交 | Intel Core、AMD、IBM Power 等 |
+| VLIW / LIW | 静态打包 | 主要由软件保证 | 静态 | 危险由编译器分析并隐含解决 | TI C6x 等 DSP |
+| EPIC | 主要静态 | 主要由软件保证 | 大多静态 | 编译器显式指出并行与相关信息 | Itanium |
+
+多发射越宽，理想 IPC 越高；同时，依赖检测、寄存器端口、功能部件数量、写回通路和功耗都会迅速增加。
+
+### Static-Scheduled Superscalar
+
+静态调度的 Superscalar 仍然由处理器在发射时检查冲突，但指令重排主要依赖编译器完成。
+
+对于一个典型的 4-issue superscalar：
+
+- IF 每周期从 instruction cache 中取出 `1 ~ 4` 条指令，形成 issue packet；
+- 处理器检查 packet 内部的结构冲突和数据冲突；
+- 再检查这些候选指令与流水线中尚未完成指令之间的冲突；
+- 最终可能发射整个 packet，也可能只发射其中一部分。
+
+#### MIPS 式双发射
+
+用一个较简单的静态双发射方案说明硬件需求：
+
+```text
+每个 cycle 最多同时发射：
+1 条 integer instruction + 1 条 floating-point instruction
+```
+
+其中：
+
+- load、store、branch 均归入 integer 类；
+- IF 需要一次取出 64 bit，即两条 32-bit 指令；
+- ID / Issue 需要同时译码两条指令，并判断能否同时进入各自功能部件；
+- 浮点加法假设需要两个 EX cycle，整数指令只需要一个 EX cycle。
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260526131222.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+这种“`1 integer + 1 floating-point`”方案的优点是硬件增长相对可控；但仍然需要付出代价：
+
+- 浮点 load / store 需要使用整数地址计算部件，会增加资源冲突；
+- 浮点寄存器文件需要增加读写端口；
+- 流水线中同时存在的指令增多，forwarding / bypass 通路必须扩展。
+
+### Dynamic-Scheduled Multiple Issue
+
+静态调度很难覆盖运行时才能确定的等待，例如 Cache Miss、分支结果和动态依赖。因此，多发射通常还会与动态调度结合。
+
+#### Extended Tomasulo：双发射
+
+将 Tomasulo 扩展到双发射处理器时，采用了一个简化模型：
+
+```text
+每个 cycle 最多同时 issue：
+1 条 integer instruction + 1 条 floating-point instruction
+```
+
+关键设计原则为：
+
+- 指令仍需**按程序顺序**进入 reservation station，否则可能破坏程序语义；
+- 整数操作与浮点操作可以分别维护表结构，使一条 integer 指令和一条 FP 指令能在同周期进入各自的 reservation station；
+- 已经进入保留站的指令，只要操作数 ready 且功能部件可用，就可以乱序执行。
+
+这相当于把两种思想叠加起来：
+
+```text
+Multiple Issue：每个 cycle 放入更多候选指令
+Dynamic Scheduling：从候选指令中动态挑选可执行者
+```
+
+#### Example：向量元素加标量
+
+给出如下循环：把常数 1（标量）加到向量的每个元素上。
+
+```asm
+Loop:
+  LD      X2, 0(X1)       // X2 = array element
+  ADDI    X2, X2, 1        // increment X2
+  SD      X2, 0(X1)        // store result
+  ADDI    X1, X1, 8        // increment pointer by 8
+  BNE     X2, X3, Loop     // branch if not last
+```
+
+分析时采用以下假设：
+
+- 每周期可以 issue 一条 integer 指令和一条 floating-point 指令，即使二者之间存在依赖；
+- 有独立的整数 ALU / 地址计算部件，以及独立流水化的浮点功能部件；
+- Instruction flow 与 Write Result 各占一个 cycle；
+- 有动态分支预测部件，并带独立的分支条件计算部件；
+- 不使用延迟分支；分支预测完美；在分支完成前，后续指令只允许取出与 issue，不能执行；
+- 由于 Write Result 占一个 cycle，结果生成延迟为：integer operation 1 cycle、load 2 cycles、floating-point addition 3 cycles。
+
+本例只涉及 integer / load / store，因此浮点槽位处于空闲状态。
+
+#### 不带 ROB：分支之后的指令不能提前执行
+
+首先考虑使用 Tomasulo，但**不加入 ROB，也不进行推测执行**。  
+此时下一轮循环的 `LD` 虽然可以被取出和 issue，但必须等待上一轮 `BNE` 的执行结果确认之后才能真正开始执行。
+
+前三轮执行时序如下（Without speculation）：
+
+| Loop | Instruction | IS | EX | MEM | Write CDB | 说明 |
+|---:|---|---:|---:|---:|---:|---|
+| 1 | `LD X2, 0(X1)` | 1 | 2 | 3 | 4 | 第一条指令 |
+| 1 | `ADDI X2, X2, 1` | 1 | 5 |  | 6 | 等待 `LD` |
+| 1 | `SD X2, 0(X1)` | 2 | 3 | 7 |  | 等待 `ADDI` |
+| 1 | `ADDI X1, X1, 8` | 2 | 3 |  | 4 | 可直接执行 |
+| 1 | `BNE X2, X3, Loop` | 3 | 7 |  |  | 等待 `ADDI` |
+| 2 | `LD X2, 0(X1)` | 4 | 8 | 9 | 10 | 等待 `BNE` |
+| 2 | `ADDI X2, X2, 1` | 4 | 11 |  | 12 | 等待 `LD` |
+| 2 | `SD X2, 0(X1)` | 5 | 9 | 13 |  | 等待 `ADDI` |
+| 2 | `ADDI X1, X1, 8` | 5 | 8 |  | 9 | 等待 `BNE` |
+| 2 | `BNE X2, X3, Loop` | 6 | 13 |  |  | 等待 `ADDI` |
+| 3 | `LD X2, 0(X1)` | 7 | 14 | 15 | 16 | 等待 `BNE` |
+| 3 | `ADDI X2, X2, 1` | 7 | 17 |  | 18 | 等待 `LD` |
+| 3 | `SD X2, 0(X1)` | 8 | 13 | 19 |  | 等待 `ADDI` |
+| 3 | `ADDI X1, X1, 8` | 8 | 14 |  | 15 | 等待 `BNE` |
+| 3 | `BNE X2, X3, Loop` | 9 | 19 |  |  | 等待 `ADDI` |
+
+可以看出：
+
+- 三轮共 15 条指令在 19 cycles 内完成，平均 $IPC=\frac{15}{19}\approx 0.79$。
+- 主要瓶颈是**数据相关分支**与**整数 ALU 争用**：地址计算与整数运算挤在同一部件上。
+- 改进思路是增加一个 adder，把地址计算功能从 ALU 中分离。
+
+#### 带 ROB 与推测执行：跨过分支继续执行
+
+若在双发射 Tomasulo 上进一步加入 ROB 与 branch prediction，则处理器可以在分支尚未最终提交前，对后续循环迭代进行**推测执行**：
+
+- 下一轮 `LD` 不需要等上一轮 `BNE` 完成后才执行；
+- 执行结果先写入 ROB，不直接改变架构状态；
+- 若预测正确，按程序顺序 commit；
+- 若预测错误，则丢弃错误路径上的 ROB 项，恢复精确状态。
+
+带硬件推测（With hardware speculation）的前三轮时序如下：
+
+| Loop | Instruction | IS | EX | MEM | Write CDB | Commit | 说明 |
+|---:|---|---:|---:|---:|---:|---:|---|
+| 1 | `LD X2, 0(X1)` | 1 | 2 | 3 | 4 | 5 | 第一条指令 |
+| 1 | `ADDI X2, X2, 1` | 1 | 5 |  | 6 | 7 | 等待 `LD` |
+| 1 | `SD X2, 0(X1)` | 2 | 3 |  |  | 7 | 等待 `ADDI` |
+| 1 | `ADDI X1, X1, 8` | 2 | 3 |  | 4 | 8 | 顺序提交 |
+| 1 | `BNE X2, X3, Loop` | 3 | 7 |  |  | 8 | 等待 `ADDI` |
+| 2 | `LD X2, 0(X1)` | 4 | 5 | 6 | 7 | 9 | 无执行延迟 |
+| 2 | `ADDI X2, X2, 1` | 4 | 8 |  | 9 | 10 | 等待 `LD` |
+| 2 | `SD X2, 0(X1)` | 5 | 6 |  |  | 10 | 等待 `ADDI` |
+| 2 | `ADDI X1, X1, 8` | 5 | 6 |  | 7 | 11 | 顺序提交 |
+| 2 | `BNE X2, X3, Loop` | 6 | 10 |  |  | 11 | 等待 `ADDI` |
+| 3 | `LD X2, 0(X1)` | 7 | 8 | 9 | 10 | 12 | 最早可执行 |
+| 3 | `ADDI X2, X2, 1` | 7 | 11 |  | 12 | 13 | 等待 `LD` |
+| 3 | `SD X2, 0(X1)` | 8 | 9 |  |  | 13 | 等待 `ADDI` |
+| 3 | `ADDI X1, X1, 8` | 8 | 9 |  | 10 | 14 | 更早执行 |
+| 3 | `BNE X2, X3, Loop` | 9 | 13 |  |  | 14 | 等待 `ADDI` |
+
+由表可得：三轮共 15 条指令在 14 cycles 内提交，平均 $IPC=\frac{15}{14}\approx 1.07$。  
+按全部指令完成的口径，推测执行带来的加速比约为：
+
+$$
+Speedup=\frac{19}{14}\approx 1.36
+$$
+
+从这个例子可以看到：
+
+- 分支可能成为关键性能瓶颈，硬件推测可以显著改善。
+- 非推测流水线的完成速率很快落后于发射速率，继续发射更多迭代会出现明显停顿。
+- 推测执行的收益依赖分支预测准确性；预测错误会降低性能并显著损耗能效。
+
+这里的核心并是：
+
+```text
+提前执行分支后的工作，
+同时用 ROB 保证最终仍按顺序提交。
+```
+
+### VLIW 的静态调度
+
+VLIW 通过编译器把可以并行执行的操作打包成一条长指令。每个 operation slot 对应一种功能部件，因此一个 VLIW instruction 可以在同一 cycle 内驱动多个部件同时工作。
+
+采用如下五槽 VLIW 结构：
+
+| Operation Slot | 功能 |
+|---|---|
+| `L/S Instruction 1` | 第一个访存操作 |
+| `L/S Instruction 2` | 第二个访存操作 |
+| `FP Instruction 1` | 第一个浮点操作 |
+| `FP Instruction 2` | 第二个浮点操作 |
+| `Integer / Branch Instruction` | 整数运算或分支 |
+
+#### Example：循环展开后的 VLIW 打包
+
+以循环展开后的向量加标量程序为例：一次处理 7 个元素。  
+
+展开前的原始循环指令序列：
+
+```asm
+Loop:
+  L.D F0, 0(R1)
+  ADD.D F4, F0, F2
+  S.D F4, 0(R1)
+  DADDIU R1, R1, #-8
+  BNE R1, R2, Loop
+```
+
+循环展开后的指令序列（按程序顺序）：
+
+```asm
+Loop:
+  L.D F0, 0(R1)
+  L.D F6, -8(R1)
+  L.D F10, -16(R1)
+  L.D F14, -24(R1)
+  L.D F18, -32(R1)
+  L.D F22, -40(R1)
+  L.D F26, -48(R1)
+  ADD.D F4, F0, F2
+  ADD.D F8, F6, F2
+  ADD.D F12, F10, F2
+  ADD.D F16, F14, F2
+  ADD.D F20, F18, F2
+  ADD.D F24, F22, F2
+  ADD.D F28, F26, F24
+  S.D F4, 0(R1)
+  S.D F8, -8(R1)
+  S.D F12, -16(R1)
+  S.D F16, -24(R1)
+  S.D F20, -32(R1)
+  S.D F24, -40(R1)
+  S.D F28, -48(R1)
+  DADDIU R1, R1, #-56
+  BNE R1, R2, Loop
+```
+
+VLIW 指令包安排如下，每一行代表一个 clock cycle：
+
+| Cycle | L/S Instruction 1 | L/S Instruction 2 | FP Instruction 1 | FP Instruction 2 | Integer / Branch |
+|---:|---|---|---|---|---|
+| 1 | `L.D F0, 0(R1)` | `L.D F6, -8(R1)` |  |  |  |
+| 2 | `L.D F10, -16(R1)` | `L.D F14, -24(R1)` |  |  |  |
+| 3 | `L.D F18, -32(R1)` | `L.D F22, -40(R1)` | `ADD.D F4, F0, F2` | `ADD.D F8, F6, F2` |  |
+| 4 | `L.D F26, -48(R1)` |  | `ADD.D F12, F10, F2` | `ADD.D F16, F14, F2` |  |
+| 5 |  |  | `ADD.D F20, F18, F2` | `ADD.D F24, F22, F2` |  |
+| 6 | `S.D F4, 0(R1)` | `S.D F8, -8(R1)` | `ADD.D F28, F26, F24` |  |  |
+| 7 | `S.D F12, -16(R1)` | `S.D F16, -24(R1)` |  |  | `DADDIU R1, R1, #-56` |
+| 8 | `S.D F20, 24(R1)` | `S.D F24, 16(R1)` |  |  |  |
+| 9 | `S.D F28, 8(R1)` |  |  |  | `BNE R1, R2, Loop` |
+
+第 8～9 行的 `S.D F20, 24(R1)`、`S.D F24, 16(R1)`、`S.D F28, 8(R1)` 需要特别注意：第 7 行已经执行 `R1 = R1 - 56`，所以相对更新后指针的 `24/16/8(R1)` 分别对应原始指针的 `-32/-40/-48(R1)`。
+
+这份安排的性能为：
+
+- 7 个原始循环迭代在 9 cycles 内完成；
+- 平均每个元素耗时：
+
+$$
+\frac{9}{7}\approx 1.29\ \text{cycles / element}
+$$
+
+- 共执行 23 个有效操作，平均有效操作数为：
+
+$$
+\frac{23}{9}\approx 2.56\ \text{operations / cycle}
+$$
+
+- 总 operation slots 为 `9 × 5 = 45`，有效槽位利用率为：
+
+$$
+\frac{23}{45}\approx 51.1\%
+$$
+
+
+#### VLIW 的局限
+
+VLIW 将调度压力转移给编译器，硬件可以较简单，但也带来明显限制：
+
+- **代码长度增加**：为了暴露更多并行性，编译器往往需要大量 loop unrolling；
+- **操作槽浪费**：程序中并非始终存在足够独立操作，很多 slot 可能为空；
+- **Lockstep 机制**：若某个功能部件因等待而暂停，整个长指令包往往都要暂停；
+- **二进制兼容性较差**：VLIW 代码依赖功能部件数量和执行延迟，不同微结构之间较难直接复用同一份机器代码；
+- **程序本身 ILP 有限**：存在真实数据依赖的操作不能简单打包并行执行。
+
+因此，多发射处理器最终都受到三类因素影响：
+
+1. 程序本身固有的 instruction-level parallelism；
+2. 实现多发射、冲突检测和并行通路的硬件复杂度；
+3. Superscalar 或 VLIW 各自技术路线的固有限制。
+
+### Superpipelining Processor
+
+**Superpipelining（超流水）** 采用另一种提高吞吐率的方法：把原有 pipeline stage 进一步细分，使处理器可以在小于一个原始 clock cycle 的时间间隔内流入下一条指令。
+
+若一个原始 cycle 被细分为 $n$ 份，则：
+
+- 指令不是在同一时刻同时发射 $n$ 条；
+- 而是每经过 $\frac{1}{n}$ 个原始 cycle 流入一条指令；
+- 从宏观上看，一个原始 cycle 内同样可以流入约 $n$ 条指令。
+
+这与 Superscalar 的区别为：
+
+| 技术 | 同一时刻并行发射多条指令 | 主要手段 |
+|---|---|---|
+| Superscalar | 是 | 增加并行功能部件和发射宽度 |
+| Superpipelining | 否 | 细分流水阶段，提高流水节拍频率 |
+
+<div style="display: flex; gap: 16px; justify-content: center; align-items: flex-start; flex-wrap: wrap; margin: 12px 0;">
+  <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260526160238.png" style="width: 420px; max-width: 48%; height: auto;" />
+  <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260526160248.png" style="width: 420px; max-width: 48%; height: auto;" />
+</div>
+
+#### MIPS R4000：八段 Superpipeline
+
+**SGI MIPS R4000** 作为典型超流水处理器。其整数核心采用 8 段流水：
+
+```text
+IF → IS → RF → EX → DF → DS → TC → WB
+```
+
+其中各阶段含义如下：
+
+| Stage | 功能 |
+|---|---|
+| `IF` | 取指前半段：选择 PC，并启动 instruction cache 访问 |
+| `IS` | 取指后半段：完成 instruction cache 访问 |
+| `RF` | 指令译码、寄存器读取、hazard checking、instruction cache hit detection |
+| `EX` | 执行：有效地址计算、ALU 运算、分支目标地址与分支条件计算 |
+| `DF` | 数据访问前半段：启动 data cache 访问 |
+| `DS` | 数据访问后半段：完成 data cache 访问 |
+| `TC` | Tag check：判断 data cache 访问是否命中 |
+| `WB` | load 与寄存器-寄存器运算的写回 |
+
+R4000 中与该结构相关的硬件包括：
+
+- 分离的 Instruction Cache 与 Data Cache；
+- 两个 Cache 容量均为 `8 KB`；
+- 每个 Cache 数据宽度为 `64 bit`；
+- 整数核心含 `32 × 32-bit` 通用寄存器组、ALU 和独立乘除法部件。
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260526160503.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260526160523.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+#### 深流水仍然存在 Load Delay
+
+Superpipeline 可以提高流水吞吐率，但不能消除数据依赖。
+
+在 R4000 中，load 结果需要经过：
+
+```text
+EX → DF → DS → TC → WB
+```
+
+依赖该结果的下一条运算指令，即使已经进入流水线，也必须等待 load 数据真正可用。课件用 `LD R1` 后紧接 `ADD.D R2, R1` 的例子展示了 **two clock cycles for load delay**。
+
+:::TIP
+更深的流水线提高的是潜在 throughput；如果依赖关系、分支或 Cache Miss 造成等待，实际 IPC 仍会下降。  
+因此 Superpipelining、Multiple Issue 与 Dynamic Scheduling 常常需要协同使用。
+:::
+
+### <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260526160535.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />方法对比
+
+| 方法 | 每周期进入流水线的指令数 | 并行性由谁发现 | 是否支持乱序执行 | 主要优势 | 主要限制 |
+|---|---:|---|---|---|---|
+| Single-Issue Pipeline | 1 | 编译器 / 简单硬件 | 通常否 | 硬件简单 | 理想 IPC 上限低 |
+| Superscalar + Static Scheduling | `0 ~ n` | 编译器为主，硬件检查发射冲突 | 通常顺序执行 | 兼容普通标量程序 | 编译器受运行时事件限制 |
+| Superscalar + Dynamic Scheduling + ROB | `0 ~ n` | 硬件动态发现 | 是，顺序提交 | 能处理动态等待与分支推测 | 硬件复杂、功耗高 |
+| VLIW | 固定 packet 宽度 | 编译器 | 一般按静态计划执行 | 硬件发射逻辑较简单 | 空槽、代码膨胀、兼容性问题 |
+| Superpipelining | 每 $\frac{1}{n}$ cycle 流入一条 | 与调度方案独立 | 取决于实现 | 提高流水节拍 | 深流水放大 hazard 代价 |
