@@ -1,6 +1,6 @@
 ---
 title: DLP and TLP
-published: 2026-05-25
+published: 2026-06-01
 description: Data-Level Parallelism and Thread-Level Parallelism
 tags: [计算机体系结构]
 category: 笔记
@@ -62,6 +62,48 @@ draft: false
 - [Interconnection Network](#interconnection-network)
   - [为什么需要 ICN](#为什么需要-icn)
   - [直接连接路径的代价](#直接连接路径的代价)
+  - [ICN 的组成与设计因素](#icn-的组成与设计因素)
+  - [ICN 的分类与目标](#icn-的分类与目标)
+  - [Interconnection Function](#interconnection-function)
+- [Single-Stage Interconnection Network](#single-stage-interconnection-network)
+  - [Cube Single-Stage Interconnection Network](#cube-single-stage-interconnection-network)
+    - [例子：$N=8$ 的 cube 网络](#例子n8-的-cube-网络)
+  - [PM2I Single-Stage Interconnection Network](#pm2i-single-stage-interconnection-network)
+    - [例子：$N=8$ 的 PM2I 网络](#例子n8-的-pm2i-网络)
+  - [Shuffle Exchange Network](#shuffle-exchange-network)
+    - [例子：$N=8$ 的 shuffle](#例子n8-的-shuffle)
+  - [单级互联网络的特点](#单级互联网络的特点)
+- [Static Network Topologies](#static-network-topologies)
+  - [Linear Array](#linear-array)
+  - [Circular Array](#circular-array)
+  - [Loop with Chord Array](#loop-with-chord-array)
+  - [Tree Array](#tree-array)
+  - [Star Array](#star-array)
+  - [Grid 与 2D Torus](#grid-与-2d-torus)
+  - [Hypercube 与 Cube with Loop](#hypercube-与-cube-with-loop)
+- [Dynamic Interconnection Network](#dynamic-interconnection-network)
+  - [Bus](#bus)
+  - [Crosspoint Switches](#crosspoint-switches)
+  - [Multi-Stage Interconnection Network](#multi-stage-interconnection-network)
+  - [Multi-Stage Cube Interconnection Network](#multi-stage-cube-interconnection-network)
+  - [Multi-Stage Shuffle Exchange Network / Omega Network](#multi-stage-shuffle-exchange-network--omega-network)
+  - [Omega Network 与 n-cube Network 的比较](#omega-network-与-n-cube-network-的比较)
+  - [动态互联网络比较](#动态互联网络比较)
+- [SIMD](#simd)
+- [DLP in GPU](#dlp-in-gpu)
+  - [GPU 的基本思想](#gpu-的基本思想)
+  - [CUDA 与 SIMT](#cuda-与-simt)
+  - [例子：DAXPY 的 CUDA 写法](#例子daxpy-的-cuda-写法)
+  - [Grid, Thread Blocks and Threads](#grid-thread-blocks-and-threads)
+  - [GPU Memory Structures](#gpu-memory-structures)
+  - [Memory Hierarchy in GPU](#memory-hierarchy-in-gpu)
+  - [GPU Organization 的演化](#gpu-organization-的演化)
+  - [NVIDIA GPU 与 Vector Machine 的比较](#nvidia-gpu-与-vector-machine-的比较)
+- [Loop-Level Parallelism](#loop-level-parallelism)
+  - [基本概念](#基本概念)
+  - [Example 1：无 loop-carried dependence](#example-1无-loop-carried-dependence)
+  - [Example 2：存在循环携带相关，难以并行](#example-2存在循环携带相关难以并行)
+  - [Example 3：有 loop-carried dependence，但可以改写为并行](#example-3有-loop-carried-dependence但可以改写为并行)
 
 ---
 
@@ -835,7 +877,7 @@ MM0, MM1, ..., MMK-1
 
 并行计算机的 **communication architecture（通信体系结构）** 是系统设计的核心，它既包括底层互联网络，也与高层语言、软件工具、编译器和操作系统提供的通信支持有关。因此，并行计算机设计不仅要讨论互联网络，还要讨论由互联带来的性能与软件问题。
 
-**ICN（Interconnection Network，互联网络）**位于并行计算机内部，用来连接：
+**ICN（Interconnection Network，互联网络）** 位于并行计算机内部，用来连接：
 
 - 不同 processing elements；
 - processing elements 与 memory modules；
@@ -863,3 +905,1033 @@ $$
 - 怎样设计互联网络拓扑，使连接数可控；
 - 怎样在硬件成本、通信能力与性能之间折中。
 
+### ICN 的组成与设计因素
+
+Interconnection network 一般由五类部分构成：
+
+1. **CPU / PE**：发起计算与通信请求的处理单元；
+2. **memory**：被访问的数据存储单元，可以是 PE 的 local memory，也可以是 shared memory module；
+3. **interface**：从 CPU 或 memory 获取信息，并把信息发送到其他 CPU 或 memory 的接口设备，典型形式是 network interface card；
+4. **link**：传输 bit 的物理通道，可以是线缆、双绞线或光纤，也可以是串行或并行通路；
+5. **switch node**：互联网络中的交换与控制节点，具有多个输入端口和多个输出端口，可以进行数据缓冲与路径选择。
+
+设计 ICN 时需要同时考虑四类问题：
+
+| 设计因素 | 典型分类 | 含义 |
+| --- | --- | --- |
+| topology | static topology / dynamic topology | 节点之间连接路径的组织方式 |
+| timing mode | synchronous / asynchronous | 是否使用统一时钟 |
+| exchange method | circuit switching / packet switching | 数据交换采用电路交换还是分组交换 |
+| control strategy | centralized / distributed | 是否有全局控制器统一管理网络状态 |
+
+其中 SIMD array processor 通常属于同步系统：多个 PE 在统一控制下执行同一条指令，因此更容易采用统一时钟。更一般的多处理器系统中，各处理器可能独立运行，此时就需要异步通信和更复杂的同步机制。
+
+### ICN 的分类与目标
+
+按照连接路径是否在程序运行过程中变化，互联网络可以分为两类。
+
+1. **Static network**
+
+静态网络的连接路径在系统构造后固定，程序执行过程中不会改变。它的重点是通过固定拓扑提供可预测的通信路径。
+
+2. **Dynamic network**
+
+动态网络由开关构成，可以根据应用需求改变开关状态，从而改变连接路径。典型结构包括：
+
+- bus；
+- crossbar switch；
+- multi-stage switching network。
+
+互联网络的目标可以概括为：
+
+> 用有限数量的连接方式，使任意两个 PE 能够在一步或少数几步内完成信息传输，从而支持并行算法执行。
+
+如果只使用一个层次的连接来完成任意两个处理单元之间的传输，称为 **single-stage interconnection network**；如果把多个单级网络串联起来，称为 **multi-stage interconnection network**。
+
+### Interconnection Function
+
+设互联网络有 $N$ 个输入端：
+
+$$
+0,1,\ldots,j,\ldots,N-1
+$$
+
+如果输入端 $j$ 与输出端 $f(j)$ 存在对应关系，那么 $f$ 就描述了该互联网络的连接规律，称为 **interconnection function（互联函数）**。
+
+通常把输入编号和输出编号都写成二进制。根据二进制位之间的变化规律，就可以写出对应的互联函数。
+
+---
+
+## Single-Stage Interconnection Network
+
+单级互联网络在一个网络层次上给出固定或有限的连接方式。它的结构简单、规则性强、成本低，适合构造大规模阵列的基本连接单元。
+
+### Cube Single-Stage Interconnection Network
+
+对于 $N$ 个输入和输出，令：
+
+$$
+n = \log_2 N
+$$
+
+每个输入端编号写成 $n$ bit 二进制：
+
+$$
+P_{n-1}\cdots P_i\cdots P_1P_0
+$$
+
+cube 网络有 $n$ 个互联函数。第 $i$ 个 cube 函数翻转编号中的第 $i$ 位，其余位保持不变：
+
+$$
+Cube_i(P_{n-1}\cdots P_i\cdots P_1P_0)
+= P_{n-1}\cdots \overline{P_i}\cdots P_1P_0
+$$
+
+因此，cube 网络中的一条边表示两个节点的二进制编号只相差一位。
+
+#### 例子：$N=8$ 的 cube 网络
+
+当 $N=8$ 时，节点编号为 3 bit：
+
+$$
+X_2X_1X_0
+$$
+
+三个互联函数分别翻转不同 bit。
+
+| 函数 | 翻转位 | 连接关系 |
+| --- | --- | --- |
+| $Cube_0$ | $X_0$ | $(0,1),(2,3),(4,5),(6,7)$ |
+| $Cube_1$ | $X_1$ | $(0,2),(1,3),(4,6),(5,7)$ |
+| $Cube_2$ | $X_2$ | $(0,4),(1,5),(2,6),(3,7)$ |
+
+如果把 8 个节点看成一个三维立方体，那么 $Cube_0, Cube_1, Cube_2$ 分别对应立方体在三个维度上的边。
+
+<div style="display: flex; gap: 16px; justify-content: center; align-items: flex-start; flex-wrap: wrap; margin: 12px 0;">
+  <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260601192851.png" style="width: 420px; max-width: 48%; height: auto;" />
+  <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260601192858.png" style="width: 420px; max-width: 48%; height: auto;" />
+</div>
+<div style="display: flex; gap: 16px; justify-content: center; align-items: flex-start; flex-wrap: wrap; margin: 12px 0;">
+  <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260601192914.png" style="width: 420px; max-width: 48%; height: auto;" />
+  <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260601192922.png" style="width: 420px; max-width: 48%; height: auto;" />
+</div>
+
+三维 cube 中，任意两个节点最多只需要经过 3 条边即可互相到达。推广到 $n$ 维 hypercube：
+
+- 节点数：$N=2^n$；
+- 每个节点度数：$n$；
+- 网络直径：$n$；
+- 最多经过 $n$ 次传输即可完成任意两个 PE 之间的数据传递。
+
+当 $n>3$ 时，图形已经很难在三维空间直观画出，但二进制翻转 bit 的规律仍然成立。
+
+### PM2I Single-Stage Interconnection Network
+
+PM2I 的含义是 **Plus Minus $2^i$**。它包括加 $2^i$ 与减 $2^i$ 两类连接。
+
+对于 $N$ 个节点：
+
+$$
+PM2_{+i}(j)=(j+2^i)\bmod N
+$$
+
+$$
+PM2_{-i}(j)=(j-2^i)\bmod N
+$$
+
+其中：
+
+$$
+0\le j\le N-1,\quad 0\le i\le \log_2N-1
+$$
+
+它的直观含义是：每个节点可以与编号相差 $2^i$ 的节点相连，并且采用模 $N$ 形成环状连接。
+
+#### 例子：$N=8$ 的 PM2I 网络
+
+当 $N=8$ 时：
+
+| $i$ | 步长 | 连接含义 |
+| --- | --- | --- |
+| $i=0$ | $2^0=1$ | 连接相邻节点：$j\leftrightarrow j\pm1$ |
+| $i=1$ | $2^1=2$ | 连接距离为 2 的节点：$j\leftrightarrow j\pm2$ |
+| $i=2$ | $2^2=4$ | 连接距离为 4 的节点：$j\leftrightarrow j\pm4$ |
+
+以节点 0 为例：
+
+- 一步可以到达：$1,2,4,6,7$；
+- 两步可以到达：$3,5$。
+
+因此 PM2I 通过少量规则连接，就能让节点在少数步数内到达其他节点。
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260601193341.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+ILLIAC IV 的阵列互联使用了 $PM2_{\pm0}$ 和 $PM2_{\pm n/2}$，从而在二维阵列中实现 PE 之间的上下左右相邻连接。
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260601193451.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+### Shuffle Exchange Network
+
+Shuffle exchange network 由两部分构成：
+
+1. **shuffle**：混洗函数；
+2. **exchange**：交换函数。
+
+对于 $N$ 个节点，设：
+
+$$
+n=\log_2N
+$$
+
+输入编号为：
+
+$$
+P_{n-1}P_{n-2}\cdots P_1P_0
+$$
+
+shuffle 函数把最高位移动到最低位，其余位整体左移：
+
+$$
+shuffle(P_{n-1}P_{n-2}\cdots P_1P_0)
+= P_{n-2}\cdots P_1P_0P_{n-1}
+$$
+
+exchange 函数通常对应最低位翻转，也就是相邻奇偶节点之间的交换。
+
+#### 例子：$N=8$ 的 shuffle
+
+当 $N=8$ 时：
+
+$$
+shuffle(P_2P_1P_0)=P_1P_0P_2
+$$
+
+一次 shuffle 的映射关系为：
+
+| 节点 | 二进制 | shuffle 后 | 连接到 |
+| --- | --- | --- | --- |
+| 0 | 000 | 000 | 0 |
+| 1 | 001 | 010 | 2 |
+| 2 | 010 | 100 | 4 |
+| 3 | 011 | 110 | 6 |
+| 4 | 100 | 001 | 1 |
+| 5 | 101 | 011 | 3 |
+| 6 | 110 | 101 | 5 |
+| 7 | 111 | 111 | 7 |
+
+二次 shuffle 的映射关系为：
+| 节点 | 二进制 | shuffle 后 | 连接到 |
+| --- | --- | --- | --- |
+| 0 | 000 | 000 | 0 |
+| 1 | 001 | 100 | 4 |
+| 2 | 010 | 001 | 1 |
+| 3 | 011 | 101 | 5 |
+| 4 | 100 | 010 | 2 |
+| 5 | 101 | 110 | 6 |
+| 6 | 110 | 011 | 3 |
+| 7 | 111 | 111 | 7 |
+
+三次 shuffle 的映射关系为：
+
+| 节点 | 二进制 | shuffle 后 | 连接到 |
+| --- | --- | --- | --- |
+| 0 | 000 | 000 | 0 |
+| 1 | 001 | 001 | 1 |
+| 2 | 010 | 010 | 2 |
+| 3 | 011 | 011 | 3 |
+| 4 | 100 | 100 | 4 |
+| 5 | 101 | 101 | 5 |
+| 6 | 110 | 110 | 6 |
+| 7 | 111 | 111 | 7 |
+
+连续 shuffle $n$ 次后，所有节点恢复到初始排列。对于 $N=8$，连续 shuffle 3 次后恢复。
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260601194422.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+shuffle exchange 的最大距离为：
+
+$$
+2n-1
+$$
+
+也就是最多需要 $n$ 次 exchange 和 $n-1$ 次 shuffle。例如从全 0 编号节点到全 1 编号节点，需要经过 3 次 exchange 和 2 次 shuffle。
+
+### 单级互联网络的特点
+
+单级互联网络的优点主要有：
+
+- 结构简单，硬件成本低；
+- 连接规则灵活，可以配合算法需求；
+- 传输步数较少，有利于提高阵列操作速度；
+- 规则性和模块化较好，便于扩展；
+- 适合大规模集成。
+
+它的限制也很明显：单级网络只提供有限种连接关系，若要支持更多连接模式，通常需要多次使用单级网络，或者把多个单级网络组合成多级网络。
+
+---
+
+## Static Network Topologies
+
+除了 cube、PM2I、shuffle exchange 这些互联函数，slides 还总结了常见的静态拓扑。它们可以从以下几个指标比较：
+
+- **scale**：节点规模；
+- **degree**：节点度数，即一个节点直接连接多少条边；
+- **diameter**：网络直径，即任意两点之间最短路径长度的最大值；
+- **width / bisection width**：把网络大致分成两半时需要切断的连接数量；
+- **symmetry**：不同节点在拓扑中的地位是否等价；
+- **link**：总连接数。
+
+### Linear Array
+
+线性阵列有 $N$ 个节点和 $N-1$ 条边：
+
+- 直径：$N-1$；
+- 节点度数：内部节点为 2，端点为 1；
+- 对分宽度：1；
+- 对称性差。
+
+当 $N$ 很大时，端到端距离过长，通信效率较低。
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260601194732.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+### Circular Array
+
+环形阵列把线性阵列首尾相连。
+
+- 双向环：
+  - 连接数：$N$；
+  - 直径：$N/2$；
+  - 节点度数：2；
+  - 对称性好。
+- 单向环：
+  - 连接数：$N$；
+  - 直径：$N-1$；
+  - 只能沿一个方向传输。
+
+环比线性阵列更均匀，但每个节点仍然只有两个邻居，扩展到大规模时路径仍然较长。
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260601194852.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+### Loop with Chord Array
+
+在环上增加 chord（弦）可以缩短通信路径，提高网络可靠性。对于 slides 中 12 个节点的双向环加弦：
+
+- 节点度数为 3 时，连接数为 18；
+- 节点度数为 4 时，连接数为 24。
+
+增加 chord 的本质是用更多连接换取更小直径和更强容错能力。
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260601194922.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+### Tree Array
+
+对于 $K$ 层完全二叉树：
+
+$$
+N=2^K-1
+$$
+
+其特点是：
+
+- 最大节点度数：3；
+- 直径：$2(K-1)$，对应最左叶子到最右叶子的路径；
+- 对分宽度：1；
+- 对称性差。
+
+树结构容易形成根部或高层节点瓶颈，因此可以扩展为 **fat tree** 或 **tree with loop**。
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260601195018.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260601195102.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+### Star Array
+
+星形阵列可以看成两层树。
+
+- 连接数：$N-1$；
+- 直径：2；
+- 中心节点度数：$N-1$；
+- 对分宽度：1；
+- 对称性差。
+
+星形结构路径很短，但中心节点压力极大，单点瓶颈明显。
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260601195040.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+
+### Grid 与 2D Torus
+
+二维网格常用于规则并行计算。
+
+对于 $r\times r$ 网格，$N=r^2$：
+
+- 连接数：$2N-2r$；
+- 直径：$2(r-1)$；
+- 节点度数最多为 4；
+- 对分宽度：$r=\sqrt{N}$。
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260601195121.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+2D torus 在二维网格的基础上把每一行和每一列首尾相连：
+
+- 连接数：$2N$；
+- 直径约为 $2\lfloor r/2\rfloor$；
+- 节点度数为 4；
+- 对称性更好。
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260601195128.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+### Hypercube 与 Cube with Loop
+
+$n$ 维 hypercube 有：
+
+$$
+N=2^n
+$$
+
+- 节点度数：$n$；
+- 直径：$n$；
+- 对分宽度：$N/2$；
+- 连接数：$nN/2$；
+- 对称性好。
+
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260601195145.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+Cube with loop 则在 cube 结构上加入环形结构，使每个节点组内部也具有环状连接。slides 中给出的形式是：
+
+- 总节点数：$n2^n$；
+- 节点度数：3；
+- 对称性好。
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260601195207.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+
+|  | Scale | Degree | Diameter | Width | Symmetry | Link |
+| --- | --- | --- | --- | --- | --- | --- |
+| Linear | $N$ | $2$ | $N-1$ | $1$ | No | $N-1$ |
+| Circular | $N$ | $2$ | $\lfloor N/2 \rfloor$ | $1$ | Yes | $N$ |
+| Binary tree | $N$ | $3$ | $2(\lfloor \log N \rfloor - 1)$ | $1$ | No | $N-1$ |
+| Star | $N$ | $N-1$ | $2$ | $N/2$ | No | $N-1$ |
+| Grid | $N$ | $4$ | $2(\sqrt{N}-1)$ | $\sqrt{N}$ | No | $2(N-\sqrt{N})$ |
+| 2D torus | $N$ | $4$ | $2\lfloor \sqrt{N}/2 \rfloor$ | $2\sqrt{N}$ | Yes | $2N$ |
+| Hypercube | $N=2^n$ | $n$ | $n$ | $N/2$ | Yes | $nN/2$ |
+| Cube with loop | $N=k2^k$ | $3$ | $2k-1+\lfloor k/2 \rfloor$ | $N/2^k$ | Yes | $3N/2$ |
+
+---
+
+## Dynamic Interconnection Network
+
+动态互联网络的连接关系可以在程序运行期间改变。它依靠主动的 switching elements，通过设置开关状态重构链路。
+
+动态网络主要包括三类：
+
+1. bus；
+2. crossbar switches；
+3. multi-stage interconnection networks。
+
+### Bus
+
+Bus 是一组连接 processor、memory、I/O 等部件的导线和插槽。
+
+其特征是：
+
+- 同一时刻只能支持一对 source 和 destination 传输数据；
+- 多对节点同时请求使用 bus 时，需要 bus arbitration；
+- CPU 数量较多时，bus contention 会非常严重；
+- slides 给出的经验规模是通常不超过约 32 个 CPU。
+
+Bus 与 linear array 的区别在于：
+
+| 结构 | 特征 |
+| --- | --- |
+| linear array | 不同源/目的节点可以同时使用系统的不同部分 |
+| bus | 多个节点共享同一传输介质，通过时间分割使用，同一时刻只有一对节点传输 |
+
+因此 bus 结构简单、成本低，但扩展性差。
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260601195841.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+### Crosspoint Switches
+
+Crosspoint switch 在输入和输出之间布置交叉开关点。
+
+对于 $N$ 个输入和 $N$ 个输出，完整 crossbar 需要 $N^2$ 个交叉点。每个交叉点可以打开或关闭，从而控制某个输入是否连接到某个输出。
+
+优点：
+
+- 连接能力强；
+- 可以支持较高并行通信带宽；
+- 任意输入输出之间的连接较直接。
+
+缺点：
+
+- 硬件复杂度随 $N^2$ 增长；
+- 大规模系统中开关数量和布线成本都很高。
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260601195851.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+### Multi-Stage Interconnection Network
+
+Multi-stage interconnection network 通过多个 switch stage 串联来降低全交叉开关的硬件成本。
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260601200102.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+基本 switch unit 具有 $m$ 个输入和 $m$ 个输出，记为 $m\times m$ switch unit，其中：
+
+$$
+m=2^k
+$$
+
+常见规模包括 $2\times2$、$4\times4$、$8\times8$。
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260601195926.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+对于 $2\times2$ switch unit，基本状态有四种：
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260601200212.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+| 状态 | 含义 |
+| --- | --- |
+| straight | 上输入到上输出，下输入到下输出 |
+| exchange | 上输入到下输出，下输入到上输出 |
+| upper broadcast | 上输入广播到两个输出 |
+| lower broadcast | 下输入广播到两个输出 |
+
+因此：
+
+- **two-function switch**：只支持 straight 和 exchange；
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260601200222.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+- **four-function switch**：支持 straight、exchange、upper broadcast、lower broadcast；
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260601200232.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+- **multi-end switch**：进一步加入 broadcast 和 multicast 模块。
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260601200244.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+不同多级网络的差异主要来自三点：
+
+1. switch function；
+2. switch control method；
+3. topology。
+
+在拓扑层面，常见多级网络包括：
+
+- multi-stage cube；
+- multi-stage shuffle exchange；
+- multi-stage PM2I；
+- 上述网络的组合。
+
+### Multi-Stage Cube Interconnection Network
+
+multi-stage cube 网络的特征是：
+
+- switch unit：two-function switch；
+- control mode：stage control、part stage control、unit control；
+- topology：cube structure。
+
+构造 $N$ 个单元的 multi-stage cube 网络：
+
+1. 计算 $n=\log_2N$；
+2. 从输入到输出设置 stage 编号为 $0,1,\ldots,n-1$；
+3. 每一级放置 $N/2$ 个 two-function switch；
+4. 第 $i$ 级的 switch 端口按照 $Cube_i$ 关系编号；
+5. 相同编号的端点在相邻 stage 之间连接。
+
+对于 $N=8$，共有 3 级：
+
+```text
+input -> Cube0 -> Cube1 -> Cube2 -> output
+```
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260601200337.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+如果采用 **stage control**，同一级内所有 switch 共享同一个控制信号。设 stage 控制信号为：
+
+$$
+K_2K_1K_0
+$$
+
+其中 $K_i$ 表示第 $i$ 级：
+
+- $K_i=0$：straight；
+- $K_i=1$：exchange。
+
+对于 $N=8$，不同控制信号对应的输出重排如下：
+
+| 控制信号 | 输出序列 | 等价函数 |
+| --- | --- | --- |
+| 000 | 0 1 2 3 4 5 6 7 | identity |
+| 001 | 1 0 3 2 5 4 7 6 | $Cube_0$ |
+| 010 | 2 3 0 1 6 7 4 5 | $Cube_1$ |
+| 011 | 3 2 1 0 7 6 5 4 | $Cube_0+Cube_1$ |
+| 100 | 4 5 6 7 0 1 2 3 | $Cube_2$ |
+| 101 | 5 4 7 6 1 0 3 2 | $Cube_0+Cube_2$ |
+| 110 | 6 7 4 5 2 3 0 1 | $Cube_1+Cube_2$ |
+| 111 | 7 6 5 4 3 2 1 0 | $Cube_0+Cube_1+Cube_2$ |
+
+这说明多级 cube 网络可以通过每一级的 straight/exchange 控制，实现多种规则重排。
+
+multi-stage cube 还可以分为：
+
+- switched network；
+- mobile number network；
+- indirect binary n-cube network。
+
+其中采用 stage control 的 multi-stage cube 网络称为 **switching network / flip network**，主要实现成组元素的对称交换。
+
+### Multi-Stage Shuffle Exchange Network / Omega Network
+
+multi-stage shuffle exchange network 又称为 **Omega network**。
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260601201123.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+其特征是：
+
+- stage 数：$n=\log_2N$；
+- stage 编号从输入到输出为 $n-1,n-2,\ldots,1,0$；
+- 每一级有 $N/2$ 个 switch unit；
+- 拓扑为 shuffle topology 后接 four-function switch；
+- 控制方式通常是 unit control。
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260601200804.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+如果把 Omega network 的 switch unit 限制为只使用 straight 和 exchange，则它变成 $n$-cube network 的逆网络。
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260601201147.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+### Omega Network 与 n-cube Network 的比较
+
+两者的主要差异如下：
+
+| 对比项 | Omega Network | n-cube Network |
+| --- | --- | --- |
+| 数据流 stage 顺序 | $n-1,n-2,\ldots,1,0$ | $0,1,\ldots,n-1$ |
+| switch unit | four-function switch | two-function switch |
+| broadcast | 可以实现一定的一对多广播 | 不支持广播 |
+
+slides 中给出的 $N=8$ 例子强调了多级网络的一个重要特点：
+
+- $5\rightarrow0$ 与 $7\rightarrow1$ 可以同时实现；
+- $0\rightarrow5$ 与 $1\rightarrow7$ 无法同时实现。
+
+原因是多级网络内部路径可能发生冲突。即使每条单独连接都可实现，多个连接同时存在时也可能竞争同一个内部 switch 或 link，这就是动态多级网络中的 blocking 问题。
+
+
+<div style="display: flex; gap: 16px; justify-content: center; align-items: flex-start; flex-wrap: wrap; margin: 12px 0;">
+  <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260601201250.png" style="width: 420px; max-width: 48%; height: auto;" />
+  <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260601201421.png" style="width: 420px; max-width: 48%; height: auto;" />
+</div>
+
+### 动态互联网络比较
+
+slides 从带宽、链路复杂度、开关复杂度和寻路能力比较了三种动态互联网络。
+
+| 网络 | 带宽 | Link 复杂度 | Switch 复杂度 | 连接能力 |
+| --- | --- | --- | --- | --- |
+| Bus system | $O(w/n)$ 到 $O(w)$ | $O(w)$ | $O(n)$ | 同一时刻一对一传输 |
+| Multi-stage network | $O(w)$ 到 $O(nw)$ | $O(nw\log_k n)$ | $O(n\log_k n)$ | 支持一定程度的 broadcast 和 exchange |
+| Crosspoint switches | $O(w)$ 到 $O(nw)$ | $O(n^2w)$ | $O(n^2)$ | 全交换能力最强 |
+
+其中：
+
+- $n$ 是 processor 数量；
+- $w$ 是数据通路宽度；
+- multi-stage network 假设采用 $k\times k$ switch 构造 $n\times n$ MIN；
+- crosspoint switches 需要 $n\times n$ 个交叉开关。
+
+整体来看：
+
+- bus 成本最低，但争用最严重；
+- crossbar 能力最强，但成本随 $n^2$ 增长；
+- multi-stage network 处于两者之间，是常见折中方案。
+
+---
+
+## SIMD 
+
+SIMD 结构适合利用 data-level parallelism，典型应用包括：
+
+- matrix-oriented scientific computing；
+- media-oriented image and sound processors；
+- GPU 中的大规模数据并行任务。
+
+SIMD 相比 MIMD 更节能的原因之一是：一次 instruction fetch 可以驱动多个数据操作，控制开销被多个数据元素摊薄。
+
+因此 SIMD 对 personal mobile devices、图像音频处理和深度学习等数据并行应用很有吸引力。
+
+从程序员视角看，SIMD 仍然允许程序在较高层次上以顺序逻辑思考；编译器或编程模型负责把可并行的数据操作映射到向量、阵列或 GPU 线程结构上。
+
+---
+
+## DLP in GPU
+
+### GPU 的基本思想
+
+GPU 最初面向图形处理，但现代 GPU 已经成为通用数据并行计算的重要平台。它的基本思想是采用异构执行模型：
+
+```text
+CPU: host
+GPU: device
+```
+
+CPU 负责组织程序执行、发起 kernel 调用和管理数据传输；GPU 负责执行大量高度并行的计算任务。
+
+GPU 的硬件特征是：
+
+- 核心数量多；
+- 单个核心较小；
+- 适合大规模并行；
+- 典型应用包括 graphics 和 deep learning。
+
+从体系结构脉络看，GPU 可以理解为从 SIMD 进一步扩展到 **SIMT（Single Instruction Multiple Thread）**。在 vector processor 中，最小并行单元可以看成向量元素；在 GPU 编程模型中，最小执行抽象是 thread。thread 除了数据元素，还包含寄存器、上下文等执行状态。
+
+### CUDA 与 SIMT
+
+CUDA 的全称是 **Compute Unified Device Architecture**。
+
+NVIDIA 使用 **CUDA thread** 统一表达 GPU 中的多种并行形式。执行一个 thread block 的硬件可以看成 **multithreaded SIMD processor**。
+
+SIMT 的关键直觉是：
+
+- 程序员写的是很多 thread；
+- 硬件以 SIMD / multithreaded SIMD 的方式组织这些 thread；
+- 同一组 thread 通常执行相同指令，但作用于不同数据；
+- 线程管理主要由 GPU 硬件负责，而不是应用程序或操作系统显式调度每个 thread。
+
+### 例子：DAXPY 的 CUDA 写法
+
+DAXPY 的数学形式是：
+
+$$
+y[i] = a\times x[i] + y[i]
+$$
+
+标量 C 程序写法为：
+
+```c
+// Invoke DAXPY
+daxpy(n, 2.0, x, y);
+
+// DAXPY in C
+void daxpy(int n, double a, double *x, double *y)
+{
+    for (int i = 0; i < n; ++i)
+        y[i] = a * x[i] + y[i];
+}
+```
+
+CUDA 写法把每个元素的计算交给一个 thread：
+
+```c
+// Invoke DAXPY with 256 threads per Thread Block
+__host__
+int nblocks = (n + 255) / 256;
+daxpy<<<nblocks, 256>>>(n, 2.0, x, y);
+
+// DAXPY in CUDA
+__global__
+void daxpy(int n, double a, double *x, double *y)
+{
+    int i = blockIdx.x * blockDim.x + threadIdx.x;
+    if (i < n)
+        y[i] = a * x[i] + y[i];
+}
+```
+
+这里：
+
+- `<<<nblocks, 256>>>` 表示启动 `nblocks` 个 thread block，每个 block 有 256 个 thread；
+- `blockIdx.x` 表示当前 block 的编号；
+- `blockDim.x` 表示每个 block 的 thread 数；
+- `threadIdx.x` 表示当前 thread 在 block 内的编号；
+- `i = blockIdx.x * blockDim.x + threadIdx.x` 把二维层次中的 thread 映射为全局数组下标；
+- `if (i < n)` 用来处理 $n$ 不能被 256 整除时最后一个 block 中多出来的 thread。
+
+
+### Grid, Thread Blocks and Threads
+
+CUDA 的执行组织是三层结构：
+
+```text
+Grid
+ ├── Thread Block 0
+ │    ├── Thread 0
+ │    ├── Thread 1
+ │    └── ...
+ ├── Thread Block 1
+ │    └── ...
+ └── ...
+```
+
+核心关系是：
+
+- 一个 thread 通常对应一个数据元素；
+- 多个 thread 组成一个 thread block；
+- 多个 block 组成一个 grid；
+- GPU 硬件负责 thread 管理。
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260601202239.png"  style="width: 320px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+以 vector addition 为例：
+
+```c
+__global__ void vecadd_kernel(float* A, float* B, float* C, int N) {
+    int i = blockDim.x * blockIdx.x + threadIdx.x;
+    C[i] = A[i] + B[i];
+}
+
+vecadd_kernel<<<numBlocks, numThreadsPerBlock>>>(A_d, B_d, C_d, N);
+```
+
+每个 thread 负责一个下标 $i$ 的加法：
+
+$$
+C[i] = A[i] + B[i]
+$$
+
+多个相邻元素被分配到同一个 thread block，不同 block 一起构成一个 grid。
+
+<div style="display: flex; gap: 16px; justify-content: center; align-items: flex-start; flex-wrap: wrap; margin: 12px 0;">
+  <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260601202436.png" style="width: 420px; max-width: 32%; height: auto;" />
+  <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260601202445.png" style="width: 420px; max-width: 32%; height: auto;" />
+  <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260601202454.png" style="width: 420px; max-width: 32%; height: auto;" />
+</div>
+
+### GPU Memory Structures
+
+GPU 的 memory 结构与 CUDA 层次直接相关。
+
+
+<div style="display: flex; gap: 16px; justify-content: center; align-items: flex-start; flex-wrap: wrap; margin: 12px 0;">
+  <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260601202316.png" style="width: 420px; max-width: 48%; height: auto;" />
+  <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260601202404.png" style="width: 420px; max-width: 48%; height: auto;" />
+</div>
+
+| 存储层次 | 作用范围 | 直观含义 |
+| --- | --- | --- |
+| global memory / GPU memory | 所有 grid / block 可见 | 大容量、延迟高，位于 GPU DRAM 中 |
+| shared memory | 一个 thread block 内共享 | 位于 SM 内，程序员可控制，适合 block 内协作 |
+| private / local memory | 单个 CUDA thread 私有 | 保存单个 thread 的私有数据和溢出数据 |
+| register file | 单个 thread 的寄存器上下文 | 支持快速 thread 切换和大量并发 thread |
+
+硬件执行模型与 CUDA 编程模型可以对应为：
+
+| 硬件执行模型 | CUDA 编程模型 |
+| --- | --- |
+| GPU | Grid |
+| Streaming Multiprocessor（SM） | Thread Block |
+| CUDA core / lane | Thread |
+
+这个对应关系是理解 GPU 的核心：程序员写 thread 和 block，硬件把 block 分配到 SM 上执行，并在 SM 内调度大量 thread。
+
+### Memory Hierarchy in GPU
+
+GPU 同样需要 memory hierarchy。
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260601202640.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+原因是：
+
+- GPU thread 数量巨大；
+- global memory 延迟较高；
+- 如果没有 cache / shared memory，访存会成为严重瓶颈；
+- GPU 通过多线程隐藏内存延迟，同时仍需要利用空间局部性和时间局部性。
+
+常见结构是 two-level cache：
+
+- **L1 cache**：位于 SM 内，靠近执行单元；
+- **L2 cache**：多个 SM 共享，位于 GPU 更全局的位置；
+- **shared memory**：通常与 L1 位置相近，受程序员显式控制。
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260601202702.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+例如：A100 强调
+
+- 增加 instruction cache；
+- shared memory 由程序员控制；
+- L1 cache / shared memory 位于 SM 内；
+- L2 cache 连接多个 SM 与 GPU DRAM。
+
+
+### GPU Organization 的演化
+
+NVIDIA GPU 代际展示了 GPU 组织结构的变化。
+
+| 代际 / 示例 | 结构特点 |
+| --- | --- |
+| Tesla | 使用 Core、SM、GPU 的层次组织 |
+| Fermi | 集成 L1 和 shared memory；SM 内 core 数增加 |
+| Kepler | 巨型 SM，一个 SM 可含 192 cores；问题是更大的 SM 是否一定更好 |
+| Maxwell | 把 SM 拆成 4 个 block，调度和功耗控制更灵活；L1 和 shared memory 分离 |
+| Pascal | 增大 L2 cache，slides 中给出 4MB，约为上一代的 7 倍 |
+| Volta | 再次集成 L1 和 shared memory；instruction buffer 变为 L0 instruction cache |
+| Ampere | L2 进一步增大到 40MB；增加 global memory 到 shared memory 的额外数据通路 |
+| Hopper | 继续沿着更大规模、更复杂 memory hierarchy 和更强数据通路方向演进 |
+
+这组例子说明：GPU 的性能并不只由 core 数决定，还受到 SM 组织、cache/shared memory 结构、调度粒度、数据通路和功耗控制共同影响。
+
+
+### NVIDIA GPU 与 Vector Machine 的比较
+
+NVIDIA GPU 与传统 vector machine 有许多相似点：
+
+- 都适合 data-level parallel problems；
+- 都支持 scatter-gather transfers；
+- 都使用 mask / predicate 机制处理条件执行；
+- 都具有较大的 register file。
+
+主要差异是：
+
+| 对比项 | Vector Machine | NVIDIA GPU |
+| --- | --- | --- |
+| 执行抽象 | 向量指令作用于多个元素 | CUDA thread / warp / block |
+| 标量处理器 | 通常有 scalar processor 配合 vector unit | GPU 中没有传统向量机意义上的 scalar processor |
+| 隐藏延迟方式 | 深流水 vector functional units | 大量 multithreading 隐藏 memory latency |
+| 功能部件组织 | 少数深流水功能部件 | 很多较小的 functional units |
+
+从课程主线看，两者都服务于 DLP，只是 GPU 把数据级并行包装成更接近线程的编程模型。
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260601202803.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+---
+
+## Loop-Level Parallelism
+
+### 基本概念
+
+程序中的循环是并行性的主要来源。很多 DLP、TLP 以及更激进的静态 ILP 方法，都需要从循环中发现可并行的迭代。
+
+Loop-level parallelism 的核心问题是：
+
+> 后面迭代中的数据访问，是否依赖前面迭代产生的数据值？
+
+如果存在这种依赖，就称为 **loop-carried dependence（循环携带相关）**。
+
+需要区分两类相关：
+
+| 类型 | 含义 | 对并行化的影响 |
+| --- | --- | --- |
+| iteration-internal dependence | 同一次迭代内部语句之间存在相关 | 仍可能跨迭代并行，只要每次迭代内部保持顺序 |
+| loop-carried dependence | 第 $i+1$ 次迭代依赖第 $i$ 次迭代的结果 | 可能迫使迭代顺序执行，限制向量化和并行化 |
+
+循环计数变量 `i` 本身也跨迭代变化，但它属于 induction variable，编译器通常可以识别和消除，不构成主要限制。
+
+### Example 1：无 loop-carried dependence
+
+```c
+for (i = 999; i >= 0; i = i - 1)
+    x[i] = x[i] + s;
+```
+
+每次迭代只读写自己的 `x[i]`，不同迭代访问的数组元素不同。因此：
+
+- `x[i]` 的读写相关只发生在同一次迭代内部；
+- 不存在对其他迭代结果的依赖；
+- 循环可以并行化或向量化。
+
+这类循环是最典型的数据级并行来源。
+
+### Example 2：存在循环携带相关，难以并行
+
+```c
+for (i = 0; i < 100; i = i + 1) {
+    A[i+1] = A[i] + C[i];      /* S1 */
+    B[i+1] = B[i] + A[i+1];   /* S2 */
+}
+```
+
+把两条语句分别记为：
+
+```text
+S1: A[i+1] = A[i] + C[i]
+S2: B[i+1] = B[i] + A[i+1]
+```
+
+依赖关系有三类：
+
+1. **S1 对 S1 的 loop-carried dependence**
+
+第 $i$ 次迭代计算 `A[i+1]`，第 $i+1$ 次迭代需要读取 `A[i+1]`。
+
+```text
+S1(i) -> S1(i+1)
+```
+
+2. **S2 对 S2 的 loop-carried dependence**
+
+第 $i$ 次迭代计算 `B[i+1]`，第 $i+1$ 次迭代需要读取 `B[i+1]`。
+
+```text
+S2(i) -> S2(i+1)
+```
+
+3. **S1 到 S2 的同迭代相关**
+
+同一次迭代中，`S2` 使用 `S1` 刚产生的 `A[i+1]`。
+
+```text
+S1(i) -> S2(i)
+```
+
+其中第 1、2 类跨越迭代边界，会强制相邻迭代按顺序推进。为了保持正确性，就很难把这个循环直接向量化或完全并行化。
+
+这也是老师强调的点：如果循环体之间存在跨迭代相关，就不能简单地把每一次迭代拆开并行执行；硬件再强，也必须服从程序语义。
+
+### Example 3：有 loop-carried dependence，但可以改写为并行
+
+原始循环为：
+
+```c
+for (i = 0; i < 100; i = i + 1) {
+    A[i] = A[i] + B[i];        /* S1 */
+    B[i+1] = C[i] + D[i];      /* S2 */
+}
+```
+
+依赖关系是：
+
+```text
+S2(i) -> S1(i+1)
+```
+
+原因是第 $i$ 次迭代的 `S2` 产生 `B[i+1]`，第 $i+1$ 次迭代的 `S1` 需要使用 `B[i+1]`。
+
+这个相关是 loop-carried dependence，但它没有形成环：
+
+- `S1` 依赖前一次迭代的 `S2`；
+- `S2` 本身不依赖 `S1`；
+- 两个语句之间没有形成互相依赖的闭环。
+
+因此可以通过重排暴露并行性。
+
+改写过程的关键是：
+
+1. 先单独执行第一条 `S1(0)`，因为它需要循环开始前已经存在的 `B[0]`；
+2. 在循环体中先执行 `S2(i)`，产生 `B[i+1]`；
+3. 再执行 `S1(i+1)`，使用刚产生的 `B[i+1]`；
+4. 最后补上原循环最后一次 `S2(99)` 产生的 `B[100]`。
+
+改写后的代码为：
+
+```c
+A[0] = A[0] + B[0];
+
+for (i = 0; i < 99; i = i + 1) {
+    B[i+1] = C[i] + D[i];
+    A[i+1] = A[i+1] + B[i+1];
+}
+
+B[100] = C[99] + D[99];
+```
+
+改写后，循环体内部仍然有 `B[i+1] -> A[i+1]` 的同迭代相关，但跨迭代相关被消除。因此多个迭代可以并行处理，或者用向量指令配合 chaining 执行。
+
+这一例子说明：
+
+- 出现 loop-carried dependence 后，不能立刻判断一定无法并行；
+- 需要看 dependence graph 中是否存在环；
+- 没有环的依赖可以通过语句重排、循环剥离、循环重写等方式暴露并行性；
+- 有些循环携带相关无法消除，此时必须保留顺序执行。
