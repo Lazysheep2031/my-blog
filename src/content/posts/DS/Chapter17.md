@@ -59,6 +59,7 @@ draft: false
   - [read 和 write](#read-和-write)
   - [存储结构与故障语义](#存储结构与故障语义)
 - [Transaction State](#transaction-state)
+  - [Partially committed 和 Committed 的区别](#partially-committed-和-committed-的区别)
 - [Concurrent Executions](#concurrent-executions)
   - [为什么要并发执行](#为什么要并发执行)
   - [并发执行的异常](#并发执行的异常)
@@ -97,7 +98,10 @@ draft: false
   - [Cascading Rollback](#cascading-rollback)
   - [Cascadeless Schedule](#cascadeless-schedule)
 - [Concurrency Control Protocols](#concurrency-control-protocols)
+  - [前驱图不是运行时检查机制](#前驱图不是运行时检查机制)
+  - [三类并发控制协议预告](#三类并发控制协议预告)
 - [Weak Levels of Consistency](#weak-levels-of-consistency)
+  - [只读事务与多版本思想](#只读事务与多版本思想)
 - [Transaction Isolation Levels](#transaction-isolation-levels)
   - [Serializable](#serializable)
   - [Repeatable Read](#repeatable-read)
@@ -448,6 +452,14 @@ None or All
 
 - 要么完全提交
 - 要么完全回滚
+
+### Partially committed 和 Committed 的区别
+
+`Partially committed` 只是说明事务的最后一条语句已经执行完，事务还没有真正完成提交确认。
+
+此时如果系统发现日志没有安全落盘、约束检查失败，或者恢复所需信息还不完整，事务仍可能进入 `Failed`，再被回滚为 `Aborted`。
+
+`Committed` 表示提交已经被系统确认。用户一旦收到成功提交的通知，之后即使发生系统故障，数据库也必须能通过恢复机制保留这次提交的结果。
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260602105305.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
@@ -1321,6 +1333,41 @@ preferably cascadeless
 | 强隔离 | 性能下降 |
 | 弱隔离 | 程序员要承担更多一致性风险 |
 
+### 前驱图不是运行时检查机制
+
+前驱图、冲突边和拓扑排序主要是用来理解与证明调度正确性的数学工具。实际 DBMS 通常不会等一个 schedule 形成后再检查它有没有环，因为那时错误读写、错误输出或不可恢复提交可能已经发生。
+
+更实际的做法是：设计并发控制协议，让事务在运行过程中就遵守某些访问规则，从源头避免不可串行化、不可恢复或级联回滚的调度。
+
+### 三类并发控制协议预告
+
+只给出协议类型的概览，具体机制在后续并发控制章节展开。
+
+**Lock-Based Protocols（基于锁的协议）**：
+
+- 访问数据前先申请锁
+- 锁粒度可以很粗，也可以很细，例如 whole database lock 或 data item lock
+- 读通常申请 shared lock，写通常申请 exclusive lock
+- 核心问题是：锁什么时候申请，持有多久，什么时候释放
+
+**Timestamp-Based Protocols（基于时间戳的协议）**：
+
+- 事务开始时分配时间戳
+- 数据项维护读时间戳和写时间戳
+- 系统用时间戳判断访问是否违反事务的逻辑先后顺序
+
+**Validation-Based Protocols（基于验证的协议）**：
+
+- 属于 optimistic concurrency control
+- 适合冲突率较低的场景
+- 事务分为三个阶段：
+
+```text
+Read phase -> Validation phase -> Write phase
+```
+
+如果验证阶段发现冲突，再回滚或重启事务。
+
 ---
 
 ## Weak Levels of Consistency
@@ -1342,6 +1389,12 @@ preferably cascadeless
 ```
 
 可以牺牲一定准确性。
+
+### 只读事务与多版本思想
+
+对只读事务，数据库可以采用多版本思想减少阻塞：写事务生成数据的新版本，已经开始的只读事务继续读取旧的一致版本。这样读事务可以在较强的一致性要求下尽量不阻塞写事务。
+
+这种方法提高读并发，但系统需要维护多个版本，并在合适时机回收旧版本。如果事务既读又写，或者要求严格可串行化，仍然需要额外的并发控制机制。
 
 这就是隔离级别存在的原因。
 
