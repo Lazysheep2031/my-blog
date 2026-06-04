@@ -1,0 +1,1065 @@
+---
+import { Icon } from "astro-icon/components";
+import MainGridLayout from "../layouts/MainGridLayout.astro";
+import { getSortedPostsList, type PostForList } from "../utils/content-utils";
+import { getPostUrlBySlug, url } from "../utils/url-utils";
+
+const posts = await getSortedPostsList();
+
+type ShowcaseTheme =
+	| "query"
+	| "optimize"
+	| "transaction"
+	| "lock"
+	| "diffusion"
+	| "language"
+	| "cache"
+	| "vector"
+	| "index"
+	| "exception"
+	| "note";
+
+type ShowcaseConfig = {
+	slug: string;
+	label: string;
+	kicker: string;
+	coverTitle: string;
+	theme: ShowcaseTheme;
+	accent: string;
+	accent2: string;
+	ink: string;
+};
+
+type ShowcaseItem = {
+	post: PostForList;
+	config: ShowcaseConfig;
+};
+
+const showcaseConfigs: ShowcaseConfig[] = [
+	{
+		slug: "ds/chapter15",
+		label: "DATABASE",
+		kicker: "JOIN COST",
+		coverTitle: "Query Processing",
+		theme: "query",
+		accent: "#2c8f74",
+		accent2: "#f0bd53",
+		ink: "#123f34",
+	},
+	{
+		slug: "ds/chapter16",
+		label: "DATABASE",
+		kicker: "PLAN TREE",
+		coverTitle: "Query Optimization",
+		theme: "optimize",
+		accent: "#496fc7",
+		accent2: "#7bd6bc",
+		ink: "#172c73",
+	},
+	{
+		slug: "ds/chapter17",
+		label: "DATABASE",
+		kicker: "ACID",
+		coverTitle: "Transactions",
+		theme: "transaction",
+		accent: "#7d67c7",
+		accent2: "#f2b35c",
+		ink: "#37246f",
+	},
+	{
+		slug: "ds/chapter18",
+		label: "DATABASE",
+		kicker: "LOCK GRAPH",
+		coverTitle: "Concurrency Control",
+		theme: "lock",
+		accent: "#cf6d7e",
+		accent2: "#79c8b6",
+		ink: "#743044",
+	},
+	{
+		slug: "ai_fundamention/chapter6",
+		label: "AI",
+		kicker: "DIFFUSION",
+		coverTitle: "图像生成模型",
+		theme: "diffusion",
+		accent: "#6b7fd2",
+		accent2: "#d6e26a",
+		ink: "#273273",
+	},
+	{
+		slug: "ai_fundamention/chapter5",
+		label: "AI",
+		kicker: "TOKENS",
+		coverTitle: "大语言模型",
+		theme: "language",
+		accent: "#3e9caf",
+		accent2: "#f0b75a",
+		ink: "#17606d",
+	},
+	{
+		slug: "ca/chapter4_extention",
+		label: "ARCH",
+		kicker: "SECURITY",
+		coverTitle: "Cache Side-Channel Attacks",
+		theme: "cache",
+		accent: "#ad6b4a",
+		accent2: "#7fc5d9",
+		ink: "#6a321e",
+	},
+	{
+		slug: "ds/verctor_database",
+		label: "DATABASE",
+		kicker: "ANN SEARCH",
+		coverTitle: "Supplement: Vector Databases",
+		theme: "vector",
+		accent: "#4c9a68",
+		accent2: "#8d7bd2",
+		ink: "#1d5837",
+	},
+	{
+		slug: "ds/chapter14",
+		label: "DATABASE",
+		kicker: "B+ TREE",
+		coverTitle: "Indexing",
+		theme: "index",
+		accent: "#5579bf",
+		accent2: "#efc45d",
+		ink: "#263b78",
+	},
+	{
+		slug: "oop/course14",
+		label: "C++",
+		kicker: "RAII",
+		coverTitle: "Exceptions",
+		theme: "exception",
+		accent: "#a968b3",
+		accent2: "#74c2a3",
+		ink: "#63306e",
+	},
+];
+
+const fallbackConfigs = [
+	{ accent: "#4f9f7a", accent2: "#f2c14e", ink: "#1f5d45", label: "NOTE" },
+	{ accent: "#5d7fc9", accent2: "#f7a66c", ink: "#263f7c", label: "READ" },
+	{ accent: "#d46a7e", accent2: "#79c7b7", ink: "#7d3042", label: "LAB" },
+];
+
+const getFallbackConfig = (post: PostForList, index: number): ShowcaseConfig => {
+	const palette = fallbackConfigs[index % fallbackConfigs.length];
+	const tag = post.data.tags?.[0] || post.data.category || "笔记";
+	return {
+		...palette,
+		slug: post.slug.toLowerCase(),
+		kicker: String(tag).toUpperCase(),
+		coverTitle: post.data.title,
+		theme: "note",
+	};
+};
+
+const postsBySlug = new Map(posts.map((post) => [post.slug.toLowerCase(), post]));
+const showcaseItems = showcaseConfigs
+	.map((config) => {
+		const post = postsBySlug.get(config.slug);
+		return post ? { post, config } : null;
+	})
+	.filter((item): item is ShowcaseItem => item !== null);
+const pickedSlugs = new Set(showcaseItems.map(({ post }) => post.slug.toLowerCase()));
+const fallbackItems = posts
+	.filter((post) => !pickedSlugs.has(post.slug.toLowerCase()))
+	.filter((post) => !/\/intro$/i.test(post.slug))
+	.slice(0, Math.max(0, 9 - showcaseItems.length))
+	.map((post, index) => ({ post, config: getFallbackConfig(post, index) }));
+const featuredPosts = [...showcaseItems, ...fallbackItems].slice(0, 9);
+
+const formatDate = (date: Date) =>
+	new Intl.DateTimeFormat("zh-CN", {
+		month: "2-digit",
+		day: "2-digit",
+	}).format(date);
+---
+
+<MainGridLayout landing title="首页" description="欢迎来到我的博客～">
+    <section class="landing-home" aria-labelledby="landing-title">
+        <div class="landing-pattern" aria-hidden="true"></div>
+        <div class="landing-inner">
+            <div class="landing-copy">
+                <div class="kaomoji" aria-hidden="true">ᕕ( ᐛ )ᕗ</div>
+                <h1 id="landing-title">欢迎来到我的博客～</h1>
+                <a class="enter-button" href={url("/blog/")} aria-label="进入主页">
+                    <span>进入主页</span>
+                    <Icon name="material-symbols:arrow-forward-rounded" class="enter-icon" />
+                </a>
+            </div>
+
+            <div class="preview-stage" aria-label="精选随机文章预览" data-landing-preview>
+                <div class="stage-thread" aria-hidden="true"></div>
+                {featuredPosts.map(({ post, config }, index) => {
+                    const meta = post.data.category || post.data.tags?.[0] || "笔记";
+
+                    return (
+                        <a
+                            class:list={["preview-card", index < 3 && "is-active"]}
+                            href={getPostUrlBySlug(post.slug)}
+                            aria-label={`阅读文章：${post.data.title}`}
+                            aria-hidden={index < 3 ? "false" : "true"}
+                            tabindex={index < 3 ? undefined : "-1"}
+                            data-preview-card
+                            data-slot={index < 3 ? String(index) : undefined}
+                            style={`--accent: ${config.accent}; --accent-2: ${config.accent2}; --ink: ${config.ink}; --delay: ${index * 90}ms;`}
+                        >
+                            <div class="card-shell">
+                                <div class="preview-cover">
+                                    <div class={`poster-art poster-${config.theme}`} aria-hidden="true">
+                                        <div class="poster-grid"></div>
+                                        <div class="poster-topline">
+                                            <span>{config.label}</span>
+                                            <span>{config.kicker}</span>
+                                        </div>
+                                        <div class="poster-focus">{config.coverTitle}</div>
+                                        <div class="poster-motif">
+                                            <span></span>
+                                            <span></span>
+                                            <span></span>
+                                            <span></span>
+                                            <span></span>
+                                        </div>
+                                        <div class="poster-lines">
+                                            <span></span>
+                                            <span></span>
+                                            <span></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="preview-body">
+                                    <div class="preview-meta">
+                                        <span>{meta}</span>
+                                        <span>{formatDate(post.data.published)}</span>
+                                    </div>
+                                    <h2>{post.data.title}</h2>
+                                </div>
+                            </div>
+                        </a>
+                    );
+                })}
+            </div>
+        </div>
+    </section>
+</MainGridLayout>
+
+<script is:inline>
+(() => {
+	const activateLandingPreview = () => {
+		const stage = document.querySelector("[data-landing-preview]");
+		if (!stage) return;
+		if (stage.dataset.previewReady === "true") return;
+		stage.dataset.previewReady = "true";
+
+		const cards = Array.from(stage.querySelectorAll("[data-preview-card]"));
+		if (cards.length === 0) return;
+
+		const shuffled = cards
+			.map((card) => ({ card, rank: Math.random() }))
+			.sort((a, b) => a.rank - b.rank)
+			.slice(0, Math.min(3, cards.length))
+			.map(({ card }) => card);
+
+		cards.forEach((card) => {
+			card.classList.remove("is-active");
+			card.removeAttribute("data-slot");
+			card.setAttribute("aria-hidden", "true");
+			card.setAttribute("tabindex", "-1");
+		});
+
+		shuffled.forEach((card, slot) => {
+			card.classList.add("is-active");
+			card.setAttribute("data-slot", String(slot));
+			card.setAttribute("aria-hidden", "false");
+			card.removeAttribute("tabindex");
+			card.style.setProperty("--delay", `${slot * 120}ms`);
+		});
+	};
+
+	activateLandingPreview();
+
+	if (!window.__landingPreviewBound) {
+		document.addEventListener("DOMContentLoaded", activateLandingPreview);
+		document.addEventListener("astro:page-load", activateLandingPreview);
+		document.addEventListener("swup:content:replace", activateLandingPreview);
+
+		if (window.swup?.hooks) {
+			window.swup.hooks.on("page:view", activateLandingPreview);
+		}
+
+		window.__landingPreviewBound = true;
+	}
+})();
+</script>
+
+<style>
+.landing-home {
+	position: relative;
+	min-height: 100vh;
+	overflow: hidden;
+	background-color: #eaf5fa;
+	background-image:
+		linear-gradient(90deg, rgba(250, 253, 251, 0.78) 0%, rgba(248, 253, 252, 0.54) 38%, rgba(244, 251, 253, 0.3) 70%),
+		linear-gradient(180deg, rgba(255, 255, 255, 0.28), rgba(228, 246, 250, 0.36)),
+		url("/images/landing/home-seaside-day.png");
+	background-position: center;
+	background-size: cover;
+	color: rgba(19, 35, 30, 0.92);
+	isolation: isolate;
+}
+
+:global(.dark) .landing-home {
+	background-color: #101d2c;
+	background-image:
+		linear-gradient(90deg, rgba(8, 15, 22, 0.62) 0%, rgba(10, 20, 31, 0.4) 40%, rgba(11, 22, 34, 0.26) 74%),
+		linear-gradient(180deg, rgba(5, 10, 17, 0.18), rgba(6, 12, 20, 0.5)),
+		url("/images/landing/home-seaside-night.png");
+	color: rgba(244, 250, 247, 0.92);
+}
+
+.landing-pattern {
+	position: fixed;
+	inset: 0;
+	z-index: 0;
+	pointer-events: none;
+	opacity: 0.42;
+	background-image:
+		linear-gradient(rgba(64, 122, 130, 0.07) 1px, transparent 1px),
+		linear-gradient(90deg, rgba(64, 122, 130, 0.07) 1px, transparent 1px);
+	background-size: 42px 42px;
+	mask-image: linear-gradient(to bottom, black, black 72%, transparent);
+}
+
+:global(.dark) .landing-pattern {
+	opacity: 0.34;
+	background-image:
+		linear-gradient(rgba(209, 232, 244, 0.08) 1px, transparent 1px),
+		linear-gradient(90deg, rgba(209, 232, 244, 0.08) 1px, transparent 1px);
+}
+
+.landing-inner {
+	position: relative;
+	z-index: 1;
+	display: grid;
+	grid-template-columns: minmax(18rem, 0.88fr) minmax(32rem, 1.12fr);
+	gap: 3rem;
+	width: min(76rem, 100%);
+	min-height: 100vh;
+	margin: 0 auto;
+	padding: 7.5rem 0 3rem;
+	align-items: center;
+}
+
+.landing-copy {
+	position: relative;
+	z-index: 3;
+	padding: 2rem 0 3rem;
+}
+
+.kaomoji {
+	display: inline-flex;
+	align-items: center;
+	min-height: 4.5rem;
+	margin-bottom: 1.25rem;
+	font-family: "JetBrains Mono Variable", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+	font-size: 3.25rem;
+	line-height: 1;
+	color: rgba(17, 31, 27, 0.82);
+	text-shadow: 0 1rem 3rem rgba(72, 126, 101, 0.12);
+	animation: kaomoji-in 560ms ease-out both;
+}
+
+:global(.dark) .kaomoji {
+	color: rgba(241, 248, 245, 0.86);
+	text-shadow: 0 1rem 3rem rgba(123, 194, 161, 0.18);
+}
+
+.landing-copy h1 {
+	margin: 0;
+	font-family: Georgia, "Times New Roman", serif;
+	font-size: 3.5rem;
+	font-weight: 700;
+	line-height: 1.18;
+	letter-spacing: 0;
+	color: currentColor;
+	animation: copy-in 620ms ease-out 90ms both;
+}
+
+.enter-button {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.65rem;
+	height: 3.25rem;
+	margin-top: 2rem;
+	padding: 0 1.35rem 0 1.5rem;
+	border: 1px solid rgba(53, 104, 82, 0.24);
+	border-radius: 999px;
+	background: rgba(255, 255, 255, 0.72);
+	box-shadow: 0 1.25rem 3rem rgba(51, 99, 79, 0.14);
+	color: rgb(27, 83, 60);
+	font-weight: 700;
+	text-decoration: none;
+	backdrop-filter: blur(16px);
+	transition:
+		transform 220ms ease,
+		border-color 220ms ease,
+		box-shadow 220ms ease,
+		background 220ms ease;
+	animation: copy-in 620ms ease-out 180ms both;
+}
+
+:global(.dark) .enter-button {
+	border-color: rgba(190, 225, 209, 0.2);
+	background: rgba(28, 38, 34, 0.72);
+	box-shadow: 0 1.25rem 3rem rgba(0, 0, 0, 0.24);
+	color: rgba(215, 244, 230, 0.95);
+}
+
+.enter-button:hover {
+	transform: translateY(-3px);
+	border-color: rgba(61, 139, 104, 0.48);
+	box-shadow: 0 1.5rem 3.4rem rgba(45, 105, 81, 0.2);
+	background: rgba(255, 255, 255, 0.9);
+}
+
+:global(.dark) .enter-button:hover {
+	background: rgba(36, 51, 45, 0.9);
+	box-shadow: 0 1.5rem 3.4rem rgba(0, 0, 0, 0.36);
+}
+
+.enter-icon {
+	font-size: 1.25rem;
+	transition: transform 220ms ease;
+}
+
+.enter-button:hover .enter-icon {
+	transform: translateX(4px);
+}
+
+.preview-stage {
+	position: relative;
+	min-height: 44rem;
+	perspective: 1100px;
+}
+
+.stage-thread {
+	position: absolute;
+	inset: 9% 5% 13% 8%;
+	border: 1px dashed rgba(80, 139, 115, 0.2);
+	border-radius: 48% 52% 44% 56%;
+	transform: rotate(-10deg);
+}
+
+:global(.dark) .stage-thread {
+	border-color: rgba(190, 224, 209, 0.15);
+}
+
+.preview-card {
+	position: absolute;
+	top: 0;
+	left: 0;
+	z-index: 1;
+	width: var(--card-width, 21rem);
+	border-radius: 1.15rem;
+	color: inherit;
+	text-decoration: none;
+	opacity: 0;
+	pointer-events: none;
+	transform: translate3d(var(--card-x, 0), var(--card-y, 0), 0) rotate(var(--card-rotate, 0deg)) scale(0.96);
+	transform-origin: 50% 90%;
+	transition:
+		opacity 240ms ease,
+		transform 240ms ease,
+		filter 240ms ease;
+}
+
+.preview-card.is-active {
+	opacity: 1;
+	pointer-events: auto;
+	animation: card-in 620ms cubic-bezier(0.22, 1, 0.36, 1) var(--delay) both;
+}
+
+.preview-card.is-active[data-slot="0"] {
+	--card-x: 0.5rem;
+	--card-y: 5.6rem;
+	--card-width: 20rem;
+	--card-rotate: -5deg;
+	z-index: 3;
+}
+
+.preview-card.is-active[data-slot="1"] {
+	--card-x: 15.2rem;
+	--card-y: 0.6rem;
+	--card-width: 21.1rem;
+	--card-rotate: 4.5deg;
+	z-index: 5;
+}
+
+.preview-card.is-active[data-slot="2"] {
+	--card-x: 8.8rem;
+	--card-y: 25rem;
+	--card-width: 22.1rem;
+	--card-rotate: 1.5deg;
+	z-index: 4;
+}
+
+.preview-card:hover {
+	z-index: 9;
+	transform: translate3d(var(--card-x, 0), calc(var(--card-y, 0) - 0.75rem), 0) rotate(var(--card-rotate, 0deg)) scale(1.025);
+	filter: saturate(1.04);
+}
+
+.card-shell {
+	overflow: hidden;
+	border: 1px solid rgba(44, 80, 66, 0.16);
+	border-radius: inherit;
+	background: rgba(255, 255, 255, 0.78);
+	box-shadow:
+		0 1.1rem 2.4rem rgba(41, 82, 65, 0.13),
+		0 0.25rem 0.75rem rgba(41, 82, 65, 0.08);
+	backdrop-filter: blur(18px);
+	animation: card-float 5.8s ease-in-out calc(var(--delay) + 600ms) infinite;
+	transition:
+		border-color 240ms ease,
+		box-shadow 240ms ease,
+		background 240ms ease;
+}
+
+:global(.dark) .card-shell {
+	border-color: rgba(217, 241, 230, 0.12);
+	background: rgba(31, 40, 36, 0.82);
+	box-shadow:
+		0 1.2rem 2.4rem rgba(0, 0, 0, 0.34),
+		0 0 0 1px rgba(255, 255, 255, 0.02);
+}
+
+.preview-card:hover .card-shell {
+	border-color: color-mix(in srgb, var(--accent) 48%, transparent);
+	box-shadow:
+		0 1.45rem 3rem color-mix(in srgb, var(--accent) 20%, transparent),
+		0 0.35rem 1rem rgba(41, 82, 65, 0.1);
+}
+
+.preview-cover {
+	position: relative;
+	height: 13.1rem;
+	overflow: hidden;
+	background: color-mix(in srgb, var(--accent) 12%, white);
+}
+
+.preview-cover::after {
+	content: "";
+	position: absolute;
+	inset: auto 1.1rem 1.1rem auto;
+	width: 3.1rem;
+	height: 3.1rem;
+	border: 1px solid color-mix(in srgb, var(--accent-2) 76%, white);
+	border-radius: 999px;
+	opacity: 0.72;
+}
+
+.poster-art {
+	position: absolute;
+	inset: 0;
+	background:
+		linear-gradient(135deg, color-mix(in srgb, var(--accent) 21%, white), transparent 56%),
+		linear-gradient(25deg, transparent 42%, color-mix(in srgb, var(--accent-2) 52%, white) 43%, transparent 68%),
+		#fbfdfb;
+}
+
+:global(.dark) .poster-art {
+	background:
+		linear-gradient(135deg, color-mix(in srgb, var(--accent) 29%, #17201d), transparent 58%),
+		linear-gradient(25deg, transparent 44%, color-mix(in srgb, var(--accent-2) 44%, #17201d) 45%, transparent 69%),
+		#1a2420;
+}
+
+.poster-art::before {
+	content: "";
+	position: absolute;
+	inset: -16% -18% auto auto;
+	width: 11rem;
+	height: 11rem;
+	border-radius: 999px;
+	background: radial-gradient(circle, color-mix(in srgb, var(--accent-2) 32%, transparent), transparent 62%);
+}
+
+.poster-art::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	background: linear-gradient(120deg, transparent 0 45%, rgba(255, 255, 255, 0.28) 46%, transparent 66%);
+	opacity: 0.58;
+}
+
+:global(.dark) .poster-art::after {
+	background: linear-gradient(120deg, transparent 0 45%, rgba(255, 255, 255, 0.08) 46%, transparent 66%);
+}
+
+.poster-grid {
+	position: absolute;
+	inset: 0;
+	background-image:
+		linear-gradient(color-mix(in srgb, var(--accent) 20%, transparent) 1px, transparent 1px),
+		linear-gradient(90deg, color-mix(in srgb, var(--accent) 20%, transparent) 1px, transparent 1px);
+	background-size: 1.1rem 1.1rem;
+	mask-image: linear-gradient(135deg, black, transparent 72%);
+}
+
+.poster-topline {
+	position: absolute;
+	inset: 1rem 1rem auto;
+	z-index: 2;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 0.8rem;
+	font-family: "JetBrains Mono Variable", ui-monospace, monospace;
+	font-size: 0.7rem;
+	font-weight: 800;
+	line-height: 1;
+	letter-spacing: 0.08em;
+	color: color-mix(in srgb, var(--accent) 66%, black);
+}
+
+:global(.dark) .poster-topline {
+	color: color-mix(in srgb, var(--accent-2) 68%, white);
+}
+
+.poster-focus {
+	position: absolute;
+	left: 1.05rem;
+	right: 1rem;
+	top: 2.65rem;
+	z-index: 2;
+	color: var(--ink);
+	font-size: 1.58rem;
+	font-weight: 800;
+	line-height: 1.08;
+	letter-spacing: 0;
+	text-wrap: balance;
+}
+
+:global(.dark) .poster-focus {
+	color: color-mix(in srgb, var(--accent-2) 78%, white);
+}
+
+.poster-motif {
+	position: absolute;
+	left: 1.1rem;
+	right: 1.15rem;
+	bottom: 1rem;
+	z-index: 2;
+	height: 4.85rem;
+}
+
+.poster-motif span,
+.poster-motif::before,
+.poster-motif::after {
+	content: "";
+	position: absolute;
+	display: block;
+	border: 1px solid color-mix(in srgb, var(--accent) 24%, transparent);
+	background: color-mix(in srgb, var(--accent) 12%, white);
+	box-shadow: 0 0.6rem 1.2rem color-mix(in srgb, var(--accent) 10%, transparent);
+}
+
+:global(.dark) .poster-motif span,
+:global(.dark) .poster-motif::before,
+:global(.dark) .poster-motif::after {
+	border-color: color-mix(in srgb, var(--accent-2) 22%, transparent);
+	background: color-mix(in srgb, var(--accent) 18%, #17201d);
+	box-shadow: 0 0.6rem 1.2rem rgba(0, 0, 0, 0.18);
+}
+
+.poster-motif span {
+	border-radius: 0.75rem;
+}
+
+.poster-motif span:nth-child(1) {
+	inset: 0 auto auto 0;
+	width: 34%;
+	height: 1.2rem;
+}
+
+.poster-motif span:nth-child(2) {
+	inset: 1.7rem auto auto 10%;
+	width: 48%;
+	height: 1.2rem;
+}
+
+.poster-motif span:nth-child(3) {
+	inset: 3.4rem auto auto 22%;
+	width: 40%;
+	height: 1.2rem;
+	background: color-mix(in srgb, var(--accent-2) 22%, white);
+}
+
+.poster-motif span:nth-child(4) {
+	inset: 0.65rem 0 auto auto;
+	width: 22%;
+	height: 3.4rem;
+	border-radius: 999px;
+}
+
+.poster-motif span:nth-child(5) {
+	inset: auto 20% 0 auto;
+	width: 18%;
+	height: 1rem;
+}
+
+.poster-query .poster-motif::before,
+.poster-optimize .poster-motif::before,
+.poster-index .poster-motif::before {
+	inset: 0.95rem 7% auto 7%;
+	height: 2.4rem;
+	border-width: 0 0 1px 1px;
+	border-radius: 0;
+	background: transparent;
+	box-shadow: none;
+}
+
+.poster-optimize .poster-motif span,
+.poster-index .poster-motif span {
+	width: 3rem;
+	height: 1.25rem;
+	border-radius: 0.45rem;
+}
+
+.poster-optimize .poster-motif span:nth-child(1),
+.poster-index .poster-motif span:nth-child(1) {
+	left: 39%;
+}
+
+.poster-optimize .poster-motif span:nth-child(2),
+.poster-index .poster-motif span:nth-child(2) {
+	left: 10%;
+	top: 2.4rem;
+}
+
+.poster-optimize .poster-motif span:nth-child(3),
+.poster-index .poster-motif span:nth-child(3) {
+	left: 42%;
+	top: 2.4rem;
+}
+
+.poster-optimize .poster-motif span:nth-child(4),
+.poster-index .poster-motif span:nth-child(4) {
+	left: 74%;
+	top: 2.4rem;
+}
+
+.poster-transaction .poster-motif span,
+.poster-lock .poster-motif span {
+	height: 0.75rem;
+	border-radius: 999px;
+}
+
+.poster-transaction .poster-motif span:nth-child(1),
+.poster-lock .poster-motif span:nth-child(1) {
+	width: 74%;
+}
+
+.poster-transaction .poster-motif span:nth-child(2),
+.poster-lock .poster-motif span:nth-child(2) {
+	width: 52%;
+}
+
+.poster-transaction .poster-motif span:nth-child(3),
+.poster-lock .poster-motif span:nth-child(3) {
+	width: 68%;
+	background: color-mix(in srgb, var(--accent-2) 24%, white);
+}
+
+.poster-lock .poster-motif span:nth-child(4) {
+	width: 2.25rem;
+	height: 2.25rem;
+	right: 4%;
+	top: 0.15rem;
+	border-radius: 999px;
+	background: transparent;
+}
+
+.poster-diffusion .poster-motif,
+.poster-cache .poster-motif {
+	display: grid;
+	grid-template-columns: repeat(5, 1fr);
+	gap: 0.45rem;
+	height: 4.6rem;
+}
+
+.poster-diffusion .poster-motif span,
+.poster-cache .poster-motif span {
+	position: static;
+	width: auto;
+	height: auto;
+	border-radius: 0.55rem;
+	background-image:
+		radial-gradient(circle at 35% 35%, color-mix(in srgb, var(--accent-2) 54%, transparent) 0 2px, transparent 3px),
+		linear-gradient(135deg, color-mix(in srgb, var(--accent) 18%, white), color-mix(in srgb, var(--accent-2) 16%, white));
+}
+
+.poster-language .poster-motif span,
+.poster-vector .poster-motif span {
+	border-radius: 999px;
+}
+
+.poster-language .poster-motif span:nth-child(1) {
+	width: 30%;
+}
+
+.poster-language .poster-motif span:nth-child(2) {
+	width: 64%;
+}
+
+.poster-language .poster-motif span:nth-child(3) {
+	width: 42%;
+}
+
+.poster-vector .poster-motif span {
+	width: 2.35rem;
+	height: 2.35rem;
+}
+
+.poster-vector .poster-motif::before {
+	inset: 0.8rem 14% auto 10%;
+	height: 2rem;
+	border-width: 1px 0 0;
+	border-radius: 0;
+	background: transparent;
+	box-shadow: none;
+	transform: rotate(-11deg);
+}
+
+.poster-vector .poster-motif span:nth-child(1) {
+	left: 4%;
+	top: 1.9rem;
+}
+
+.poster-vector .poster-motif span:nth-child(2) {
+	left: 35%;
+	top: 0.1rem;
+}
+
+.poster-vector .poster-motif span:nth-child(3) {
+	left: 66%;
+	top: 2.2rem;
+}
+
+.poster-vector .poster-motif span:nth-child(4) {
+	right: 6%;
+	top: 0.8rem;
+}
+
+.poster-exception .poster-motif span {
+	left: auto;
+	right: 0;
+	width: 72%;
+	height: 0.9rem;
+	border-radius: 0.35rem;
+}
+
+.poster-exception .poster-motif span:nth-child(2) {
+	right: 12%;
+}
+
+.poster-exception .poster-motif span:nth-child(3) {
+	right: 24%;
+}
+
+.poster-lines {
+	position: absolute;
+	left: 1.1rem;
+	right: 1.15rem;
+	bottom: 5.9rem;
+	z-index: 2;
+	display: grid;
+	gap: 0.42rem;
+	opacity: 0.9;
+}
+
+.poster-lines span {
+	display: block;
+	height: 0.38rem;
+	border-radius: 999px;
+	background: color-mix(in srgb, var(--accent) 18%, transparent);
+}
+
+.poster-lines span:nth-child(2) {
+	width: 72%;
+	background: color-mix(in srgb, var(--accent-2) 30%, transparent);
+}
+
+.poster-lines span:nth-child(3) {
+	width: 46%;
+}
+
+.preview-body {
+	padding: 1rem 1.05rem 1.1rem;
+}
+
+.preview-meta {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 0.75rem;
+	margin-bottom: 0.55rem;
+	color: color-mix(in srgb, var(--accent) 58%, rgba(0, 0, 0, 0.55));
+	font-size: 0.78rem;
+	font-weight: 700;
+	line-height: 1.2;
+}
+
+:global(.dark) .preview-meta {
+	color: color-mix(in srgb, var(--accent) 55%, rgba(255, 255, 255, 0.62));
+}
+
+.preview-body h2 {
+	min-height: 2.9rem;
+	margin: 0;
+	color: rgba(21, 34, 30, 0.9);
+	font-size: 1.02rem;
+	font-weight: 700;
+	line-height: 1.38;
+	letter-spacing: 0;
+	overflow-wrap: anywhere;
+}
+
+:global(.dark) .preview-body h2 {
+	color: rgba(245, 250, 247, 0.88);
+}
+
+@keyframes copy-in {
+	from {
+		opacity: 0;
+		transform: translateY(1.25rem);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@keyframes kaomoji-in {
+	from {
+		opacity: 0;
+		transform: translateY(1.5rem) rotate(-4deg);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0) rotate(0deg);
+	}
+}
+
+@keyframes card-in {
+	from {
+		opacity: 0;
+		transform: translate3d(var(--card-x, 0), calc(var(--card-y, 0) + 1.6rem), 0) rotate(var(--card-rotate, 0deg)) scale(0.96);
+	}
+	to {
+		opacity: 1;
+		transform: translate3d(var(--card-x, 0), var(--card-y, 0), 0) rotate(var(--card-rotate, 0deg)) scale(1);
+	}
+}
+
+@keyframes card-float {
+	0%,
+	100% {
+		translate: 0 0;
+	}
+	50% {
+		translate: 0 -0.45rem;
+	}
+}
+
+@media (max-width: 1100px) {
+	.landing-inner {
+		grid-template-columns: 1fr;
+		gap: 1.5rem;
+		padding-top: 6.5rem;
+	}
+
+	.landing-copy {
+		padding-bottom: 0;
+	}
+
+	.preview-stage {
+		display: grid;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		gap: 1rem;
+		min-height: 0;
+		padding-bottom: 2rem;
+	}
+
+	.stage-thread {
+		display: none;
+	}
+
+	.preview-card {
+		display: none;
+		position: relative;
+		top: auto;
+		left: auto;
+		width: 100%;
+		margin: 0 auto;
+		opacity: 1;
+		pointer-events: auto;
+		animation: none;
+		transform: none !important;
+	}
+
+	.preview-card.is-active {
+		display: block;
+	}
+
+	.preview-card:hover {
+		transform: translateY(-8px) scale(1.015) !important;
+	}
+}
+
+@media (max-width: 900px) {
+	.preview-stage {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+}
+
+@media (max-width: 700px) {
+	.landing-inner {
+		padding-top: 6rem;
+	}
+
+	.kaomoji {
+		font-size: 2.2rem;
+		min-height: 3.25rem;
+	}
+
+	.landing-copy h1 {
+		font-size: 2.35rem;
+		line-height: 1.25;
+	}
+
+	.preview-stage {
+		grid-template-columns: 1fr;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.kaomoji,
+	.landing-copy h1,
+	.enter-button,
+	.preview-card,
+	.card-shell {
+		animation: none;
+	}
+
+	.enter-button,
+	.preview-card,
+	.enter-icon,
+	.card-shell {
+		transition: none;
+	}
+}
+</style>

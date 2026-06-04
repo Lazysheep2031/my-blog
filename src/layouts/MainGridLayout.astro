@@ -22,6 +22,7 @@ interface Props {
 	lang?: string;
 	setOGTypeArticle?: boolean;
 	headings?: MarkdownHeading[];
+	landing?: boolean;
 }
 
 const {
@@ -31,11 +32,13 @@ const {
 	lang,
 	setOGTypeArticle,
 	headings = [],
+	landing = false,
 } = Astro.props;
 const hasBannerCredit =
 	siteConfig.banner.enable && siteConfig.banner.credit.enable;
 const hasBannerLink = !!siteConfig.banner.credit.url;
 const isPostPage = !!setOGTypeArticle;
+const showSidebar = !isPostPage && !landing;
 const showToc = isPostPage && siteConfig.toc.enable && headings.length > 0;
 const lightBannerSrc = siteConfig.banner.lightSrc ?? siteConfig.banner.src;
 const darkBannerSrc = siteConfig.banner.darkSrc ?? siteConfig.banner.src;
@@ -71,13 +74,18 @@ const mainPanelTop = siteConfig.banner.enable
 <div class="absolute w-full z-30 pointer-events-none" style={`top: ${mainPanelTop}`}>
     <!-- The pointer-events-none here prevent blocking the click event of the TOC -->
     <div class="relative max-w-[var(--page-width)] mx-auto pointer-events-auto">
-        <div
-            id="main-grid"
-            class:list={[
-                "transition-swup-fade transition duration-700 w-full left-0 right-0 grid grid-rows-[auto_1fr_auto] lg:grid-rows-[auto] mx-auto gap-4 px-0 md:px-4",
-                isPostPage
-                    ? "grid-cols-1 xl:grid-cols-[minmax(0,1fr)_18rem]"
-                    : "grid-cols-[17.5rem_auto]",
+            <div
+                id="main-grid"
+                class:list={[
+                "transition-swup-fade transition duration-700",
+                landing
+                    ? "fixed inset-0 z-40 w-screen min-h-screen overflow-y-auto px-4 md:px-6"
+                    : "w-full left-0 right-0 grid grid-rows-[auto_1fr_auto] lg:grid-rows-[auto] mx-auto gap-4 px-0 md:px-4",
+                !landing && (
+                    isPostPage
+                        ? "grid-cols-1 xl:grid-cols-[minmax(0,1fr)_18rem]"
+                        : "grid-cols-[17.5rem_auto]"
+                ),
             ]}
         >
             <!-- Banner image credit -->
@@ -93,7 +101,7 @@ const mainPanelTop = siteConfig.banner.enable
                 </Icon>
             </a>}
 
-            {!isPostPage && (
+            {showSidebar && (
                 <SideBar class="mb-4 row-start-2 row-end-3 col-span-2 lg:row-start-1 lg:row-end-2 lg:col-span-1 lg:max-w-[17.5rem] onload-animation" headings={headings}></SideBar>
             )}
 
@@ -101,16 +109,20 @@ const mainPanelTop = siteConfig.banner.enable
                 id="swup-container"
                 class:list={[
                     "transition-swup-fade overflow-hidden",
-                    isPostPage ? "col-span-1 min-w-0" : "col-span-2 lg:col-span-1",
+                    landing
+                        ? "w-full overflow-visible"
+                        : isPostPage
+                            ? "col-span-1 min-w-0"
+                            : "col-span-2 lg:col-span-1",
                 ]}
             >
                 <div id="content-wrapper" class="onload-animation">
                     <!-- the overflow-hidden here prevent long text break the layout-->
                     <!-- make id different from windows.swup global property -->
                     <slot></slot>
-                    <div class="footer col-span-full onload-animation hidden lg:block">
+                    {!landing && <div class="footer col-span-full onload-animation hidden lg:block">
                         <Footer></Footer>
-                    </div>
+                    </div>}
                 </div>
             </main>
 
@@ -137,12 +149,12 @@ const mainPanelTop = siteConfig.banner.enable
                 </aside>
             )}
 
-            <div class="footer col-span-full onload-animation block lg:hidden">
+            {!landing && <div class="footer col-span-full onload-animation block lg:hidden">
                 <Footer></Footer>
-            </div>
+            </div>}
         </div>
 
-        <BackToTop></BackToTop>
+        {!landing && <BackToTop></BackToTop>}
     </div>
 </div>
 </Layout>

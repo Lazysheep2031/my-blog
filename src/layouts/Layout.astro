@@ -46,7 +46,7 @@ if (!banner || typeof banner !== "string" || banner.trim() === "") {
 // TODO don't use post cover as banner for now
 banner = siteConfig.banner.src;
 
-const enableBanner = siteConfig.banner.enable;
+const enableBanner = siteConfig.banner.enable && !isHomePage;
 
 let pageTitle: string;
 if (title) {
@@ -168,6 +168,10 @@ const bannerOffset =
 }}>
 @tailwind components;
 @layer components {
+	body:not(.enable-banner) #banner-wrapper {
+		@apply hidden
+	}
+
 	.enable-banner.is-home #banner-wrapper {
 		@apply h-[var(--banner-height-home)] translate-y-[var(--banner-height-extend)]
 	}
@@ -354,7 +358,7 @@ function initCustomScrollbar() {
 }
 
 function showBanner() {
-	if (!siteConfig.banner.enable) return;
+	if (!bannerEnabled) return;
 
 	const banners = document.querySelectorAll('.banner-image');
 	if (banners.length === 0) {
@@ -418,8 +422,12 @@ const setup = () => {
 		const bodyElement = document.querySelector('body')
 		if (pathsEqual(visit.to.url, url('/'))) {
 			bodyElement!.classList.add('lg:is-home');
+			bodyElement!.classList.remove('enable-banner');
 		} else {
 			bodyElement!.classList.remove('lg:is-home');
+			if (siteConfig.banner.enable) {
+				bodyElement!.classList.add('enable-banner');
+			}
 		}
 
 		// increase the page height during page transition to prevent the scrolling animation from jumping
