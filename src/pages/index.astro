@@ -144,7 +144,10 @@ const fallbackConfigs = [
 	{ accent: "#d46a7e", accent2: "#79c7b7", ink: "#7d3042", label: "LAB" },
 ];
 
-const getFallbackConfig = (post: PostForList, index: number): ShowcaseConfig => {
+const getFallbackConfig = (
+	post: PostForList,
+	index: number,
+): ShowcaseConfig => {
 	const palette = fallbackConfigs[index % fallbackConfigs.length];
 	const tag = post.data.tags?.[0] || post.data.category || "笔记";
 	return {
@@ -156,14 +159,18 @@ const getFallbackConfig = (post: PostForList, index: number): ShowcaseConfig => 
 	};
 };
 
-const postsBySlug = new Map(posts.map((post) => [post.slug.toLowerCase(), post]));
+const postsBySlug = new Map(
+	posts.map((post) => [post.slug.toLowerCase(), post]),
+);
 const showcaseItems = showcaseConfigs
 	.map((config) => {
 		const post = postsBySlug.get(config.slug);
 		return post ? { post, config } : null;
 	})
 	.filter((item): item is ShowcaseItem => item !== null);
-const pickedSlugs = new Set(showcaseItems.map(({ post }) => post.slug.toLowerCase()));
+const pickedSlugs = new Set(
+	showcaseItems.map(({ post }) => post.slug.toLowerCase()),
+);
 const fallbackItems = posts
 	.filter((post) => !pickedSlugs.has(post.slug.toLowerCase()))
 	.filter((post) => !/\/intro$/i.test(post.slug))
