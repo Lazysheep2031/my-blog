@@ -8,8 +8,8 @@ draft: false
 ---
 
 ## 概述
+本章围绕数据级并行（DLP）与线程级并行（TLP）展开：先介绍 Flynn 分类与 SIMD/MIMD 的基本概念，再讲向量与阵列处理器（含向量流水、向量链、分段与 CRAY/RV64V 示例）及 GPU 的 SIMT 编程模型；接着讨论阵列的内存组织与互联网络、循环并行化策略，以及多处理器的内存模型与一致性协议（UMA/NUMA/COMA、MSI/MESI/目录协议）；最后概览大规模并行系统与领域专用加速器（如 TPU）的设计要点与权衡，帮助读者在不同并行粒度上理解性能来源与瓶颈。
 
-这一章讨论的是 **DLP（Data-Level Parallelism，数据级并行）** 与 **TLP（Thread-Level Parallelism，线程级并行）**。研究：**怎样利用数据之间或线程之间天然存在的并行性，构造更强的并行机器**。
 
 ---
 
@@ -104,6 +104,59 @@ draft: false
   - [Example 1：无 loop-carried dependence](#example-1无-loop-carried-dependence)
   - [Example 2：存在循环携带相关，难以并行](#example-2存在循环携带相关难以并行)
   - [Example 3：有 loop-carried dependence，但可以改写为并行](#example-3有-loop-carried-dependence但可以改写为并行)
+- [MIMD: Thread-Level Parallelism](#mimd-thread-level-parallelism)
+  - [从 TLP 到 MIMD](#从-tlp-到-mimd)
+  - [MIMD 的两类基本组织](#mimd-的两类基本组织)
+    - [Multi-Processor System：基于 Shared Memory](#multi-processor-system基于-shared-memory)
+    - [Multi-Computer System：基于 Message Passing](#multi-computer-system基于-message-passing)
+  - [UMA / NUMA / COMA](#uma--numa--coma)
+    - [UMA：Uniform Memory Access](#umauniform-memory-access)
+    - [NUMA：Non-Uniform Memory Access](#numanon-uniform-memory-access)
+    - [COMA：Cache Only Memory Access](#comacache-only-memory-access)
+  - [Parallel Processing 的两个挑战](#parallel-processing-的两个挑战)
+    - [挑战一：程序可用并行性有限](#挑战一程序可用并行性有限)
+      - [例子：100 个处理器达到 80 倍加速](#例子100-个处理器达到-80-倍加速)
+      - [例子：100 处理器中部分时间只能用 50 个处理器](#例子100-处理器中部分时间只能用-50-个处理器)
+    - [挑战二：通信成本高](#挑战二通信成本高)
+      - [例子：远程访存通信对 CPI 的影响](#例子远程访存通信对-cpi-的影响)
+- [Cache Coherence](#cache-coherence)
+  - [为什么共享内存多处理器会出现一致性问题](#为什么共享内存多处理器会出现一致性问题)
+  - [Memory Consistency 与 Cache Coherence](#memory-consistency-与-cache-coherence)
+    - [Cache Coherence：同一地址的多个副本是否一致](#cache-coherence同一地址的多个副本是否一致)
+    - [Memory Consistency：不同地址读写之间的顺序规则](#memory-consistency不同地址读写之间的顺序规则)
+  - [Snoopy Coherence Protocols](#snoopy-coherence-protocols)
+    - [Write Invalidate Protocol](#write-invalidate-protocol)
+    - [Write Update / Write Broadcast Protocol](#write-update--write-broadcast-protocol)
+    - [Write-through 与 Write-back](#write-through-与-write-back)
+    - [Write-through + No-write Allocation 的基本行为](#write-through--no-write-allocation-的基本行为)
+  - [MSI Protocol](#msi-protocol)
+    - [例子：4-line direct-mapped write-back cache](#例子4-line-direct-mapped-write-back-cache)
+      - [示例：`C0, R, A100`](#示例c0-r-a100)
+      - [Action 1：`C0, R, A10C`](#action-1c0-r-a10c)
+      - [Action 2：`C1, W, A104, 0204`](#action-2c1-w-a104-0204)
+      - [Action 3：`C0, W, A118, 0308`](#action-3c0-w-a118-0308)
+  - [MESI 与 MOESI](#mesi-与-moesi)
+    - [MESI 状态变化例子](#mesi-状态变化例子)
+    - [MOESI](#moesi)
+  - [Directory-Based Coherence Protocol](#directory-based-coherence-protocol)
+    - [Directory 的三种状态](#directory-的三种状态)
+    - [状态转移规则](#状态转移规则)
+      - [Uncached block](#uncached-block)
+      - [Shared block](#shared-block)
+      - [Exclusive / Modified block](#exclusive--modified-block)
+  - [False Sharing](#false-sharing)
+    - [避免 false sharing 的方法](#避免-false-sharing-的方法)
+- [Memory Consistency](#memory-consistency)
+  - [Sequential Consistency](#sequential-consistency)
+  - [Relaxed Consistency Models](#relaxed-consistency-models)
+- [MIMD: MPP / COW / WSC](#mimd-mpp--cow--wsc)
+  - [MPP：Massively Parallel Processor](#mppmassively-parallel-processor)
+  - [COW：Cluster of Workstations](#cowcluster-of-workstations)
+  - [WSC：Warehouse-Scale Computer](#wscwarehouse-scale-computer)
+- [Domain-Specific Architectures](#domain-specific-architectures)
+  - [通用处理器过去依赖的复杂机制](#通用处理器过去依赖的复杂机制)
+  - [DSA 的设计原则](#dsa-的设计原则)
+  - [CNN 与 TPU 例子](#cnn-与-tpu-例子)
 
 ---
 
@@ -1935,3 +1988,925 @@ B[100] = C[99] + D[99];
 - 需要看 dependence graph 中是否存在环；
 - 没有环的依赖可以通过语句重排、循环剥离、循环重写等方式暴露并行性；
 - 有些循环携带相关无法消除，此时必须保留顺序执行。
+
+
+
+---
+
+## MIMD: Thread-Level Parallelism
+
+前面 SIMD 讨论的是 **一个指令流控制多个数据流**，适合向量、阵列处理器和 GPU 中大量同构数据运算。本节开始进入 **MIMD（Multiple Instruction streams, Multiple Data streams）**，也就是多个处理器或多个核各自执行自己的指令流，并处理自己的数据流。
+
+这一节解决的问题是：**当单核 ILP 和 SIMD/DLP 的收益受限后，怎样通过多个线程、多个处理器、多个节点继续提高系统吞吐量**。
+
+MIMD 不是简单地“堆很多 CPU”。只要多个执行实体之间需要共享数据、同步状态或通信，就一定会引入额外开销，其中最核心的问题就是：
+
+- 程序本身的并行性有限；
+- 处理器之间的通信、同步和数据一致性维护有成本；
+- 共享内存系统必须解决 **cache coherence** 与 **memory consistency**。
+
+### 从 TLP 到 MIMD
+
+**TLP（Thread-Level Parallelism，线程级并行）** 是由软件系统或程序员在较高层次识别出来的并行性。一个线程通常包含成百上千甚至上百万条指令，不同线程可以并行执行。
+
+TLP 与前面 ILP/DLP 的区别在于：
+
+- **ILP**：同一个指令流内部挖掘指令间并行性，主要由硬件和编译器隐式完成；
+- **DLP / SIMD**：一个控制流对多个数据元素做相同操作；
+- **TLP / MIMD**：多个线程拥有不同的控制流，因此系统中需要多个 PC。
+
+如果程序希望多个线程并行执行，底层就需要多个执行上下文、多个 PC，最终自然发展到多核或多处理器结构。
+
+### MIMD 的两类基本组织
+
+MIMD 可以按照内存组织方式分为两大类。
+
+#### Multi-Processor System：基于 Shared Memory
+
+**共享内存多处理器系统** 的特点是：整个系统只有一个统一的地址空间，所有处理器共享这个地址空间。
+
+注意：统一地址空间不意味着物理上只有一块内存。
+
+- 物理内存可以集中放置；
+- 也可以分布在不同节点；
+- 只要硬件和软件让所有处理器看到同一个全局地址空间，就属于 shared memory model。
+
+这种模型的编程方式比较接近普通单机程序：处理器之间通过对共享变量执行 `load/store` 进行通信。
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260608231121.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+#### Multi-Computer System：基于 Message Passing
+
+**多计算机系统** 的特点是：每个处理器或节点都有自己的本地内存，本地内存只能由本节点直接访问，其他节点不能直接 load/store。
+
+如果处理器 A 要把数据交给处理器 B，就必须通过消息传递：
+
+```text
+Processor A  --message-->  Processor B
+```
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260608231713.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+这类系统也称为 **NORMA（No-Remote Memory Access）** 模型：没有远程内存直接访问能力。
+
+一个典型节点通常包含：
+
+- 一个或多个 CPU；
+- RAM；
+- disk / I/O device；
+- communication processor 或 NIC；
+- 通过互联网络与其他节点通信。
+
+共享内存和消息传递的核心区别如下：
+
+| 维度 | Shared Memory Multiprocessor | Message Passing Multicomputer |
+|---|---|---|
+| 地址空间 | 全局唯一地址空间 | 每个节点私有地址空间 |
+| 通信方式 | 共享变量，`load/store` | 显式发送/接收消息 |
+| 硬件支持 | cache coherence / memory consistency | 网络通信、消息路由 |
+| 编程直觉 | 更像多线程程序 | 更像分布式程序 |
+| 主要挑战 | 一致性、同步、共享数据竞争 | 通信延迟、消息划分、数据分布 |
+
+### UMA / NUMA / COMA
+
+共享内存 MIMD 系统又可以按照访存模型进一步分为 UMA、NUMA 和 COMA。
+
+#### UMA：Uniform Memory Access
+
+**UMA（Uniform Memory Access，一致/均匀存储访问）** 指所有处理器访问任意共享内存单元的时间相同。
+
+特点：
+
+- 物理内存被所有处理器均匀共享；
+- 每个处理器访问任意 memory word 的时间相同；
+- 每个处理器可以带 private cache 或 private memory；
+- 常见实现包括基于 bus、crossbar 或 multistage network 的集中式共享内存。
+
+UMA 也称为：
+
+```text
+SMP = Symmetric shared-memory multiprocessor
+    = centralized shared-memory multiprocessor
+```
+
+这里的 symmetric 强调每个处理器地位对等，不存在某个处理器访问某段共享内存天然更近。
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260608231309.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260608231356.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+#### NUMA：Non-Uniform Memory Access
+
+**NUMA（Non-Uniform Memory Access，非均匀存储访问）** 中，每个处理器或节点附近有本地内存，但系统仍然提供统一地址空间。
+
+特点：
+
+- 所有 CPU 共享一个统一地址空间；
+- 处理器可以用 `LOAD` / `STORE` 访问远程内存；
+- 访问本地内存更快，访问远程内存更慢；
+- 处理器可以使用 cache；
+- 常见于分布式共享内存系统。
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260608231745.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+NUMA 又分为：
+
+1. **NC-NUMA（Non Cache-coherent NUMA）**
+   - 不提供 cache coherence；
+   - 远程访问代价不能被 cache 一致性机制隐藏；
+   - 程序员或系统软件需要更显式地处理数据放置和一致性。
+
+2. **CC-NUMA（Cache-coherent NUMA）**
+   - 提供 cache coherence；
+   - 远程数据可以缓存在本地 cache 中；
+   - 硬件/协议维护多个 cache 副本之间的一致性。
+
+NUMA 也称为：
+
+```text
+DSP = Distributed Shared-memory Processor
+```
+<div style="display: flex; gap: 16px; justify-content: center; align-items: flex-start; flex-wrap: wrap; margin: 12px 0;">
+  <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260608231450.png"  style="width: 420px; max-width: 48%; height: auto; display: block; margin: 0 auto;" />
+
+  <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260608231530.png"  style="width: 420px; max-width: 49%; height: auto; display: block; margin: 0 auto;" />
+</div>
+
+#### COMA：Cache Only Memory Access
+
+**COMA（Cache Only Memory Access）** 可以看作 NUMA 的一种特殊形式。
+
+特点：
+
+- 每个处理器节点中没有传统意义上的固定内存层次；
+- 所有 cache 共同构成一个全局地址空间；
+- 数据块可以在运行过程中迁移到使用它的节点附近；
+- 通过 distributed cache directory 支持远程 cache 访问。
+
+COMA 的核心思想是：数据一开始可以放在任意位置，运行时会逐渐迁移到真正需要它的地方。
+
+这类结构的直觉优势是提高数据局部性，但代价是目录维护、数据查找和一致性控制更加复杂。
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260608231540.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260608231803.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+---
+
+### Parallel Processing 的两个挑战
+
+多处理器可以让多个任务并行执行，但并行处理有两个根本挑战。
+
+#### 挑战一：程序可用并行性有限
+
+并不是处理器越多，加速比就越高。程序中总有一部分必须串行执行，或者并行度不足以填满所有处理器。
+
+用小组分工做类比：一个任务从 1 个人变成 8 个人，并不意味着速度一定提升 8 倍。因为：
+
+- 有些工作天然只能顺序做；
+- 分工本身需要设计；
+- 多人之间需要沟通、同步和协调；
+- 协调开销会抵消一部分并行收益。
+
+这可以用 Amdahl 定律量化。
+
+若并行比例为 $f$，处理器数为 $N$，则：
+
+$$
+Speedup = \frac{1}{(1-f)+\frac{f}{N}}
+$$
+
+##### 例子：100 个处理器达到 80 倍加速
+
+题目：假设有 100 个处理器，希望整体加速比达到 80，原始计算中最多允许多少比例是串行的？
+
+设串行比例为 $s$，并行比例为 $1-s$：
+
+$$
+80=\frac{1}{s+\frac{1-s}{100}}
+$$
+
+因此：
+
+$$
+\frac{1}{80}=s+\frac{1-s}{100}
+$$
+
+$$
+0.0125=0.01+0.99s
+$$
+
+$$
+s=\frac{0.0025}{0.99}\approx 0.002525
+$$
+
+也就是：
+
+$$
+s\approx 0.25\%
+$$
+
+结论：要用 100 个处理器达到 80 倍加速，串行部分只能约为 **0.25%**。这个比例极小，说明大规模并行对程序并行性的要求非常苛刻。
+
+##### 例子：100 处理器中部分时间只能用 50 个处理器
+
+题目：一个应用运行在 100 处理器系统上。假设 95% 的时间可以完美使用全部 100 个处理器，剩下 5% 的时间只能选择使用 50 个处理器或串行执行。若希望整体加速比为 80，剩余 5% 中有多少必须使用 50 个处理器？
+
+设使用 50 个处理器的比例为 $x$，串行比例为 $0.05-x$。
+
+改进后执行时间比例为：
+
+$$
+T = \frac{0.95}{100}+\frac{x}{50}+(0.05-x)
+$$
+
+希望：
+
+$$
+T=\frac{1}{80}=0.0125
+$$
+
+代入：
+
+$$
+0.0095+0.02x+0.05-x=0.0125
+$$
+
+$$
+0.0595-0.98x=0.0125
+$$
+
+$$
+x=\frac{0.047}{0.98}\approx 0.04796
+$$
+
+所以：
+
+- 约 **4.8%** 的原始执行时间必须能使用 50 个处理器；
+- 只剩 **0.2%** 可以串行执行。
+
+这个例子说明：高加速比不仅要求“大部分程序可以并行”，还要求并行部分能使用足够多的处理器。
+
+#### 挑战二：通信成本高
+
+即使程序并行性足够，处理器之间也需要通信。通信会导致额外延迟，降低有效加速比。
+
+##### 例子：远程访存通信对 CPI 的影响
+
+题目：一个 32 处理器系统中，远程内存访问延迟为 100 ns。处理器主频为 4 GHz，base CPI 为 0.5，0.2% 的指令涉及远程通信引用。问没有通信的多处理器会快多少？
+
+先计算时钟周期：
+
+$$
+Cycle\ Time = \frac{1}{4GHz}=0.25ns
+$$
+
+远程访问代价为：
+
+$$
+Remote\ request\ cost = \frac{100ns}{0.25ns}=400\ cycles
+$$
+
+CPI 为：
+
+$$
+CPI = Base\ CPI + Remote\ request\ rate \times Remote\ request\ cost
+$$
+
+$$
+CPI = 0.5 + 0.002 \times 400 = 1.3
+$$
+
+没有通信时 CPI 为 0.5，因此无通信系统相对于有通信系统的速度提升为：
+
+$$
+Speedup = \frac{1.3}{0.5}=2.6
+$$
+
+结论：即使只有 **0.2%** 的指令涉及远程通信，也会让 CPI 从 0.5 增加到 1.3，性能损失非常明显。
+
+---
+
+## Cache Coherence
+
+共享内存多处理器中，每个处理器通常都有自己的 private cache。这样可以降低访存延迟，但也带来了核心问题：**同一个内存块可能在多个 cache 中存在多个副本**。
+
+如果其中一个处理器修改了自己的副本，其他处理器的副本就可能变成旧值。这个问题称为 **cache coherence problem（缓存一致性问题）**。
+
+### 为什么共享内存多处理器会出现一致性问题
+
+考虑一个内存位置 `X`，初始值为 1，处理器 A 和 B 都可能读写它。假设最开始两个 cache 中都没有 `X`。
+
+一种典型过程是：
+
+1. B 读取 `X`，B 的 cache 中得到 `X=1`；
+2. A 写入 `X=2`，A 的 cache 和内存中变为新值；
+3. B 再次读取 `X`，如果仍然命中自己的 cache，就会读到旧值 1。
+
+这就违反了共享内存程序员的直觉：既然大家访问同一个地址 `X`，就应该看到同一个最近写入的值。
+
+### Memory Consistency 与 Cache Coherence
+
+#### Cache Coherence：同一地址的多个副本是否一致
+
+Cache coherence 关注的是 **同一个内存位置** 的读写行为。
+
+它要求：
+
+1. 任意处理器对某地址的读取，都应该返回最近写入该地址的值；
+2. 对同一个地址的多个写入，所有处理器看到的顺序必须一致。
+
+正确的一致性协议应该保证：程序员仅通过 loads/stores 的结果，不能判断系统到底有没有 cache、cache 在哪里。换句话说，cache 不能引入新的功能行为差异，只能改变性能。
+
+#### Memory Consistency：不同地址读写之间的顺序规则
+
+Memory consistency 关注的是 **不同内存位置之间** 的读写顺序。
+
+例如：
+
+```text
+Processor 1:          Processor 2:
+A = 0                 B = 0
+...
+A = 1                 B = 1
+if (B == 0) ...       if (A == 0) ...
+```
+
+问题是：不同处理器对 `A` 和 `B` 的读写，应该按照什么顺序被其他处理器观察到？
+
+因此：
+
+```text
+Cache Coherence 解决同一地址的值是否一致。
+Memory Consistency 规定不同地址读写的全局可见顺序。
+```
+
+一个共享内存系统通常需要同时定义：
+
+- **Cache coherence protocol**：维护同一 cache block 的副本一致；
+- **Memory consistency model**：规定不同地址访问的可见顺序。
+
+### Snoopy Coherence Protocols
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260608232047.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+对于 UMA / SMP 系统，由于多个处理器通常连接在同一条共享总线或共享互联结构上，可以使用 **snoopy coherence protocol（监听一致性协议）**。
+
+基本思想：
+
+- 所有 cache 都监听总线上的访问请求；
+- 当某个处理器修改了 private cache 中的数据，会在总线上广播信息；
+- 其他 cache 根据广播消息更新或失效自己的副本。
+
+根据写操作的处理方式，常见策略有两类。
+
+#### Write Invalidate Protocol
+
+写无效协议的思想是：**一个处理器写某个块时，让其他 cache 中该块的副本失效**。
+
+这样写入者获得该块的独占修改权，后续其他处理器若要读这个块，就会 miss，并通过一致性协议获得新值。
+
+优点：
+
+- 对同一数据连续多次写时，只需要第一次让其他副本失效；
+- 不需要每次写都广播新数据；
+- 总线带宽消耗相对较低。
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260608232143.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+#### Write Update / Write Broadcast Protocol
+
+写更新协议的思想是：**一个处理器写某个块时，把新值广播给所有持有该块副本的 cache**。
+
+优点：其他处理器的副本可以保持有效。
+
+缺点：每次写都需要广播新数据，带宽开销大。老师强调，更新策略和无效策略没有绝对优劣，需要看访问模式和系统设计。
+
+#### Write-through 与 Write-back
+
+Snoopy protocol 还要结合 cache 写策略理解。
+
+1. **Write-through**
+
+每次写 cache line 的同时，也写入对应内存。因此内存始终保持最新。
+
+2. **Write-back**
+
+写操作只修改 cache，并设置 dirty/modified 状态，表示 cache 中数据最新、内存中过期。该行最终会在替换或被其他处理器请求时写回内存。
+
+Write-back 能减少内存写流量，但一致性协议更复杂。
+
+#### Write-through + No-write Allocation 的基本行为
+
+对于 write-through cache with no-write allocation，可以按本地请求和远程请求理解：
+
+| 请求 | 行为 |
+|---|---|
+| Local Read Hit | 使用本地 cache 数据 |
+| Local Read Miss | 从 memory 取数 |
+| Local Write Hit | 修改 cache 和 memory，同时使其他副本失效 |
+| Local Write Miss | 直接修改 memory，不一定把块调入 cache |
+| Remote Write | 本地若有该块副本，则 invalidate |
+
+---
+
+### MSI Protocol
+
+**MSI** 是写无效监听协议的经典实现。它给每个 cache block 增加三种状态。
+
+| 状态 | 含义 |
+|---|---|
+| I = Invalid | 当前 cache block 无效，不能使用 |
+| S = Shared | 当前 block 可能被多个 cache 共享，数据与内存一致 |
+| M = Modified | 当前 block 已被本 cache 修改，数据有效但内存过期；该 block 在本 cache 中独占 |
+
+MSI 的关键规则：
+
+- 读 miss：从内存或其他 cache 获取数据，通常进入 S；
+- 写 shared block：广播 invalidate，使其他副本进入 I，本地进入 M；
+- 写 invalid block：先获得该块和独占权，再写入，进入 M；
+- 其他处理器读到本地 M block：本地需要提供或写回最新数据，状态通常降级为 S。
+
+#### 例子：4-line direct-mapped write-back cache
+
+题目设定：
+
+- 3 个 core：Core 0、Core 1、Core 2；
+- 每个 core 有 4 行 direct-mapped write-back cache；
+- 使用 basic write invalidation snooping protocol；
+- `I/S/M` 分别表示 Invalid / Shared / Modified。
+
+初始状态如下。
+
+| Core | Line | State | Addr | Data |
+|---|---:|---|---|---|
+| C0 | 0 | I | A100 | 0000 |
+| C0 | 1 | S | A104 | 0104 |
+| C0 | 2 | M | A108 | 0208 |
+| C0 | 3 | I | A10C | 0000 |
+| C1 | 0 | S | A100 | 0100 |
+| C1 | 1 | S | A104 | 0104 |
+| C1 | 2 | I | A108 | 0000 |
+| C1 | 3 | S | A11C | 011C |
+| C2 | 0 | I | A000 | 0000 |
+| C2 | 1 | S | A104 | 0104 |
+| C2 | 2 | I | A108 | 0000 |
+| C2 | 3 | M | A10C | 020C |
+
+内存初始状态：
+
+| Addr | Data |
+|---|---|
+| A100 | 0100 |
+| A104 | 0104 |
+| A108 | 0108 |
+| A10C | 010C |
+| A110 | 0110 |
+| A114 | 0114 |
+| A118 | 0118 |
+| A11C | 011C |
+
+##### 示例：`C0, R, A100`
+
+`A100` 映射到 C0 的 line 0。C0 line 0 当前为 I，因此 read miss。
+
+内存返回 `0100` 给 C0：
+
+```text
+C0 Read Miss
+Memory return 0100 to C0
+C0.0 (S, A100, 0100)
+```
+
+##### Action 1：`C0, R, A10C`
+
+`A10C` 映射到 C0 的 line 3。C0 line 3 当前为 I，因此 C0 read miss。
+
+但 C2 line 3 中有 `A10C` 且状态为 M，说明 C2 拥有最新值，内存中的 `A10C=010C` 已经过期。
+
+处理过程：
+
+```text
+C0 Read miss
+C2 write back A10C
+Memory A10C, 010C -> 020C
+C2.3 (S, A10C, 020C)
+Memory returns 020C to C0
+C0.3 (S, A10C, 020C)
+```
+
+要点：当其他 cache 中有 M 状态副本时，读请求不能直接相信内存，必须先让 M 状态拥有者写回或提供最新数据。
+
+##### Action 2：`C1, W, A104, 0204`
+
+C1 line 1 中已有 `A104`，状态为 S，因此这是 write hit on shared block。
+
+写无效协议要求 C1 写入前使其他副本失效。C0 line 1 和 C2 line 1 都有 `A104` 的 S 副本，因此都被 invalidated。
+
+处理过程：
+
+```text
+C1 write hit
+C0 invalidation
+C0.1 (I, A104, 0104)
+C2 invalidation
+C2.1 (I, A104, 0104)
+C1.1 (M, A104, 0204)
+```
+
+注意：write-back 策略下，C1 写完后进入 M，内存中的 `A104` 暂时没有更新。
+
+##### Action 3：`C0, W, A118, 0308`
+
+`A118` 映射到 C0 line 2。C0 line 2 当前是 `A108`，状态为 M，数据为 `0208`。
+
+因此 C0 要把 `A108` 这个 dirty block 写回内存，然后取入 `A118`，再写入新值。
+
+处理过程：
+
+```text
+C0 write miss
+C0 write back A108
+Memory A108, 0108 -> 0208
+Memory returns 0118 to C0
+C0.2 (M, A118, 0118)
+C0.2 (M, A118, 0308)
+```
+
+要点：写 miss 需要替换本地 cache line；如果被替换行是 M，必须先 write back。
+
+### MESI 与 MOESI
+
+MSI 中，读入一个没有任何其他 cache 持有的块时，也只能放入 S。这样如果随后本处理器写这个块，还需要广播一次 bus transaction 从 S 变为 M。
+<div style="display: flex; gap: 16px; justify-content: center; align-items: flex-start; flex-wrap: wrap; margin: 12px 0;">
+  <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260608232434.png"  style="width: 420px; max-width: 48%; height: auto; display: block; margin: 0 auto;" />
+
+  <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260608232446.png"  style="width: 420px; max-width: 48%; height: auto; display: block; margin: 0 auto;" />
+</div>
+
+**MESI** 增加了一个状态 E（Exclusive）来优化这种情况。
+
+| 状态 | 含义 |
+|---|---|
+| M = Modified | 本 cache 独占且已修改，内存过期 |
+| E = Exclusive | 本 cache 独占但未修改，内存最新 |
+| S = Shared | 多个 cache 可能有副本，内存最新 |
+| I = Invalid | 无效 |
+
+E 状态的关键价值：
+
+- 如果读 miss 时没有其他 cache 持有该 block，则本地进入 E；
+- E 状态下本地写 hit 可以 **silent upgrade** 到 M，不需要总线广播；
+- 如果其他处理器读该 block，则 E 降级为 S。
+
+#### MESI 状态变化例子
+
+假设四个处理器 P0/P1/P2/P3 起始都没有块 `a`。
+
+| 处理器活动 | P0 | P1 | P2 | P3 |
+|---|---|---|---|---|
+| Initial state | I | I | I | I |
+| P0 reads a | E | I | I | I |
+| P1 reads a | S | S | I | I |
+| P2 reads a | S | S | S | I |
+| P3 writes a | I | I | I | M |
+| P0 reads a | S | I | I | S |
+
+这个例子体现了 MESI 的两条核心逻辑：
+
+- 第一个读取者若没有共享者，可以进入 E；
+- 一旦出现多个读取者，就必须进入 S；
+- 写入者需要使其他共享者失效，并进入 M。
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260608232703.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+1. **If P0 writes to Block 0, what happens to its coherency state?**
+
+P0 的 Block 0 已经是 M，写命中后仍然保持 M。
+
+2. **If P1 writes to Block 1, is Block 1 on P0 invalidated?**
+
+不一定看 cache line 编号，要看是否是同一个 memory block。图中 P1 的 Block 1 tag 为 `8000`，P0 的 Block 1 tag 为 `4000`，不是同一个块，因此 P0 的 Block 1 不会被 invalidated。
+
+3. **If P1 brings in Block M for reading, and no other cache has a copy, what state is it cached in?**
+
+如果没有其他 cache 拥有副本，读入后进入 E 状态。
+
+#### MOESI
+
+**MOESI** 在 MESI 基础上增加 O（Owned）状态。
+
+O 状态表示：
+
+- 该 cache 拥有最新数据；
+- 内存中的副本已经过期；
+- 其他 cache 可以持有 shared copy；
+- modified block 可以降级为 owned，而不必立刻写回内存。
+
+MOESI 可以减少某些共享读场景下的写回开销，但状态机更复杂。课程中重点掌握 MSI 和 MESI。
+
+### Directory-Based Coherence Protocol
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260608232759.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+Snoopy protocol 适合 UMA / SMP，因为所有处理器都能监听共享总线。但在 NUMA / distributed shared memory 中，节点数更多、互联网络更复杂，不可能让所有请求都广播到所有节点。
+
+因此 NUMA 通常使用 **directory protocol（目录协议）**。
+
+基本思想：
+
+- 每个节点增加 directory；
+- directory 记录每个内存块的共享状态；
+- directory 维护哪些 cache 持有该块副本、该块是否 dirty、谁是 owner；
+- 当某处理器想写共享块时，directory 只向持有副本的节点发送 invalidate 消息。
+
+这是一种点对点的一致性维护方式，避免了全局广播。
+
+#### Directory 的三种状态
+
+对每个 block，directory 至少维护三种状态。
+
+| 状态 | 含义 |
+|---|---|
+| Uncached | 没有任何节点缓存该 block |
+| Shared | 一个或多个节点缓存该 block，内存中数据最新 |
+| Modified / Exclusive | 只有一个节点缓存该 block 且已写入，内存中过期；该节点是 owner |
+
+#### 状态转移规则
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260608232825.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+##### Uncached block
+
+- **Read miss**：把数据发给请求节点，请求节点成为唯一 sharer，block 变为 Shared。
+- **Write miss**：把数据发给请求节点，请求节点成为 owner，block 变为 Exclusive/Modified。
+
+##### Shared block
+
+- **Read miss**：从内存把数据发给请求节点，并把请求节点加入 sharing set。
+- **Write miss**：把数据发给请求节点，同时向所有 sharers 发送 invalidation，sharing set 只保留请求节点，block 变为 Exclusive/Modified。
+
+##### Exclusive / Modified block
+
+- **Read miss**：directory 向 owner 发送 data fetch，owner 提供数据；block 变为 Shared，旧 owner 和请求者都在 sharer set 中，必要时数据写回内存。
+- **Data write back**：owner 写回后，block 变为 Uncached，sharer set 清空。
+- **Write miss**：directory 通知旧 owner invalidate 并把数据交给 directory；请求者成为新 owner，block 保持 Exclusive/Modified。
+
+Directory protocol 的核心收益是可扩展性更好，代价是：
+
+- 每个内存块都需要目录状态；
+- 目录查找和消息交互会增加延迟；
+- 协议状态机比 snoopy protocol 更复杂。
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260608232921.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+### False Sharing
+
+**False sharing（伪共享）** 指多个线程访问的是不同变量，但这些变量落在同一个 cache line 中，导致 coherence protocol 把它们当成同一个共享块来维护。
+
+典型代码如下：
+
+```java
+class Pointer {
+    volatile long x;
+    volatile long y;
+}
+```
+
+如果线程 1 不断写 `x`，线程 2 不断写 `y`，从程序语义看二者没有共享变量。但如果 `x` 和 `y` 位于同一个 cache line，那么：
+
+- 线程 1 写 `x` 会使线程 2 所在核中的该 cache line 失效；
+- 线程 2 写 `y` 又会使线程 1 所在核中的该 cache line 失效；
+- 两个核不断互相 invalidate，产生大量 coherence traffic。
+
+这就是“假共享”：变量层面没有共享，cache line 粒度上发生了共享。
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260608233011.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+#### 避免 false sharing 的方法
+
+常见方法是让频繁被不同线程写入的变量落在不同 cache line 中。
+
+1. **手动 padding**
+
+```java
+class Pointer {
+    volatile long x;
+    long p1, p2, p3, p4, p5, p6, p7;
+    volatile long y;
+}
+```
+
+在 `x` 和 `y` 中间插入填充字段，使它们分离到不同 cache line。
+
+2. **封装并 padding 每个对象**
+
+```java
+class Pointer {
+    MyLong x = new MyLong();
+    MyLong y = new MyLong();
+}
+
+class MyLong {
+    volatile long value;
+    long p1, p2, p3, p4, p5, p6, p7;
+}
+```
+
+3. **使用语言/运行时提供的 cache line padding 注解**
+
+```java
+@sun.misc.Contended
+class MyLong {
+    volatile long value;
+}
+```
+
+实际工程中应结合运行时参数、对象布局和 JVM 版本判断 padding 是否生效。
+
+---
+
+## Memory Consistency
+
+Memory consistency model 规定多处理器系统中，不同处理器对不同地址执行读写操作时，哪些顺序必须被其他处理器观察到。
+
+### Sequential Consistency
+
+**Sequential consistency（顺序一致性）** 是最容易理解的模型。
+
+它要求执行结果等价于某个全局串行顺序，并且：
+
+- 每个处理器内部的访存顺序保持程序顺序；
+- 不同处理器之间的访存可以任意交错；
+- 所有处理器看到的是同一个交错顺序。
+
+顺序一致性直观、容易编程，但会限制硬件优化。
+
+例如：
+
+```text
+Processor 1:          Processor 2:
+A = 0                 B = 0
+...
+A = 1                 B = 1
+if (B == 0) ...       if (A == 0) ...
+```
+
+如果处理器允许 store buffer、乱序执行、写读重排，就可能出现程序员直觉之外的结果。Memory consistency model 就是用来明确这些行为是否合法。
+
+### Relaxed Consistency Models
+
+放松一致性模型的核心思想是：**允许普通读写乱序完成，但用同步操作显式建立顺序约束**。
+
+记号：
+
+```text
+X -> Y
+```
+
+表示操作 X 必须在操作 Y 之前完成。
+
+顺序一致性要求四类顺序都保持：
+
+```text
+R -> W
+R -> R
+W -> R
+W -> W
+```
+
+不同 relaxed model 会放松其中一部分：
+
+| 模型 | 放松内容 | 直觉 |
+|---|---|---|
+| Total Store Ordering / Processor Consistency | 放松 `W -> R` | 允许写后读重排，常由 store buffer 导致 |
+| Partial Store Order | 放松 `W -> W` 和 `W -> R` | 允许不同写之间也重排 |
+| Weak Ordering / Release Consistency | 放松 `R -> W`、`R -> R`、`W -> W`、`W -> R` | 普通读写可高度重排，用 acquire/release 等同步操作约束 |
+
+放松一致性的意义是提高性能，但程序员必须通过锁、barrier、atomic、fence 等同步原语明确建立 happens-before 关系。
+
+---
+
+## MIMD: MPP / COW / WSC
+
+除了 UMA / NUMA / COMA 这类共享内存多处理器，MIMD 还包括更大规模、更松耦合的系统组织。
+
+### MPP：Massively Parallel Processor
+
+**MPP（Massively Parallel Processor，大规模并行处理机）** 是由数百个甚至更多处理器组成的大规模并行计算系统。
+
+特点：
+
+- 通常使用标准商用 CPU 作为处理器；
+- 使用高性能专用互联网络，追求低延迟和高带宽；
+- 具有较强 I/O 能力；
+- 支持专门的容错处理；
+- 过去主要用于科学计算、工程仿真等计算密集场景，也逐渐用于商业和网络应用。
+
+MPP 的开发难度高、价格高、市场相对有限，常被视为高性能计算能力的体现。
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260608233043.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+### COW：Cluster of Workstations
+
+**COW（Cluster of Workstations，工作站集群）** 由大量 PC 或工作站通过商用网络连接而成。
+
+特点：
+
+- 可以用商用组件组装；
+- 成本较低，性价比高；
+- 每个节点更像一台完整计算机，有自己的处理器、内存、本地磁盘和 I/O；
+- 节点之间通常通过 Ethernet、Myrinet、ATM 等 commodity network 连接；
+- 可分为 centralized 和 decentralized 两类。
+
+COW 相比 MPP 更松耦合，硬件专用性较低，但成本优势明显。
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260608233052.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+### WSC：Warehouse-Scale Computer
+
+**WSC（Warehouse-Scale Computer，仓库级计算机）** 可以理解为超大规模 cluster。大量服务器通过网络连接，在软件系统协调下共同对外提供服务。
+
+典型例子是 Google WSC。
+
+从体系结构角度看，WSC 的重点已经不只是单个处理器性能，而是：
+
+- 大规模请求级并行；
+- 网络与存储系统；
+- 容错和高可用；
+- 能耗、冷却、成本；
+- 集群调度与系统软件。
+
+---
+
+## Domain-Specific Architectures
+
+**DSA（Domain-Specific Architecture，领域专用架构）**。
+
+DSA 的背景是：Moore’s Law 和 Dennard Scaling 放缓后，通用处理器很难继续依靠单核频率和复杂微结构获得高性能。因此，体系结构开始更多转向特定领域专用加速。
+
+### 通用处理器过去依赖的复杂机制
+
+Moore’s Law 曾经让通用处理器可以不断加入复杂硬件：
+
+- deep memory hierarchy；
+- wide SIMD units；
+- deep pipelines；
+- branch prediction；
+- out-of-order execution；
+- speculative prefetching；
+- multithreading；
+- multiprocessing。
+
+这些机制的目标是：在软件不太关心底层架构的情况下，尽可能从程序中自动提取性能。
+
+### DSA 的设计原则
+
+DSA 的设计更强调让硬件结构匹配领域特征。基本原则包括：
+
+1. 使用 dedicated memories，减少数据移动；
+2. 把资源投入到更多 arithmetic units 或更大的专用存储；
+3. 使用最适合该领域的并行形式；
+4. 把数据大小和类型降到领域所需的最简单形式；
+5. 使用 domain-specific programming language 或领域专用软件栈。
+
+### CNN 与 TPU 例子
+
+神经网络是 DSA 的典型应用场景。
+
+CNN 中常见的关键计算包括：
+
+- matrix-vector multiply；
+- matrix-matrix multiply；
+- convolution；
+- ReLU；
+- sigmoid。
+
+可以利用 batch 复用权重，提高 operational intensity；也可以使用 quantization，把数据压缩为 8-bit 或 16-bit fixed point。
+
+Google TPU 是典型 DNN ASIC：
+
+- 具有 `256 × 256` 的 8-bit matrix multiply unit；
+- 使用较大的 software-managed scratchpad；
+- 作为 PCIe bus 上的 coprocessor；
+- 通过 TensorFlow 等软件栈暴露给上层程序。
+
+TPU ISA 中的典型操作包括：
+
+- `Read_Host_Memory`：从 CPU memory 读入 unified buffer；
+- `Read_Weights`：把权重读入 Weight FIFO；
+- `MatrixMatrixMultiply/Convolve`：执行矩阵乘、向量矩阵乘、卷积等；
+- `Activate`：计算激活函数；
+- `Write_Host_Memory`：把结果写回 host memory。
+
+TPU 与 DSA 原则的对应关系：
+
+| DSA 原则 | TPU 中的体现 |
+|---|---|
+| 使用专用存储 | 24 MiB dedicated buffer，4 MiB accumulator buffers |
+| 投入算术单元和专用存储 | 相比 server-class CPU 有大量矩阵乘硬件 |
+| 匹配领域并行形式 | 利用 2D SIMD / systolic-array 风格并行 |
+| 降低数据类型复杂度 | 主要使用 8-bit integers |
+| 配套领域软件栈 | 使用 TensorFlow |
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260608233144.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
