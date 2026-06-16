@@ -137,18 +137,27 @@ draft: false
 2. **System crash**
 3. **Disk failure**
 
+这三类失败对应的恢复尺度不同：
+
+- transaction failure：只处理单个事务，其他事务可以继续执行
+- system crash：整个 DBMS / OS / 机器掉电，需要重启后统一恢复
+- disk failure：数据库或日志所在介质本身损坏，需要备份、dump 或远程备份参与恢复
+
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260616133153.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
 ### Transaction failure
-
 事务失败分两种：
 
 - **Logical errors**：事务因为自身内部条件不能继续执行
   - 例如输入错误、数据不存在、溢出、资源限制等
+  - 违反完整性约束，例如插入重复主键、违反外键约束
 - **System errors**：数据库系统因为某种错误条件终止一个活跃事务
   - 典型例子：deadlock
+  - 事务被选为 deadlock victim 时，会被系统强制 rollback
 
 这类失败通常只影响某个事务。恢复动作是 **abort / rollback** 该事务。
+
+关键问题是：事务没有执行到 `commit`，但已经做了部分更新。根据 atomicity，这些部分更新必须全部撤销。撤销的依据就是 log 中记录的 old value。
 
 ### System crash
 
@@ -160,6 +169,8 @@ draft: false
 
 这个假设依赖数据库系统和硬件层的大量完整性检查。
 
+可以把 system crash 想象成“突然掉电”：正在并发执行的事务中，有些还没完成，需要 undo；有些已经提交，但修改的数据可能还停留在 buffer，没有真正写到磁盘，需要 redo。因此系统重启后必须先进入 recovery 过程，不能直接对外服务。
+
 ### Disk failure
 
 磁盘失败指 head crash 或类似故障破坏磁盘上的全部或部分数据。
@@ -169,6 +180,8 @@ draft: false
 - 非易失存储内容也可能丢失
 - 假设破坏是可检测的
 - 磁盘通常用 checksum 检测坏块或不完整写入
+
+磁盘失败的朴素恢复思路是：先恢复最近一次 backup / dump，再把 backup 之后已经提交事务的日志重新做一遍。这个过程能恢复正确性，但会带来不可用时间，因此银行等关键系统通常还会配置 remote backup / hot-spare，实现异地热切换。
 
 ---
 
@@ -208,6 +221,8 @@ draft: false
 
 现实中没有真正的 stable storage，只能通过多个非易失介质上的多副本近似实现。
 
+这里有一个递归问题：数据库修改靠 log 恢复，但 log 本身也要存储。如果 log 所在磁盘损坏，恢复依据也会丢失。因此理论上假设 log 放在 stable storage 上，工程上用多副本、RAID、远程副本近似实现。
+
 ### Stable Storage 的近似实现
 
 基本方法：
@@ -215,6 +230,8 @@ draft: false
 - 每个 logical block 维护多个 physical copies
 - 多个副本放在不同磁盘上
 - 也可以放在 remote sites，防火灾、洪水等灾难
+- 副本数量越多，单个磁盘或单个机房故障导致全部副本丢失的概率越低
+- 副本最好放在独立故障域中：不同磁盘、不同机器、不同机房，甚至异地
 
 一次 block transfer 可能有三种结果：
 
@@ -256,6 +273,8 @@ output(B)  : 把主存中的 buffer block B 写回磁盘
 
 为了简化讨论，本章假设每个 data item 都完整存放在一个 block 内。
 
+注意 `input / output` 是磁盘块和内存 buffer 之间的移动；事务内部的 `read / write` 是 buffer 和事务私有工作区之间的数据移动。恢复系统关心这两个层次的错位：一个事务可能已经 `write(X)` 修改了 buffer，但包含 `X` 的 block 还没有 `output` 到磁盘。
+
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260616133522.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
 ### Transaction 的 private work-area 
@@ -269,6 +288,12 @@ output(B)  : 把主存中的 buffer block B 写回磁盘
 注意：
 
 > `write(X)` 只是把值写到内存 buffer，不一定马上执行 `output(BX)` 写回磁盘。
+
+这句话是后面 redo / undo 的根源：
+
+- 已提交事务的更新可能只在 buffer 里，crash 后丢失，所以要 redo
+- 未提交事务的更新可能已经 output 到磁盘，所以要 undo
+- commit 和 data page 写盘没有一一对应关系，真正的边界由 log 决定
 
 事务规则：
 
@@ -293,6 +318,7 @@ output(B)  : 把主存中的 buffer block B 写回磁盘
 
 - 并发控制使用 **strict 2PL**，所以没有 dirty read
 - 恢复算法应尽量具备 **idempotence（幂等性）**
+- strict 2PL 的意义是避免 dirty read，使一个未提交事务的脏数据不会被其他事务继续依赖
 
 幂等性指：
 
@@ -326,6 +352,10 @@ output(B)  : 把主存中的 buffer block B 写回磁盘
 
 更新日志必须在对应数据库修改前写出。
 
+日志通常是顺序追加的流水账文件。相比在磁盘上到处随机修改 data page，顺序写 log 的 I/O 代价更低，所以数据库愿意先把每次更新记入 log，再择机把脏页刷回磁盘。
+
+`Ti` 是事务的唯一标识。实际系统中还会维护每个事务自己的日志链，例如每条日志记录指向同一事务的前一条日志记录，这样 rollback 时不需要从整个 log 末尾逐条搜索该事务的记录。
+
 :::EXAMPLE
 log 例子：
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260616141725.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
@@ -358,6 +388,13 @@ log 例子：
 - 如果 log 已经写入，但数据库页没写入，崩溃后可以 redo
 
 WAL 是 log-based recovery 的核心约束。
+
+WAL 可以分成两个约束理解：
+
+1. **data page 写盘前**：该 page 相关的所有 update log 必须已经写到 stable storage
+2. **commit log 写盘前**：该事务之前的所有 log records 必须已经写到 stable storage
+
+因此，事务是否已经提交的唯一可靠标志是：`<Ti commit>` 已经进入 stable storage。commit log 只停在 log buffer 里时，系统 crash 后只能把它当成未提交事务处理。
 
 ### Concurrency Control and Recovery
 
@@ -441,6 +478,13 @@ commit 只要求 commit log 稳定落盘
 ```
 
 这正是 **no-force policy** 的基础。
+
+```text
+事务 commit 不等于数据页都写盘
+事务 commit 只要求 commit log 及其之前日志稳定落盘
+```
+
+这也是 group commit 能成立的原因：多个事务的 commit log 可以在同一个 log block 中一起刷出，刷出后这些事务一起变成 committed。
 
 :::EXAMPLE
 log / write / output 例子：
@@ -535,6 +579,16 @@ log 中有 <Ti start>
 
 > abort 本身也是由一系列补偿动作构成的。崩溃恢复时要 redo 这些补偿动作，保证事务已经被完整撤销。
 
+所以判断事务状态时不要只看是否出现过 update log。正确顺序是：
+
+```text
+有 commit log：该事务已经提交，redo
+有 abort log：该事务已经完整回滚，redo 其补偿动作
+只有 start / update，没有 commit / abort：crash 时未完成，undo
+```
+
+这也是为什么恢复算法先 redo repeating history，再 undo incomplete transactions。
+
 ### Repeating History
 
 如果一个事务之前已经被 undo，并且 `<Ti abort>` 已经写入 log，之后系统又崩溃，那么 recovery 会 redo 这个事务的所有历史动作。
@@ -602,6 +656,13 @@ log 中有 <Ti start>
 
 > 执行 checkpoint 时需要暂停所有更新。
 
+它的高代价主要来自两点：
+
+- checkpoint 要强制刷出 log buffer，满足 WAL
+- 还要集中刷出所有 modified buffer blocks，形成大量同步 I/O
+
+因此基本 checkpoint 虽然让恢复更快，但正常运行时会造成明显停顿。
+
 后面会用 **fuzzy checkpointing** 降低这个开销。
 
 ### checkpoint 后的恢复范围
@@ -626,6 +687,8 @@ checkpoint 时活跃事务是 `{T2, T4}`。
 - checkpoint 后开始的新事务
 
 `T1` 和 `T3` 已经在 checkpoint 前完成并落盘，不再需要考虑。
+
+易错点：checkpoint 中的列表 `L` 只记录 checkpoint 时仍 active 的事务。`L` 中事务在 checkpoint 前的日志仍可能需要用于 undo，所以恢复时可能还要继续向前找到这些事务的 `<Ti start>`。
 :::
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260616142722.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
@@ -853,6 +916,8 @@ undo phase: 撤销 T2，并写 <T2 abort>
 
 现代数据库通常使用 **no-force**。
 
+如果 commit 时已经把数据页全部刷盘，当然不需要 redo；但这样 commit 代价太高。实际数据库通常选择 no-force，只要求 commit log 落盘，数据页之后由 buffer manager 自己调度写出。
+
 #### Steal / No-steal
 
 **No-steal policy**：未提交事务修改过的 block 不能写到磁盘。
@@ -968,6 +1033,14 @@ DBMS 先按 WAL 写 log，再把 page 写到 database file
 
 这保证 fuzzy checkpoint 是安全的。
 
+要点是 `last_checkpoint` 指针：
+
+- 写出 `<checkpoint L>` 并不立刻说明这个 checkpoint 已经“算数”
+- 只有 checkpoint 开始时记录下来的脏页都陆续写出后，系统才能把 `last_checkpoint` 指向它
+- recovery 从 `last_checkpoint` 指向的 checkpoint 开始，而不一定从 log 中最后出现的 checkpoint 记录开始
+
+因此 fuzzy checkpoint 的“模糊”体现在：checkpoint 记录先出现，脏页在后台慢慢写出，checkpoint 完成状态由额外指针确认。
+
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260616142954.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
 ---
@@ -1004,6 +1077,8 @@ DBMS 先按 WAL 写 log，再把 page 写到 database file
 
 思想类似 fuzzy checkpointing。
 
+普通文件会定期手动保存，数据库也要定期备份。但数据库不能只靠昨天晚上的备份，因为从备份到故障之间已经有大量提交事务。恢复时必须“备份 + 备份之后的提交日志 redo”配合使用。
+
 ---
 
 ## Remote Backup Systems
@@ -1013,6 +1088,8 @@ DBMS 先按 WAL 写 log，再把 page 写到 database file
 目标：
 
 > 即使 primary site 被破坏，backup site 也能继续处理事务。
+
+银行系统举例：深圳、上海、北京等多个异地节点保存账户数据和日志。某个 site 故障时，系统需要快速切换到备份 site，减少甚至避免对用户可见的不可用时间。
 
 ### Failure Detection
 
@@ -1060,6 +1137,8 @@ primary site failure 和 communication link failure 要区分
 - 本地持续应用更新
 - primary 失败后，只需要 rollback incomplete transactions
 - 接管速度非常快
+
+Hot-spare 的本质是把 recovery 工作提前做：backup 不是等 primary 坏了才开始读 log，而是在日志到达时持续 redo。故障发生时剩下的主要工作是检测故障、回滚未完成事务、切换入口。
 
 ### One-safe / Two-very-safe / Two-safe
 
@@ -1158,6 +1237,8 @@ commit log 同时写到 primary 和 backup 后，事务才 commit
 
 这类操作被称为 **logical operations**。
 
+B+-tree：如果插入或删除时一直持有树上底层节点的锁直到事务结束，并发度会很差。early lock release 允许提前释放这些热点结构上的锁，但代价是恢复时不能简单把 page 或 record 恢复成 old value。
+
 ---
 
 ### Redo 仍然使用 Physical Redo
@@ -1174,6 +1255,8 @@ commit log 同时写到 primary 和 backup 后，事务才 commit
 - redo 仍然 physical
 
 这不会影响 early lock release。
+
+直觉：redo 要把系统带回 crash 发生时的历史状态，必须重演当时已经发生过的物理变化；undo 是把未完成事务的语义效果取消，所以可以用反向逻辑操作实现。
 
 ---
 
@@ -1343,7 +1426,6 @@ Repeating history + Undo incomplete transactions
 
 ARIES 可以理解为前面基本恢复算法的工程化增强版。
 
-
 ### ARIES 的核心改进
 
 相比前面的简化算法，ARIES 的主要改进包括：
@@ -1509,6 +1591,13 @@ dirty pages 在后台持续写出。
 
 因此 ARIES checkpoint 开销很低，可以频繁执行。
 
+这里和基本 checkpoint 的差别必须分清：
+
+- 基本 checkpoint：checkpoint 时强制刷出 dirty pages
+- ARIES checkpoint：只把 DirtyPageTable 和 active transaction list 写进 checkpoint log，dirty pages 后台持续写出
+
+所以 ARIES 中 `RedoLSN` 可能早于 checkpoint log record 的 LSN，因为 checkpoint 时 dirty page 并没有被强制写盘。
+
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260616145417.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260616145458.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
@@ -1557,6 +1646,15 @@ Analysis pass 结束后：
 - DirtyPageTable 决定哪些 page 可能需要 redo
 - undo-list 中的事务必须 rollback
 
+记忆方式：analysis pass 是“恢复现场”，恢复出 crash 时的两个表：
+
+```text
+DirtyPageTable：哪些页的磁盘版本可能不是最新
+Active transaction list / undo-list：哪些事务 crash 时还没结束
+```
+
+同时由 DirtyPageTable 中最小的 `RecLSN` 得到 `RedoLSN`。
+
 #### Redo pass
 
 Redo pass 从 `RedoLSN` 开始向前扫描。
@@ -1583,6 +1681,13 @@ repeating history
 ```
 
 但 ARIES 用 `RecLSN + PageLSN` 跳过已经反映在磁盘上的动作。
+
+两个 skip 判断的作用不同：
+
+- page 不在 DirtyPageTable，或者 log.LSN < page.RecLSN：连 page 都不用读，直接跳过
+- 通过前一关后才 fetch page，再用 PageLSN 判断是否真的需要 redo
+
+这样可以减少恢复时的随机 I/O。
 
 #### Undo pass
 
@@ -1743,5 +1848,3 @@ ARIES 支持细粒度锁，例如 index 上的 tuple-level locking。
 - commit 时原子更新 page table pointer
 
 但 shadow paging 在并发事务下表现不好，所以现代数据库主要使用 log-based recovery。
-
----
