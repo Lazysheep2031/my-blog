@@ -1031,8 +1031,6 @@ primary site failure 和 communication link failure 要区分
 
 如果 backup 收不到 heartbeat，需要判断是 primary 坏了还是网络断了。
 
----
-
 ### Transfer of Control
 
 当 backup 接管时：
@@ -1052,8 +1050,6 @@ primary site failure 和 communication link failure 要区分
 3. 追上当前状态后才能重新成为 primary
 ```
 
----
-
 ### Hot-Spare
 
 为了减少 takeover delay，可以使用 **Hot-Spare（热备份）**。
@@ -1064,8 +1060,6 @@ primary site failure 和 communication link failure 要区分
 - 本地持续应用更新
 - primary 失败后，只需要 rollback incomplete transactions
 - 接管速度非常快
-
----
 
 ### One-safe / Two-very-safe / Two-safe
 
