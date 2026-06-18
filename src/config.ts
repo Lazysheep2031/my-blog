@@ -1,5 +1,6 @@
 import type {
 	ExpressiveCodeConfig,
+	GiscusConfig,
 	LicenseConfig,
 	NavBarConfig,
 	ProfileConfig,
@@ -79,6 +80,21 @@ export const licenseConfig: LicenseConfig = {
 	enable: true,
 	name: "CC BY-NC-SA 4.0",
 	url: "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+};
+
+export const giscusConfig: GiscusConfig = {
+	enable: true,
+	repo: "Lazysheep2031/my-blog",
+	repoId: "R_kgDOQ7dnLA",
+	category: "Announcements",
+	categoryId: "DIC_kwDOQ7dnLM4C_Y6H",
+	mapping: "pathname",
+	strict: "0",
+	reactionsEnabled: "1",
+	emitMetadata: "0",
+	inputPosition: "bottom",
+	lang: "zh-CN",
+	loading: "lazy",
 };
 
 export const expressiveCodeConfig: ExpressiveCodeConfig = {

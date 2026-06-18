@@ -1,0 +1,115 @@
+---
+import I18nKey from "@i18n/i18nKey";
+import { i18n } from "@i18n/translation";
+import { Icon } from "astro-icon/components";
+import { giscusConfig } from "@/config";
+
+interface Props {
+	class?: string;
+}
+
+const { class: className = "" } = Astro.props;
+const enabled =
+	giscusConfig.enable &&
+	giscusConfig.repo &&
+	giscusConfig.repoId &&
+	giscusConfig.category &&
+	giscusConfig.categoryId;
+---
+
+{enabled && (
+    <section
+        class={`card-base px-6 py-5 md:px-8 md:py-6 mb-4 onload-animation ${className}`}
+        aria-labelledby="comments-title"
+        data-giscus-comments
+    >
+        <div class="flex items-center gap-3 mb-5">
+            <div class="transition h-8 w-8 rounded-lg bg-black/5 dark:bg-white/10 text-black/50 dark:text-white/50 flex items-center justify-center">
+                <Icon name="material-symbols:mode-comment-outline-rounded" class="text-[1.25rem]" />
+            </div>
+            <h2 id="comments-title" class="transition text-xl font-bold text-black/75 dark:text-white/75">
+                {i18n(I18nKey.comments)}
+            </h2>
+        </div>
+
+        <div class="giscus" data-giscus-host></div>
+
+        <script is:inline define:vars={{ giscusConfig }}>
+            (() => {
+                const config = giscusConfig;
+                const GISCUS_ORIGIN = "https://giscus.app";
+
+                const getTheme = () =>
+                    document.documentElement.classList.contains("dark")
+                        ? "dark"
+                        : "light";
+
+                const updateTheme = () => {
+                    const frame = document.querySelector("iframe.giscus-frame");
+                    if (!(frame instanceof HTMLIFrameElement) || !frame.contentWindow) return;
+
+                    frame.contentWindow.postMessage(
+                        {
+                            giscus: {
+                                setConfig: {
+                                    theme: getTheme(),
+                                },
+                            },
+                        },
+                        GISCUS_ORIGIN,
+                    );
+                };
+
+                window.__loadGiscusComments = () => {
+                    document.querySelectorAll("[data-giscus-comments]").forEach((root) => {
+                        const host = root.querySelector("[data-giscus-host]");
+                        if (!(host instanceof HTMLElement) || host.dataset.loaded === "true") return;
+
+                        const script = document.createElement("script");
+                        script.src = `${GISCUS_ORIGIN}/client.js`;
+                        script.async = true;
+                        script.crossOrigin = "anonymous";
+                        script.setAttribute("data-repo", config.repo);
+                        script.setAttribute("data-repo-id", config.repoId);
+                        script.setAttribute("data-category", config.category);
+                        script.setAttribute("data-category-id", config.categoryId);
+                        script.setAttribute("data-mapping", config.mapping);
+                        script.setAttribute("data-strict", config.strict);
+                        script.setAttribute("data-reactions-enabled", config.reactionsEnabled);
+                        script.setAttribute("data-emit-metadata", config.emitMetadata);
+                        script.setAttribute("data-input-position", config.inputPosition);
+                        script.setAttribute("data-theme", getTheme());
+                        script.setAttribute("data-lang", config.lang);
+                        script.setAttribute("data-loading", config.loading);
+
+                        host.dataset.loaded = "true";
+                        host.appendChild(script);
+                    });
+                };
+
+                if (!window.__giscusCommentsBootstrapped) {
+                    window.__giscusCommentsBootstrapped = true;
+
+                    document.addEventListener("astro:page-load", window.__loadGiscusComments);
+                    document.addEventListener("swup:content:replace", window.__loadGiscusComments);
+
+                    if (window.swup?.hooks) {
+                        window.swup.hooks.on("page:view", window.__loadGiscusComments);
+                    } else {
+                        document.addEventListener("swup:enable", () => {
+                            window.swup?.hooks?.on("page:view", window.__loadGiscusComments);
+                        });
+                    }
+
+                    const observer = new MutationObserver(updateTheme);
+                    observer.observe(document.documentElement, {
+                        attributes: true,
+                        attributeFilter: ["class"],
+                    });
+                }
+
+                window.__loadGiscusComments();
+            })();
+        </script>
+    </section>
+)}

@@ -1,5 +1,6 @@
 ---
 import path from "node:path";
+import GiscusComments from "@components/misc/GiscusComments.astro";
 import License from "@components/misc/License.astro";
 import Markdown from "@components/misc/Markdown.astro";
 import I18nKey from "@i18n/i18nKey";
@@ -136,5 +137,7 @@ const jsonLd = {
             </div>
         </a>}
     </div>}
+
+    <GiscusComments />
 
 </MainGridLayout>
