@@ -3,6 +3,8 @@ import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
 import { getCategoryUrl } from "@utils/url-utils.ts";
 
+type PostEntry = CollectionEntry<"posts">;
+
 // // Retrieve posts and sort them by publication date
 async function getRawSortedPosts() {
 	const allBlogPosts = await getCollection("posts", ({ data }) => {
@@ -17,17 +19,82 @@ async function getRawSortedPosts() {
 	return sorted;
 }
 
+function getPostSeriesKey(post: PostEntry): string {
+	const primaryTag = post.data.tags?.[0]?.trim();
+	if (primaryTag) return primaryTag;
+
+	return post.slug.split("/").slice(0, -1).join("/");
+}
+
+function getReadingOrder(post: PostEntry): number {
+	const filename = post.slug.split("/").pop()?.toLowerCase() ?? "";
+
+	if (/^(intro|introduction)$/.test(filename)) return 0;
+
+	const chapterMatch = filename.match(
+		/^(?:chapter|course|lesson|lecture)[-_ ]*(\d+)/,
+	);
+	if (chapterMatch) return Number.parseInt(chapterMatch[1], 10);
+
+	return Number.MAX_SAFE_INTEGER;
+}
+
+function sortSeriesPosts(posts: PostEntry[]) {
+	return posts.sort((a, b) => {
+		const orderA = getReadingOrder(a);
+		const orderB = getReadingOrder(b);
+		if (orderA !== orderB) return orderA - orderB;
+
+		const dateA = new Date(a.data.published).getTime();
+		const dateB = new Date(b.data.published).getTime();
+		if (dateA !== dateB) return dateA - dateB;
+
+		return a.slug.localeCompare(b.slug);
+	});
+}
+
+function applySeriesNavigation(posts: PostEntry[]) {
+	const seriesMap = new Map<string, PostEntry[]>();
+
+	for (const post of posts) {
+		post.data.prevSlug = "";
+		post.data.prevTitle = "";
+		post.data.nextSlug = "";
+		post.data.nextTitle = "";
+
+		const seriesKey = getPostSeriesKey(post);
+		if (!seriesKey) continue;
+
+		const seriesPosts = seriesMap.get(seriesKey) ?? [];
+		seriesPosts.push(post);
+		seriesMap.set(seriesKey, seriesPosts);
+	}
+
+	for (const seriesPosts of seriesMap.values()) {
+		if (seriesPosts.length <= 1) continue;
+
+		const sortedSeriesPosts = sortSeriesPosts(seriesPosts);
+		for (let i = 0; i < sortedSeriesPosts.length; i++) {
+			const post = sortedSeriesPosts[i];
+			const prevPost = sortedSeriesPosts[i - 1];
+			const nextPost = sortedSeriesPosts[i + 1];
+
+			if (prevPost) {
+				post.data.prevSlug = prevPost.slug;
+				post.data.prevTitle = prevPost.data.title;
+			}
+
+			if (nextPost) {
+				post.data.nextSlug = nextPost.slug;
+				post.data.nextTitle = nextPost.data.title;
+			}
+		}
+	}
+}
+
 export async function getSortedPosts() {
 	const sorted = await getRawSortedPosts();
-
-	for (let i = 1; i < sorted.length; i++) {
-		sorted[i].data.nextSlug = sorted[i - 1].slug;
-		sorted[i].data.nextTitle = sorted[i - 1].data.title;
-	}
-	for (let i = 0; i < sorted.length - 1; i++) {
-		sorted[i].data.prevSlug = sorted[i + 1].slug;
-		sorted[i].data.prevTitle = sorted[i + 1].data.title;
-	}
+	applySeriesNavigation(sorted);
 
 	return sorted;
 }
