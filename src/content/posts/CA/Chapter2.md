@@ -702,6 +702,9 @@ $$
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202603301135767.png" alt="Example 2" style="width: 320px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
 而且其中某些段时长不再均匀，例如乘法路径里的某段需要 $2 \Delta t$。  
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260621222858.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
 slides 直接给出的结果是：
 
 $$
