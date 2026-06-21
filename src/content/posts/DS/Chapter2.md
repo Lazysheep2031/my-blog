@@ -1049,7 +1049,7 @@ slides 列出了：
 **例子：求每个系的平均工资**
 
 $$
-\mathcal{G}_{dept\_name},avg(salary)\rightarrow avg\_salary(instructor)
+\mathcal{G}_{dept\_name,avg(salary)\rightarrow avg\_salary}(instructor)
 $$
 
 ![image.png](https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202603102127992.png)
@@ -1064,7 +1064,7 @@ $$
 * 或在聚合表达式中直接写别名
   例如：
   $$
-  dept\_name\mathcal{G} avg(salary) as avg\_sal (instructor)
+  \mathcal{G}_{dept\_name,avg(salary)\rightarrow avg\_salary}(instructor)
   $$
 
 
