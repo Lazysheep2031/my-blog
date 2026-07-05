@@ -4,24 +4,40 @@ published: 2026-03-01
 description: C++ Templates相关笔记
 tags: [CS106L]
 category: 笔记
-draft: false
+draft: true
 ---
 
 本文系统讲解 C++ 模板（Templates）的核心概念与实践技巧，涵盖函数模板的定义与使用、隐式接口（Implicit Interface）的工作原理、结构化绑定（Structured Binding）中值/引用/const 引用的区别、变参模板（Variadic Templates）的语法与应用，以及概念提升（Concept Lifting）如何通过显式约束提升模板代码的可读性和错误诊断质量。重点展示了如何用 iterator 风格编写真正泛型的算法，并引入 C++20 Concepts 作为现代模板约束机制。
 
 ## 目录
 
+- [目录](#目录)
 - [Template Functions](#template-functions)
   - [Example: `myminmax`](#example-myminmax)
-  - [Implicit Interface](#implicit-interface)
-  - [Generic I/O helper](#generic-io-helper打印-minmax-也可以模板化)
-  - [Explicit template arguments](#explicit-template-arguments)
-  - [Structured binding](#structured-binding)
+    - [隐式接口（Implicit Interface）](#隐式接口implicit-interface)
+    - [Generic I/O helper：打印 min/max 也可以模板化](#generic-io-helper打印-minmax-也可以模板化)
+    - [Explicit template arguments](#explicit-template-arguments)
+    - [Structured binding](#structured-binding)
   - [拷贝 vs 引用绑定：`auto` / `auto&` / `const auto&`](#拷贝-vs-引用绑定auto--auto--const-auto)
+    - [值绑定（拷贝/移动）：`auto [a, b] = expr;`](#值绑定拷贝移动auto-a-b--expr)
+    - [引用绑定（可修改原对象）：`auto& [a, b] = obj;`](#引用绑定可修改原对象auto-a-b--obj)
+    - [const 引用绑定（只读 + 避免拷贝）：`const auto& [a, b] = expr;`](#const-引用绑定只读--避免拷贝const-auto-a-b--expr)
+    - [什么时候用哪一种？](#什么时候用哪一种)
   - [Example: 用 iterators 写泛型算法 `mismatch`](#example-用-iterators-写泛型算法-mismatch)
+    - [STL 风格范围：`[first, last)`](#stl-风格范围first-last)
+    - [隐式接口（Implicit Interface）](#隐式接口implicit-interface-1)
 - [Variadic Templates](#variadic-templates)
+  - [1️⃣ 最小例子：接收任意数量参数并打印](#1️⃣-最小例子接收任意数量参数并打印)
+  - [2️⃣ Pack expansion](#2️⃣-pack-expansion)
+  - [3️⃣ Variadic 最常见用途](#3️⃣-variadic-最常见用途)
 - [Concept Lifting](#concept-lifting)
-- [Implicit Interfaces & Concepts](#implicit-interfaces--concepts)
+  - [1️⃣ 从 `countOccurences` 的坏例子看“隐式要求”](#1️⃣-从-countoccurences-的坏例子看隐式要求)
+  - [2️⃣ 改成 iterator 风格：更通用，也更接近 STL](#2️⃣-改成-iterator-风格更通用也更接近-stl)
+  - [3️⃣ “类型错位”会导致奇怪报错](#3️⃣-类型错位会导致奇怪报错)
+- [Implicit Interfaces \& Concepts](#implicit-interfaces--concepts)
+  - [1️⃣ Implicit Interface 是什么？](#1️⃣-implicit-interface-是什么)
+  - [2️⃣ Concepts](#2️⃣-concepts)
+  - [3️⃣ 没有 concepts 时怎么做？](#3️⃣-没有-concepts-时怎么做)
 
 ## Template Functions
 

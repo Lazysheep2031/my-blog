@@ -4,7 +4,7 @@ published: 2026-03-02
 description: 课程介绍
 tags: [人工智能基础]
 category: 笔记
-draft: false
+draft: true
 ---
 
 ## 课程内容结构

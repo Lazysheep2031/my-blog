@@ -4,7 +4,7 @@ published: 2026-05-22
 description: 完全垄断、垄断竞争、寡头垄断、价格歧视与市场效率
 tags: [微观经济学]
 category: 笔记
-draft: false
+draft: true
 ---
 
 ## 概述

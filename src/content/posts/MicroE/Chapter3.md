@@ -4,7 +4,7 @@ published: 2026-04-30
 description: 生产者、生产函数、短期与长期生产、成本分析、收益与利润最大化
 tags: [微观经济学]
 category: 笔记
-draft: false
+draft: true
 ---
 
 ## 概述

@@ -4,7 +4,7 @@ published: 2026-03-02
 description: 医学人工智能课程考核
 tags: [医学人工智能]
 category: 笔记
-draft: false
+draft: true
 ---
 
 ## 课程考核：基于 AI 的医疗产品或软件设计

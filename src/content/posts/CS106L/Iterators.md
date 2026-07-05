@@ -4,27 +4,44 @@ published: 2026-02-28
 description: C++ Iterators相关笔记
 tags: [CS106L]
 category: 笔记
-draft: false
+draft: true
 ---
 
 本文深入讲解 C++ STL 中的迭代器（Iterator）概念，阐述了为什么需要 Iterator 以及它如何统一不同容器的访问方式。内容涵盖 Iterator 的基本操作、Map Iterator 的特殊性（返回键值对）、`lower_bound`/`upper_bound` 区间遍历技巧、五大 Iterator 分类体系及其对算法的影响、const 迭代器的使用、Iterator 失效问题，以及 Iterator 在 STL 泛型编程中作为"容器与算法之间桥梁"的核心地位，并深入分析了 `[begin, end)` 半开区间设计和 `std::find` 等算法的使用模式。
 
 ## 目录
 
+- [目录](#目录)
 - [为什么需要 Iterator？](#为什么需要-iterator)
 - [基本概念](#基本概念)
 - [遍历方式对比](#遍历方式对比)
+  - [1️⃣ 下标遍历（仅适用于 vector/deque）](#1️⃣-下标遍历仅适用于-vectordeque)
+  - [2️⃣ Iterator 遍历（所有容器适用）](#2️⃣-iterator-遍历所有容器适用)
+  - [3️⃣ Range-based for](#3️⃣-range-based-for)
 - [Map Iterators](#map-iterators)
+  - [1️⃣ 基本遍历（iterator 写法）](#1️⃣-基本遍历iterator-写法)
+  - [2️⃣ Range-based for + structured binding（最推荐）](#2️⃣-range-based-for--structured-binding最推荐)
+  - [3️⃣ find 的经典用法](#3️⃣-find-的经典用法)
 - [Further Iterator Usages：`lower_bound` / `upper_bound` 与区间遍历](#further-iterator-usageslower_bound--upper_bound-与区间遍历)
+  - [`lower_bound` / `upper_bound` 定义（有序容器）](#lower_bound--upper_bound-定义有序容器)
 - [Iterator Types](#iterator-types)
+  - [1️⃣ 五大 Iterator Category（从弱到强）](#1️⃣-五大-iterator-category从弱到强)
+  - [2️⃣ Algorithms 对 Iterator 有最低能力要求](#2️⃣-algorithms-对-iterator-有最低能力要求)
+  - [3️⃣ `std::distance` / `std::advance` 的复杂度会因 iterator 类型变化](#3️⃣-stddistance--stdadvance-的复杂度会因-iterator-类型变化)
+  - [4️⃣ 容器往往提供更适合自己的成员算法](#4️⃣-容器往往提供更适合自己的成员算法)
 - [The Result：Iterator 带来的抽象收益](#the-resultiterator-带来的抽象收益)
 - [Iterator 的本质](#iterator-的本质)
 - [Const Iterator](#const-iterator)
 - [Iterator Categories](#iterator-categories)
+  - [Random Access Iterator 支持：](#random-access-iterator-支持)
 - [为什么 sort 不能用于 list？](#为什么-sort-不能用于-list)
 - [Iterator Invalidation](#iterator-invalidation)
+  - [vector](#vector)
+  - [list](#list)
 - [begin() / end() 设计思想](#begin--end-设计思想)
 - [Iterator + Algorithms：用 `[begin, end)` 描述范围](#iterator--algorithms用-begin-end-描述范围)
+  - [1️⃣ `std::sort(begin, end)`：对区间排序](#1️⃣-stdsortbegin-end对区间排序)
+  - [2️⃣ `std::find(begin, end, x)`：查找元素](#2️⃣-stdfindbegin-end-x查找元素)
 - [STL 架构理解](#stl-架构理解)
 - [核心总结](#核心总结)
 

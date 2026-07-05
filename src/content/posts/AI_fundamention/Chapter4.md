@@ -4,7 +4,7 @@ published: 2026-04-20
 description: 从 MCP 到循环神经网络
 tags: [人工智能基础]
 category: 笔记
-draft: false
+draft: true
 ---
 
 ## 概述

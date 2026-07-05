@@ -4,15 +4,16 @@ published: 2026-03-02
 description: C++ Functions and Algorithms相关笔记
 tags: [CS106L]
 category: 笔记
-draft: false
+draft: true
 ---
 
 本文全面介绍 C++ 中函数式编程风格的核心工具——Lambda 表达式与 STL 算法。从传统函数指针的局限性出发，深入讲解 Lambda 的语法、捕获机制（值捕获 vs 引用捕获）、泛型 lambda 的使用，以及 lambda 本质上是 functor 的实现原理。随后系统梳理 STL 常用算法（`count`、`sort`、`partition`、`copy_if`、`transform` 等）的使用模式、iterator 要求、以及 iterator adaptors（`back_inserter`、`ostream_iterator` 等）的实践技巧，并重点解析 erase-remove idiom、输出迭代器的正确用法等常见陷阱。
 
 ## 目录
 
+- [目录](#目录)
 - [Motivation](#motivation)
-  - [用 iterator range 写"真正泛型"的计数](#用-iterator-range-写真正泛型的计数)
+  - [用 iterator range 写“真正泛型”的计数](#用-iterator-range-写真正泛型的计数)
   - [range slicing](#range-slicing)
   - [Problem 1：如果阈值不是 5？](#problem-1如果阈值不是-5)
   - [Problem 2：想用变量 limit，但 scope 不允许](#problem-2想用变量-limit但-scope-不允许)
@@ -31,13 +32,17 @@ draft: false
   - [`std::sort`：排序 + comparator](#stdsort排序--comparator)
   - [输出：`std::copy` + `ostream_iterator`](#输出stdcopy--ostream_iterator)
   - [`partition` / `stable_partition`：按 predicate 分组](#partition--stable_partition按-predicate-分组)
-  - [`copy_if` 的坑：第三个参数需要 Output Iterator](#copy_if-的坑第三个参数需要-output-iterator而不是容器)
+  - [`copy_if` 的坑：第三个参数需要 Output Iterator，而不是容器](#copy_if-的坑第三个参数需要-output-iterator而不是容器)
   - [`erase-remove idiom`：真正删除元素](#erase-remove-idiom真正删除元素)
 - [Callable](#callable)
 - [Lambda capture 的两个关键坑](#lambda-capture-的两个关键坑)
+  - [1) 值捕获是“当时拷贝”](#1-值捕获是当时拷贝)
+  - [2) 引用捕获要注意生命周期](#2-引用捕获要注意生命周期)
 - [Algorithms 的 iterator 要求](#algorithms-的-iterator-要求)
 - [输出迭代器（Output Iterator）与 iterator adaptors](#输出迭代器output-iterator与-iterator-adaptors)
 - [两个算法套路](#两个算法套路)
+  - [1) transform：映射（map）/逐元素变换](#1-transform映射map逐元素变换)
+  - [2) sort + unique + erase：去重](#2-sort--unique--erase去重)
 
 ## Motivation
 

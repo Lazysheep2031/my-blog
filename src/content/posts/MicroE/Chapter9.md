@@ -4,7 +4,7 @@ published: 2026-06-20
 description: 垄断、信息不完全与不对称、外部性、公共物品、公共选择
 tags: [微观经济学]
 category: 笔记
-draft: false
+draft: true
 ---
 
 ## 概述

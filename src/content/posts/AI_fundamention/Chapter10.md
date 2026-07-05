@@ -4,7 +4,7 @@ published: 2026-06-23
 description: 从被动回答问题到主动执行任务的能力跃迁
 tags: [人工智能基础]
 category: 笔记
-draft: false
+draft: true
 ---
 
 ## 概述

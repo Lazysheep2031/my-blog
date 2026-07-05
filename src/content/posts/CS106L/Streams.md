@@ -4,13 +4,14 @@ published: 2026-01-28
 description: C++ Streams相关笔记
 tags: [CS106L]
 category: 笔记
-draft: false
+draft: true
 ---
 
 本文主要总结了 C++ 中 Stream 的使用，包括 String Stream 的三种类型、流的状态位、标准输入输出流（cin, cout 等）的细节与陷阱，以及 `getline` 的正确用法。此外，还简要回顾了 C++ 中的类型推导 `auto`、别名 `using` 以及结构化绑定等现代 C++ 特性。
 
 ## 目录
 
+- [目录](#目录)
 - [String Stream](#string-stream)
   - [ostringstream](#ostringstream)
   - [istringstream](#istringstream)
@@ -23,7 +24,13 @@ draft: false
   - [STL 会出现长类型](#stl-会出现长类型)
   - [`using`](#using)
   - [`auto`](#auto)
+    - [`auto` 的定义](#auto-的定义)
+    - [`auto` 的收益](#auto的收益)
   - [返回多个值](#返回多个值)
+    - [引用参数输出多个结果](#引用参数输出多个结果)
+    - [返回 `std::pair`](#返回stdpair)
+    - [`std::make_pair`](#stdmake_pair)
+    - [Structured Binding](#structured-binding)
 
 ## String Stream
 

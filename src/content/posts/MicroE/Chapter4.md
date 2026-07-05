@@ -4,7 +4,7 @@ published: 2026-05-07
 description: 完全竞争市场、厂商短期供给、市场短期均衡、长期均衡与效率
 tags: [微观经济学]
 category: 笔记
-draft: false
+draft: true
 ---
 
 ## 概述

@@ -4,7 +4,7 @@ published: 2026-05-19
 description: 从高斯混合模型到扩散模型
 tags: [人工智能基础]
 category: 笔记
-draft: false
+draft: true
 ---
 
 ## 概述

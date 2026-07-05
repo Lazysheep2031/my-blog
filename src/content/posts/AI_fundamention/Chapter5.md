@@ -4,7 +4,7 @@ published: 2026-04-28
 description: 从通用基座到垂直领域大模型
 tags: [人工智能基础]
 category: 笔记
-draft: false
+draft: true
 ---
 
 ## 概述

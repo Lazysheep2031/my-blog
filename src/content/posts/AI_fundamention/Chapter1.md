@@ -4,7 +4,7 @@ published: 2026-03-23
 description: 人工智能发展脉络
 tags: [人工智能基础]
 category: 笔记
-draft: false
+draft: true
 ---
 # 第一讲 人工智能概述
 

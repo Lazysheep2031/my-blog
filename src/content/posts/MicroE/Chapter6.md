@@ -4,7 +4,7 @@ published: 2026-06-15
 description: 博弈论基础、上策均衡、纳什均衡、子博弈精炼纳什均衡、经济中的博弈
 tags: [微观经济学]
 category: 笔记
-draft: false
+draft: true
 ---
 
 ## 概述

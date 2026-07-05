@@ -4,7 +4,7 @@ published: 2026-06-02
 description: 从手工特征到深层特征
 tags: [人工智能基础]
 category: 笔记
-draft: false
+draft: true
 ---
 
 ## 概述

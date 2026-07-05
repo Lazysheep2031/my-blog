@@ -4,7 +4,7 @@ published: 2026-06-09
 description: "推动 AI 进入“PS”时代：从技术基础到提示词与工作流"
 tags: [人工智能基础]
 category: 笔记
-draft: false
+draft: true
 ---
 
 ## 概述

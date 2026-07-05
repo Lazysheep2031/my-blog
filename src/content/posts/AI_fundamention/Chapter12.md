@@ -4,7 +4,7 @@ published: 2026-06-30
 description: 人本型伦理——人工智能的伦理挑战与全球治理
 tags: [人工智能基础]
 category: 笔记
-draft: false
+draft: true
 ---
 
 ## 概述

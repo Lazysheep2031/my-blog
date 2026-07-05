@@ -4,7 +4,7 @@ published: 2026-06-16
 description: 要素需求、要素供给、要素价格与收入分配
 tags: [微观经济学]
 category: 笔记
-draft: false
+draft: true
 ---
 
 ## 概述

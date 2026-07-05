@@ -4,7 +4,7 @@ published: 2026-02-22
 description: C++ Containers相关笔记
 tags: [CS106L]
 category: 笔记
-draft: false
+draft: true
 ---
 
 本文系统介绍了 C++ STL 中的容器（Containers），包括三大类：顺序容器（Sequence Containers）如 `vector` 和 `deque`、容器适配器（Container Adapters）如 `stack`、`queue` 和 `priority_queue`，以及关联容器（Associative Containers）如 `map`、`set`、`multimap` 及其无序版本。重点讲解了各容器的底层实现、时间复杂度、适用场景和常见陷阱，详细说明了 `multimap` 的一对多映射特性和 `equal_range` 的用法，并通过词频统计实例展示了 `std::map` 的实际应用。

@@ -4,7 +4,7 @@ published: 2026-06-16
 description: 语言模型的关键概念与提示词工程
 tags: [人工智能基础]
 category: 笔记
-draft: false
+draft: true
 ---
 
 ## 概述
