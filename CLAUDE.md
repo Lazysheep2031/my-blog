@@ -53,7 +53,18 @@ lang: ''             # 仅当语言与站点 zh_CN 不同才填
 ---
 ```
 
-导航栏的「课程笔记」`/courses/` 和「科研」`/archive/?category=科研` 都是按 `category` 做的筛选，新增笔记要保证 category 正确。
+- **「课程笔记」`/courses/`**：筛选 `category === 笔记`，并把每篇笔记的**第一个 tag** 当作它所属的课程；同一门课的笔记要用**同一个课程 tag**。
+- **「科研」`/research/`**：筛选 `category === 科研`。
+- 导航栏已移除「归档」项，但 `/archive` 路由仍保留（文章的分类/标签徽章链到它，删了会 404）。
+
+## 新增课程
+
+课程笔记页 `/courses/` 是「课程卡片墙 → 点进看章节」的结构，卡片按笔记的**第一个 tag** 自动聚合。新开一门课：
+
+1. **写笔记即可**：frontmatter 用 `category: 笔记`、`tags: [新课程名, ...]`（第一个 tag = 课程名，同一门课保持一致）。push 后卡片墙会自动多出一个方块。
+2. **让方块精美**（否则落入「其他」大类、用默认图标和占位简介）：在 `src/constants/course-meta.ts` 的 `courseMetaMap` 加一条，key = 课程 tag，填 `en / group(cs·math·econ·lang·other) / icon / accent / blurb`。
+   - `icon` 用 `material-symbols:*`，很多名字**没有 `-rounded` 变体**，先在 `node_modules/@iconify-json/material-symbols/icons.json` 查证，否则渲染成空框。
+3. **（可选）专属封面图**：无 `image` 封面的文章卡会按课程显示一张知识小图，映射在 `src/constants/topic-glyphs.ts` 的 `courseGlyphMap`（key = 课程 tag）；不加则回退通用文档图。
 
 ## 写作 / 协作约定
 

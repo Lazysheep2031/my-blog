@@ -3,10 +3,14 @@ import CoursesPanel from "@components/CoursesPanel.svelte";
 import MainGridLayout from "@layouts/MainGridLayout.astro";
 import { getSortedPostsList } from "../utils/content-utils";
 
-// Only pass posts that belong to the "笔记" category
+// Only pass published posts that belong to the "笔记" category
+// （dev 环境 getSortedPostsList 会包含 draft，需显式排除）
 const allPosts = await getSortedPostsList();
 const coursePosts = allPosts.filter(
-	(post) => post.data.category && post.data.category.trim() === "笔记",
+	(post) =>
+		!post.data.draft &&
+		post.data.category &&
+		post.data.category.trim() === "笔记",
 );
 ---
 

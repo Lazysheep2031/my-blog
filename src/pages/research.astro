@@ -1,0 +1,142 @@
+---
+import MainGridLayout from "@layouts/MainGridLayout.astro";
+import { Icon } from "astro-icon/components";
+import { getSortedPostsList } from "../utils/content-utils";
+import { getPostUrlBySlug } from "../utils/url-utils";
+
+const allPosts = await getSortedPostsList();
+const researchPosts = allPosts.filter(
+	(post) =>
+		!post.data.draft &&
+		post.data.category &&
+		post.data.category.trim() === "科研",
+);
+
+const formatDate = (date: Date) =>
+	new Intl.DateTimeFormat("zh-CN", {
+		year: "numeric",
+		month: "2-digit",
+		day: "2-digit",
+	}).format(date);
+---
+
+<MainGridLayout title="科研" description="科研与论文阅读记录">
+    <div class="flex flex-col gap-4">
+        <div class="card-base px-8 py-6 flex items-center gap-4">
+            <div class="research-hero-icon">
+                <Icon name="material-symbols:experiment-outline" />
+            </div>
+            <div>
+                <h1 class="text-2xl font-bold text-90 leading-tight">科研 · Research</h1>
+                <p class="text-sm text-50 mt-1">论文阅读、项目实践与技术探索的记录。</p>
+            </div>
+        </div>
+
+        {researchPosts.length === 0 ? (
+            <div class="card-base px-8 py-12 text-center text-50">暂无科研内容</div>
+        ) : (
+            <div class="research-grid">
+                {researchPosts.map((post) => (
+                    <a
+                        href={getPostUrlBySlug(post.slug)}
+                        aria-label={post.data.title}
+                        class="research-card card-base"
+                    >
+                        <div class="flex items-center gap-2 text-xs text-50 mb-2">
+                            <Icon name="material-symbols:calendar-today-outline-rounded" />
+                            <span>{formatDate(post.data.published)}</span>
+                            {post.data.tags?.[0] && (
+                                <span class="research-tag">#{post.data.tags[0]}</span>
+                            )}
+                        </div>
+                        <h2 class="research-title">{post.data.title}</h2>
+                        {post.data.description && (
+                            <p class="research-desc">{post.data.description}</p>
+                        )}
+                        <span class="research-more">
+                            阅读全文
+                            <Icon name="material-symbols:arrow-forward-rounded" />
+                        </span>
+                    </a>
+                ))}
+            </div>
+        )}
+    </div>
+</MainGridLayout>
+
+<style>
+    .research-hero-icon {
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 3rem;
+        height: 3rem;
+        border-radius: 0.85rem;
+        font-size: 1.7rem;
+        color: var(--primary);
+        background: color-mix(in oklch, oklch(0.7 0.14 var(--hue)) 16%, transparent);
+    }
+
+    .research-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr));
+        gap: 1rem;
+    }
+
+    .research-card {
+        display: flex;
+        flex-direction: column;
+        padding: 1.25rem 1.4rem;
+        transition:
+            transform 0.2s ease,
+            box-shadow 0.2s ease;
+    }
+    .research-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 0.9rem 2rem color-mix(in oklch, oklch(0.7 0.14 var(--hue)) 18%, transparent);
+    }
+
+    .research-tag {
+        font-family: "JetBrains Mono Variable", ui-monospace, monospace;
+        color: var(--primary);
+    }
+
+    .research-title {
+        font-size: 1.2rem;
+        font-weight: 700;
+        line-height: 1.35;
+        color: rgba(0, 0, 0, 0.82);
+        transition: color 0.2s ease;
+    }
+    :global(.dark) .research-title {
+        color: rgba(255, 255, 255, 0.88);
+    }
+    .research-card:hover .research-title {
+        color: var(--primary);
+    }
+
+    .research-desc {
+        margin-top: 0.55rem;
+        font-size: 0.86rem;
+        line-height: 1.6;
+        color: rgba(0, 0, 0, 0.55);
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    :global(.dark) .research-desc {
+        color: rgba(255, 255, 255, 0.5);
+    }
+
+    .research-more {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        margin-top: 1rem;
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: var(--primary);
+    }
+</style>
