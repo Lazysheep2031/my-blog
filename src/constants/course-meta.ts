@@ -101,6 +101,27 @@ export const courseMetaMap: Record<string, CourseMeta> = {
 		accent: "#c79a3e",
 		blurb: "德语入门语法与词汇笔记",
 	},
+	计算理论: {
+  en: "Theory of Computation",
+  group: "cs",
+  icon: "material-symbols:function-rounded",
+  accent: "#6b7fd2",
+  blurb: "自动机、形式语言、可计算性与计算复杂性",
+},
+操作系统: {
+  en: "Operating Systems",
+  group: "cs",
+  icon: "material-symbols:terminal-rounded",
+  accent: "#2c8f74",
+  blurb: "进程与线程、调度、内存管理、文件系统与并发",
+},
+计算机网络: {
+  en: "Computer Networks",
+  group: "cs",
+  icon: "material-symbols:devices-outline-rounded",
+  accent: "#ad6b4a",
+  blurb: "网络分层、应用层协议、可靠传输、路由与链路",
+},
 };
 
 const fallbackMeta: Omit<CourseMeta, "en"> & { en: string } = {
