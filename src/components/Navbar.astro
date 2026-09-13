@@ -6,7 +6,6 @@ import { LinkPreset, type NavBarLink } from "../types/config";
 import { url } from "../utils/url-utils";
 import LightDarkSwitch from "./LightDarkSwitch.svelte";
 import Search from "./Search.svelte";
-import DisplaySettings from "./widget/DisplaySettings.svelte";
 import NavMenuPanel from "./widget/NavMenuPanel.astro";
 
 const className = Astro.props.class;
@@ -20,21 +19,21 @@ let links: NavBarLink[] = navBarConfig.links.map(
 	},
 );
 ---
-<div id="navbar" class="z-50 onload-animation">
-    <div class="absolute h-8 left-0 right-0 -top-8 bg-[var(--card-bg)] transition"></div> <!-- used for onload animation -->
+<div id="navbar" class="z-50">
+     <!-- used for onload animation -->
     <div class:list={[
         className,
-        "card-base !overflow-visible max-w-[var(--page-width)] h-[4.5rem] !rounded-t-none mx-auto flex items-center justify-between px-4"]}>
-        <a href={url('/')} class="btn-plain scale-animation rounded-lg h-[3.25rem] px-5 font-bold active:scale-95">
+        "nav-inner"]}>
+        <a href={url('/')} class="nav-brand">
             <div class="flex flex-row text-[var(--primary)] items-center text-md whitespace-nowrap">
-                <Icon name="material-symbols:home-outline-rounded" class="text-[1.75rem] mb-1 mr-2" />
+
                 {siteConfig.title}
             </div>
         </a>
-        <div class="hidden md:flex">
+        <nav class="nav-links hidden md:flex" aria-label="主导航">
             {links.map((l) => {
                 return <a aria-label={l.name} href={l.external ? l.url : url(l.url)} target={l.external ? "_blank" : null}
-                          class="btn-plain scale-animation rounded-lg h-11 font-bold px-5 active:scale-95"
+                          class="nav-link" data-nav-path={l.external ? undefined : url(l.url)}
                 >
                     <div class="flex items-center">
                         {l.name}
@@ -42,8 +41,8 @@ let links: NavBarLink[] = navBarConfig.links.map(
                     </div>
                 </a>;
             })}
-        </div>
-        <div class="flex">
+        </nav>
+        <div class="nav-controls flex">
             <!--<SearchPanel client:load>-->
             <Search client:only="svelte"></Search>
             {!siteConfig.themeColor.fixed && (
@@ -52,12 +51,11 @@ let links: NavBarLink[] = navBarConfig.links.map(
                     </button>
             )}
             <LightDarkSwitch client:only="svelte"></LightDarkSwitch>
-            <button aria-label="Menu" name="Nav Menu" class="btn-plain scale-animation rounded-lg w-11 h-11 active:scale-90 md:!hidden" id="nav-menu-switch">
+            <button aria-label="Menu" aria-expanded="false" aria-controls="nav-menu-panel" name="Nav Menu" class="btn-plain scale-animation rounded-lg w-11 h-11 active:scale-90 md:!hidden" id="nav-menu-switch">
                 <Icon name="material-symbols:menu-rounded" class="text-[1.25rem]"></Icon>
             </button>
         </div>
         <NavMenuPanel links={links}></NavMenuPanel>
-        <DisplaySettings client:only="svelte"></DisplaySettings>
     </div>
 </div>
 
@@ -96,12 +94,19 @@ function loadButtonScript() {
             let menuPanel = document.getElementById("nav-menu-panel");
             if (menuPanel) {
                 menuPanel.classList.toggle("float-panel-closed");
+                menuBtn?.setAttribute("aria-expanded", String(!menuPanel.classList.contains("float-panel-closed")));
             }
         };
     }
 }
 
 loadButtonScript();
+document.querySelectorAll('#nav-menu-panel a').forEach(link => {
+    link.addEventListener('click', () => {
+        document.getElementById('nav-menu-panel')?.classList.add('float-panel-closed');
+        document.getElementById('nav-menu-switch')?.setAttribute('aria-expanded', 'false');
+    });
+});
 </script>
 
 {import.meta.env.PROD && <script is:inline define:vars={{scriptUrl: url('/pagefind/pagefind.js')}}>
@@ -139,3 +144,20 @@ if (document.readyState === 'loading') {
     loadPagefind();
 }
 </script>}
+
+<script>
+function updateActiveNavigation() {
+    document.querySelectorAll<HTMLAnchorElement>('[data-nav-path]').forEach(link => {
+        const path = link.dataset.navPath;
+        const active = !!path && window.location.pathname.startsWith(path);
+        if (active) link.setAttribute('aria-current', 'page');
+        else link.removeAttribute('aria-current');
+    });
+}
+updateActiveNavigation();
+document.addEventListener('swup:page:view', updateActiveNavigation);
+document.addEventListener('astro:page-load', updateActiveNavigation);
+const bindActiveNavigation = () => window.swup?.hooks.on('page:view', updateActiveNavigation);
+if (window.swup) bindActiveNavigation();
+else document.addEventListener('swup:enable', bindActiveNavigation, { once: true });
+</script>

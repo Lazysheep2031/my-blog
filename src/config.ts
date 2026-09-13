@@ -9,15 +9,15 @@ import type {
 import { LinkPreset } from "./types/config";
 
 export const siteConfig: SiteConfig = {
-	title: "Be Happy Every Day",
+	title: "Lazysheep",
 	subtitle: "Tiny Room",
 	lang: "zh_CN", // Language code, e.g. 'en', 'zh_CN', 'ja', etc.
 	themeColor: {
-		hue: 95, // Default hue for the theme color, from 0 to 360. e.g. red: 0, teal: 200, cyan: 250, pink: 345
-		fixed: false, // Hide the theme color picker for visitors
+		hue: 160, // Default hue for the theme color, from 0 to 360. e.g. red: 0, teal: 200, cyan: 250, pink: 345
+		fixed: true, // Hide the theme color picker for visitors
 	},
 	banner: {
-		enable: true,
+		enable: false,
 		src: "assets/images/banner3.jpg", // Relative to the /src directory. Relative to the /public directory if it starts with '/'
 		lightSrc: "assets/images/banner4.png", // Banner used when the site is in light mode
 		darkSrc: "assets/images/banner3.jpg", // Banner used when the site is in dark mode
@@ -30,7 +30,7 @@ export const siteConfig: SiteConfig = {
 	},
 	toc: {
 		enable: true, // Display the table of contents on the right side of the post
-		depth: 4, // Maximum Markdown heading depth to show in the table, e.g. 4 means show up to ####
+		depth: 3, // Maximum Markdown heading depth to show in the table, e.g. 4 means show up to ####
 	},
 	favicon: [
 		// Leave this array empty to use the default favicon

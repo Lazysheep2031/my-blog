@@ -148,11 +148,11 @@ onMount(() => {
 });
 </script>
 
-<div class="w-full">
+<div class="courses-panel w-full">
     {#if selectedTag === ""}
         <!-- ===== 课程卡片墙 ===== -->
         <!-- pt-14 让首个大类标题落到 banner 下方，避免文字压在背景图上 -->
-        <div class="flex flex-col gap-6 pt-14 lg:pt-16">
+        <div class="flex flex-col gap-9">
             {#each groupViews as group}
                 <section>
                     <h2 class="flex items-center gap-2 font-bold text-lg text-90 mb-3 ml-1">
@@ -164,7 +164,7 @@ onMount(() => {
                         {#each group.courses as course}
                             <button
                                 class="course-card card-base"
-                                style={`--accent: ${course.meta.accent};`}
+                                style="--accent: var(--primary);"
                                 on:click={() => selectTag(course.tag)}
                             >
                                 <div class="course-icon">
@@ -193,7 +193,7 @@ onMount(() => {
                 全部课程
             </button>
 
-            <div class="flex items-center gap-3 mt-4 mb-2" style={`--accent: ${currentCourse?.accent};`}>
+            <div class="flex items-center gap-3 mt-4 mb-2" style="--accent: var(--primary);">
                 <div class="course-icon !w-11 !h-11">
                     <Icon icon={currentCourse?.icon ?? "material-symbols:bookmarks-outline-rounded"} />
                 </div>
@@ -256,130 +256,3 @@ onMount(() => {
         </div>
     {/if}
 </div>
-
-<style>
-    .course-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr));
-        gap: 0.85rem;
-    }
-
-    .course-card {
-        display: flex;
-        align-items: flex-start;
-        gap: 0.85rem;
-        padding: 1rem 1.05rem;
-        text-align: left;
-        border: 1px solid transparent;
-        position: relative;
-        overflow: hidden;
-        transition:
-            transform 0.2s ease,
-            box-shadow 0.2s ease,
-            border-color 0.2s ease;
-    }
-
-    .course-card::before {
-        content: "";
-        position: absolute;
-        inset: 0 auto 0 0;
-        width: 4px;
-        background: var(--accent);
-        opacity: 0.85;
-    }
-
-    .course-card:hover {
-        transform: translateY(-3px);
-        border-color: color-mix(in srgb, var(--accent) 45%, transparent);
-        box-shadow: 0 0.9rem 2rem color-mix(in srgb, var(--accent) 20%, transparent);
-    }
-
-    .course-icon {
-        flex-shrink: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 2.6rem;
-        height: 2.6rem;
-        border-radius: 0.7rem;
-        font-size: 1.4rem;
-        color: var(--accent);
-        background: color-mix(in srgb, var(--accent) 14%, transparent);
-    }
-
-    .course-name {
-        font-size: 1.02rem;
-        font-weight: 700;
-        color: var(--deep-text, rgba(0, 0, 0, 0.8));
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-    :global(.dark) .course-name {
-        color: rgba(255, 255, 255, 0.85);
-    }
-
-    .course-count {
-        flex-shrink: 0;
-        font-size: 0.72rem;
-        font-weight: 700;
-        color: var(--accent);
-        background: color-mix(in srgb, var(--accent) 12%, transparent);
-        padding: 0.1rem 0.5rem;
-        border-radius: 999px;
-    }
-
-    .course-en {
-        font-family: "JetBrains Mono Variable", ui-monospace, monospace;
-        font-size: 0.7rem;
-        letter-spacing: 0.02em;
-        color: color-mix(in srgb, var(--accent) 62%, gray);
-        margin-top: 0.15rem;
-    }
-
-    .course-blurb {
-        margin: 0.4rem 0 0;
-        font-size: 0.82rem;
-        line-height: 1.5;
-        color: var(--tw-prose-body, rgba(0, 0, 0, 0.55));
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-    }
-    :global(.dark) .course-blurb {
-        color: rgba(255, 255, 255, 0.5);
-    }
-
-    .course-arrow {
-        flex-shrink: 0;
-        align-self: center;
-        font-size: 1.15rem;
-        color: color-mix(in srgb, var(--accent) 55%, gray);
-        opacity: 0;
-        transform: translateX(-4px);
-        transition:
-            opacity 0.2s ease,
-            transform 0.2s ease;
-    }
-    .course-card:hover .course-arrow {
-        opacity: 1;
-        transform: translateX(0);
-    }
-
-    .back-btn {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.35rem;
-        font-size: 0.85rem;
-        font-weight: 600;
-        color: rgba(0, 0, 0, 0.5);
-        transition: color 0.2s ease;
-    }
-    .back-btn:hover {
-        color: var(--primary);
-    }
-    :global(.dark) .back-btn {
-        color: rgba(255, 255, 255, 0.55);
-    }
-</style>

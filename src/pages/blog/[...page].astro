@@ -7,7 +7,8 @@ import MainGridLayout from "../../layouts/MainGridLayout.astro";
 import { getSortedPosts } from "../../utils/content-utils";
 
 export const getStaticPaths = (async ({ paginate }) => {
-	const allBlogPosts = await getSortedPosts();
+	const allBlogPosts = (await getSortedPosts()).filter(post => !post.data.draft)
+        .sort((a, b) => Math.max(+b.data.published, +(b.data.updated || b.data.published)) - Math.max(+a.data.published, +(a.data.updated || a.data.published)) || a.slug.localeCompare(b.slug));
 	return paginate(allBlogPosts, { pageSize: PAGE_SIZE });
 }) satisfies GetStaticPaths;
 
@@ -16,7 +17,8 @@ const { page } = Astro.props;
 const len = page.data.length;
 ---
 
-<MainGridLayout>
+<MainGridLayout title="最近更新">
+    <div class="page-heading"><p class="eyebrow">THE JOURNAL</p><h1>最近更新<span class="brand-dot">.</span></h1><p>课程笔记、研究记录与日常思考。</p></div>
     <PostPage page={page}></PostPage>
     <Pagination class="mx-auto onload-animation" page={page} basePath="/blog/" style={`animation-delay: calc(var(--content-delay) + ${(len)*50}ms)`}></Pagination>
 </MainGridLayout>

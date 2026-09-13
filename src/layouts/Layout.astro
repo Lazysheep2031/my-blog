@@ -1,4 +1,12 @@
 ---
+import "../styles/variables.styl";
+import "../styles/main.css";
+import "../styles/markdown.css";
+import "../styles/markdown-extend.styl";
+import "../styles/transition.css";
+import "../styles/scrollbar.css";
+import "../styles/expressive-code.css";
+import "../styles/photoswipe.css";
 import "@fontsource/roboto/400.css";
 import "@fontsource/roboto/500.css";
 import "@fontsource/roboto/700.css";
@@ -130,7 +138,7 @@ const bannerOffset =
 			}
 
 			// Load the hue from local storage
-			const hue = localStorage.getItem('hue') || configHue;
+			const hue = configHue;
 			document.documentElement.style.setProperty('--hue', hue);
 
 			// calculate the --banner-height-extend, which needs to be a multiple of 4 to avoid blurry text
@@ -208,7 +216,7 @@ import {
 	// SizeObserverPlugin,
 	// ClickScrollPlugin
 } from 'overlayscrollbars';
-import {getHue, getStoredTheme, setHue, setTheme} from "../utils/setting-utils";
+import {getStoredTheme, setHue, setTheme} from "../utils/setting-utils";
 import {pathsEqual, url} from "../utils/url-utils";
 import {
 	BANNER_HEIGHT,
@@ -275,7 +283,7 @@ function setClickOutsideToClose(panel: string, ignores: string[]) {
 				return;
 			}
 		}
-		panelDom!.classList.add("float-panel-closed");
+		panelDom?.classList.add("float-panel-closed");
 	});
 }
 setClickOutsideToClose("display-setting", ["display-setting", "display-settings-switch"])
@@ -289,7 +297,7 @@ function loadTheme() {
 }
 
 function loadHue() {
-	setHue(getHue())
+	setHue(siteConfig.themeColor.hue)
 }
 
 function initCustomScrollbar() {
