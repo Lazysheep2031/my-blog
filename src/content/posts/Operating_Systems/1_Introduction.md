@@ -36,9 +36,10 @@ draft: false
 硬件：CPU、内存、I/O 设备
 ```
 
-<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260916124702.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
-
-<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260916124710.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+<div style="display: flex; justify-content: center; align-items: flex-start; gap: 16px;">
+  <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260916124702.png" style="width: calc((100% - 16px) / 2); max-width: 420px; height: auto; display: block; margin: 0;" />
+  <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260916124710.png" style="width: calc((100% - 16px) / 2); max-width: 420px; height: auto; display: block; margin: 0;" />
+</div>
 
 | 层次 | 主要作用 | 概念 |
 | --- | --- | --- |
