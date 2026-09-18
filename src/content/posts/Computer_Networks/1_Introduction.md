@@ -7,9 +7,9 @@ category: 笔记
 draft: false
 ---
 
-## 计算机网络的用途
+## Uses of Computer Networks
 
-### 什么是计算机网络
+### What Is a Computer Network?
 
 **计算机网络（Computer Network）** 是相互连接、能够交换信息的自主计算设备的集合。
 
@@ -27,7 +27,7 @@ draft: false
 | 娱乐 | 基于 IP 的网络电视（IPTV）、音视频流媒体、多人游戏、共享虚拟世界 |
 | 物联网 | 环境监测、智能家居、联网传感器、停车管理 |
 
-### 客户端—服务器与对等通信
+### Client–Server and Peer-to-Peer Communication
 
 **客户端—服务器模型（Client–Server，C/S）** ：客户端主动请求信息或服务，服务器接收请求、处理后返回结果。
 
@@ -48,9 +48,9 @@ draft: false
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260914152245.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
-## 计算机网络的类型
+## Types of Computer Networks
 
-### 按功能分工理解网络
+### Network Roles
 
 | 类型 | 主要职责 | 典型场景 |
 | --- | --- | --- |
@@ -61,7 +61,7 @@ draft: false
 
 一次访问可能依次经过“接入网络 → 中转网络 → 内容提供商网络”，也可能通过直接互联省去部分中转环节。
 
-### 宽带接入与网络规模的价值
+### Broadband Access and Network Value
 
 **梅特卡夫定律（Metcalfe’s law）** 用网络规模解释网络价值：用户越多，潜在的交流与资源连接越多。教材将它明确表述为一种假说，即网络价值大致与用户数的平方成正比：
 
@@ -71,7 +71,7 @@ $$
 
 一个直观解释是，$n$ 个用户之间可能形成 $n(n-1)/2$ 对联系。
 
-### 无线与移动
+### Wireless and Mobile Networks
 
 **无线**描述通信链路使用的介质；**移动**描述设备或用户的使用方式。
 
@@ -110,7 +110,7 @@ $$
 
 **传感器负责取得物理状态，网络负责送达信息，应用系统负责解释信息并执行业务。**
 
-### 数据中心与内容分发网络
+### Data Centers and Content Delivery Networks
 
 数据中心网络连接大量服务器，既要承载服务器之间的数据交换，也要承载数据中心与外部互联网之间的流量。
 
@@ -119,7 +119,7 @@ $$
 **内容分发网络（Content Delivery Network，CDN）** 通过地理上分布的服务器，把内容放到更靠近用户的位置。
 
 
-### 中转网络与企业网络
+### Transit and Enterprise Networks
 
 当内容提供商与用户所在的接入网络没有直接连接时，**中转网络（Transit Network）** 可以代为承载流量，并按商业安排提供服务。
 
@@ -128,9 +128,9 @@ $$
 企业或校园网络支持共享设备和信息、网络语音（VoIP）、远程桌面及电子业务。跨地区的组织可使用**虚拟专用网络（Virtual Private Network，VPN）**，把分散地点连接成一个逻辑网络。
 能够**跨越实际地理距离，保持组织内部的逻辑连通性**。
 
-## 网络技术：从局部到全球
+## Network Technology: from local to global
 
-### 广播链路与点到点链路
+### Broadcast and Point-to-Point Links
 
 网络硬件的两个重要分类维度是**传输技术**与**规模**。
 
@@ -151,7 +151,7 @@ $$
 
 > 前面的 P2P 描述应用参与者的角色；这里的“点到点链路”描述链路连接两个端点。
 
-### 按覆盖规模分类
+### Networks by Scale
 
 | 类型 | 名称 | 典型量级与场景 |
 | --- | --- | --- |
@@ -162,7 +162,7 @@ $$
 | 互联网络 | 多个网络互相连接形成的网络 | 全球互联网是典型例子，图中列在约 10,000 km 的量级 |
 
 
-### 通信介质、传输速率与比特持续时间
+### Transmission Media, Bit Rate, and Bit Duration
 
 常见通信介质有：**双绞线**，用于电话线等连接；**同轴电缆**，用于有线电视；**光纤**，用于高速骨干等连接；**无线电频谱**，用于移动通信等无线链路。
 
@@ -189,7 +189,7 @@ $1\,\text{Mbps}=10^6\,\text{bit/s}$，$1\,\text{Gbps}=10^9\,\text{bit/s}$，$1\,
 
 例如，第一条链路上，噪声在某个比特开始后的 0.5 ms 出现，到 10.5 ms 时结束。它触及开头半个比特、中间 9 个完整比特和结尾半个比特，共 11 个比特区间。第二条链路上，10 ms 的干扰也可能跨过两个相邻比特区间。
 
-### 个人区域网
+### Personal Area Networks
 
 **蓝牙外设** ：
 
@@ -204,11 +204,11 @@ $1\,\text{Mbps}=10^6\,\text{bit/s}$，$1\,\text{Gbps}=10^9\,\text{bit/s}$，$1\,
 两者通常都工作在 2.4 GHz ISM 频段，但“2.4G 无线鼠标”一般使用厂商自定义的无线协议，需要专用 USB 接收器；蓝牙鼠标使用标准化的 Bluetooth 协议栈，可以直接和电脑自带的蓝牙模块通信。
 :::
 
-### 局域网
+### Local Area Networks
 
 按**信道分配方式**区分静态设计与动态设计。
 
-#### 静态分配
+#### Static Allocation
 
 **预先划出使用份额**
 
@@ -217,7 +217,7 @@ $1\,\text{Mbps}=10^6\,\text{bit/s}$，$1\,\text{Gbps}=10^9\,\text{bit/s}$，$1\,
 
 对应到网络，问题是：**某个使用者暂时无数据，预留给它的资源仍可能闲置。** 当流量突发、各用户需求不均匀时，这种浪费尤其值得注意。而其静态分配的优点则是规则和份额明确。
 
-#### 动态分配
+#### Dynamic Allocation
 
 **根据实际需求安排发送**
 
@@ -228,13 +228,13 @@ $1\,\text{Mbps}=10^6\,\text{bit/s}$，$1\,\text{Gbps}=10^9\,\text{bit/s}$，$1\,
 
 **冲突（Collision）** 是共享信道中需要处理的问题：多个设备在相互干扰的条件下同时发送，接收可能失败。
 
-### 城域网与广域网
+### Metropolitan and Wide Area Networks
 
 **城域网**覆盖城市。
 
 **广域网**的典型通信子网由两类部分构成：**传输线路**负责在节点间传递数据，**交换设备**负责把数据从一条线路转向另一条线路。
 
-#### 跨站点连接
+#### Site-to-Site Connectivity
 
 **专用资源与共享互联网** ：
 
@@ -252,7 +252,7 @@ $1\,\text{Mbps}=10^6\,\text{bit/s}$，$1\,\text{Gbps}=10^9\,\text{bit/s}$，$1\,
 
 **逻辑上的专用网络与底层物理资源是否独占，是两个需要分别检查的问题。** VPN 描述逻辑连接方式，ISP 描述网络服务的提供者，二者并不互斥；运营商也可以提供 VPN 服务。
 
-#### 路由与转发
+#### Routing and Forwarding
 
 | 概念 | 作用 | 观察层次 |
 | --- | --- | --- |
@@ -261,7 +261,7 @@ $1\,\text{Mbps}=10^6\,\text{bit/s}$，$1\,\text{Gbps}=10^9\,\text{bit/s}$，$1\,
 
 点到点链路组成的网络可能提供多条路径；路由形成路径选择，沿途设备逐跳执行转发。
 
-### 互联网络、网关与互联网
+### Internetworks, Gateways, and the Internet
 
 **互联网络（Internetwork）** ：由多个相互连接的网络构成。这些网络可能分别管理，也可能采用不同技术，例如把局域网连接到广域网，或连接两个局域网。
 **网关（Gateway）** ：连接不同网络、完成必要适配的设备。
@@ -269,9 +269,9 @@ $1\,\text{Mbps}=10^6\,\text{bit/s}$，$1\,\text{Gbps}=10^9\,\text{bit/s}$，$1\,
 
 **互联网（Internet）是网络的网络，并向分布式应用提供通信服务。**
 
-## 典型网络
+## Examples of Networks
 
-### 互联网
+### The Internet
 
 *从早期研究网络到多网络互联*
 
@@ -279,7 +279,7 @@ $1\,\text{Mbps}=10^6\,\text{bit/s}$，$1\,\text{Gbps}=10^9\,\text{bit/s}$，$1\,
 
 **互联网与万维网** ：互联网提供基础连通能力；万维网是利用这种能力组织和访问网页的一类应用。
 
-#### 分布式拓扑
+#### Distributed Topology
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260914160223.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
@@ -289,7 +289,7 @@ $1\,\text{Mbps}=10^6\,\text{bit/s}$，$1\,\text{Gbps}=10^9\,\text{bit/s}$，$1\,
 
 在层次式结构中，很多通信依赖少数关键交换节点，关键节点故障可能切断大片区域的联系。在分布式结构中，同一对端点之间可能存在多条路径，部分线路或设备故障后，可以尝试其他路径。**冗余连接提供替代路径，路由负责找到仍可用的路径**。
 
-#### ARPANET 的主机与通信子网
+#### ARPANET Hosts and Communication Subnet
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260914160406.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
@@ -304,7 +304,7 @@ $1\,\text{Mbps}=10^6\,\text{bit/s}$，$1\,\text{Gbps}=10^9\,\text{bit/s}$，$1\,
 源 IMP 到目的 IMP 的协议用于提高传输可靠性。**同一次通信需要不同范围的规则协作**。
 
 
-#### 从家里的设备到互联网
+#### Home Internet Access
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260914160528.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
@@ -330,7 +330,7 @@ $1\,\text{Mbps}=10^6\,\text{bit/s}$，$1\,\text{Gbps}=10^9\,\text{bit/s}$，$1\,
 分组数据传输使用 **DOCSIS**；
 用户家中使用 cable modem，前端使用 **CMTS**。一套接入基础设施可以承载电视、数据与语音等不同业务。
 
-#### POP、IXP、对等互联与中转
+#### POPs, IXPs, Peering, and Transit
 
 | 术语 | 含义 | 细节 |
 | --- | --- | --- |
@@ -343,7 +343,7 @@ $1\,\text{Mbps}=10^6\,\text{bit/s}$，$1\,\text{Gbps}=10^9\,\text{bit/s}$，$1\,
 
 **Tier-1 ISP**的核心特征是无需向其他网络购买中转服务，依靠自己的网络和互联关系获得全网可达性。
 
-#### 从层次结构到扁平化
+#### From Hierarchical to Flat Networks
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260914160819.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
@@ -355,11 +355,11 @@ $1\,\text{Mbps}=10^6\,\text{bit/s}$，$1\,\text{Gbps}=10^9\,\text{bit/s}$，$1\,
 
 **扁平化** ：通信不必总是逐级上升到最高层再逐级下降。网络间互联更加密集，内容部署也更靠近用户。
 
-### 移动网络
+### Mobile Networks
 
 *无线接入、核心网与蜂窝设计*
 
-#### 手机通信的路径与网络组成
+#### Mobile Network Architecture
 
 **手机接入是无线的，整条端到端路径通常还包括有线骨干，无线往往只是基站到手机这最后一跳的过程。**
 
@@ -385,7 +385,7 @@ $1\,\text{Mbps}=10^6\,\text{bit/s}$，$1\,\text{Gbps}=10^9\,\text{bit/s}$，$1\,
 手机在当地连接访问网络；访问网络需要与归属网络配合，确认用户身份和使用资格。**在回传归属网络的路径中**，数据再经国内的网关接入互联网。因此，设备所处的国家、当前连接的基站所在地，以及互联网数据出口所在地，可以不同。
 :::
 
-#### 蜂窝网络为什么能够复用频率
+#### Cellular Frequency Reuse
 
 移动通信需要使用无线电频谱，而可使用的频谱有限。
 
@@ -403,7 +403,7 @@ $1\,\text{Mbps}=10^6\,\text{bit/s}$，$1\,\text{Gbps}=10^9\,\text{bit/s}$，$1\,
 
 >在 3G 系统中，各小区可以使用全部频率，同时把相邻小区的干扰控制到可接受水平。
 
-#### 切换与 SIM
+#### Handover and SIM
 
 设备从一个小区移向另一个小区时，需要进行**切换（Handover）**，把服务关系转移到新的基站。
 
@@ -415,7 +415,7 @@ $1\,\text{Mbps}=10^6\,\text{bit/s}$，$1\,\text{Gbps}=10^9\,\text{bit/s}$，$1\,
 
 **用户身份模块（SIM）** ：把用户身份和账户信息与手机设备分开。把 SIM 换到另一部手机，仍可使用相应用户身份；这些信息也是认证与通信安全的基础。
 
-#### 从 1G 到 5G
+#### From 1G to 5G
 
 | 代际 | 主要业务 | 代表技术 | 语音与数据的交换方式 |
 | --- | --- | --- | --- |
@@ -425,7 +425,7 @@ $1\,\text{Mbps}=10^6\,\text{bit/s}$，$1\,\text{Gbps}=10^9\,\text{bit/s}$，$1\,
 | 4G | 高速上网、视频与多媒体 | LTE、OFDMA、MIMO、全 IP 核心网 | 分组交换；VoLTE 承载语音 |
 | 5G | 高速移动宽带、大规模物联网、低时延与工业应用 | 5G NR、大规模 MIMO、波束成形、灵活 OFDM | 全 IP／分组交换；课件以 VoNR 说明语音承载 |
 
-#### 分组交换与电路交换
+#### Packet Switching and Circuit Switching
 
 | 比较项 | 数据报式分组交换 | 电路交换 |
 | --- | --- | --- |
@@ -435,9 +435,9 @@ $1\,\text{Mbps}=10^6\,\text{bit/s}$，$1\,\text{Gbps}=10^9\,\text{bit/s}$，$1\,
 | 故障影响 | 有可用替代路径时，可重新选择路径 | 原通路故障会影响相应连接 |
 | 服务质量 | 需要面对共享资源下的竞争 | 较容易为已接通的通信提供稳定资源 |
 
-### 无线局域网：802.11
+### Wireless LANs: 802.11
 
-#### 标准化、共享频谱与接入点
+#### Standards, Shared Spectrum, and Access Points
 
 早期无线局域网产品互不兼容，促使业界制定共同标准。**IEEE 802.11（Wi-Fi）**
 
@@ -457,13 +457,13 @@ Wi-Fi 到 AP 的一段是无线链路，后续路径可以由有线网络继续�
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260914161638.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
-#### 多径衰落
+#### Multipath Fading
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260914161741.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
 **多径衰落（Multipath Fading）** ：无线信号可经直接路径和反射路径到达接收机。不同路径的距离与到达时间不同，收到的信号叠加时，可能相互增强，也可能相互抵消，导致接收强度明显波动。
 
-#### 分集：让信息拥有不同的传输机会
+#### Diversity
 
 **路径分集（Path Diversity）** ：利用多条不同、尽量独立的路径或传输机会，降低信息全部落在较差信道条件下的可能性。
 
@@ -474,7 +474,7 @@ Wi-Fi 到 AP 的一段是无线链路，后续路径可以由有线网络继续�
 | 时间 | 在不同时刻重复传送有关信息 | 避开某一时刻的不利条件 |
 
 
-#### 共享无线信道：监听、等待与冲突
+#### Channel Sensing, Backoff, and Collisions
 
 **载波侦听多路访问（CSMA）**的基本思想是发送前先听信道：发现别人正在发送，就推迟自己的发送；设备使用随机等待，冲突后再随机延迟并重传。
 
@@ -483,13 +483,13 @@ Wi-Fi 到 AP 的一段是无线链路，后续路径可以由有线网络继续�
 **A 和 C 可能互相听不到，但它们的信号都能到达 B。**
 于是，两者各自在本地听到“空闲”，仍可能在 B 处造成相互干扰。仅凭发送者自己没有听见别人，不能保证接收端没有冲突。
 
-#### 移动性与安全性
+#### Mobility and Security
 
 多个 AP 及连接它们的分布系统，可以组成多个小区，支持用户从一个位置移动到另一个位置时继续接入网络。
 
-## 网络协议
+## Network Protocols
 
-### 协议的四类设计目标
+### Four Protocol Design Goals
 
 | 目标 | 要解决的问题 | 机制 |
 | --- | --- | --- |
@@ -502,7 +502,7 @@ Wi-Fi 到 AP 的一段是无线链路，后续路径可以由有线网络继续�
 
 **统计复用（Statistical Multiplexing）。** ：多个使用者根据需求共享资源，利用它们并非始终同时需要全部资源的特点。
 
-#### 流量控制与拥塞控制
+#### Flow Control and Congestion Control
 
 | 问题 | 矛盾 | 理解 |
 | --- | --- | --- |
@@ -511,13 +511,13 @@ Wi-Fi 到 AP 的一段是无线链路，后续路径可以由有线网络继续�
 
 单个接收者处理得过来，不代表整个网络一定承载得了所有流量。反过来，网络总体不拥塞，也可能有某个接收者跟不上发送者。**服务质量（QoS）**还要协调不同业务对时延、速率等的不同需求。
 
-#### 可演进性与安全性
+#### Evolvability and Security
 
 分层把整体问题拆开，并把实现细节封装在层内。这样，新增网络或改变某部分实现时，不必要求所有上层应用同时重写。寻址与命名用于识别发送者和接收者；不同技术的限制不同，还需要通过互联机制适配。
 
 安全目标可用三个问题理解：**别人能否偷看？对方是否真是声称的身份？消息是否被偷偷改动？** 它们分别对应保密性、认证和完整性。
 
-### 协议、对等实体、接口与协议栈
+### Protocols, Peers, Interfaces, and Protocol Stacks
 
 **协议（Protocol）** ：规定通信实体之间交换消息的**格式、顺序，以及发送、接收消息或其他事件发生时应采取的动作**。
 
@@ -529,7 +529,7 @@ Wi-Fi 到 AP 的一段是无线链路，后续路径可以由有线网络继续�
 | 网络体系结构 | 一组层及相应协议的组织方式 |
 | 协议栈（Protocol Stack） | 某个系统实际采用的各层协议的组合 |
 
-### 对等层逻辑通信与数据的实际路径
+### Logical Communication and Actual Data Flow
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260914162300.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
@@ -549,13 +549,13 @@ Wi-Fi 到 AP 的一段是无线链路，后续路径可以由有线网络继续�
 
 因此，**对等层的逻辑通信依赖下层服务实现**。第 4 层不会绕过第 3、2、1 层，直接把数据“跳送”到另一台机器的第 4 层。
 
-### 封装、分片与接收端的逆过程
+### Encapsulation, Fragmentation, and Reassembly
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260914162402.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
 记 $M$ 为上层消息，$H_i$ 为第 $i$ 层添加的头部，$T_2$ 为第 2 层的尾部。
 
-#### 一次发送
+#### Sending a Message
 
 **第 5 层产生消息 $M$。** 交给第 4 层后，第 4 层加上自己的控制头部，形成 $[H_4\mid M]$。
 
@@ -576,13 +576,13 @@ Wi-Fi 到 AP 的一段是无线链路，后续路径可以由有线网络继续�
 **第 2 层再封装。** 给每一份分别加上 $H_2$ 和 $T_2$，构成可以在相应链路上传送的单位。尾部可以承载差错检测所需的信息；具体字段取决于协议。
 
 
-#### 接收端还原消息
+#### Reconstructing a Message
 
 接收端从低层往高层处理：第 2 层解释自己的头尾并完成相应检查，把内部数据交给第 3 层；第 3 层依据其规则识别、组织和重组各部分，恢复第 4 层交付的整体；第 4 层解释并移除自己的控制头部，最后向第 5 层交付 $M$。
 
 **封装**关注添加本层控制信息；**分片**关注把过大的数据单位拆成较小单位；**重组**则恢复拆分前的整体。它们需要区分，且并非每次经过一层都必须同时发生。
 
-### 面向连接与无连接服务
+### Connection-Oriented and Connectionless Services
 
 分层体系中，一层可以向上层提供不同形式的服务。
 
@@ -619,7 +619,7 @@ Wi-Fi 到 AP 的一段是无线链路，后续路径可以由有线网络继续�
 
 因此，消息边界属于服务语义。逐页处理的书页可能需要保留边界，下载电影则更关注字节内容及顺序。
 
-### 存储转发与直通转发
+### Store-and-Forward and Cut-Through Switching
 
 **中间节点收到多少数据以后，开始向下一跳发送？**
 
@@ -634,7 +634,7 @@ Wi-Fi 到 AP 的一段是无线链路，后续路径可以由有线网络继续�
 | 可靠性 | 高 | 较低 |
 | 性能 | 稍慢 | 极快 |
 
-### 服务原语
+### Service Primitives
 
 **服务原语（Service Primitive）** ：是用户进程访问某项服务时可调用的基本操作。
 
@@ -649,7 +649,7 @@ Wi-Fi 到 AP 的一段是无线链路，后续路径可以由有线网络继续�
 | `SEND` | 向对端发送消息 |
 | `DISCONNECT` | 终止连接 |
 
-#### 时序图 一次请求—应答
+#### Request–Reply Sequence Diagram
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260914163144.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
@@ -667,7 +667,7 @@ Wi-Fi 到 AP 的一段是无线链路，后续路径可以由有线网络继续�
 **某层呈现的服务形式，不必与其下层使用的传递方式相同。**
 
 
-### 服务与协议
+### Services and Protocols
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260914163317.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
@@ -683,9 +683,9 @@ Wi-Fi 到 AP 的一段是无线链路，后续路径可以由有线网络继续�
 **保持对上层可见的服务不变，就可以更换内部协议或实现。** 
 前提是参与通信的对等实体仍能遵守一致、兼容的规则，不能只改一端的报文解释就期望另一端自动理解。
 
-## 参考模型与物理层简介
+## Reference Models
 
-### OSI 七层模型
+### OSI Seven-Layer Model
 
 **开放系统互连参考模型（OSI）** 规定了七层的职责划分，是理解网络功能与协议组织的参考框架。自下而上的顺序为：
 
@@ -704,7 +704,7 @@ Wi-Fi 到 AP 的一段是无线链路，后续路径可以由有线网络继续�
 **物理层传比特，数据链路层组织帧，网络层处理分组。**
 OSI 模型本身没有规定各层必须采用的具体服务和协议，因此不是一套完整的网络体系结构。
 
-### 端到端与逐跳处理
+### End-to-End and Hop-by-Hop Processing
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260914163513.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
@@ -720,7 +720,7 @@ OSI 模型本身没有规定各层必须采用的具体服务和协议，因此�
 
 访问百度：本机先到默认网关，再经学校出口、运营商网络等节点，逐跳到达目的地。
 
-### 物理层负责什么
+### Physical Layer Functions
 
 **物理层（Physical Layer）** 负责在通信信道上传输原始比特，涉及实际的机械、电气、时序接口和传输介质。
 
