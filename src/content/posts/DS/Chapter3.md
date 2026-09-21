@@ -7,79 +7,6 @@ category: 笔记
 draft: false
 ---
 
-## 概述
-
-这一章开始，数据库课程从 **关系模型的理论表达** 走向 **SQL 的实际使用**。
-
-如果说 Chapter 2 解决的是：
-
-- 数据怎样抽象成关系
-- 主键、外键、关系代数分别是什么
-
-那么 Chapter 3 解决的就是：
-
-- 这些关系到底怎样用 SQL 建出来
-- 怎样把想问的问题写成查询
-- 怎样做分组统计、子查询、增删改
-
-这一章是数据库课程里非常关键的一章，因为后面几乎所有更复杂的内容，都是在这里的 SQL 基础上继续展开的。
-
----
-
-## 目录
-
-- [概述](#概述)
-- [目录](#目录)
-- [SQL Overview](#sql-overview)
-  - [DDL 与 DML](#ddl-与-dml)
-    - [1. DDL](#1-ddl)
-    - [2. DML](#2-dml)
-- [Data Definition](#data-definition)
-  - [数据类型](#数据类型)
-  - [`create table` 与常见约束](#create-table-与常见约束)
-  - [表结构修改语句](#表结构修改语句)
-- [Basic Query Structure](#basic-query-structure)
-  - [查询骨架](#查询骨架)
-  - [条件、去重与范围判断](#条件去重与范围判断)
-  - [多表查询的基本直觉](#多表查询的基本直觉)
-- [Additional Basic Operations](#additional-basic-operations)
-  - [连接操作](#连接操作)
-  - [重命名、模式匹配与排序](#重命名模式匹配与排序)
-- [Set Operations And Duplicate Semantics](#set-operations-and-duplicate-semantics)
-  - [集合运算](#集合运算)
-    - [union](#union)
-    - [intersect](#intersect)
-    - [except](#except)
-- [Null Values](#null-values)
-  - [`null` 的含义与影响](#null-的含义与影响)
-  - [三值逻辑](#三值逻辑)
-    - [OR](#or)
-    - [AND](#and)
-    - [NOT](#not)
-- [Aggregate Functions](#aggregate-functions)
-  - [常见聚合函数](#常见聚合函数)
-    - [求平均工资](#求平均工资)
-    - [统计开课教师人数](#统计开课教师人数)
-    - [统计 course 表的元组数](#统计-course-表的元组数)
-  - [`group by / having`](#group-by--having)
-    - [where](#where)
-    - [having](#having)
-  - [聚合函数与 `null`](#聚合函数与-null)
-    - [1. `sum(salary)` 会忽略 `null`](#1-sumsalary-会忽略-null)
-    - [2. 除 `count(*)` 外，其他聚合函数都忽略聚合列中的 `null`](#2-除-count-外其他聚合函数都忽略聚合列中的-null)
-    - [3. 如果一整组全是 null](#3-如果一整组全是-null)
-- [Nested Subqueries](#nested-subqueries)
-  - [子查询的作用](#子查询的作用)
-  - [集合成员测试与集合比较](#集合成员测试与集合比较)
-  - [标量子查询与存在性测试](#标量子查询与存在性测试)
-  - [`from` 子查询、`lateral` 与 `with`](#from-子查询lateral-与-with)
-- [Modification Of The Database](#modification-of-the-database)
-  - [delete](#delete)
-  - [`insert`](#insert)
-  - [`update`](#update)
-
----
-
 ## SQL Overview
 
 SQL 是 **Structured Query Language**，也就是结构化查询语言。
@@ -95,7 +22,6 @@ SQL 是 **Structured Query Language**，也就是结构化查询语言。
 
 > 关系数据库的通用工作语言。
 
----
 
 ### DDL 与 DML
 
@@ -145,7 +71,6 @@ DML 是 **Data Manipulation Language**，数据操作语言。
 
 > DDL 决定表的规则，DML 决定表里的数据怎么动。
 
----
 
 ## Data Definition
 
@@ -165,7 +90,6 @@ ID char(5),
 name varchar(20)
 ```
 
----
 
 **整数与数值类型**
 
@@ -190,7 +114,6 @@ salary numeric(8, 2)
 
 表示工资总共最多 8 位，其中 2 位是小数位。
 
----
 
 **日期时间类型**
 
@@ -219,7 +142,6 @@ interval '1' day
 - `minute(x)`
 - `second(x)`
 
----
 
 **类型到底解决什么问题**
 
@@ -279,7 +201,6 @@ create table instructor (
 - 系名是字符串
 - 工资是带两位小数的数值
 
----
 
 **`not null`**
 
@@ -298,7 +219,6 @@ name varchar(20) not null
 
 表示教师姓名不能为空。
 
----
 
 **`primary key`**
 
@@ -324,7 +244,6 @@ create table instructor (
 
 也就是说，只要某列被声明成主键，它自动就不能是空值。
 
----
 
 **复合主键**
 
@@ -349,7 +268,6 @@ create table takes (
 - 一条选课记录不是靠单个属性唯一
 - 而是学生、课程、班号、学期、年份一起才能唯一确定
 
----
 
 **`foreign key`**
 
@@ -390,7 +308,6 @@ create table course (
 
 > 让表与表之间的联系不仅能连起来，而且连得合法。
 
----
 
 **`default`**
 
@@ -415,7 +332,6 @@ create table student (
 
 这个机制解决的是缺省值的问题。
 
----
 
 **参照动作：`on delete / on update`**
 
@@ -442,7 +358,6 @@ create table student (
 - `set null`：把外键列改成 `null`
 - `restrict` / `no action`：不允许你这么做
 
----
 
 **`insert into`**
 
@@ -467,7 +382,6 @@ values ('10211', null, 'Biology', 66000);
 
 如果某列声明了 `not null`，那这种插入就会出问题。
 
----
 
 ### 表结构修改语句
 
@@ -519,7 +433,6 @@ alter table r drop A;
 
 也就是说，理论上能写，实际数据库支持程度可能不同。
 
----
 
 ## Basic Query Structure
 
@@ -551,7 +464,6 @@ where P;
 
 这就是最基础的 SQL 思维。
 
----
 
 **`select`：我要看什么**
 
@@ -572,7 +484,6 @@ SQL 名字默认大小写不敏感
 
 本质上都可以看成同一个标识符。
 
----
 
 **`select *`**
 
@@ -592,7 +503,6 @@ from instructor;
 
 但在正式查询中，通常还是更推荐只写需要的列。
 
----
 
 **`select` 中可以放表达式**
 
@@ -614,7 +524,6 @@ from instructor;
 
 如果想让结果更清楚，通常会配合 `as` 起别名，这一点在后面讲。
 
----
 
 **`from`：数据从哪里来**
 
@@ -644,7 +553,6 @@ from instructor, teaches;
 
 这一步本身通常没什么实际意义，但它是多表查询的出发点。
 
----
 
 **`where`：我要什么条件**
 
@@ -663,7 +571,6 @@ where dept_name = 'Comp. Sci.' and salary > 80000;
 - 不是所有元组都要
 - 只保留满足条件的那些
 
----
 
 ### 条件、去重与范围判断
 
@@ -689,7 +596,6 @@ where dept_name = 'Comp. Sci.' and salary > 80000;
 
 以后条件复杂起来时，你会发现 SQL 本质上就是在写逻辑表达式。
 
----
 
 **`distinct` 与 `all`**
 
@@ -722,7 +628,6 @@ from instructor;
 
 > SQL 默认不是集合语义，而是允许重复的多重集语义。
 
----
 
 **`between`**
 
@@ -741,7 +646,6 @@ where salary between 90000 and 100000;
 
 理解上可以把 `between a and b` 看成闭区间。
 
----
 
 **元组比较**
 
@@ -764,7 +668,6 @@ where instructor.ID = teaches.ID
 这说明 SQL 可以把多个值打包成一个元组来比较。
 
 
----
 
 ### 多表查询的基本直觉
 
@@ -785,7 +688,6 @@ where instructor.ID = teaches.ID;
 
 > 多表查询是先组合，再按关联条件筛掉无关组合。
 
----
 
 ## Additional Basic Operations
 
@@ -811,7 +713,6 @@ where instructor.ID = teaches.ID
 
 > 把本来分散在不同表中的相关信息拼起来。
 
----
 
 **`natural join`**
 
@@ -830,7 +731,6 @@ from instructor natural join teaches;
 
 所以它解决的是显式写等值条件太麻烦的问题。
 
----
 
 **`natural join` 的典型正确用法**
 
@@ -847,7 +747,6 @@ from instructor natural join teaches;
 
 所以自然连接在同名属性就是同一个含义时很好用。
 
----
 
 **`natural join` 的风险**
 
@@ -878,7 +777,6 @@ from instructor natural join teaches natural join course;
 
 结果会把本来不该筛掉的数据筛掉。
 
----
 
 **正确处理方式：显式指定连接列**
 
@@ -911,7 +809,6 @@ where instructor.ID = teaches.ID
 - 只按真正需要的列建立关联
 - 不让同名但无关的列偷偷参与连接
 
----
 
 **`natural join` 和显式连接条件的区别**
 
@@ -927,7 +824,6 @@ where instructor.ID = teaches.ID
 - 写法稍长
 - 但语义更清楚、更安全
 
----
 
 **`join ... using(...)`**
 
@@ -946,7 +842,6 @@ join course using (course_id)
 
 适合我知道就是按这个同名列连，但不想让别的同名列也参与的场景。
 
----
 
 **一个典型连接例子**
 
@@ -967,7 +862,6 @@ where student.dept_name <> course.dept_name;
 - 再把课程信息连进来
 - 最后比较学生所在系和课程所属系
 
----
 
 ### 重命名、模式匹配与排序
 
@@ -993,7 +887,6 @@ from instructor;
 - 计算结果默认没名字，不好读
 - 多表查询中表名太长，不好写
 
----
 
 **给表起别名**
 
@@ -1017,7 +910,6 @@ where T.salary > S.salary
 - `as` 关键字可以省略
 - 例如 `instructor as T` 等价于 `instructor T`
 
----
 
 **`like`：字符串模式匹配**
 
@@ -1038,7 +930,6 @@ from instructor
 where name like '%dar%';
 ```
 
----
 
 **`escape`**
 
@@ -1059,7 +950,6 @@ like '100 #%' escape '#'
 - 后面的 `%` 不再表示通配符，而表示字符 `%` 本身
 
 
----
 
 **`like` 的典型模式**
 
@@ -1072,7 +962,6 @@ like '100 #%' escape '#'
 
 也就是说，模式匹配默认区分大小写。
 
----
 
 **字符串操作**
 一些常见字符串操作：
@@ -1082,7 +971,6 @@ like '100 #%' escape '#'
 - 求长度
 - 截取子串
 
----
 
 **`order by`**
 
@@ -1098,7 +986,6 @@ from instructor
 order by name;
 ```
 
----
 
 **`asc / desc` 与多列排序**
 
@@ -1128,7 +1015,6 @@ order by dept_name, name;
 1. 先按 `dept_name` 排
 2. 若系名相同，再按 `name` 排
 
----
 
 **`limit`**
 
@@ -1156,7 +1042,6 @@ limit 0, 3
 
 这类写法在实际系统里很常见，不过不同数据库的细节语法可能略有差异。
 
----
 
 ## Set Operations And Duplicate Semantics
 
@@ -1171,7 +1056,6 @@ limit 0, 3
 
 因此 SQL 更接近 **multiset / bag（多重集）**，而不是严格的集合。
 
----
 
 本章讲了三个标准集合运算：
 
@@ -1227,7 +1111,6 @@ except
 
 表示差集。
 
----
 
 **这些集合运算默认会去重**
 
@@ -1235,7 +1118,6 @@ except
 
 所以它们更接近集合语义。
 
----
 
 **`all` 版本**
 
@@ -1253,7 +1135,6 @@ except
 
 > SQL 对重复是有精确定义的，不是随便处理。
 
----
 
 ## Null Values
 
@@ -1272,7 +1153,6 @@ except
 
 > `null` 不是 0，不是空字符串，也不是 false。
 
----
 
 **`null` 会带来什么影响**
 
@@ -1292,7 +1172,6 @@ null
 
 因为有一个值未知，整个结果也就无法确定。
 
----
 
 **`is null`**
 
@@ -1310,7 +1189,6 @@ from instructor
 where salary is null;
 ```
 
----
 
 **为什么不能用 `=` 判断 `null`**
 
@@ -1334,7 +1212,6 @@ salary = null
 salary is null
 ```
 
----
 
 ### 三值逻辑
 
@@ -1357,7 +1234,6 @@ salary is null
 
 - `not unknown = unknown`
 
----
 
 **`unknown` 在 `where` 中的后果**
 
@@ -1371,7 +1247,6 @@ salary is null
 
 所以很多为什么这条记录没查出来的问题，本质上都是 `null` 导致条件变成了 `unknown`。
 
----
 
 ## Aggregate Functions
 
@@ -1391,7 +1266,6 @@ salary is null
 
 > 某一列值构成的一个集合（更准确说是多重集）。
 
----
 
 **基本例子**
 
@@ -1431,7 +1305,6 @@ from course;
 
 `count(*)` 表示统计行数。
 
----
 
 ### `group by / having`
 
@@ -1456,7 +1329,6 @@ group by dept_name;
 
 > 统计不是对整张表做，而是对每一类分别做。
 
----
 
 **`group by` 和 `select` 的关系**
 
@@ -1478,7 +1350,6 @@ group by dept_name;
 
 所以这是不合法的。
 
----
 
 **`having`：对分组后的结果再筛选**
 
@@ -1497,7 +1368,6 @@ having avg(salary) > 42000;
 2. 对每组算平均工资
 3. 再只保留平均工资大于 42000 的组
 
----
 
 **`where` 和 `having` 的区别**
 
@@ -1531,7 +1401,6 @@ order by cnt;
 - `group by dept_name`：对这些人按系分组
 - `having count(*) > 10`：只保留人数超过 10 的组
 
----
 
 ### 聚合函数与 `null`
 
@@ -1562,7 +1431,6 @@ from instructor;
 
 这点非常重要。
 
----
 
 **一个检查重复的例子**
 
@@ -1582,7 +1450,6 @@ having count(distinct name) = count(ID);
 - 如果重名不存在
 - 那么不同姓名个数就等于学生总人数
 
----
 
 ## Nested Subqueries
 
@@ -1600,7 +1467,6 @@ having count(distinct name) = count(ID);
 
 > 先用一个查询算出一个中间结果，再让外层查询拿这个结果继续判断。
 
----
 
 ### 集合成员测试与集合比较
 
@@ -1629,7 +1495,6 @@ where semester = 'Fall'
 
 > `in` 本质上是在问：这个值是否属于子查询返回的集合。
 
----
 
 **`not in`：不属于某个集合**
 
@@ -1649,7 +1514,6 @@ where semester = 'Fall'
 
 这和上面的 `in` 正好相反。
 
----
 
 **元组 `in`**
 
@@ -1670,7 +1534,6 @@ where (course_id, sec_id, semester, year) in (
 - 先找出教师 `10101` 教过的那些具体开课班次
 - 再找修过这些班次的学生人数
 
----
 
 **`some`：和集合中的至少一个值比较**
 
@@ -1695,7 +1558,6 @@ where salary > some (
 
 > `F <comp> some r` 等价于：存在 `r` 中某个值，使得比较成立。
 
----
 
 **`all`：和集合中的所有值比较**
 
@@ -1717,7 +1579,6 @@ where salary > all (
 
 > `F <comp> all r` 等价于：对 `r` 中每个值，比较都成立。
 
----
 
 **`some` 和 `in` 的关系**
 
@@ -1734,7 +1595,6 @@ where salary > all (
 - 集合成员测试用 `in / not in`
 - 集合比较用 `some / all`
 
----
 
 ### 标量子查询与存在性测试
 
@@ -1759,7 +1619,6 @@ where salary * 10 >
 
 所以你必须确保它真的只会返回一个值。
 
----
 
 **`exists`：只关心有没有**
 
@@ -1786,7 +1645,6 @@ where semester = 'Fall'
   );
 ```
 
----
 
 **相关子查询 correlated subquery**
 
@@ -1807,7 +1665,6 @@ S.course_id
 
 > 内层查询依赖外层当前这一行。
 
----
 
 **`not exists + except`：表达全都修过**
 
@@ -1837,7 +1694,6 @@ where not exists (
 - 就说明 `X ⊆ Y`
 - 也就是该学生把 Biology 的课程全修了
 
----
 
 **`unique`**
 
@@ -1861,7 +1717,6 @@ where unique (
 
 如果再加上 `exists`，就能把至多一次改成恰好一次。
 
----
 
 ### `from` 子查询、`lateral` 与 `with`
 
@@ -1887,7 +1742,6 @@ where avg_salary > 42000;
 - 先构造中间结果
 - 再对中间结果继续查询
 
----
 
 **给 `from` 子查询起名字**
 
@@ -1906,7 +1760,6 @@ where avg_salary > 42000;
 - `dept_avg` 是子查询得到的临时关系名
 - 后面的 `(dept_name, avg_salary)` 是它的列名
 
----
 
 **`lateral`**
 
@@ -1932,7 +1785,6 @@ from instructor I1,
 > `from` 子句里的可引用前文的子查询。
 
 
----
 
 **`with`：临时视图 temporary view**
 
@@ -1955,7 +1807,6 @@ where department.budget = max_budget.value;
 1. 先把最大预算命名成一个临时结果 `max_budget`
 2. 外层查询再拿它去和 `department` 比较
 
----
 
 **为什么 `with` 重要**
 
@@ -1985,7 +1836,6 @@ where dept_total.value >= dept_total_avg.value;
 
 > 给中间结果起名字，像搭积木一样组织复杂查询。
 
----
 
 ## Modification Of The Database
 
@@ -2026,7 +1876,6 @@ where dept_name in (
 );
 ```
 
----
 
 **`delete` 中的一个细节**
 
@@ -2047,7 +1896,6 @@ SQL 采用的语义是：
 
 这说明 SQL 在修改语句中也很强调语义稳定。
 
----
 
 ### `insert`
 
@@ -2069,7 +1917,6 @@ values ('CS-437', 'Database Systems', 'Comp. Sci.', 4);
 
 写列名的好处是更清晰，也更不容易因为列顺序变化而出错。
 
----
 
 **插入 `null`**
 
@@ -2082,7 +1929,6 @@ values ('3003', 'Green', 'Finance', null);
 
 这表示把 `tot_cred` 设成空值。
 
----
 
 **`insert ... select`**
 
@@ -2101,7 +1947,6 @@ from instructor;
 - `insert` 的数据来源不一定是手写一条
 - 也可以来自另一条查询
 
----
 
 **为什么 `insert ... select` 会先完整计算再插入**
 
@@ -2121,7 +1966,6 @@ from table1;
 
 > 先把源结果确定好，再统一插入。
 
----
 
 ### `update`
 
@@ -2140,7 +1984,6 @@ where salary > 100000;
 - 对满足条件的元组
 - 把 `salary` 更新成原来的 `1.03` 倍
 
----
 
 **两条 `update` 的顺序问题**
 
@@ -2163,7 +2006,6 @@ where salary <= 100000;
 
 因为第一条执行后，某些元组的值已经变了，可能影响第二条的判断。
 
----
 
 **`case`：在一次 `update` 里表达分情况更新**
 
@@ -2184,7 +2026,6 @@ end;
 
 所以 `case` 是实际 SQL 里非常常见的工具。
 
----
 
 **`update` + 子查询**
 
@@ -2222,4 +2063,3 @@ end
 - 如果求和不是 `null`，就取这个和
 - 否则设成 `0`
 
----

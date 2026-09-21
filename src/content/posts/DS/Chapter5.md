@@ -7,131 +7,6 @@ category: 笔记
 draft: false
 ---
 
-## 概述
-
-Chapter 3 解决的是：
-
-- SQL 的基本查询怎么写
-- 聚合、子查询、增删改怎么表达
-- 单条 SQL 怎样完成常见数据操作
-
-Chapter 4 进一步解决：
-
-- join、view、完整性约束、事务、权限这些 数据库内部能力 
-- 也就是：**数据库自己如何更规范地组织和保护数据**
-
-Chapter 5 再往前走一步，讨论的是：
-
-- SQL 怎样和通用编程语言协作
-- 为什么业务逻辑有时会被放进数据库内部执行
-- trigger、递归查询、窗口函数、OLAP 这些 更高级的 SQL 能力 到底在干什么
-
-所以这一章的核心是：
-
-> 数据库不只是被动存数据。
-> 它还可以和程序联动、主动执行逻辑、表达递归关系、直接支持分析型查询。
-
----
-
-## 目录
-
-- [概述](#概述)
-- [目录](#目录)
-- [Accessing SQL from a Programming Language](#accessing-sql-from-a-programming-language)
-  - [为什么单靠 SQL 不够](#为什么单靠-sql-不够)
-  - [两条路线：API vs Embedded SQL](#两条路线api-vs-embedded-sql)
-  - [JDBC](#jdbc)
-    - [JDBC 的基本流程](#jdbc-的基本流程)
-    - [JDBC 查询与更新示例](#jdbc-查询与更新示例)
-    - [`PreparedStatement` 与 SQL 注入](#preparedstatement-与-sql-注入)
-    - [元数据 `metadata`](#元数据-metadata)
-    - [JDBC 中的事务控制](#jdbc-中的事务控制)
-    - [调用函数 / 过程与大对象](#调用函数--过程与大对象)
-    - [SQLJ](#sqlj)
-  - [ODBC](#odbc)
-    - [ODBC 的思想](#odbc-的思想)
-    - [ODBC 的执行流程](#odbc-的执行流程)
-    - [ODBC ：句柄、数据类型与一致性](#odbc-句柄数据类型与一致性)
-    - [ODBC 的结果读取：`SQLBindCol` vs `SQLGetData`](#odbc-的结果读取sqlbindcol-vs-sqlgetdata)
-    - [ODBC 的结束阶段](#odbc-的结束阶段)
-    - [ODBC 的预处理语句](#odbc-的预处理语句)
-  - [Embedded SQL](#embedded-sql)
-  - [宿主语言与宿主变量](#宿主语言与宿主变量)
-  - [SQLCA 与 SQLDA：程序和数据库怎么交换状态](#sqlca-与-sqlda程序和数据库怎么交换状态)
-  - [Embedded SQL 的基本例子：单条记录的增删改查](#embedded-sql-的基本例子单条记录的增删改查)
-    - [`insert`](#insert)
-    - [`delete`](#delete)
-    - [`update`](#update)
-    - [`select ... into`](#select--into)
-  - [指示变量（indicator variable）](#指示变量indicator-variable)
-  - [为什么需要 cursor](#为什么需要-cursor)
-  - [`open` / `fetch` / `close`](#open--fetch--close)
-  - [`for update` 与 `where current of`](#for-update-与-where-current-of)
-  - [Dynamic SQL：运行时再构造 SQL](#dynamic-sql运行时再构造-sql)
-    - [`EXECUTE IMMEDIATE`](#execute-immediate)
-    - [`PREPARE / EXECUTE`](#prepare--execute)
-- [Functions and Procedures](#functions-and-procedures)
-  - [为什么要把逻辑放进数据库](#为什么要把逻辑放进数据库)
-  - [函数 `function`](#函数-function)
-  - [表值函数 `returns table`](#表值函数-returns-table)
-  - [存储过程 `procedure`](#存储过程-procedure)
-  - [过程化控制结构](#过程化控制结构)
-    - [PL/SQL block 的结构](#plsql-block-的结构)
-    - [变量声明：不仅有 SQL 类型，还有 `%TYPE`](#变量声明不仅有-sql-类型还有-type)
-    - [`%ROWTYPE` 与 record：把 一整行 当对象用](#rowtype-与-record把-一整行-当对象用)
-    - [复合语句 `begin ... end`](#复合语句-begin--end)
-    - [`while` / `repeat`](#while--repeat)
-    - [`for`](#for)
-    - [`if-then-else`](#if-then-else)
-    - [`select ... into`：把单行查询直接装进变量](#select--into把单行查询直接装进变量)
-    - [显式游标与游标属性](#显式游标与游标属性)
-    - [隐式 SQL 游标属性：看最近一条 SQL 影响了几行](#隐式-sql-游标属性看最近一条-sql-影响了几行)
-  - [Example：`registerStudent`](#exampleregisterstudent)
-  - [外部语言函数 / 过程](#外部语言函数--过程)
-  - [安全问题与 sandbox](#安全问题与-sandbox)
-- [Triggers](#triggers)
-  - [什么是 trigger](#什么是-trigger)
-  - [ECA 规则](#eca-规则)
-  - [Example1：大额余额变动记日志](#example1大额余额变动记日志)
-  - [Example2：用 trigger 补足外键约束表达不了的完整性](#example2用-trigger-补足外键约束表达不了的完整性)
-  - [Example3：`before update` 纠正数据](#example3before-update-纠正数据)
-  - [Example4：成绩更新后自动累计学分](#example4成绩更新后自动累计学分)
-  - [`for each row` vs `for each statement`](#for-each-row-vs-for-each-statement)
-  - [trigger 的风险与替代方案](#trigger-的风险与替代方案)
-- [Recursive Queries](#recursive-queries)
-  - [为什么需要递归查询](#为什么需要递归查询)
-  - [先修课的传递闭包](#先修课的传递闭包)
-  - [为什么非递归 SQL 做不好这类问题](#为什么非递归-sql-做不好这类问题)
-  - [递归的迭代版思路](#递归的迭代版思路)
-  - [层级关系：员工-经理传递关系](#层级关系员工-经理传递关系)
-- [Advanced Aggregation Features](#advanced-aggregation-features)
-  - [Ranking](#ranking)
-  - [`rank()` 与 `dense_rank()`](#rank-与-dense_rank)
-  - [低效但直观的 基础 SQL 排名写法](#低效但直观的-基础-sql-排名写法)
-  - [分组内排名 `partition by`](#分组内排名-partition-by)
-  - [其他排名函数](#其他排名函数)
-  - [Windowing](#windowing)
-  - [移动窗口](#移动窗口)
-  - [常见窗口边界](#常见窗口边界)
-  - [分区内累计和](#分区内累计和)
-  - [OLAP](#olap)
-  - [什么是 OLAP](#什么是-olap)
-  - [维度属性与度量属性](#维度属性与度量属性)
-  - [交叉表 `cross-tab` / `pivot-table`](#交叉表-cross-tab--pivot-table)
-  - [Data Cube](#data-cube)
-  - [Hierarchy、roll up、drill down、slice、dice、pivot](#hierarchyroll-updrill-downslicedicepivot)
-  - [把交叉表表示成关系](#把交叉表表示成关系)
-  - [`cube`](#cube)
-  - [`grouping()` 与把 `null` 还原成 `all`](#grouping-与把-null-还原成-all)
-  - [`rollup`](#rollup)
-  - [多个 `rollup/cube` 组合](#多个-rollupcube-组合)
-  - [`grouping sets`：更精细地指定分组集合](#grouping-sets更精细地指定分组集合)
-  - [MOLAP / ROLAP / HOLAP](#molap--rolap--holap)
-  - [预计算与优化](#预计算与优化)
-- [`merge`](#merge)
-
----
-
 ## Accessing SQL from a Programming Language
 
 ### 为什么单靠 SQL 不够
@@ -147,7 +22,6 @@ Chapter 5 再往前走一步，讨论的是：
 
 这就是 数据库应用程序 存在的意义。
 
----
 
 ### 两条路线：API vs Embedded SQL
 
@@ -176,7 +50,6 @@ Chapter 5 再往前走一步，讨论的是：
 - **API**：你自己显式写 调用数据库接口 的代码
 - **Embedded SQL**：你把 SQL 写在程序里，编译器/预处理器帮你翻译
 
----
 
 ### JDBC
 
@@ -209,7 +82,6 @@ conn.close();
 - `Statement`：我拿到一个 发 SQL 命令的工具 
 - `ResultSet`：数据库把查询结果封装成一个可迭代结果集
 
----
 
 #### JDBC 查询与更新示例
 
@@ -254,7 +126,6 @@ while (rset.next()) {
 
 如果 `dept_name` 正好是 `select` 结果的第一列，这两个就等价。
 
----
 
 #### `PreparedStatement` 与 SQL 注入
 
@@ -318,7 +189,6 @@ X'; update instructor set salary = salary + 10000;(这太爽了)
 
 它不仅能防攻击，也能避免名字里带引号这种正常输入把 SQL 搞坏。比如 `D'Souza`。
 
----
 
 #### 元数据 `metadata`
 
@@ -360,7 +230,6 @@ ResultSet rs = dbmd.getColumns(null, "univdb", "department", "%");
 
 > 找 `univdb.department` 里所有列，并返回列名、类型等信息。
 
----
 
 #### JDBC 中的事务控制
 
@@ -391,7 +260,6 @@ conn.commit();
 - 单条独立语句，自动提交问题不大
 - 多步逻辑更新，通常要关闭自动提交，自己控制 `commit/rollback`
 
----
 
 #### 调用函数 / 过程与大对象
 
@@ -426,7 +294,6 @@ CallableStatement cStmt2 = conn.prepareCall("{call some_procedure(?,?)}");
 - 大段文本
 - 音视频片段等
 
----
 
 #### SQLJ
 
@@ -453,7 +320,6 @@ slides 提到：JDBC 很灵活，但 太动态 了。
 
 但从现代工程角度看，JDBC / ORM 框架更常见。
 
----
 
 ### ODBC
 
@@ -499,7 +365,6 @@ ODBC 是一种更通用的数据库接口标准。
 
 > 它把 应用如何访问数据库 与 底层到底是哪家数据库 进一步解耦了。
 
----
 
 #### ODBC 的执行流程
 
@@ -554,7 +419,6 @@ while (SQLFetch(stmt) == SQL_SUCCESS) {
 
 如果长度字段返回负值，往往表示该列是 `null`。
 
----
 
 #### ODBC ：句柄、数据类型与一致性
 
@@ -617,7 +481,6 @@ ODBC 的一致性级别（conformance levels）：
 
 > 只要用了 ODBC，一切数据库差异都会自动消失。
 
----
 
 #### ODBC 的结果读取：`SQLBindCol` vs `SQLGetData`
 
@@ -655,7 +518,6 @@ while (SQLFetch(hSTMT) == SQL_SUCCESS) {
 - `SQLBindCol + SQLFetch` 有点像提前告诉系统 把列填到这些变量里 
 - `SQLGetData` 更像每次对当前行再调用 `getXXX()`
 
----
 
 #### ODBC 的结束阶段
 
@@ -703,7 +565,6 @@ slides 也专门用 ODBC 再次强调了 SQL injection 的风险，所以要记�
 - **prepared statement 不是 Java 特有技巧**
 - 它是数据库编程里的通用安全原则
 
----
 
 ### Embedded SQL
 
@@ -719,7 +580,6 @@ Embedded SQL 是另一条非常经典的路线：**不是在程序里手工调�
 
 所以需要 宿主语言 + SQL 联合工作。
 
----
 
 ### 宿主语言与宿主变量
 
@@ -771,7 +631,6 @@ where tot_cred > :credit_amount
 2. **数据库和宿主语言如何通信**
 3. **SQL 类型系统与宿主语言类型系统如何对接**
 
----
 
 ### SQLCA 与 SQLDA：程序和数据库怎么交换状态
 
@@ -826,7 +685,6 @@ else printf("Success!\n");
 - `SQLCA` 更像 状态区 
 - `SQLDA` 更像 描述区 
 
----
 
 ### Embedded SQL 的基本例子：单条记录的增删改查
 
@@ -886,7 +744,6 @@ where account_number = :account_no;
 
 不过这类写法通常要求查询结果是单行或至少逻辑上应当只有一行。
 
----
 
 ### 指示变量（indicator variable）
 
@@ -912,7 +769,6 @@ where account_number = :account_no;
 
 > 补上 宿主语言原生类型无法直接表达 SQL null / 截断状态 的那部分语义。
 
----
 
 ### 为什么需要 cursor
 
@@ -997,7 +853,6 @@ EXEC SQL close account_cursor;
 
 因此游标和 JDBC 的 `ResultSet` 很像，只是写法更 嵌入式 SQL 风格。
 
----
 
 ### `for update` 与 `where current of`
 
@@ -1048,7 +903,6 @@ else
 
 对于逐行扫描 + 条件更新，这种写法非常自然。
 
----
 
 ### Dynamic SQL：运行时再构造 SQL
 
@@ -1127,7 +981,6 @@ EXEC SQL execute dynprog using :account;
 
 > 某些逻辑，是不是应该 挪到数据库内部 来做？
 
----
 
 ### 函数 `function`
 
@@ -1159,7 +1012,6 @@ where dept_count(dept_name) > 1;
 - 以后别的 SQL 直接调用函数即可
 - SQL 变得更像 用已有组件拼装业务语义 
 
----
 
 ### 表值函数 `returns table`
 
@@ -1198,7 +1050,6 @@ from table(instructors_of('Music'));
 
 普通 `view` 没参数，而表值函数可以吃参数，所以更灵活。
 
----
 
 ### 存储过程 `procedure`
 
@@ -1230,7 +1081,6 @@ call dept_count_proc('Physics', d_count);
 
 当然不同 DBMS 的具体限制不完全一样，但这个直觉通常成立。
 
----
 
 ### 过程化控制结构
 
@@ -1257,7 +1107,6 @@ slides 这里讲的是 SQL 的**procedural extension**。
 
 也就是说，前面我们在 Functions and Procedures 里讲的很多想法，在 Oracle 里往往会具体落成 **PL/SQL block** 的形式。
 
----
 
 #### PL/SQL block 的结构
 
@@ -1287,7 +1136,6 @@ END;         -- 必选
 - 匿名块更像 临时脚本 
 - 命名块更像 可复用的数据库程序单元 
 
----
 
 #### 变量声明：不仅有 SQL 类型，还有 `%TYPE`
 
@@ -1337,7 +1185,6 @@ end;
 
 > 当表字段类型以后发生变化时，过程里的变量类型也能自动跟着同步，不容易失配。
 
----
 
 #### `%ROWTYPE` 与 record：把 一整行 当对象用
 
@@ -1385,7 +1232,6 @@ end;
 - `%ROWTYPE`：直接复用表的一行结构
 - `record`：自己定义一个复合结构
 
----
 
 #### 复合语句 `begin ... end`
 
@@ -1402,7 +1248,6 @@ end
 - 可以放多条 SQL 语句
 - 可以在块内声明局部变量
 
----
 
 #### `while` / `repeat`
 
@@ -1423,7 +1268,6 @@ end repeat;
 - `while`：先判条件，再执行
 - `repeat`：先执行，再判条件，直到满足 `until`
 
----
 
 #### `for`
 
@@ -1441,7 +1285,6 @@ end for;
 
 这和很多语言里的 for each row in query result 一个意思。
 
----
 
 #### `if-then-else`
 
@@ -1480,7 +1323,6 @@ end if;
 
 这些都说明数据库过程语言已经不只是 写 SQL ，而是在数据库内部写程序。
 
----
 
 #### `select ... into`：把单行查询直接装进变量
 
@@ -1517,7 +1359,6 @@ end;
 
 这和 Embedded SQL 里的 `select ... into :host_var` 在思想上是一致的，只是这里变量已经在数据库过程语言内部。
 
----
 
 #### 显式游标与游标属性
 
@@ -1548,7 +1389,6 @@ end;
 
 例如你可以写出更清晰的循环逻辑，而不是完全依赖外部状态码。
 
----
 
 #### 隐式 SQL 游标属性：看最近一条 SQL 影响了几行
 
@@ -1590,7 +1430,6 @@ end;
 
 这比 先查再改 更紧凑。
 
----
 
 ### Example：`registerStudent`
 
@@ -1656,7 +1495,6 @@ end;
 
 也就是说，存储过程/函数的真正价值，不只是 省几行代码 ，而是把业务规则封装成数据库服务接口。
 
----
 
 ### 外部语言函数 / 过程
 
@@ -1682,7 +1520,6 @@ external name '/usr/avi/bin/dept_count_proc';
 
 但问题也随之而来。
 
----
 
 ### 安全问题与 sandbox
 
@@ -1716,7 +1553,6 @@ external name '/usr/avi/bin/dept_count_proc';
 
 通常不能同时取到极致。
 
----
 
 ## Triggers
 
@@ -1737,7 +1573,6 @@ trigger 是：
 - 补充完整性检查
 - 自动修正输入
 
----
 
 ### ECA 规则
 
@@ -1753,7 +1588,6 @@ trigger 常被概括成 **ECA**：
 2. 触发时检查什么
 3. 真正执行什么动作
 
----
 
 ### Example1：大额余额变动记日志
 
@@ -1786,7 +1620,6 @@ end;
 
 所以 trigger 天然很适合做 比较新旧状态 的工作。
 
----
 
 ### Example2：用 trigger 补足外键约束表达不了的完整性
 
@@ -1842,7 +1675,6 @@ end;
 > 标准外键语法表达不了，
 > 但业务上又必须保证的数据一致性。
 
----
 
 ### Example3：`before update` 纠正数据
 
@@ -1868,7 +1700,6 @@ end;
 
 这是一个典型的数据清洗/标准化用法。
 
----
 
 ### Example4：成绩更新后自动累计学分
 
@@ -1903,7 +1734,6 @@ end;
 
 也就是：**把派生数据维护自动化**。
 
----
 
 ### `for each row` vs `for each statement`
 
@@ -1948,7 +1778,6 @@ end;
 
 这种 整体检查 如果按 `for each row` 做，反而不自然。
 
----
 
 ### trigger 的风险与替代方案
 
@@ -1984,7 +1813,6 @@ trigger 里只要有 bug，就可能让本来重要的更新失败。
 - trigger 很适合**小而清晰的自动反应逻辑**
 - 不适合堆太复杂、太隐蔽的业务流程
 
----
 
 ## Recursive Queries
 
@@ -2003,7 +1831,6 @@ trigger 里只要有 bug，就可能让本来重要的更新失败。
 
 这时就需要递归查询。
 
----
 
 ### 先修课的传递闭包
 
@@ -2054,7 +1881,6 @@ where rec_prereq.prereq_id = prereq.course_id
 
 这个结果就叫 **transitive closure（传递闭包）**。
 
----
 
 ### 为什么非递归 SQL 做不好这类问题
 
@@ -2079,7 +1905,6 @@ where rec_prereq.prereq_id = prereq.course_id
 > 不是预先写死 追几层 ，
 > 而是一直推到固定点为止。
 
----
 
 ### 递归的迭代版思路
 
@@ -2097,7 +1922,6 @@ where rec_prereq.prereq_id = prereq.course_id
 - 递归 SQL 更声明式、更紧凑
 - 过程化写法更接近算法实现
 
----
 
 ### 层级关系：员工-经理传递关系
 
@@ -2130,7 +1954,6 @@ from empl;
 - **经理关系** 也是有向图边
 - 递归查询就是在算图上的可达关系
 
----
 
 ## Advanced Aggregation Features
 
@@ -2173,7 +1996,6 @@ order by s_rank;
 
 `dense_rank()` 则不跳号，下一名是第二。
 
----
 
 ### 低效但直观的 基础 SQL 排名写法 
 
@@ -2200,7 +2022,6 @@ order by s_rank;
 - **表达更自然**
 - **执行通常更高效**
 
----
 
 ### 分组内排名 `partition by`
 
@@ -2227,7 +2048,6 @@ order by dept_name, dept_rank;
 - `limit n` 只能取全局前 n
 - `partition + rank` 可以取 每组前 n 
 
----
 
 ### 其他排名函数
 
@@ -2255,7 +2075,6 @@ from student_grades;
 
 这能避免空值在排序中的位置含糊不清。
 
----
 
 ### Windowing
 
@@ -2290,7 +2109,6 @@ from sales;
 
 所以它天然适合时间序列平滑。
 
----
 
 ### 常见窗口边界
 
@@ -2311,7 +2129,6 @@ from sales;
 - `rows 1 preceding` 是前一行
 - `range 10 preceding` 是所有排序值在当前值减 10 到当前值之间的行
 
----
 
 ### 分区内累计和
 
@@ -2349,7 +2166,6 @@ order by account_number, date_time;
 
 这就是 **running total（累计和）**。
 
----
 
 ### OLAP
 
@@ -2368,7 +2184,6 @@ OLAP = **Online Analytical Processing**。
 > 不是 改一条记录 ，
 > 而是 从海量数据里快速看规律 。
 
----
 
 ### 维度属性与度量属性
 
@@ -2389,7 +2204,6 @@ OLAP = **Online Analytical Processing**。
 - `quantity` 回答 有多少 
 - `item_name/color/size` 回答 按什么分类看 
 
----
 
 ### 交叉表 `cross-tab` / `pivot-table`
 
@@ -2408,7 +2222,6 @@ sales(item_name, color, clothes_size, quantity)
 
 例如 按商品和颜色看销量汇总 的表，就是一个典型 `cross-tab` / `pivot-table`。
 
----
 
 ### Data Cube
 
@@ -2421,7 +2234,6 @@ sales(item_name, color, clothes_size, quantity)
 
 2D 的交叉表只是 cube 的一个切面。
 
----
 
 ### Hierarchy、roll up、drill down、slice、dice、pivot
 
@@ -2464,7 +2276,6 @@ sales(item_name, color, clothes_size, quantity)
 - 改变交叉表的观察维度
 - 例如原来按 商品 × 颜色 ，改成 商品 × 尺码 
 
----
 
 ### 把交叉表表示成关系
 
@@ -2491,7 +2302,6 @@ sales(item_name, color, clothes_size, quantity)
 
 这也是后面 `grouping()` 函数存在的原因。
 
----
 
 ### `cube`
 
@@ -2523,7 +2333,6 @@ group by cube(item_name, color, clothes_size);
 - `cube` 很强
 - 但结果规模也会迅速膨胀
 
----
 
 ### `grouping()` 与把 `null` 还原成 `all`
 
@@ -2560,7 +2369,6 @@ group by rollup(item_name, color);
 
 这里不能简单用 `coalesce(item_name, 'all')`，因为那会把原始数据里真正的空值也误改成 `all`。
 
----
 
 ### `rollup`
 
@@ -2603,7 +2411,6 @@ group by rollup(category, item_name);
 - 每个类别小计
 - 总计
 
----
 
 ### 多个 `rollup/cube` 组合
 
@@ -2630,7 +2437,6 @@ group by rollup(item_name), rollup(color, clothes_size);
 > 每个 rollup 都在生成一组 group-by 列表，
 > 多个 rollup/cube 组合时，本质上就是这些分组集合的组合。
 
----
 
 ### `grouping sets`：更精细地指定分组集合
 
@@ -2658,7 +2464,6 @@ group by grouping sets (
 
 这比 `cube` 更可控。
 
----
 
 ### MOLAP / ROLAP / HOLAP
 
@@ -2681,7 +2486,6 @@ OLAP 系统实现上也分路线：
 - 一部分汇总放内存
 - 明细数据和其他汇总放关系数据库
 
----
 
 ### 预计算与优化
 
@@ -2708,7 +2512,6 @@ OLAP 系统实现上也分路线：
 
 而像 `median` 这种 非可分解聚合 ，就没这么方便。
 
----
 
 ## `merge`
 
@@ -2741,5 +2544,4 @@ when matched then
 
 在工程里很常见。
 
----
 

@@ -7,159 +7,6 @@ category: 笔记
 draft: false
 ---
 
-## 概述
-本章围绕数据级并行（DLP）与线程级并行（TLP）展开：先介绍 Flynn 分类与 SIMD/MIMD 的基本概念，再讲向量与阵列处理器（含向量流水、向量链、分段与 CRAY/RV64V 示例）及 GPU 的 SIMT 编程模型；接着讨论阵列的内存组织与互联网络、循环并行化策略，以及多处理器的内存模型与一致性协议（UMA/NUMA/COMA、MSI/MESI/目录协议）；最后概览大规模并行系统与领域专用加速器（如 TPU）的设计要点与权衡，帮助读者在不同并行粒度上理解性能来源与瓶颈。
-
-
----
-
-## 目录
-
-- [概述](#概述)
-- [目录](#目录)
-- [From ILP to DLP and TLP](#from-ilp-to-dlp-and-tlp)
-  - [脉络](#脉络)
-  - [DLP 与 TLP](#dlp-与-tlp)
-- [Flynn Classification](#flynn-classification)
-- [](#)
-- [SIMD: Vector Processor](#simd-vector-processor)
-  - [Vector Processor 与 Scalar Processor](#vector-processor-与-scalar-processor)
-  - [为什么向量特别适合流水线](#为什么向量特别适合流水线)
-- [Vector Processing Methods](#vector-processing-methods)
-  - [Horizontal Processing Method](#horizontal-processing-method)
-  - [Vertical Processing Method](#vertical-processing-method)
-  - [Vertical and Horizontal Processing Method](#vertical-and-horizontal-processing-method)
-- [Register-Register Vector Processor: CRAY-1](#register-register-vector-processor-cray-1)
-  - [CRAY-1 的基本结构](#cray-1-的基本结构)
-  - [向量寄存器与功能部件连接](#向量寄存器与功能部件连接)
-  - [Vi Conflict](#vi-conflict)
-  - [Functional Conflict](#functional-conflict)
-  - [CRAY-1 中的向量指令类型](#cray-1-中的向量指令类型)
-- [Improving Vector Processor Performance](#improving-vector-processor-performance)
-  - [Multiple Functional Units](#multiple-functional-units)
-  - [Vector Chaining](#vector-chaining)
-    - [基本思想](#基本思想)
-    - [例子：$D=A\\times(B+C)$](#例子datimesbc)
-    - [三种执行方式的时间比较](#三种执行方式的时间比较)
-      - [三条向量指令顺序执行](#三条向量指令顺序执行)
-      - [前两条指令并行，第三条等待完整向量](#前两条指令并行第三条等待完整向量)
-      - [使用 vector chaining](#使用-vector-chaining)
-  - [Segmented Vector](#segmented-vector)
-  - [Multi-Processor System](#multi-processor-system)
-- [Modern Vector Architecture: RV64V](#modern-vector-architecture-rv64v)
-  - [RV64V 的结构](#rv64v-的结构)
-  - [DAXPY：从标量循环到向量指令](#daxpy从标量循环到向量指令)
-    - [Scalar RISC-V 实现](#scalar-risc-v-实现)
-    - [RV64V 向量实现](#rv64v-向量实现)
-  - [Multiple Lanes: One Cycle 处理多个元素](#multiple-lanes-one-cycle-处理多个元素)
-  - [Gather-Scatter: 稀疏数据的向量访问](#gather-scatter-稀疏数据的向量访问)
-- [SIMD: Array Processor](#simd-array-processor)
-  - [阵列处理机的基本概念](#阵列处理机的基本概念)
-  - [Vector Processor 与 Array Processor 的侧重点](#vector-processor-与-array-processor-的侧重点)
-- [Memory Organization of Array Processors](#memory-organization-of-array-processors)
-  - [Distributed Memory](#distributed-memory)
-  - [Centralized Shared Memory](#centralized-shared-memory)
-- [Interconnection Network](#interconnection-network)
-  - [为什么需要 ICN](#为什么需要-icn)
-  - [直接连接路径的代价](#直接连接路径的代价)
-  - [ICN 的组成与设计因素](#icn-的组成与设计因素)
-  - [ICN 的分类与目标](#icn-的分类与目标)
-  - [Interconnection Function](#interconnection-function)
-- [Single-Stage Interconnection Network](#single-stage-interconnection-network)
-  - [Cube Single-Stage Interconnection Network](#cube-single-stage-interconnection-network)
-    - [例子：$N=8$ 的 cube 网络](#例子n8-的-cube-网络)
-  - [PM2I Single-Stage Interconnection Network](#pm2i-single-stage-interconnection-network)
-    - [例子：$N=8$ 的 PM2I 网络](#例子n8-的-pm2i-网络)
-  - [Shuffle Exchange Network](#shuffle-exchange-network)
-    - [例子：$N=8$ 的 shuffle](#例子n8-的-shuffle)
-  - [单级互联网络的特点](#单级互联网络的特点)
-- [Static Network Topologies](#static-network-topologies)
-  - [Linear Array](#linear-array)
-  - [Circular Array](#circular-array)
-  - [Loop with Chord Array](#loop-with-chord-array)
-  - [Tree Array](#tree-array)
-  - [Star Array](#star-array)
-  - [Grid 与 2D Torus](#grid-与-2d-torus)
-  - [Hypercube 与 Cube with Loop](#hypercube-与-cube-with-loop)
-- [Dynamic Interconnection Network](#dynamic-interconnection-network)
-  - [Bus](#bus)
-  - [Crosspoint Switches](#crosspoint-switches)
-  - [Multi-Stage Interconnection Network](#multi-stage-interconnection-network)
-  - [Multi-Stage Cube Interconnection Network](#multi-stage-cube-interconnection-network)
-  - [Multi-Stage Shuffle Exchange Network / Omega Network](#multi-stage-shuffle-exchange-network--omega-network)
-  - [Omega Network 与 n-cube Network 的比较](#omega-network-与-n-cube-network-的比较)
-  - [动态互联网络比较](#动态互联网络比较)
-- [SIMD](#simd)
-- [DLP in GPU](#dlp-in-gpu)
-  - [GPU 的基本思想](#gpu-的基本思想)
-  - [CUDA 与 SIMT](#cuda-与-simt)
-  - [例子：DAXPY 的 CUDA 写法](#例子daxpy-的-cuda-写法)
-  - [Grid, Thread Blocks and Threads](#grid-thread-blocks-and-threads)
-  - [GPU Memory Structures](#gpu-memory-structures)
-  - [Memory Hierarchy in GPU](#memory-hierarchy-in-gpu)
-  - [GPU Organization 的演化](#gpu-organization-的演化)
-  - [NVIDIA GPU 与 Vector Machine 的比较](#nvidia-gpu-与-vector-machine-的比较)
-- [Loop-Level Parallelism](#loop-level-parallelism)
-  - [基本概念](#基本概念)
-  - [Example 1：无 loop-carried dependence](#example-1无-loop-carried-dependence)
-  - [Example 2：存在循环携带相关，难以并行](#example-2存在循环携带相关难以并行)
-  - [Example 3：有 loop-carried dependence，但可以改写为并行](#example-3有-loop-carried-dependence但可以改写为并行)
-- [MIMD: Thread-Level Parallelism](#mimd-thread-level-parallelism)
-  - [从 TLP 到 MIMD](#从-tlp-到-mimd)
-  - [MIMD 的两类基本组织](#mimd-的两类基本组织)
-    - [Multi-Processor System：基于 Shared Memory](#multi-processor-system基于-shared-memory)
-    - [Multi-Computer System：基于 Message Passing](#multi-computer-system基于-message-passing)
-  - [UMA / NUMA / COMA](#uma--numa--coma)
-    - [UMA：Uniform Memory Access](#umauniform-memory-access)
-    - [NUMA：Non-Uniform Memory Access](#numanon-uniform-memory-access)
-    - [COMA：Cache Only Memory Access](#comacache-only-memory-access)
-  - [Parallel Processing 的两个挑战](#parallel-processing-的两个挑战)
-    - [挑战一：程序可用并行性有限](#挑战一程序可用并行性有限)
-      - [例子：100 个处理器达到 80 倍加速](#例子100-个处理器达到-80-倍加速)
-      - [例子：100 处理器中部分时间只能用 50 个处理器](#例子100-处理器中部分时间只能用-50-个处理器)
-    - [挑战二：通信成本高](#挑战二通信成本高)
-      - [例子：远程访存通信对 CPI 的影响](#例子远程访存通信对-cpi-的影响)
-- [Cache Coherence](#cache-coherence)
-  - [为什么共享内存多处理器会出现一致性问题](#为什么共享内存多处理器会出现一致性问题)
-  - [Memory Consistency 与 Cache Coherence](#memory-consistency-与-cache-coherence)
-    - [Cache Coherence：同一地址的多个副本是否一致](#cache-coherence同一地址的多个副本是否一致)
-    - [Memory Consistency：不同地址读写之间的顺序规则](#memory-consistency不同地址读写之间的顺序规则)
-  - [Snoopy Coherence Protocols](#snoopy-coherence-protocols)
-    - [Write Invalidate Protocol](#write-invalidate-protocol)
-    - [Write Update / Write Broadcast Protocol](#write-update--write-broadcast-protocol)
-    - [Write-through 与 Write-back](#write-through-与-write-back)
-    - [Write-through + No-write Allocation 的基本行为](#write-through--no-write-allocation-的基本行为)
-  - [MSI Protocol](#msi-protocol)
-    - [例子：4-line direct-mapped write-back cache](#例子4-line-direct-mapped-write-back-cache)
-      - [示例：`C0, R, A100`](#示例c0-r-a100)
-      - [Action 1：`C0, R, A10C`](#action-1c0-r-a10c)
-      - [Action 2：`C1, W, A104, 0204`](#action-2c1-w-a104-0204)
-      - [Action 3：`C0, W, A118, 0308`](#action-3c0-w-a118-0308)
-  - [MESI 与 MOESI](#mesi-与-moesi)
-    - [MESI 状态变化例子](#mesi-状态变化例子)
-    - [MOESI](#moesi)
-  - [Directory-Based Coherence Protocol](#directory-based-coherence-protocol)
-    - [Directory 的三种状态](#directory-的三种状态)
-    - [状态转移规则](#状态转移规则)
-      - [Uncached block](#uncached-block)
-      - [Shared block](#shared-block)
-      - [Exclusive / Modified block](#exclusive--modified-block)
-  - [False Sharing](#false-sharing)
-    - [避免 false sharing 的方法](#避免-false-sharing-的方法)
-- [Memory Consistency](#memory-consistency)
-  - [Sequential Consistency](#sequential-consistency)
-  - [Relaxed Consistency Models](#relaxed-consistency-models)
-- [MIMD: MPP / COW / WSC](#mimd-mpp--cow--wsc)
-  - [MPP：Massively Parallel Processor](#mppmassively-parallel-processor)
-  - [COW：Cluster of Workstations](#cowcluster-of-workstations)
-  - [WSC：Warehouse-Scale Computer](#wscwarehouse-scale-computer)
-- [Domain-Specific Architectures](#domain-specific-architectures)
-  - [通用处理器过去依赖的复杂机制](#通用处理器过去依赖的复杂机制)
-  - [DSA 的设计原则](#dsa-的设计原则)
-  - [CNN 与 TPU 例子](#cnn-与-tpu-例子)
-
----
-
 ## From ILP to DLP and TLP
 
 ### 脉络
@@ -190,7 +37,6 @@ $$
 
 程序能够划分为多个相对独立的线程或任务，每个执行实体运行自己的指令流，并在需要时通信或同步。
 
----
 
 ## Flynn Classification
 
@@ -210,7 +56,6 @@ SIMD 的核心特点是：
 - 特别适合规则的数据并行任务。
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260526202132.png"  style="width: 520px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
----
 
 ## SIMD: Vector Processor
 
@@ -270,7 +115,6 @@ $$
 
 因此，向量处理机设计的核心问题是：**怎样组织向量运算，使流水线真正保持高吞吐率**。
 
----
 
 ## Vector Processing Methods
 
@@ -421,7 +265,6 @@ $$
 - GRAP-3；
 - Earth Simulator 中的 SX-8 vector processor。
 
----
 
 ## Register-Register Vector Processor: CRAY-1
 
@@ -516,7 +359,6 @@ CRAY-1 中的主要向量操作分为四类：
   <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260526202446.png" style="width: 420px; max-width: 48%; height: auto;" />
 </div>
 
----
 
 ## Improving Vector Processor Performance
 
@@ -691,7 +533,6 @@ slides 给出的例子包括：
 
 这种方法的本质仍然是：**通过更多硬件执行资源提高整体并行能力**。
 
----
 
 ## Modern Vector Architecture: RV64V
 
@@ -814,7 +655,6 @@ vdisable                 # Disable vector registers
 - `vstx` 表示依据索引向量写回离散位置；
 - 向量结构不只适用于连续内存，也可以用于带索引的数据访问模式。
 
----
 
 ## SIMD: Array Processor
 
@@ -854,7 +694,6 @@ $$
 - 向量处理机首先要求程序具有适合向量化的数据并行模式；
 - 阵列处理机首先要解决大量 PE 如何连接、如何访问数据的问题。
 
----
 
 ## Memory Organization of Array Processors
 
@@ -918,7 +757,6 @@ MM0, MM1, ..., MMK-1
   <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260526203052.png" style="width: 420px; max-width: 48%; height: auto;" />
 </div>
 
----
 
 ## Interconnection Network
 
@@ -1013,7 +851,6 @@ $$
 
 通常把输入编号和输出编号都写成二进制。根据二进制位之间的变化规律，就可以写出对应的互联函数。
 
----
 
 ## Single-Stage Interconnection Network
 
@@ -1221,7 +1058,6 @@ $$
 
 它的限制也很明显：单级网络只提供有限种连接关系，若要支持更多连接模式，通常需要多次使用单级网络，或者把多个单级网络组合成多级网络。
 
----
 
 ## Static Network Topologies
 
@@ -1371,7 +1207,6 @@ Cube with loop 则在 cube 结构上加入环形结构，使每个节点组内�
 | Hypercube | $N=2^n$ | $n$ | $n$ | $N/2$ | Yes | $nN/2$ |
 | Cube with loop | $N=k2^k$ | $3$ | $2k-1+\lfloor k/2 \rfloor$ | $N/2^k$ | Yes | $3N/2$ |
 
----
 
 ## Dynamic Interconnection Network
 
@@ -1601,7 +1436,6 @@ slides 从带宽、链路复杂度、开关复杂度和寻路能力比较了三�
 - crossbar 能力最强，但成本随 $n^2$ 增长；
 - multi-stage network 处于两者之间，是常见折中方案。
 
----
 
 ## SIMD 
 
@@ -1617,7 +1451,6 @@ SIMD 相比 MIMD 更节能的原因之一是：一次 instruction fetch 可以�
 
 从程序员视角看，SIMD 仍然允许程序在较高层次上以顺序逻辑思考；编译器或编程模型负责把可并行的数据操作映射到向量、阵列或 GPU 线程结构上。
 
----
 
 ## DLP in GPU
 
@@ -1849,7 +1682,6 @@ NVIDIA GPU 与传统 vector machine 有许多相似点：
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260601202803.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
----
 
 ## Loop-Level Parallelism
 
@@ -1991,7 +1823,6 @@ B[100] = C[99] + D[99];
 
 
 
----
 
 ## MIMD: Thread-Level Parallelism
 
@@ -2151,7 +1982,6 @@ COMA 的核心思想是：数据一开始可以放在任意位置，运行时会
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260608231803.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
----
 
 ### Parallel Processing 的两个挑战
 
@@ -2285,7 +2115,6 @@ $$
 
 结论：即使只有 **0.2%** 的指令涉及远程通信，也会让 CPI 从 0.5 增加到 1.3，性能损失非常明显。
 
----
 
 ## Cache Coherence
 
@@ -2408,7 +2237,6 @@ Write-back 能减少内存写流量，但一致性协议更复杂。
 | Local Write Miss | 直接修改 memory，不一定把块调入 cache |
 | Remote Write | 本地若有该块副本，则 invalidate |
 
----
 
 ### MSI Protocol
 
@@ -2724,7 +2552,6 @@ class MyLong {
 
 实际工程中应结合运行时参数、对象布局和 JVM 版本判断 padding 是否生效。
 
----
 
 ## Memory Consistency
 
@@ -2785,7 +2612,6 @@ W -> W
 
 放松一致性的意义是提高性能，但程序员必须通过锁、barrier、atomic、fence 等同步原语明确建立 happens-before 关系。
 
----
 
 ## MIMD: MPP / COW / WSC
 
@@ -2837,7 +2663,6 @@ COW 相比 MPP 更松耦合，硬件专用性较低，但成本优势明显。
 - 能耗、冷却、成本；
 - 集群调度与系统软件。
 
----
 
 ## Domain-Specific Architectures
 

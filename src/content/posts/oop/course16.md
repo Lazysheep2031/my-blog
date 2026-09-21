@@ -7,54 +7,6 @@ category: 笔记
 draft: false
 ---
 
-## 概述
-
-本节课是 **Miscellaneous Topics**，主要补充 C++ 中几个容易在实际编程中出错的主题：
-
-- **Named casts**：用 `static_cast`、`dynamic_cast`、`reinterpret_cast`、`const_cast` 替代 C-style cast，使类型转换的语义更明确；
-- **Multiple inheritance**：多重继承会带来数据布局、重复基类、二义性和构造顺序等问题；
-- **Virtual base classes**：用虚基类解决 diamond inheritance 中重复基类的问题，但会引入运行时和空间开销；
-- **Protocol / Interface classes**：多重继承较安全的使用场景；
-- **Namespaces**：用命名空间组织名字，避免全局命名冲突；
-## 目录
-
-- [概述](#概述)
-- [目录](#目录)
-- [Named casts](#named-casts)
-  - [C-style cast 的问题](#c-style-cast-的问题)
-  - [`static_cast`](#static_cast)
-  - [`reinterpret_cast`](#reinterpret_cast)
-  - [`const_cast`](#const_cast)
-  - [`static_cast` 和 `dynamic_cast` 的区别](#static_cast-和-dynamic_cast-的区别)
-    - [`static_cast`：编译期检查继承关系，不检查真实对象类型](#static_cast编译期检查继承关系不检查真实对象类型)
-    - [`dynamic_cast`：运行时检查真实对象类型](#dynamic_cast运行时检查真实对象类型)
-  - [演示 1：`static_cast` 与对象二进制表示](#演示-1static_cast-与对象二进制表示)
-  - [演示 2：`dynamic_cast` 的运行时检查](#演示-2dynamic_cast-的运行时检查)
-  - [演示 3：`reinterpret_cast` 的危险性](#演示-3reinterpret_cast-的危险性)
-- [Multiple inheritance](#multiple-inheritance)
-  - [基本形式：mix and match](#基本形式mix-and-match)
-  - [多重继承的数据布局](#多重继承的数据布局)
-  - [Vanilla MI：重复基类](#vanilla-mi重复基类)
-  - [重复基类带来的二义性](#重复基类带来的二义性)
-  - [Protocol / Interface classes](#protocol--interface-classes)
-  - [Virtual base classes](#virtual-base-classes)
-  - [多重继承的复杂性](#多重继承的复杂性)
-- [Namespaces](#namespaces)
-  - [为什么需要 namespace](#为什么需要-namespace)
-  - [定义 namespace](#定义-namespace)
-  - [在头文件中放 namespace 声明](#在头文件中放-namespace-声明)
-  - [实现 namespace 中的函数](#实现-namespace-中的函数)
-  - [使用 namespace 中的名字](#使用-namespace-中的名字)
-  - [`using` declaration](#using-declaration)
-  - [`using` directive](#using-directive)
-  - [命名空间二义性](#命名空间二义性)
-  - [Namespace aliases](#namespace-aliases)
-  - [Namespace composition](#namespace-composition)
-  - [Namespace selection](#namespace-selection)
-  - [Namespaces are open](#namespaces-are-open)
-
----
-
 ## Named casts
 
 ### C-style cast 的问题
@@ -476,7 +428,6 @@ int main()
 
 它不能说明该地址处真的有一个 `D` 对象。继续访问 `pd` 指向的对象通常是错误的。
 
----
 
 ## Multiple inheritance
 
@@ -711,7 +662,6 @@ M
 
 也就是：多重继承不是不能用，但要非常谨慎。优先考虑 composition、单继承加接口、或者更简单的设计。
 
----
 
 ## Namespaces
 

@@ -7,46 +7,6 @@ category: 笔记
 draft: false
 ---
 
-## 概述
-
-本章是数据库系统的导论，回答三个核心问题：
-
-1. **为什么需要数据库系统？** — 文件系统的七大缺陷驱使我们转向 DBMS
-2. **数据库系统如何组织数据？** — 三层抽象（物理层 / 逻辑层 / 视图层）与数据独立性
-3. **数据库系统由哪些部分构成？** — 数据模型、数据库语言（DDL/DML）、数据库引擎（存储管理器 / 查询处理器 / 事务管理）、用户与 DBA
-
----
-
-## 目录
-
-- [Database Systems](#database-systems)
-  - Files vs. Databases
-  - Database & DBMS
-  - 数据库的两种使用模式
-  - 数据库系统核心要求
-- [View of Data](#view-of-data)
-  - Three-Level Abstraction
-  - Physical / Logical / View Level
-- [Schema and Instance](#schema-and-instance)
-- [Data Independence](#data-independence)
-- [Data Models](#data-models)
-- [Relational Model](#relational-model关系模型)
-- [Database Languages](#database-languages)
-  - DDL / Data Dictionary
-  - DML / SQL / API
-- [Database Design](#database-design)
-  - Entity-Relationship Model
-  - Normalization Theory
-- [Database Engine](#database-engine)
-  - Storage Manager
-  - Query Processor
-  - Transaction Management
-- [Database Users and Administrators](#database-users-and-administrators)
-  - 四类用户
-  - DBA 职责
-
----
-
 ## Database Systems
 
 数据库系统用于管理具有以下特征的数据集合：
@@ -88,7 +48,6 @@ Characteristics of Databases:
 5. Failure recovery（故障恢复）
 6. Security control（安全控制）
 
----
 
 ### Database & DBMS
 
@@ -100,7 +59,6 @@ Characteristics of Databases:
 
 DBMS 负责：存储与检索、权限控制、并发处理、崩溃恢复
 
----
 
 ### 数据库的两种使用模式
 
@@ -116,7 +74,6 @@ DBMS 负责：存储与检索、权限控制、并发处理、崩溃恢复
 - 结果用于驱动业务决策
 - 典型场景：用户行为分析、销售预测
 
----
 
 ### 数据管理两方面
 
@@ -136,7 +93,6 @@ create table student (
 
 增删改查（INSERT / DELETE / UPDATE / SELECT）
 
----
 
 ### 数据库系统核心要求
 
@@ -151,7 +107,6 @@ create table student (
 
 > 例：余额 100，T1 和 T2 各存 50，无并发控制结果可能为 150，正确结果应为 200。
 
----
 
 ## View of Data
 
@@ -162,7 +117,6 @@ create table student (
 
 为此，数据库采用 **Three-level abstraction（三层抽象结构）**。
 
----
 
 ### Three-Level Abstraction of Databases
 
@@ -178,7 +132,6 @@ Logical Level
 Physical Level
 ```
 
----
 
 ### Physical Level（物理层）
 
@@ -195,7 +148,6 @@ Physical Level
 - 是否有 B+ 树索引？
 - 数据在磁盘页中如何排列？
 
----
 
 ### Logical Level（逻辑层）
 
@@ -214,7 +166,6 @@ Department(dept_name, building, budget)
 
 _程序员和 DBA 主要工作在这一层。_
 
----
 
 ### View Level（视图层）
 
@@ -234,14 +185,12 @@ _程序员和 DBA 主要工作在这一层。_
 
 👉 View = 数据库的子集表示
 
----
 
 ### 三层抽象的作用
 
 1. **Hide the complexities（隐藏复杂性）**
 2. **Enhance the adaptation to changes（增强对变化的适应能力）**
 
----
 
 ## Schema and Instance
 
@@ -250,7 +199,6 @@ _程序员和 DBA 主要工作在这一层。_
 - type（类型）
 - variable（变量）
 
----
 
 ### Schema
 
@@ -268,7 +216,6 @@ _程序员和 DBA 主要工作在这一层。_
 
 Schema 是设计，不是数据本身。
 
----
 
 ### 分类
 
@@ -282,7 +229,6 @@ Schema 是设计，不是数据本身。
 - **View Schema（视图模式）**
   - 不同用户看到的子模式
 
----
 
 ### Instance
 
@@ -293,14 +239,12 @@ Schema 是设计，不是数据本身。
 Schema 是“结构”，
 Instance 是“数据”。
 
----
 
 ## Data Independence
 
 数据独立性 =
 某一层改变，不影响上一层。
 
----
 
 ### Physical Data Independence（物理数据独立性）
 
@@ -315,7 +259,6 @@ Instance 是“数据”。
 
 👉 Applications depend on logical schema, not physical schema.
 
----
 
 ### Logical Data Independence（逻辑数据独立性）
 
@@ -328,7 +271,6 @@ Instance 是“数据”。
 
 用户视图不需要改变。
 
----
 
 ## Data Models
 
@@ -341,7 +283,6 @@ Instance 是“数据”。
 - Data semantics（语义）
 - Data constraints（约束）
 
----
 
 ### 常见数据模型
 
@@ -355,7 +296,6 @@ Instance 是“数据”。
    - Network Model（网状模型）
    - Hierarchical Model（层次模型）
 
----
 
 ## Relational Model（关系模型）
 
@@ -380,7 +320,6 @@ Instance 是“数据”。
 
 👉 Chapter 2 将详细讨论。
 
----
 
 ## Database Languages
 
@@ -416,7 +355,6 @@ DDL 编译器会生成一组表模板，存储在 **数据字典（Data Dictiona
     - 例：`salary >= 60000`
 - **Authorization（权限）**：哪些用户可以访问哪些数据
 
----
 
 ### Data Manipulation Language (DML)
 
@@ -485,7 +423,6 @@ SQL 不是完整编程语言，
 └──────────────────────┘
 ```
 
----
 
 #### 数据返回流程
 
@@ -508,7 +445,6 @@ Web Server 返回 HTTP Response
 用户浏览器显示页面
 ```
 
----
 
 **每一层的职责：**
 1. 浏览器
@@ -517,14 +453,12 @@ Web Server 返回 HTTP Response
 * 接收 HTML / JSON 响应
 * 展示页面
 
----
 
 2. Web Server
 
 * 处理网络连接
 * 转发请求给应用程序
 
----
 
 3. 应用程序服务器（Host Language）
 
@@ -538,7 +472,6 @@ Web Server 返回 HTTP Response
 ```python
 cursor.execute("SELECT * FROM instructor")
 ```
----
 
 4. API 层
 
@@ -546,7 +479,6 @@ cursor.execute("SELECT * FROM instructor")
 * 负责把 SQL 发送给数据库
 * 接收结果
 
----
 
 5. DBMS
 
@@ -559,7 +491,6 @@ cursor.execute("SELECT * FROM instructor")
 5. 事务管理
 6. 并发控制
 
----
 
 6. 数据库文件
 
@@ -567,7 +498,6 @@ cursor.execute("SELECT * FROM instructor")
 * 索引页
 * 日志文件
 
----
 
 ## Database Design
 
@@ -594,7 +524,6 @@ cursor.execute("SELECT * FROM instructor")
 
 👉 E-R 模型将在 **Part Two（Chapter 6, 7）** 详细介绍。
 
----
 
 ### Normalization Theory（规范化理论）
 
@@ -636,7 +565,6 @@ cursor.execute("SELECT * FROM instructor")
 - **Query Processor**（查询处理器）
 - **Transaction Management**（事务管理组件）
 
----
 
 ### Storage Manager
 
@@ -664,7 +592,6 @@ Storage Manager 是一个**程序模块**，提供底层数据库数据与应用
 
 👉 将在 **Part Five（Chapters 12, 13, 14）** 详细介绍。
 
----
 
 ### Query Processor
 
@@ -701,7 +628,6 @@ query output
 
 👉 将在 **Part Six（Chapters 15, 16）** 详细介绍。
 
----
 
 ### Transaction Management
 
@@ -739,7 +665,6 @@ query output
            Database
 ```
 
----
 
 ### 四类数据库用户
 
@@ -752,7 +677,6 @@ query output
 | **Sophisticated users**（高级用户 / 分析师） | 直接使用查询工具提交查询，进行数据分析 | Query tools（查询工具） |
 | **Database administrators**（数据库管理员） | 协调数据库系统的所有活动，深入了解企业信息资源与需求 | Administration tools（管理工具） |
 
----
 
 ### Database Administrator（DBA）
 

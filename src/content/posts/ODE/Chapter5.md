@@ -7,46 +7,6 @@ category: 笔记
 draft: false
 ---
 
-## Overview
-
-1. **Method of Elimination**：把小型系统消元成单个高阶线性 ODE；
-2. **Eigenvalue Method**：把$\mathbf{x}'=A\mathbf{x}$转成特征值问题 $A\mathbf{v}=\lambda\mathbf{v}$；
-3. **Multiple Eigenvalue Solutions**：处理重特征值，尤其是 defective 情形；
-4. **Matrix Exponentials**：用 $e^{At}$ 统一表示齐次系统解；
-5. **Nonhomogeneous Linear Systems**：处理 $ \mathbf{x}'=A\mathbf{x}+\mathbf{f}(t) $，重点是 **undetermined coefficients** 与 **variation of parameters**。
-
-## Contents
-
-- [Overview](#overview)
-- [Contents](#contents)
-- [两大系统](#两大系统)
-  - [齐次系统](#齐次系统)
-  - [非齐次系统](#非齐次系统)
-- [The Method of Elimination](#the-method-of-elimination)
-  - [标准流程](#标准流程)
-  - [Example](#example)
-- [The Eigenvalue Method for Homogeneous Systems](#the-eigenvalue-method-for-homogeneous-systems)
-  - [Example](#example-1)
-    - [Case 1：特征值全为单实根](#case-1特征值全为单实根)
-    - [Case 2：出现复特征值](#case-2出现复特征值)
-    - [Case 3：重特征值](#case-3重特征值)
-- [Multiple Eigenvalue Solutions](#multiple-eigenvalue-solutions)
-  - [Complete vs. Defective](#complete-vs-defective)
-  - [Example](#example-2)
-  - [Jordan chain 公式](#jordan-chain-公式)
-    - [Example](#example-3)
-- [Matrix Exponentials and Linear Systems](#matrix-exponentials-and-linear-systems)
-  - [Fundamental matrix](#fundamental-matrix)
-  - [矩阵指数](#矩阵指数)
-  - [计算 $e^{At}$ 的三种思路](#计算-eat-的三种思路)
-  - [Example](#example-4)
-- [Nonhomogeneous Linear Systems](#nonhomogeneous-linear-systems)
-  - [Undetermined Coefficients](#undetermined-coefficients)
-    - [Example](#example-5)
-  - [Variation of Parameters](#variation-of-parameters)
-    - [Example](#example-6)
-- [本章方法总表](#本章方法总表)
-
 ## 两大系统
 
 ### 齐次系统 

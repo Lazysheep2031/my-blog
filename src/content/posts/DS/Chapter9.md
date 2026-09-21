@@ -7,121 +7,6 @@ category: 笔记
 draft: true
 ---
 
-## 概述
-
-这一章的核心是：
-
-> 大多数用户并不直接写 SQL。真实数据库系统通常通过 **application program（应用程序）** 连接用户和数据库：前端负责交互，中间层负责业务逻辑，后端负责访问数据库。
-
-基本链条：
-
-- **Front-end**：用户界面，例如表单、GUI、Web 页面、移动端界面
-- **Middle layer**：业务逻辑，例如权限检查、流程控制、规则执行
-- **Backend**：数据库访问，例如查询、更新、事务、缓存
-
-这一章讲的是数据库系统如何变成真正可用的应用系统：
-
-- Web 如何把浏览器、服务器和数据库连起来
-- Servlet / JSP / PHP / Django 等如何生成动态页面
-- JavaScript / AJAX / Web Service 如何让前端更灵活
-- MVC、ORM、RAD 如何组织大型应用
-- 性能、安全、认证、授权、审计、加密如何保护应用
-
-简单说：
-
-**前几章偏数据库本身，这一章偏“数据库怎么被真实应用使用”。**
-
----
-
-## 目录
-
-- [概述](#概述)
-- [目录](#目录)
-- [Application Programs and User Interfaces](#application-programs-and-user-interfaces)
-  - [应用程序的作用](#应用程序的作用)
-  - [应用架构的演化](#应用架构的演化)
-  - [Web Interface](#web-interface)
-- [Web Fundamentals](#web-fundamentals)
-  - [HTML](#html)
-  - [URL](#url)
-  - [HTML Form](#html-form)
-    - [GET 与 POST](#get-与-post)
-  - [Web Server 与 CGI](#web-server-与-cgi)
-  - [Two-Layer 与 Three-Layer Web Architecture](#two-layer-与-three-layer-web-architecture)
-    - [Three-Layer Web Architecture](#three-layer-web-architecture)
-    - [Two-Layer Web Architecture](#two-layer-web-architecture)
-  - [HTTP 与 Cookie](#http-与-cookie)
-- [Servlets](#servlets)
-  - [Servlet 的基本思想](#servlet-的基本思想)
-  - [Servlet 示例](#servlet-示例)
-  - [Servlet Session](#servlet-session)
-  - [Servlet Life Cycle 与 Application Server](#servlet-life-cycle-与-application-server)
-- [Server-Side Frameworks](#server-side-frameworks)
-  - [Server-Side Scripting](#server-side-scripting)
-  - [JSP](#jsp)
-  - [PHP](#php)
-  - [Django Framework](#django-framework)
-- [Client-Side Code and Web Services](#client-side-code-and-web-services)
-  - [Client-Side Scripts](#client-side-scripts)
-  - [JavaScript](#javascript)
-  - [AJAX](#ajax)
-  - [Web Services](#web-services)
-    - [REST](#rest)
-    - [Big Web Services](#big-web-services)
-  - [Disconnected Operations](#disconnected-operations)
-  - [Mobile Applications 与 PWA](#mobile-applications-与-pwa)
-- [Application Architectures](#application-architectures)
-  - [Layered Architecture](#layered-architecture)
-  - [MVC](#mvc)
-  - [Business Logic Layer](#business-logic-layer)
-  - [Data Access Layer](#data-access-layer)
-  - [Object-Relational Mapping](#object-relational-mapping)
-    - [Hibernate](#hibernate)
-    - [Microsoft Entity Data Model](#microsoft-entity-data-model)
-- [Rapid Application Development](#rapid-application-development)
-- [Application Performance](#application-performance)
-  - [Server-Side Caching](#server-side-caching)
-    - [Connection Pooling](#connection-pooling)
-    - [Query Result Caching](#query-result-caching)
-    - [Generated HTML Caching](#generated-html-caching)
-  - [Client / Proxy Caching](#client--proxy-caching)
-  - [扩展到更大规模](#扩展到更大规模)
-- [Application Security](#application-security)
-  - [SQL Injection](#sql-injection)
-    - [Prepared Statement](#prepared-statement)
-    - [动态排序字段风险](#动态排序字段风险)
-  - [XSS 与 CSRF](#xss-与-csrf)
-    - [XSS](#xss)
-    - [CSRF / XSRF](#csrf--xsrf)
-  - [Password Leakage](#password-leakage)
-  - [Application-Level Authentication](#application-level-authentication)
-  - [Single Sign-On](#single-sign-on)
-    - [SAML](#saml)
-    - [OpenID](#openid)
-  - [Application-Level Authorization](#application-level-authorization)
-  - [Audit Trails](#audit-trails)
-  - [Privacy](#privacy)
-- [Encryption and Its Applications](#encryption-and-its-applications)
-  - [Encryption 的基本性质](#encryption-的基本性质)
-  - [Symmetric-Key Encryption](#symmetric-key-encryption)
-    - [DES](#des)
-    - [AES](#aes)
-  - [Public-Key Encryption](#public-key-encryption)
-  - [Hybrid Encryption](#hybrid-encryption)
-  - [Dictionary Attack 与 Salt](#dictionary-attack-与-salt)
-  - [Encryption in Databases](#encryption-in-databases)
-    - [Disk Block Level](#disk-block-level)
-    - [Relation / Attribute Level](#relation--attribute-level)
-    - [Key Management](#key-management)
-  - [Challenge-Response Authentication](#challenge-response-authentication)
-  - [Digital Signatures](#digital-signatures)
-  - [Digital Certificates](#digital-certificates)
-- [本章复习抓手](#本章复习抓手)
-  - [最容易考的概念](#最容易考的概念)
-  - [一句话总结](#一句话总结)
-
----
-
 ## Application Programs and User Interfaces
 
 ### 应用程序的作用
@@ -198,7 +83,6 @@ Browser  →  HTTP  →  Web/Application Server  →  Database
 
 浏览器给用户看界面；服务器运行应用逻辑；数据库保存数据。
 
----
 
 ## Web Fundamentals
 
@@ -465,7 +349,6 @@ Cookie 可以是：
 
 > Cookie 本身不应该保存敏感明文信息。通常 cookie 里只放 session id，真正的用户状态保存在服务器端。
 
----
 
 ## Servlets
 
@@ -655,7 +538,6 @@ Application server 通常还支持：
 - J2EE / Java EE 平台
 - 多 application server 并行处理
 
----
 
 ## Server-Side Frameworks
 
@@ -835,7 +717,6 @@ cursor.execute(query_tmpl, [personname])
 
 这和 prepared statement 的思想相同，可以降低 SQL injection 风险。
 
----
 
 ## Client-Side Code and Web Services
 
@@ -1072,7 +953,6 @@ PWA 依赖：
 
 > 一部分传统移动 App 场景可以被 PWA 替代，但高性能、强设备能力依赖的应用仍然需要原生 App。
 
----
 
 ## Application Architectures
 
@@ -1272,7 +1152,6 @@ Microsoft 的 Entity Data Model 直接向应用提供 entity-relationship model�
 - 底层存储可以是关系数据库
 - Entity SQL 直接操作 Entity Data Model
 
----
 
 ## Rapid Application Development
 
@@ -1318,7 +1197,6 @@ ASP.NET / Visual Studio 的特点：
 
 > RAD 可以快速生成应用框架，但复杂业务规则、安全控制、性能优化仍然需要人工设计。
 
----
 
 ## Application Performance
 
@@ -1418,7 +1296,6 @@ Web proxy 或浏览器可以缓存页面。
 - 是网络传输？
 - 是数据库本身无法承载？
 
----
 
 ## Application Security
 
@@ -1805,7 +1682,6 @@ date of birth + postal code
 
 所以隐私保护不只是删除姓名，还要考虑外部数据结合后的 re-identification 风险。
 
----
 
 ## Encryption and Its Applications
 
@@ -2131,7 +2007,6 @@ Digital certificate 解决的是：
 
 > 如何确认对方的 public key 可信。
 
----
 
 ## 本章复习抓手
 

@@ -7,88 +7,6 @@ category: 笔记
 draft: false
 ---
 
-## 概述 
-
-这一章的核心是：
-
-> 数据库设计在建立表前面还有一层：先识别 **实体（entity）**、**联系（relationship）**、**约束（constraints）**，再把它们组织成 **E-R diagram**，最后再把 E-R 图规约成关系模式。
-
-设计链条：
-
-- **Requirement Specification**：先把需求说清楚
-- **Conceptual Design**：把需求画成 E-R 图
-- **Logical Design**：把 E-R 图变成关系模式
-- **Physical Design**：再考虑物理存储与实现
-
-也就是说，这一章讲的是 **数据库设计的蓝图层**。
-
----
-
-## 目录
-
-- [概述](#概述)
-- [目录](#目录)
-- [Database Design Process](#database-design-process)
-  - [数据库设计的四个阶段](#数据库设计的四个阶段)
-    - [Requirement Specification](#requirement-specification)
-    - [Conceptual Design](#conceptual-design)
-    - [Logical Design](#logical-design)
-    - [Physical Design](#physical-design)
-  - [设计的陷阱](#设计的陷阱)
-    - [Redundancy（冗余）](#redundancy冗余)
-    - [Incompleteness（不完整）](#incompleteness不完整)
-  - [设计路线](#设计路线)
-    - [E-R Model](#e-r-model)
-    - [Normalization Theory](#normalization-theory)
-- [The E-R Model](#the-e-r-model)
-  - [entity / entity set](#entity--entity-set)
-    - [entity](#entity)
-    - [entity set](#entity-set)
-  - [relationship / relationship set](#relationship--relationship-set)
-  - [Binary 与 Non-binary relationship](#binary-与-non-binary-relationship)
-    - [Binary relationship](#binary-relationship)
-    - [Non-binary relationship](#non-binary-relationship)
-- [Attributes](#attributes)
-  - [Simple / Composite](#simple--composite)
-    - [Simple attribute](#simple-attribute)
-    - [Composite attribute](#composite-attribute)
-  - [Single-valued / Multivalued](#single-valued--multivalued)
-    - [Single-valued attribute](#single-valued-attribute)
-    - [Multivalued attribute](#multivalued-attribute)
-  - [Derived](#derived)
-- [Constraints in E-R Model](#constraints-in-e-r-model)
-  - [Mapping Cardinality](#mapping-cardinality)
-  - [Total Participation vs Partial Participation](#total-participation-vs-partial-participation)
-    - [Total participation](#total-participation)
-    - [Partial participation](#partial-participation)
-  - [min..max 形式](#minmax-形式)
-  - [Ternary relationship 中的基数约束](#ternary-relationship-中的基数约束)
-- [Primary Keys in E-R Model](#primary-keys-in-e-r-model)
-  - [实体集的主键](#实体集的主键)
-  - [联系集的主键](#联系集的主键)
-    - [不同基数下联系主键选择策略](#不同基数下联系主键选择策略)
-- [Weak Entity Sets](#weak-entity-sets)
-- [Redundancy of Schemas](#redundancy-of-schemas)
-- [Reduction to Relation Schemas](#reduction-to-relation-schemas)
-- [Design Issues](#design-issues)
-- [Extended E-R Features](#extended-e-r-features)
-  - [Specialization](#specialization)
-  - [Generalization](#generalization)
-  - [Attribute Inheritance](#attribute-inheritance)
-  - [Disjoint vs Overlapping](#disjoint-vs-overlapping)
-    - [Disjoint](#disjoint)
-    - [Overlapping](#overlapping)
-  - [Total vs Partial Completeness](#total-vs-partial-completeness)
-    - [Total](#total)
-    - [Partial](#partial)
-  - [Aggregation](#aggregation)
-- [Reducing Generalization to Relational Schemas](#reducing-generalization-to-relational-schemas)
-- [UML](#uml)
-  - [UML 和 E-R 的主要对应关系](#uml-和-e-r-的主要对应关系)
-  - [UML 和 E-R 的几个重要差别](#uml-和-e-r-的几个重要差别)
-
----
-
 ## Database Design Process
 
 > 真实数据库应用里，表往往几十张、上百张，几乎不可能拿到需求后直接把所有 schema 一次性写对。
@@ -222,7 +140,6 @@ draft: false
 - **E-R 模型负责先把世界说清楚**
 - **规范化负责把关系模式修好**
 
----
 
 ## The E-R Model
 
@@ -257,7 +174,6 @@ draft: false
 - **entity** 是一个对象
 - **entity set** 是同类对象的集合
 
----
 
 E-R 图中：
 
@@ -438,7 +354,6 @@ $$
 
 这一点很关键。  因为有些语义如果硬拆成多个 binary relationship，会失真。
 
----
 
 ## Attributes
 
@@ -533,7 +448,6 @@ inst_phone= ( ID, phone_number)
 - 如果能稳定计算出来，而且不常单独维护，优先不存
 - 如果计算代价高、查询频繁，可能会物化存储
 
----
 
 ## Constraints in E-R Model
 
@@ -670,7 +584,6 @@ inst_phone= ( ID, phone_number)
 - 教师可指导 `0..*` 个学生
 - 学生必须有且只有 `1..1` 个导师
 
----
 
 ### Ternary relationship 中的基数约束
 
@@ -685,7 +598,6 @@ inst_phone= ( ID, phone_number)
 
 多个箭头叠加后语义容易歧义 $\rightarrow$为了避免混乱，禁止超过一个箭头。
 
----
 
 ## Primary Keys in E-R Model
 
@@ -753,7 +665,6 @@ inst_phone= ( ID, phone_number)
 > **联系主键跟会重复的一侧走。**  
 > 多对多两边都重复，所以两边都要。
 
----
 
 ## Weak Entity Sets
 
@@ -832,7 +743,6 @@ inst_phone= ( ID, phone_number)
 - 每个弱实体都必须挂靠到某个强实体
 - 一个弱实体只能挂靠到一个对应的 owner
 
----
 
 ## Redundancy of Schemas
 
@@ -894,7 +804,6 @@ inst_phone= ( ID, phone_number)
 > 后面加回来的可能是关系规约后的实现性字段。
 :::
 
----
 
 ## Reduction to Relation Schemas
 
@@ -918,7 +827,6 @@ E-R 图最后是要落到关系数据库上的。
 course(course_id, title, credits)
 ```
 
----
 
 **弱实体转表**
 
@@ -1096,7 +1004,6 @@ time_slot(time_slot_id, day, start_time, end_time)
 因此，`section` 中通过 `sec_time_slot` 得到的 `time_slot_id`  
 **不能再直接作为外键引用这张优化后的 `time_slot` 表**，因为它引用的不是一个唯一键。
 
----
 
 ## Design Issues
 
@@ -1206,7 +1113,6 @@ relationship 的属性应该挂在哪里?
 
 如果一个实体集不能仅靠自身属性形成完整主键，必须依赖另一个实体集的主键才能唯一标识，它就是 weak entity。
 
----
 
 ## Extended E-R Features
 
@@ -1238,7 +1144,6 @@ relationship 的属性应该挂在哪里?
 
 所以 specialization 的本质是：从更一般往更具体细分。
 
----
 
 ### Generalization
 
@@ -1358,7 +1263,6 @@ aggregation 的做法是：
 
 > aggregation 就是“把一个 relationship 打包成一个可再参与关系的对象”。
 
----
 
 ## Reducing Generalization to Relational Schemas
 
@@ -1445,7 +1349,6 @@ person(ID, name, street, city, person_type, tot_cred, salary)
 - 类型约束需要额外维护
 - 语义可读性下降
 
----
 
 ## UML
 
@@ -1506,5 +1409,4 @@ UML（Unified Modeling Language）本身是更通用的软件建模语言。
 
 这和 E-R 的 aggregation 思想是相通的。
 
----
 

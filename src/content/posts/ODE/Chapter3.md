@@ -7,48 +7,6 @@ category: 笔记
 draft: false
 ---
 
-## Overview
-
-本章开始讨论 **power series methods**。前两章我们已经掌握了几类“能用封闭形式直接解”的方程：
-
-- **constant-coefficient linear ODEs**；
-- **Euler equations**；
-- 已知一个解时的 **reduction of order** 等技巧。
-
-但很多二阶线性方程既不是常系数，也没有明显可猜的基本解。这时，一个自然思路是：
-
-> **不再直接猜函数，而是假设解本身可以展开成 power series，再反过来求系数。**
-> **级数方法的核心是把方程转化为系数之间的 recurrence relation。**
-
-
-## Contents
-
-- [Overview](#overview)
-- [Contents](#contents)
-- [Introduction](#introduction)
-  - [Basic Idea](#basic-idea)
-  - [Review of Power Series](#review-of-power-series)
-- [Standard Form and Point Classification](#standard-form-and-point-classification)
-- [Series Solutions near Ordinary Points](#series-solutions-near-ordinary-points)
-  - [Example](#example)
-    - [Example 1](#example-1)
-    - [Example 2](#example-2)
-  - [Radius of Convergence and Nearest Singular Point](#radius-of-convergence-and-nearest-singular-point)
-  - [Legendre Equation and Legendre Polynomials](#legendre-equation-and-legendre-polynomials)
-- [Regular Singular Points](#regular-singular-points)
-  - [Frobenius Method](#frobenius-method)
-  - [Example](#example-1)
-    - [Example 1](#example-1-1)
-    - [Example 2](#example-2-1)
-- [Method of Frobenius: The Exceptional Cases](#method-of-frobenius-the-exceptional-cases)
-  - [Methodology: the three scenarios](#methodology-the-three-scenarios)
-    - [The reason for the logarithmic term](#the-reason-for-the-logarithmic-term)
-  - [Example](#example-2)
-    - [Example 1: the case $r\_1=r\_2$](#example-1-the-case-r_1r_2)
-    - [Example 2: the case $r\_1-r\_2=N\>0$](#example-2-the-case-r_1-r_2n0)
-- [Bessel Equation and Special Functions](#bessel-equation-and-special-functions)
-  - [General Form](#general-form)
-
 ## Introduction
 
 ### Basic Idea

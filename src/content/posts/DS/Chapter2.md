@@ -7,56 +7,6 @@ category: 笔记
 draft: false
 ---
 
-## 概述
-
-本章围绕关系模型展开，主要回答三个问题：
-
-1. **关系模型如何表示数据？** 关系、属性、元组、域、原子性，以及 schema 和 instance 的区别
-2. **关系数据库如何保证正确组织与关联？** 通过主键、候选键、外键和参照完整性来刻画表内与表间约束
-3. **关系查询是如何表达的？** 从查询语言分类入手，重点介绍关系代数的基本运算、典型查询写法与扩展操作
-
----
-
-## 目录
-
-- [Structure of Relational Databases](#structure-of-relational-databases)
-   - 关系模型的基本表示
-   - 关系的形式化定义
-   - relation schema 与 relation instance
-   - 属性与域（domain）
-   - 原子性（atomic）
-   - null（空值）
-   - 关系是无序的
-- [Database Schema](#database-schema)
-   - Database schema 的含义
-   - Database instance 的含义
-   - relation schema 与 database schema 的层次区别
-   - schema 中通常还包含什么
-- [Keys](#keys)
-   - Why key?
-   - Superkey
-   - Candidate key
-   - Primary key
-   - Foreign key
-   - Referencing relation 与 Referenced relation
-   - Referential integrity
-- [Schema Diagram](#schema-diagram)
-   - Schema of University Database 理解
-- [Relational Query Languages](#relational-query-languages)
-   - 查询语言的两种风格
-   - 三种 pure 关系查询语言
-   - 关系代数的特点
-- [The Relational Algebra](#the-relational-algebra)
-   - 关系代数的 6 个基本操作
-   - Example Queries
-   - 最大工资例子
-   - 常见扩展操作
-   - 广义投影与聚合
-   - null 与三值逻辑
-   - 关系代数与 SQL 的联系
-
----
-
 ## Structure of Relational Databases
 
 ### 关系模型的基本表示
@@ -69,7 +19,6 @@ draft: false
 - `ID, name, dept_name, salary` 是属性
 - 每一位教师对应的一行记录是一个元组。
 
----
 
 ### 关系的形式化定义
 从数学上说，若有若干集合：
@@ -106,7 +55,6 @@ $$
 - **schema** = 表长什么样
 - **instance** = 表里当前有什么数据。
 
----
 
 ### 属性与域（domain）
 每个属性都有自己的 **domain（域）**，也就是该属性允许取值的集合。
@@ -117,7 +65,6 @@ $$
 
 可以把“域”简单理解成：**这一列允许放什么值**。
 
----
 
 ### 原子性（atomic）
 关系模型通常要求属性值是 **atomic（原子的）**，即 **不可再分**。
@@ -128,7 +75,6 @@ $$
 
 这体现了关系模型希望一个单元格中只放一个基本值。
 
----
 
 ### null（空值）
 `null` 表示：
@@ -138,7 +84,6 @@ $$
 
 **null 会使很多运算的定义变复杂**。因此在数据库理论和 SQL 中，null 是一个非常特殊的值。
 
----
 
 ### 关系是无序的
 关系中的元组顺序 **没有意义**：
@@ -147,7 +92,6 @@ $$
 
 这点很重要，因为关系从理论上看是一个**集合**，集合本身就是无序的。
 
----
 
 ## Database Schema
 
@@ -176,7 +120,6 @@ instructor(ID, name, dept_name, salary)
 * schema 像“类/类型定义”
 * instance 像“变量当前的值”
 
----
 
 ### relation schema 与 database schema 的层次区别
 
@@ -201,7 +144,6 @@ instructor(ID, name, dept_name, salary)
 
 以及这些表之间的联系。
 
----
 
 ### schema 中通常还包含什么
 
@@ -217,7 +159,6 @@ instructor(ID, name, dept_name, salary)
 * 外键
 * 其他完整性约束
 
----
 
 ## Keys
 
@@ -232,7 +173,6 @@ instructor(ID, name, dept_name, salary)
 
 因此引入了 **key（键）** 的概念。 
 
----
 
 ### Superkey（超键）
 
@@ -251,7 +191,6 @@ instructor(ID, name, dept_name, salary)
 
 但它可以包含多余属性。
 
----
 
 ### Candidate key（候选键）
 
@@ -270,7 +209,6 @@ instructor(ID, name, dept_name, salary)
 * 既要唯一
 * 又不能冗余
 
----
 
 ### Primary key（主键）
 
@@ -286,7 +224,6 @@ instructor(ID, name, dept_name, salary)
 * 是表中最核心的识别属性
 * 其他表常通过它来引用该表
 
----
 
 ### Foreign key（外键）
 定义是：
@@ -311,7 +248,6 @@ instructor(ID, name, dept_name, salary)
 * 教师所在院系必须是真实存在的院系
 * 不能在 `instructor` 里写一个根本不存在的 `dept_name`
 
----
 
 ### Referencing relation 与 Referenced relation
 
@@ -326,7 +262,6 @@ instructor(ID, name, dept_name, salary)
 * 那么 `instructor` 是 referencing relation
 * `department` 是 referenced relation
 
----
 
 ### Referential integrity（参照完整性）
 
@@ -427,7 +362,6 @@ instructor(ID, name, dept_name, salary)
 这点非常重要，因为它说明关系代数具有**封闭性**：
 > relation 运算 relation，结果还是 relation
 
----
 
 ### 关系代数的 6 个基本操作
 slides 列出的 6 个基本操作是：
@@ -439,7 +373,6 @@ slides 列出的 6 个基本操作是：
 5. **Cartesian Product（笛卡尔积）**：$\times$
 6. **Rename（重命名）**：$\rho$
 
----
 
 #### Select（选择）$\sigma$
 
@@ -491,7 +424,6 @@ $$
 WHERE 条件
 ```
 
----
 
 #### Project（投影）$\Pi$
 
@@ -522,7 +454,6 @@ $$
 SELECT 列名...
 ```
 
----
 
 #### Union（并）$\cup$
 
@@ -554,7 +485,6 @@ $$
 
 **并 = 两个结果合起来**
 
----
 
 #### Set Difference（差）$-$
 
@@ -586,7 +516,6 @@ $$
 
 **差 = 从前者里减去后者**
 
----
 
 #### Cartesian Product（笛卡尔积）$\times$
 
@@ -618,7 +547,6 @@ $$
 
 笛卡尔积本身通常“太大”，实际常配合选择一起使用，构成连接。
 
----
 
 #### Rename（重命名）$\rho$
 
@@ -643,7 +571,6 @@ $$
 \rho_d(instructor)
 $$
 
----
 ### Examples
 
 关系代数表达式可以嵌套。
@@ -709,7 +636,6 @@ $$
 - 关系代数表达式可以有多种等价写法
 - 尽量早做选择（selection push-down）有利于查询优化
 
----
 
 ### 最大工资例子
 
@@ -743,7 +669,6 @@ $$
 
 这是关系代数很经典的构造思路。
 
----
 
 ### 关系代数的封闭性
 
@@ -757,7 +682,6 @@ $$
 
 这再次体现了封闭性。
 
----
 
 ### 常见扩展操作
 
@@ -772,7 +696,6 @@ $$
 * Outer Join（外连接）
 * Division（除法）
 
----
 
 #### Intersection（交）$\cap$
 
@@ -792,7 +715,6 @@ $$
 
 找两个结果都包含的元组。
 
----
 
 #### Natural Join（自然连接）$\bowtie$
 
@@ -827,7 +749,6 @@ $$
 \Pi_{name,title}(\sigma_{dept\_name="Comp. Sci."}(instructor \bowtie teaches \bowtie course))
 $$
 
----
 
 #### Theta Join（$\theta$-join）
 
@@ -843,7 +764,6 @@ $$
 * 自然连接：自动按公共属性相等匹配
 * theta 连接：匹配条件由你显式指定
 
----
 
 #### Outer Join（外连接）
 
@@ -891,7 +811,6 @@ $$
 (r \bowtie s) \cup (r - \Pi_R(r \bowtie s)) \times \{(null, \ldots, null)\} \cup \{(null, \ldots, null)\} \times (s - \Pi_S(r \bowtie s))
 $$
 
----
 
 #### Semijoin（半连接）$\ltimes_\theta$
 
@@ -926,7 +845,6 @@ $$
 * `EXISTS`
 * `IN`
 
----
 
 #### Assignment（赋值）$\leftarrow$
 
@@ -945,7 +863,6 @@ temp ← 某个关系代数表达式
 
 这在写复杂查询、特别是 division 的等价表达式时很常见。
 
----
 
 #### Division（除法）$\div$
 
@@ -991,7 +908,6 @@ $r \div s$
 * “every”
 * “all”
 
----
 
 ### 广义投影与聚合
 
@@ -1020,7 +936,6 @@ $$
 
 不仅能“选列”，还能“算新列”。
 
----
 
 #### Aggregate Functions（聚合函数）
 
@@ -1068,7 +983,6 @@ $$
   $$
 
 
----
 
 ### null 与三值逻辑
 
@@ -1089,7 +1003,6 @@ $$
 
 若选择条件计算为 `unknown`，则通常按 false 处理，不会选中该元组。
 
----
 
 ### 关系代数与 SQL 的联系
 
@@ -1111,7 +1024,6 @@ $$
 * intersection：取较小重复次数
 * difference：做差后的剩余次数 
 
----
 
 #### SQL 和关系代数的对应
 

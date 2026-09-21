@@ -7,63 +7,6 @@ category: 笔记
 draft: false
 ---
 
-## 概述
-
-**Newton's method（牛顿法）** 作为例子，展示如何从一个只解决特定问题的程序，逐步重构成可复用、可扩展、可维护的设计。
-
-- 如何把算法中 **不变的流程** 和 **会变化的问题定义** 分开；
-- 如何用面向对象的 `virtual` 接口实现扩展；
-- 如何用函数式风格的 `std::function` 和 lambda 实现扩展；
-- 如何通过 high cohesion / loose coupling 改善代码质量；
-- 如何理解 SOLID 原则背后的设计思想。
-
-
-> 设计时要先识别什么是不变的，什么是会变的。把不变的封装起来，把会变的留成清晰的接口。
-
-## 目录
-
-- [概述](#概述)
-- [目录](#目录)
-- [Root-finding algorithm](#root-finding-algorithm)
-  - [问题背景](#问题背景)
-  - [Newton's method](#newtons-method)
-  - [收敛特点](#收敛特点)
-- [从硬编码版本开始](#从硬编码版本开始)
-  - [解 $\\sqrt 2$](#解-sqrt-2)
-  - [终止条件](#终止条件)
-  - [把 magic numbers 命名](#把-magic-numbers-命名)
-  - [推广到 $\\sqrt a$](#推广到-sqrt-a)
-- [第一次封装：把流程放进类](#第一次封装把流程放进类)
-  - [封装后的 NewtonSolver](#封装后的-newtonsolver)
-  - [当前设计的问题](#当前设计的问题)
-- [第二次封装：Template Method](#第二次封装template-method)
-  - [分离不变流程与变化点](#分离不变流程与变化点)
-  - [Library code：NewtonSolver](#library-codenewtonsolver)
-  - [User code：SquareRootSolver](#user-codesquarerootsolver)
-  - [扩展到 n-th root](#扩展到-n-th-root)
-  - [扩展到任意函数](#扩展到任意函数)
-- [另一种设计：函数式接口](#另一种设计函数式接口)
-  - [核心思想](#核心思想)
-  - [单文件版本](#单文件版本)
-  - [用 lambda 定义问题](#用-lambda-定义问题)
-  - [拆分成头文件和实现文件](#拆分成头文件和实现文件)
-  - [用户代码](#用户代码)
-- [两种设计方式对比](#两种设计方式对比)
-- [Class design](#class-design)
-  - [设计类时要问的问题](#设计类时要问的问题)
-  - [Cohesion](#cohesion)
-  - [Coupling](#coupling)
-  - [Code duplication](#code-duplication)
-  - [Software changes](#software-changes)
-- [SOLID principles](#solid-principles)
-  - [Single Responsibility Principle](#single-responsibility-principle)
-  - [Open / Closed Principle](#open--closed-principle)
-  - [Liskov Substitution Principle](#liskov-substitution-principle)
-  - [Interface Segregation Principle](#interface-segregation-principle)
-  - [Dependency Inversion Principle](#dependency-inversion-principle)
-
----
-
 ## Root-finding algorithm
 
 ### 问题背景
@@ -154,7 +97,6 @@ quadratic convergence（二次收敛）大致表示：当当前点已经足够�
 Newton's method 不是任何初始点都一定收敛。若初始猜测离目标根太远，或者函数形状较差，迭代可能发散。实际数值计算中常会加入更 robust 的变体来提高收敛可靠性。
 :::
 
----
 
 ## 从硬编码版本开始
 
@@ -306,7 +248,6 @@ int main() {
 
 但这仍然不是一个好的设计，因为它仍然只能解决平方根问题。
 
----
 
 ## 第一次封装：把流程放进类
 
@@ -410,7 +351,6 @@ $$
 当一个类承担两个语义上独立的责任时，通常说明它应该被拆分，或者至少应该把变化点抽象成接口。
 :::
 
----
 
 ## 第二次封装：Template Method
 
@@ -654,7 +594,6 @@ solver.improve(10.0);
 
 不同初值可能进入不同根的吸引域。
 
----
 
 ## 另一种设计：函数式接口
 
@@ -961,7 +900,6 @@ g++ -std=c++17 main.cpp newton_solver.cpp -o main
 - `main.cpp` 是用户代码；
 - 用户不需要知道 `newton_solve` 内部怎么迭代，只需要提供 `f` 和 `df`。
 
----
 
 ## 两种设计方式对比
 
@@ -976,7 +914,6 @@ g++ -std=c++17 main.cpp newton_solver.cpp -o main
 
 设计没有绝对唯一答案。实际项目中要根据团队规范、代码风格、性能要求、模块边界来选择。
 
----
 
 ## Class design
 
@@ -1106,7 +1043,6 @@ Newton iteration 写一次
 
 所以 `f` 和 `df` 应该成为扩展点。
 
----
 
 ## SOLID principles
 
@@ -1190,4 +1126,3 @@ std::function<double(double)>
 
 不是依赖某个具体函数名。
 
----

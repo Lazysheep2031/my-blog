@@ -7,82 +7,6 @@ category: 笔记
 draft: false
 ---
 
-## 概述
-
-**Exception（异常）** 用于处理程序运行时出现、当前代码无法合理恢复的异常状况，例如文件打不开、内存申请失败、网络中断、用户输入导致下标越界等。
-
-本讲的核心内容：
-
-- run-time error 与 error code 的局限；
-- `throw`、`try`、`catch` 与 exception propagation；
-- handler 的类型匹配顺序，以及用 inheritance 组织异常类型；
-- `std::bad_alloc`、`noexcept` 与 `std::terminate()`；
-- RAII 如何保证异常发生时资源仍能释放；
-- constructor / destructor 与 exception 的特殊关系；
-- exception-safe code 的设计原则；
-- 通过 **Copy-and-Swap Idiom** 提供 strong exception safety。
-
-> 发生错误的位置往往只知道“不能继续执行”，却缺少恢复问题所需的上下文。此时应抛出包含诊断信息的异常对象，让更高层、掌握更多上下文的 caller 决定如何恢复。
-
-## 目录
-
-- [概述](#概述)
-- [目录](#目录)
-- [Runtime error 与错误处理](#runtime-error-与错误处理)
-  - [Compile-time error 与 run-time error](#compile-time-error-与-run-time-error)
-  - [读取文件中的运行时错误](#读取文件中的运行时错误)
-  - [Error code 的局限](#error-code-的局限)
-  - [Exception 的作用](#exception-的作用)
-- [什么时候使用 Exception](#什么时候使用-exception)
-  - [Vector 下标越界问题](#vector-下标越界问题)
-  - [几种处理方案的比较](#几种处理方案的比较)
-    - [方案一：直接返回对应内存](#方案一直接返回对应内存)
-    - [方案二：返回特殊标记值](#方案二返回特殊标记值)
-    - [方案三：直接结束程序](#方案三直接结束程序)
-    - [方案四：`assert`](#方案四assert)
-  - [Exception 与 assert 的边界](#exception-与-assert-的边界)
-- [抛出与捕获异常](#抛出与捕获异常)
-  - [用异常对象携带错误信息](#用异常对象携带错误信息)
-  - [异常传播链](#异常传播链)
-  - [`throw expression` 与 `throw;`](#throw-expression-与-throw)
-  - [Stack unwinding](#stack-unwinding)
-- [Handler 与异常继承体系](#handler-与异常继承体系)
-  - [Handler 的匹配规则](#handler-的匹配规则)
-  - [MathErr 层次](#matherr-层次)
-  - [Standard library exceptions](#standard-library-exceptions)
-- [`new`、`noexcept` 与异常设计](#newnoexcept-与异常设计)
-  - [`new` 失败时的行为](#new-失败时的行为)
-  - [`noexcept` specifier](#noexcept-specifier)
-  - [不要将异常用作普通控制流](#不要将异常用作普通控制流)
-  - [Uncaught exceptions](#uncaught-exceptions)
-- [Exception 与 RAII](#exception-与-raii)
-  - [依赖析构函数释放资源](#依赖析构函数释放资源)
-  - [File 示例](#file-示例)
-- [Exception 与 Constructors](#exception-与-constructors)
-  - [构造失败如何报告](#构造失败如何报告)
-  - [构造函数抛异常后的规则](#构造函数抛异常后的规则)
-  - [裸资源导致 leak](#裸资源导致-leak)
-  - [两段式构造的问题](#两段式构造的问题)
-  - [已经构造成功的成员仍会析构](#已经构造成功的成员仍会析构)
-  - [Wrapper 管理资源](#wrapper-管理资源)
-  - [用智能指针实现同一设计](#用智能指针实现同一设计)
-- [Exception 与 Destructors](#exception-与-destructors)
-- [捕获异常的参数方式](#捕获异常的参数方式)
-  - [Catch by value：可能发生 slicing](#catch-by-value可能发生-slicing)
-  - [Catch by pointer：引入所有权问题](#catch-by-pointer引入所有权问题)
-  - [Prefer catching by reference](#prefer-catching-by-reference)
-- [Exception-safe code](#exception-safe-code)
-  - [ATM 示例：状态修改顺序错误](#atm-示例状态修改顺序错误)
-  - [Exception safety guarantees](#exception-safety-guarantees)
-  - [Widget 的拷贝赋值问题](#widget-的拷贝赋值问题)
-  - [Basic guarantee：避免 dangling pointer](#basic-guarantee避免-dangling-pointer)
-  - [Strong guarantee：Copy-and-Swap Idiom](#strong-guaranteecopy-and-swap-idiom)
-    - [Copy 阶段抛异常](#copy-阶段抛异常)
-    - [Copy 阶段成功](#copy-阶段成功)
-    - [Self-assignment](#self-assignment)
-
----
-
 ## Runtime error 与错误处理
 
 ### Compile-time error 与 run-time error
@@ -205,7 +129,6 @@ try {
 - 正常返回值仍用于表达正常计算结果；
 - 抛出的对象可以携带错误现场信息。
 
----
 
 ## 什么时候使用 Exception
 
@@ -319,7 +242,6 @@ return m_elements[idx];
 
 `assert` 通常在 release build 中会被禁用，因此不能承担运行时外部异常的处理职责。
 
----
 
 ## 抛出与捕获异常
 
@@ -461,7 +383,6 @@ catch (const VectorIndexError&) {
 - 已经完整构造的 stack objects 会自动执行析构函数；
 - 因此 RAII 对异常安全至关重要。
 
----
 
 ## Handler 与异常继承体系
 
@@ -596,7 +517,6 @@ throw std::out_of_range("Vector index out of range");
 
 如果需要额外保存上下文，例如非法下标值、文件路径或操作信息，可以定义自己的异常类型，并继承合适的标准异常类别。
 
----
 
 ## `new`、`noexcept` 与异常设计
 
@@ -709,7 +629,6 @@ int main() {
 
 这类机制适用于程序级别的最终故障处理；它不替代正常的异常恢复策略。
 
----
 
 ## Exception 与 RAII
 
@@ -762,7 +681,6 @@ void func() {
 
 只要 `File::~File()` 正确关闭文件，无论函数正常结束、提前 `return`，还是由于异常退出，文件都能被释放。
 
----
 
 ## Exception 与 Constructors
 
@@ -1052,7 +970,6 @@ int main() {
 - 文件、锁、网络连接等资源：使用相应 RAII wrapper；
 - 尽量避免在拥有资源的类中保存需要手工清理的 raw owning pointer。
 
----
 
 ## Exception 与 Destructors
 
@@ -1088,7 +1005,6 @@ public:
 析构函数的职责是清理对象已有资源。若清理失败需要报告，可在析构前提供显式的 `close()` / `commit()` 接口供 caller 检查结果；析构函数仍作为不抛异常的最终兜底释放路径。
 :::
 
----
 
 ## 捕获异常的参数方式
 
@@ -1164,7 +1080,6 @@ catch (const SomeException& e) {
 - 无需管理异常对象内存；
 - `const` 表达 handler 通常只读取异常信息。
 
----
 
 ## Exception-safe code
 

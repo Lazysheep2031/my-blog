@@ -7,111 +7,6 @@ category: 笔记
 draft: false
 ---
 
-## 概述
-
-Chapter 3 解决的是：
-
-- 关系怎样用 SQL 建出来
-- 基本查询怎样写
-- 聚合、子查询、增删改怎样表达
-
-Chapter 4 进一步解决：
-
-- 多表连接怎样写得更清楚、更安全
-- 数据类型和 domain 怎样更规范地表达业务含义
-- 数据库怎样自己保证数据合法
-- view 为什么是“虚拟表”，什么时候可以更新
-- 索引为什么能加速查询
-- 事务为什么要求 all-or-nothing
-- 数据库权限应该如何管理
-
-
-
----
-
-## 目录
-
-- [概述](#概述)
-- [目录](#目录)
-- [Joined Relations](#joined-relations)
-  - [自然连接 `natural join`](#自然连接-natural-join)
-    - [`natural join` 的优点与风险](#natural-join-的优点与风险)
-  - [`join ... using(...)`](#join--using)
-  - [`join ... on`](#join--on)
-  - [外连接 `outer join`](#外连接-outer-join)
-    - [1. `left outer join`](#1-left-outer-join)
-    - [2. `right outer join`](#2-right-outer-join)
-    - [3. `full outer join`](#3-full-outer-join)
-- [SQL Data Types and Schemas](#sql-data-types-and-schemas)
-  - [用户自定义类型 `create type`](#用户自定义类型-create-type)
-  - [域 `domain`](#域-domain)
-  - [大对象 `blob / clob`](#大对象-blob--clob)
-    - [`blob`](#blob)
-    - [`clob`](#clob)
-- [Integrity Constraints](#integrity-constraints)
-  - [`not null` 与 `unique`](#not-null-与-unique)
-    - [`not null`](#not-null)
-    - [`unique`](#unique)
-  - [`check (P)`](#check-p)
-  - [`foreign key` 与参照完整性](#foreign-key-与参照完整性)
-  - [`on delete` / `on update`](#on-delete--on-update)
-  - [自引用外键](#自引用外键)
-  - [复杂约束、`assertion` 与 `trigger`](#复杂约束assertion-与-trigger)
-    - [带子查询的 `check`](#带子查询的-check)
-    - [`assertion`](#assertion)
-    - [`trigger`](#trigger)
-- [Views](#views)
-  - [什么是 view](#什么是-view)
-  - [`create view`](#create-view)
-  - [复杂条件 view](#复杂条件-view)
-  - [带聚合的 view](#带聚合的-view)
-  - [View Expansion](#view-expansion)
-  - [View 可以基于 View 再定义](#view-可以基于-view-再定义)
-  - [View 的更新问题](#view-的更新问题)
-    - [例 1：简单 view 的插入问题](#例-1简单-view-的插入问题)
-    - [例 2：多表 view 的更新更难](#例-2多表-view-的更新更难)
-  - [什么是 updatable view](#什么是-updatable-view)
-  - [`with check option`](#with-check-option)
-  - [Materialized View](#materialized-view)
-  - [普通 view vs materialized view](#普通-view-vs-materialized-view)
-    - [普通 view](#普通-view)
-    - [materialized view](#materialized-view-1)
-  - [Materialized view 的维护问题](#materialized-view-的维护问题)
-  - [View 与 Logical Data Independence](#view-与-logical-data-independence)
-- [Indexes](#indexes)
-  - [索引的代价](#索引的代价)
-- [Transactions](#transactions)
-  - [`commit` 与 `rollback`](#commit-与-rollback)
-    - [`commit`](#commit)
-    - [`rollback`](#rollback)
-  - [MySQL 中的一个典型例子](#mysql-中的一个典型例子)
-  - [ACID](#acid)
-    - [1. Atomicity（原子性）](#1-atomicity原子性)
-    - [2. Consistency（一致性）](#2-consistency一致性)
-    - [3. Isolation（隔离性）](#3-isolation隔离性)
-    - [4. Durability（持久性）](#4-durability持久性)
-  - [Transaction Boundaries](#transaction-boundaries)
-- [Authorization](#authorization)
-  - [基本权限类型](#基本权限类型)
-    - [数据级权限](#数据级权限)
-    - [结构级权限](#结构级权限)
-  - [`grant`](#grant)
-  - [`public`](#public)
-  - [`revoke`](#revoke)
-  - [一个用户可能通过多条路径获得同一权限](#一个用户可能通过多条路径获得同一权限)
-  - [Roles](#roles)
-  - [role 可以继承](#role-可以继承)
-  - [View 与权限控制](#view-与权限控制)
-  - [`references` 权限](#references-权限)
-  - [`with grant option`](#with-grant-option)
-  - [权限传播图](#权限传播图)
-  - [`cascade` 与 `restrict`](#cascade-与-restrict)
-    - [`cascade`](#cascade)
-    - [`restrict`](#restrict)
-  - [只撤销转授权，不撤销实际权限](#只撤销转授权不撤销实际权限)
-
----
-
 ## Joined Relations
 
 ```sql
@@ -138,7 +33,6 @@ where instructor.ID = teaches.ID;
 > 哪些行应该匹配在一起？
 > 匹配不上的行要不要保留？
 
----
 
 ### 自然连接 `natural join`
 
@@ -165,7 +59,6 @@ from instructor natural join teaches;
 - 教师姓名 `name`
 - 他教授的课程号 `course_id`
 
----
 
 #### `natural join` 的优点与风险
 
@@ -194,7 +87,6 @@ from instructor natural join teaches natural join course;
 
 所以自然连接虽然方便，但不能无脑使用。
 
----
 
 ### `join ... using(...)`
 
@@ -217,7 +109,6 @@ from (instructor natural join teaches)
 - 比 `on instructor.course_id = course.course_id` 更简洁
 - 结果中公共列 `course_id` 只保留一份
 
----
 
 ### `join ... on`
 
@@ -240,7 +131,6 @@ from instructor join teaches
 
 因此在真实开发里，`join ... on` 往往比 `natural join` 更稳妥。
 
----
 
 ### 外连接 `outer join`
 
@@ -263,7 +153,6 @@ from instructor join teaches
 
 左右两边的元组都尽量保留，匹配不上的部分补 `null`。
 
----
 
 **为什么需要外连接**
 
@@ -278,7 +167,6 @@ from instructor join teaches
 
 > 尽量保留信息，而不是因为没有匹配就让数据消失。
 
----
 
 ## SQL Data Types and Schemas
 
@@ -310,7 +198,6 @@ create table department (
 - 提高可读性
 - 强化语义表达
 
----
 
 ### 域 `domain`
 
@@ -346,7 +233,6 @@ check (value in ('Bachelors', 'Masters', 'Doctorate'));
 
 > 带规则的类型。
 
----
 
 学号、工号、邮箱这类字段通常：
 
@@ -369,7 +255,6 @@ create domain student_id varchar(10) not null;
 
 外键仍然要单独写。
 
----
 
 ### 大对象 `blob / clob`
 
@@ -410,7 +295,6 @@ create domain student_id varchar(10) not null;
 - `blob` 偏二进制
 - `clob` 偏大文本
 
----
 
 **大对象查询时常常返回“引用”而不是直接返回全部内容**
 
@@ -423,7 +307,6 @@ create domain student_id varchar(10) not null;
 - 先返回一个定位信息或引用
 - 真正需要时再取具体内容
 
----
 
 ## Integrity Constraints
 
@@ -432,7 +315,6 @@ create domain student_id varchar(10) not null;
 - 防止不合法数据进入数据库
 - 防止合法操作把数据库改得不一致
 
----
 
 ### `not null` 与 `unique`
 
@@ -453,7 +335,6 @@ budget numeric(12,2) not null
 - 预算
 - 学号
 
----
 
 #### `unique`
 
@@ -526,7 +407,6 @@ check (year > 1759 and year < 2100)
 - 枚举值限制
 - 同一行内部字段之间的逻辑关系
 
----
 
 ### `foreign key` 与参照完整性
 
@@ -555,7 +435,6 @@ create table course (
 
 - 课程表里写了一个根本不存在的院系名
 
----
 
 ### `on delete` / `on update`
 
@@ -583,7 +462,6 @@ foreign key (dept_name) references department(dept_name)
 - `set default`：改成默认值
 - `restrict`：不允许这样删除或修改
 
----
 
 ### 自引用外键
 
@@ -649,7 +527,6 @@ create table person (
 
 这种约束往往需要跨表检查。
 
----
 
 #### 带子查询的 `check`
 
@@ -676,7 +553,6 @@ check ((course_id, sec_id, semester, year) in (
 
 > 有些完整性约束是跨表的，普通 `check` 不够表达。
 
----
 
 #### `assertion`
 
@@ -701,7 +577,6 @@ check <predicate>;
 
 所以它更多是一个“理论上非常强的工具”。
 
----
 
 #### `trigger`
 
@@ -734,7 +609,6 @@ trigger 常用来做：
 - trigger 偏过程化
 
 
----
 
 ## Views
 
@@ -751,7 +625,6 @@ view 可以理解成：
 - virtual relation
 - 虚拟表
 
----
 
 **view 有三个核心用途：**
 
@@ -767,7 +640,6 @@ view 可以理解成：
 
 3. 在逻辑结构改变时，给旧程序保留兼容接口
 
----
 
 ### `create view`
 
@@ -800,7 +672,6 @@ where dept_name = 'Biology';
 
 这里的 `faculty` 用起来就像一张普通表。
 
----
 
 ### 复杂条件 view
 
@@ -832,7 +703,6 @@ where course.course_id = section.course_id
 
 > 把一个经常要写的多表筛选查询封装成“一个名字”。
 
----
 
 ### 带聚合的 view
 
@@ -854,7 +724,6 @@ group by dept_name;
 - 聚合表达式 `sum(salary)` 默认没有一个很自然的列名
 - 所以要手动给 view 的列命名
 
----
 
 ### View Expansion
 
@@ -897,7 +766,6 @@ where building = 'Watson';
 
 > 普通 view 存的通常不是“数据副本”，而是“查询定义”。
 
----
 
 ### View 可以基于 View 再定义
 
@@ -908,7 +776,6 @@ where building = 'Watson';
 
 这说明 view 的本质确实更像“命名查询”。
 
----
 
 ### View 的更新问题
 
@@ -922,7 +789,6 @@ where building = 'Watson';
 
 > 有时可以，但很多时候不行。
 
----
 
 #### 例 1：简单 view 的插入问题
 
@@ -962,7 +828,6 @@ values ('30765', 'Green', 'Music', null);
 
 > 更新 view，本质上必须能翻译成对底层真实表的更新。
 
----
 
 #### 例 2：多表 view 的更新更难
 
@@ -987,7 +852,6 @@ values ('69987', 'White', 'Taylor');
 
 所以多表连接得到的 view 往往没有唯一清晰的更新语义。
 
----
 
 ### 什么是 updatable view
 
@@ -1009,7 +873,6 @@ values ('69987', 'White', 'Taylor');
 
 更新它才有可能被正确翻译回底层表。
 
----
 
 ### `with check option`
 
@@ -1058,7 +921,6 @@ with check option;
 
 - 不允许你通过 view 引入“改完后不再属于该 view”的数据
 
----
 
 ### Materialized View
 
@@ -1094,7 +956,6 @@ where total_salary > (
 
 就不需要每次都重新对 `instructor` 做 `group by + sum`。
 
----
 
 ### 普通 view vs materialized view
 
@@ -1112,7 +973,6 @@ where total_salary > (
 - 可能更快
 - 但结果可能过期，需要维护
 
----
 
 ### Materialized view 的维护问题
 
@@ -1134,7 +994,6 @@ where total_salary > (
 
 所以 materialized view 是一个典型的“性能换维护成本”的机制。
 
----
 
 ### View 与 Logical Data Independence
 
@@ -1178,7 +1037,6 @@ from S1 natural join S2;
 
 所以 view 不只是“方便查询”，还是数据库模式演化时的重要兼容层。
 
----
 
 ## Indexes
 
@@ -1241,7 +1099,6 @@ where ID = '12345';
 - 索引不是数据本身
 - 它是加速访问的数据结构
 
----
 
 ### 索引的代价
 
@@ -1252,7 +1109,6 @@ where ID = '12345';
 
 因此不是每一列都适合建索引。
 
----
 
 ## Transactions
 
@@ -1285,7 +1141,6 @@ Transaction就是：
 - 要么全部完成
 - 要么像从未发生过一样
 
----
 
 ### `commit` 与 `rollback`
 
@@ -1308,7 +1163,6 @@ Transaction就是：
 - 撤销这次事务中的所有修改
 - 像它从来没有发生过一样
 
----
 
 ### MySQL 中的一个典型例子
 
@@ -1339,7 +1193,6 @@ COMMIT;
 
 而Transaction的关键，恰恰是把多条语句捆成一个整体来提交或回滚。
 
----
 
 ### ACID
 
@@ -1354,7 +1207,6 @@ COMMIT;
 
 这就是“all or nothing”。
 
----
 
 #### 2. Consistency（一致性）
 
@@ -1366,7 +1218,6 @@ COMMIT;
 - 外键仍然合法
 - 业务规则仍然成立
 
----
 
 #### 3. Isolation（隔离性）
 
@@ -1377,7 +1228,6 @@ COMMIT;
 - 虽然数据库里很多人同时在操作
 - 但每个事务都应该像“自己单独运行”一样
 
----
 
 #### 4. Durability（持久性）
 
@@ -1386,7 +1236,6 @@ COMMIT;
 - 它对数据库的修改应永久保留下来
 - 即使随后系统故障、断电，也不能丢
 
----
 
 ### Transaction Boundaries
 
@@ -1403,7 +1252,6 @@ COMMIT;
 
 > 把必须一起成功或失败的操作放进同一个事务。
 
----
 
 ## Authorization
 
@@ -1411,7 +1259,6 @@ COMMIT;
 
 权限控制就是为了解决这个问题。
 
----
 
 ### 基本权限类型
 
@@ -1440,7 +1287,6 @@ COMMIT;
 
 - 能不能创建或修改数据库对象
 
----
 
 ### `grant`
 
@@ -1468,7 +1314,6 @@ grant all privileges on department to U1;
 - U1/U2 只能更新 `department` 表中的 `budget` 列
 - U1 拥有 `department` 上的全部权限
 
----
 
 ### `public`
 
@@ -1479,7 +1324,6 @@ grant all privileges on department to U1;
 
 因此把权限授给 `public`，相当于全面开放。
 
----
 
 ### `revoke`
 
@@ -1499,7 +1343,6 @@ revoke select on branch from U1, U2, U3;
 
 表示收回这些用户对 `branch` 的查询权限。
 
----
 
 ### 一个用户可能通过多条路径获得同一权限
 
@@ -1517,7 +1360,6 @@ revoke select on branch from U1, U2, U3;
 
 所以权限系统并不是简单的一对一关系，而是一张传播网络。
 
----
 
 ### Roles
 
@@ -1541,7 +1383,6 @@ grant select on takes to instructor;
 
 于是 Amit 就拥有了这个角色对应的权限。
 
----
 
 :::TIP
 **为什么要用 role，而不是直接把权限一条条授给每个人？**
@@ -1564,7 +1405,6 @@ grant select on takes to instructor;
 于是权限管理就更像现实世界中的“职位管理”。
 :::
 
----
 
 ### role 可以继承
 
@@ -1593,7 +1433,6 @@ grant dean to Satoshi;
 - Satoshi 被授予 `dean`
 - 所以也拥有 `instructor` 那部分权限
 
----
 
 ### View 与权限控制
 
@@ -1624,7 +1463,6 @@ grant select on geo_instructor to geo_staff;
 
 > 把“整张表”裁剪成“可安全开放的窗口”。
 
----
 
 ### `references` 权限
 
@@ -1646,7 +1484,6 @@ grant references (dept_name) on department to Mariano;
 
 它属于一种“结构依赖级”的权限。
 
----
 
 ### `with grant option`
 
@@ -1665,7 +1502,6 @@ grant select on department to Amit with grant option;
 
 这就让权限可以继续传播。
 
----
 
 ### 权限传播图
 
@@ -1682,7 +1518,6 @@ grant select on department to Amit with grant option;
 
 > 从根授权者到他之间是否还存在一条有效路径。
 
----
 
 ### `cascade` 与 `restrict`
 
@@ -1703,7 +1538,6 @@ revoke select on department from Amit cascade;
 
 这叫级联撤销。
 
----
 
 #### `restrict`
 
@@ -1721,7 +1555,6 @@ revoke select on department from Amit restrict;
 - `cascade`：允许连锁回收
 - `restrict`：一旦会波及别人，就直接禁止这次回收
 
----
 
 ### 只撤销转授权，不撤销实际权限
 
@@ -1738,5 +1571,4 @@ revoke grant option for select on department from Amit;
 
 这个语义非常细，但很重要。
 
----
 ****

@@ -7,109 +7,6 @@ category: 笔记
 draft: false
 ---
 
-## 概述
-
-这一章的核心是：
-
-> 从 **E-R 设计** 走到 **关系模式** 之后，问题还没有结束。  
-> 你还要继续判断这些表是不是“设计得好”。  
-> 判断的标准，核心看三件事：
->
-> - 有没有 **信息重复（redundancy）**
-> - 分解之后能不能 **无损恢复（lossless join）**
-> - 分解之后能不能 **保持依赖（dependency preserving）**
-
-本质上讲的是 **关系模式层的结构优化理论**。
-
-Chapter 6 解决的是：
-
-- 现实世界怎么抽象成实体、联系、约束
-- E-R 图怎么规约成关系模式
-
-Chapter 7 解决的是：
-
-- 已经得到的关系模式，怎样判断它是不是“坏设计”
-- 如果它有问题，怎样用 **functional dependency / multivalued dependency** 去分解
-- 如何在 **BCNF / 3NF / 4NF** 等不同目标之间做权衡
-
-所以
-- Chapter 6：**先把表设计出来**
-- Chapter 7：**再把表设计对**
-
----
-
-## 目录
-
-- [概述](#概述)
-- [目录](#目录)
-- [Features of Good Relational Design](#features-of-good-relational-design)
-  - [坏设计的核心](#坏设计的核心)
-    - [坏设计的典型症状](#坏设计的典型症状)
-  - [Lossless Join Decomposition](#lossless-join-decomposition)
-    - [二元分解的无损判定条件](#二元分解的无损判定条件)
-- [Atomic Domains and First Normal Form](#atomic-domains-and-first-normal-form)
-  - [Atomic domain](#atomic-domain)
-    - [非原子域的典型例子](#非原子域的典型例子)
-  - [1NF](#1nf)
-- [Functional Dependencies](#functional-dependencies)
-  - [Legal instance](#legal-instance)
-  - [函数依赖的定义](#函数依赖的定义)
-  - [Superkey 与 Candidate Key 的关系](#superkey-与-candidate-key-的关系)
-    - [Superkey](#superkey)
-    - [Candidate Key](#candidate-key)
-  - [Trivial functional dependency](#trivial-functional-dependency)
-- [Functional-Dependency Theory](#functional-dependency-theory)
-  - [Closure of F](#closure-of-f)
-  - [Armstrong’s Axioms](#armstrongs-axioms)
-    - [Example](#example)
-  - [Additional Rules](#additional-rules)
-  - [Attribute Closure](#attribute-closure)
-    - [Example](#example-1)
-    - [Attribute Closure 的用途](#attribute-closure-的用途)
-- [Canonical Cover](#canonical-cover)
-  - [Extraneous Attribute](#extraneous-attribute)
-  - [Canonical Cover 的定义](#canonical-cover-的定义)
-  - [Example](#example-2)
-- [BCNF](#bcnf)
-  - [BCNF 定义](#bcnf-定义)
-  - [BCNF 分解思路](#bcnf-分解思路)
-  - [BCNF 分解算法](#bcnf-分解算法)
-  - [Example](#example-3)
-  - [Dependency Preserving](#dependency-preserving)
-  - [BCNF 与依赖保持的冲突](#bcnf-与依赖保持的冲突)
-- [Third Normal Form (3NF)](#third-normal-form-3nf)
-  - [3NF 定义](#3nf-定义)
-  - [Example](#example-4)
-  - [3NF Synthesis Algorithm](#3nf-synthesis-algorithm)
-  - [BCNF vs 3NF](#bcnf-vs-3nf)
-    - [BCNF](#bcnf-1)
-    - [3NF](#3nf)
-- [Multivalued Dependencies and 4NF](#multivalued-dependencies-and-4nf)
-  - [为什么 BCNF 还不够](#为什么-bcnf-还不够)
-  - [MVD](#mvd)
-    - [MVD 的形式定义](#mvd-的形式定义)
-    - [MVD 与 FD 的关系](#mvd-与-fd-的关系)
-  - [4NF](#4nf)
-    - [4NF的定义](#4nf的定义)
-    - [4NF 分解算法](#4nf-分解算法)
-    - [Example](#example-5)
-- [More Normal Forms](#more-normal-forms)
-- [Database-Design Process Revisited](#database-design-process-revisited)
-  - [R 从哪里来](#r-从哪里来)
-  - [为什么 E-R 设计好时往往不需要再规范化](#为什么-e-r-设计好时往往不需要再规范化)
-  - [什么时候会故意不规范化](#什么时候会故意不规范化)
-  - [Normalization 抓不住的设计问题](#normalization-抓不住的设计问题)
-- [Modeling Temporal Data](#modeling-temporal-data)
-  - [为什么需要 temporal data](#为什么需要-temporal-data)
-  - [Snapshot 与 Temporal FD](#snapshot-与-temporal-fd)
-  - [Temporal Primary Key](#temporal-primary-key)
-  - [Temporal Foreign Key](#temporal-foreign-key)
-  - [Temporal Join](#temporal-join)
-  - [SQL:2011 的 temporal 支持](#sql2011-的-temporal-支持)
-    - [PostgreSQL workaround](#postgresql-workaround)
-
----
-
 ## Features of Good Relational Design
 
 一个关系模式设计得好，通常至少要满足：
@@ -312,7 +209,6 @@ $$
 
 那么公共属性 $B$ 能决定 $R_2(B,C)$，分解无损。
 
----
 
 ## Atomic Domains and First Normal Form
 
@@ -376,7 +272,6 @@ $$
 
 也就是说，后面的范式更严格。
 
----
 
 ## Functional Dependencies
 
@@ -516,7 +411,6 @@ $$
 
 这就是为什么规范化理论以函数依赖为核心。
 
----
 
 ## Functional-Dependency Theory
 
@@ -819,7 +713,6 @@ $$
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202604141431751.png" alt="Attribute Closure" style="width: 520px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
----
 
 ## Canonical Cover
 
@@ -952,7 +845,6 @@ $$
 AD
 $$
 
----
 
 ## BCNF
 
@@ -1256,7 +1148,6 @@ $$
 
 这正是 3NF 出场的动机。
 
----
 
 ## Third Normal Form (3NF)
 
@@ -1441,7 +1332,6 @@ return (R1, R2, ..., Ri)
 - 能上 BCNF 就优先 BCNF
 - 如果 BCNF 破坏依赖保持且代价太高，就退回 3NF
 
----
 
 ## Multivalued Dependencies and 4NF
 
@@ -1712,7 +1602,6 @@ $$
 
 这和我们在 E-R 模型里“多值属性最好单独拆表”的直觉完全一致。
 
----
 
 ## More Normal Forms
 
@@ -1729,7 +1618,6 @@ $$
 - 推理更难
 - 实务收益往往不如复杂度增幅明显
 
----
 
 ## Database-Design Process Revisited
 
@@ -1852,7 +1740,6 @@ company_year(company_id, earnings_2012, earnings_2013, earnings_2014)
 > 规范化理论只处理“依赖导致的冗余”。  
 > 它不自动替你解决“数据建模方式是否顺着业务查询习惯、是否便于长期演进”这类问题。
 
----
 
 ## Modeling Temporal Data
 
@@ -2012,4 +1899,3 @@ exclude (course_id with =, validtime with &&)
 
 这相当于手工实现 temporal primary key。
 
----

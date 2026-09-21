@@ -7,138 +7,6 @@ category: 笔记
 draft: false
 ---
 
-## 概述
-
-这一章的核心是：
-
-> 同一个 SQL 查询，可以有大量**结果相同**但**执行代价差异极大**的方案。查询优化器（query optimizer）的任务，就是在可行的执行计划中选出代价尽可能低的方案。
-
-第十五章解决的是：
-
-- selection、sort、join 等操作**可以怎么执行**
-- 每种算法大致需要多少 I/O
-
-这一章继续解决：
-
-- 一个查询应该先做哪些操作
-- join 应该按什么顺序进行
-- 每一步应该选择哪种物理算法
-- 如何依据统计信息估计中间结果规模和总代价
-
-优化链条：
-
-```text
-SQL query
-   ↓
-Parsing and Translation
-   ↓
-Relational Algebra Expression
-   ↓
-Equivalent Expression Transformation
-   ↓
-Cardinality / Cost Estimation
-   ↓
-Cheapest Evaluation Plan
-   ↓
-Execution
-```
-
-其中最关键的两层选择是：
-
-- **逻辑优化（logical optimization）**：选择等价但更便宜的关系代数表达式，例如 selection pushdown、projection pushdown、join reorder。
-- **物理优化（physical optimization）**：为每个操作选择具体算法，例如 index scan、hash join、merge join、external sort。
-
-也就是说：
-
-> 查询优化既要决定“先算什么”，也要决定“怎么计算”。
-
----
-
-## 目录
-
-- [n\_{\\sigma\_{A=v}(r)}](#n_sigma_avr)
-      - [Range Selection](#range-selection)
-    - [复杂选择条件的 Selectivity](#复杂选择条件的-selectivity)
-      - [Conjunction](#conjunction)
-- [n\_{\\text{result}}](#n_textresult)
-      - [Disjunction](#disjunction)
-- [n\_{\\text{result}}](#n_textresult-1)
-      - [Negation](#negation)
-- [n\_{\\sigma\_{\\neg \\theta}(r)}](#n_sigma_neg-thetar)
-    - [Join 结果大小估计](#join-结果大小估计)
-      - [Cartesian Product](#cartesian-product)
-      - [共同属性是某一侧的 Key](#共同属性是某一侧的-key)
-      - [一般单属性 Join](#一般单属性-join)
-      - [课件表格示例](#课件表格示例)
-- [\\frac{4 \\times 6}{V(A,s)}](#frac4-times-6vas)
-- [\\frac{24}{4}](#frac244)
-- [\\frac{4 \\times 6}{V(A,r)}](#frac4-times-6var)
-- [\\frac{24}{3}](#frac243)
-      - [`student ⋈ takes` 示例](#student--takes-示例)
-    - [其他操作的结果大小估计](#其他操作的结果大小估计)
-      - [Projection](#projection)
-      - [Aggregation](#aggregation)
-      - [Set Operations](#set-operations)
-      - [Outer Join](#outer-join)
-    - [中间结果的 Distinct Value 估计](#中间结果的-distinct-value-估计)
-      - [Selection](#selection)
-      - [Join](#join)
-      - [Projection 与 Aggregation](#projection-与-aggregation)
-  - [Choice of Evaluation Plans](#choice-of-evaluation-plans)
-    - [操作之间会相互影响](#操作之间会相互影响)
-    - [Join Order 的搜索空间](#join-order-的搜索空间)
-    - [Dynamic Programming 选择 Join Plan](#dynamic-programming-选择-join-plan)
-      - [基本情况](#基本情况)
-      - [递归情况](#递归情况)
-    - [Left-Deep Join Tree](#left-deep-join-tree)
-    - [Interesting Sort Order](#interesting-sort-order)
-    - [基于等价规则的 Cost-Based Optimization](#基于等价规则的-cost-based-optimization)
-    - [Heuristic Optimization](#heuristic-optimization)
-  - [Nested Subqueries](#nested-subqueries)
-    - [Correlated Evaluation](#correlated-evaluation)
-    - [Semijoin 与重复元组问题](#semijoin-与重复元组问题)
-    - [Anti-Semijoin](#anti-semijoin)
-    - [Decorrelation](#decorrelation)
-    - [Scalar Aggregate Subquery](#scalar-aggregate-subquery)
-  - [Materialized Views](#materialized-views)
-    - [物化视图的作用](#物化视图的作用)
-    - [View Maintenance](#view-maintenance)
-    - [Differential 与 Incremental Maintenance](#differential-与-incremental-maintenance)
-    - [常见关系操作的增量维护](#常见关系操作的增量维护)
-      - [Join](#join-1)
-- [r\_{new} \\bowtie s](#r_new-bowtie-s)
-- [(r\_{old} \\cup i\_r) \\bowtie s](#r_old-cup-i_r-bowtie-s)
-      - [Selection](#selection-1)
-      - [Projection](#projection-1)
-      - [Aggregation](#aggregation-1)
-      - [Set Operations](#set-operations-1)
-      - [Outer Join](#outer-join-1)
-      - [复合表达式](#复合表达式)
-    - [使用物化视图优化查询](#使用物化视图优化查询)
-      - [将查询改写为使用物化视图](#将查询改写为使用物化视图)
-      - [展开物化视图反而更便宜](#展开物化视图反而更便宜)
-    - [Materialized View Selection 与 Index Selection](#materialized-view-selection-与-index-selection)
-  - [Advanced Topics in Query Optimization](#advanced-topics-in-query-optimization)
-    - [Top-K Queries](#top-k-queries)
-      - [有序流水执行](#有序流水执行)
-      - [估计阈值并加入过滤条件](#估计阈值并加入过滤条件)
-    - [Optimization of Updates 与 Halloween Problem](#optimization-of-updates-与-halloween-problem)
-      - [总是延迟更新](#总是延迟更新)
-      - [仅在必要时延迟更新](#仅在必要时延迟更新)
-    - [Join Minimization](#join-minimization)
-    - [Multiquery Optimization 与 Shared Scan](#multiquery-optimization-与-shared-scan)
-    - [Parametric Query Optimization](#parametric-query-optimization)
-      - [每次执行时重新优化](#每次执行时重新优化)
-      - [Parametric Query Optimization](#parametric-query-optimization-1)
-      - [Query Plan Caching](#query-plan-caching)
-    - [Adaptive Query Processing](#adaptive-query-processing)
-      - [Adaptive Operator](#adaptive-operator)
-      - [Runtime Re-optimization](#runtime-re-optimization)
-  - [总结](#总结)
-  - [参考资料](#参考资料)
-
----
-
 ## Introduction
 
 ### 查询处理的基本步骤
@@ -327,7 +195,6 @@ cost = f .. l
 因此，分析 cardinality estimation 是否失准时，`EXPLAIN ANALYZE` 更有价值。
 :::
 
----
 
 ## Transformation of Relational Expressions
 
@@ -816,7 +683,6 @@ until 不再出现新表达式
 - **Cost-based pruning**：明显不可能胜出的计划尽早剪枝。
 - **Heuristics**：只搜索更有希望的结构，例如 left-deep join tree。
 
----
 
 ## Statistical Information for Cost Estimation
 
@@ -1375,7 +1241,6 @@ $$
 
 即粗略假设每个 group 的聚合结果不同。
 
----
 
 ## Choice of Evaluation Plans
 
@@ -1649,7 +1514,6 @@ Cost-based optimization 很有价值，但优化本身也消耗时间。
 
 - 更充分的枚举和成本比较通常是值得的
 
----
 
 ## Nested Subqueries
 
@@ -1865,7 +1729,6 @@ $$
 
 因此现实优化器对复杂 nested subquery 的 decorrelation 支持通常有限。
 
----
 
 ## Materialized Views
 
@@ -2206,7 +2069,6 @@ $$
 
 许多商业数据库提供 tuning assistant / wizard，协助 DBA 选择索引和物化视图。
 
----
 
 ## Advanced Topics in Query Optimization
 
@@ -2482,4 +2344,3 @@ operator 在执行过程中根据真实输入大小决定算法。
 - 重启本身有代价
 - 必须避免反复 abort / restart
 
----

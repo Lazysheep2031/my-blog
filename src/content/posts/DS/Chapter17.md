@@ -7,117 +7,6 @@ category: 笔记
 draft: false
 ---
 
-## 概述
-
-这一章的核心是：
-
-> 事务（transaction）把一组数据库读写操作包装成一个逻辑工作单元，并要求它在故障和并发环境下仍然表现得“正确”。
-
-事务管理要解决两个主要问题：
-
-- **Failures**：硬件故障、系统崩溃、软件错误可能让事务只执行一半
-- **Concurrent execution**：多个事务同时执行可能相互干扰，产生错误结果
-
-因此数据库系统要提供：
-
-- **Atomicity**：要么全做，要么全不做
-- **Consistency**：事务从一致状态出发，成功结束后仍回到一致状态
-- **Isolation**：并发执行的效果应像某种串行执行
-- **Durability**：提交后的结果即使系统故障也要保留
-
-这一章的脉络可以概括为：
-
-```text
-事务概念
-  -> ACID
-  -> 简单 read/write 模型
-  -> 并发异常
-  -> 调度 schedule
-  -> 可串行化 serializability
-  -> 可恢复性 recoverability
-  -> 隔离级别 isolation levels
-  -> SQL 中如何定义事务边界
-```
-
----
-
-## 目录
-
-- [概述](#概述)
-- [目录](#目录)
-- [Transaction Concept](#transaction-concept)
-  - [事务的定义](#事务的定义)
-  - [转账例子](#转账例子)
-  - [事务管理要解决的问题](#事务管理要解决的问题)
-- [ACID Properties](#acid-properties)
-  - [Atomicity](#atomicity)
-  - [Consistency](#consistency)
-  - [Isolation](#isolation)
-  - [Durability](#durability)
-  - [ACID 中系统和程序员的分工](#acid-中系统和程序员的分工)
-- [A Simple Transaction Model](#a-simple-transaction-model)
-  - [read 和 write](#read-和-write)
-  - [存储结构与故障语义](#存储结构与故障语义)
-- [Transaction State](#transaction-state)
-  - [Partially committed 和 Committed 的区别](#partially-committed-和-committed-的区别)
-- [Concurrent Executions](#concurrent-executions)
-  - [为什么要并发执行](#为什么要并发执行)
-  - [并发执行的异常](#并发执行的异常)
-- [Lost Update](#lost-update)
-- [Dirty Read](#dirty-read)
-- [Unrepeatable Read](#unrepeatable-read)
-- [Phantom Problem](#phantom-problem)
-- [Schedules](#schedules)
-  - [Schedule 的定义](#schedule-的定义)
-  - [commit 和 abort](#commit-和-abort)
-  - [Serial Schedule](#serial-schedule)
-    - [Schedule 1：T1 后跟 T2](#schedule-1t1-后跟-t2)
-    - [Schedule 2：T2 后跟 T1](#schedule-2t2-后跟-t1)
-  - [Concurrent Schedule](#concurrent-schedule)
-    - [Schedule 3：并发但正确](#schedule-3并发但正确)
-    - [Schedule 4：并发且错误](#schedule-4并发且错误)
-- [Serializability](#serializability)
-  - [基本假设](#基本假设)
-  - [可串行化的含义](#可串行化的含义)
-- [Conflict Serializability](#conflict-serializability)
-  - [Conflict 的定义](#conflict-的定义)
-  - [Conflict Equivalent](#conflict-equivalent)
-  - [Conflict Serializable](#conflict-serializable)
-  - [反例](#反例)
-- [Testing for Conflict Serializability](#testing-for-conflict-serializability)
-  - [Precedence Graph](#precedence-graph)
-  - [判定规则](#判定规则)
-  - [例子](#例子)
-- [View Serializability](#view-serializability)
-  - [View Equivalent](#view-equivalent)
-  - [View Serializable](#view-serializable)
-  - [和 Conflict Serializability 的关系](#和-conflict-serializability-的关系)
-- [Other Notions of Serializability](#other-notions-of-serializability)
-- [Recoverability](#recoverability)
-  - [Recoverable Schedule](#recoverable-schedule)
-  - [Cascading Rollback](#cascading-rollback)
-  - [Cascadeless Schedule](#cascadeless-schedule)
-- [Concurrency Control Protocols](#concurrency-control-protocols)
-  - [前驱图不是运行时检查机制](#前驱图不是运行时检查机制)
-  - [三类并发控制协议预告](#三类并发控制协议预告)
-- [Weak Levels of Consistency](#weak-levels-of-consistency)
-  - [只读事务与多版本思想](#只读事务与多版本思想)
-- [Transaction Isolation Levels](#transaction-isolation-levels)
-  - [Serializable](#serializable)
-  - [Repeatable Read](#repeatable-read)
-  - [Read Committed](#read-committed)
-  - [Read Uncommitted](#read-uncommitted)
-  - [隔离级别对比](#隔离级别对比)
-- [Transaction Definition in SQL](#transaction-definition-in-sql)
-  - [SQL 中的事务开始和结束](#sql-中的事务开始和结束)
-  - [自动提交](#自动提交)
-  - [设置隔离级别](#设置隔离级别)
-- [Transaction Boundaries](#transaction-boundaries)
-  - [例子：订一张票 vs 订多张票](#例子订一张票-vs-订多张票)
-  - [例子：订票和支付是否放在同一事务](#例子订票和支付是否放在同一事务)
-
----
-
 ## Transaction Concept
 
 ### 事务的定义
@@ -211,7 +100,6 @@ read(A), read(B), print(A + B)
 - 发生故障时，不能留下半个事务
 - 并发执行时，不能让其他事务看到危险的中间结果
 
----
 
 ## ACID Properties
 
@@ -346,7 +234,6 @@ T2 再开始执行
 - 一致性需要事务逻辑本身正确
 - 错误的业务逻辑即使被完整提交，也可能破坏数据库语义
 
----
 
 ## A Simple Transaction Model
 
@@ -406,7 +293,6 @@ write(X)
 
 数据库在通知用户 `commit` 成功前，必须确保提交结果或恢复所需日志已经足够可靠。
 
----
 
 ## Transaction State
 
@@ -463,7 +349,6 @@ None or All
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260602105305.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
----
 
 ## Concurrent Executions
 
@@ -510,7 +395,6 @@ T2: using CPU
 
 > 多个事务的 read/write 操作交错执行，并且没有足够的隔离控制。
 
----
 
 ## Lost Update
 
@@ -549,7 +433,6 @@ A = 99
 
 这个异常本质上是 **read-modify-write** 操作没有被当作一个整体保护。
 
----
 
 ## Dirty Read
 
@@ -581,7 +464,6 @@ rollback
 
 脏读通常会破坏 recoverability。
 
----
 
 ## Unrepeatable Read
 
@@ -614,7 +496,6 @@ A = 99
 
 如果 T1 的业务逻辑依赖“同一事务内重复读取结果稳定”，这个交错执行就会出错。
 
----
 
 ## Phantom Problem
 
@@ -655,7 +536,6 @@ where age = 18;
 
 在简单 read/write 模型中，幽灵问题不容易表达，因为它涉及谓词读取 `predicate read`。
 
----
 
 ## Schedules
 
@@ -851,7 +731,6 @@ A = 50, B = 110, A + B = 160
 
 `A + B` 没有保持不变，因此 Schedule 4 是错误调度。
 
----
 
 ## Serializability
 
@@ -901,7 +780,6 @@ A = 50, B = 110, A + B = 160
 
 因此 Schedule 3 与 Schedule 1 在视图上等价。
 
----
 
 ## Conflict Serializability
 
@@ -1000,7 +878,6 @@ T3 -> T4 -> T3
 
 所以它不是 conflict serializable。
 
----
 
 ## Testing for Conflict Serializability
 
@@ -1088,7 +965,6 @@ T1, T3, T2, T4
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260602110453.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
----
 
 ## View Serializability
 
@@ -1152,7 +1028,6 @@ T27 -> T28 -> T29
 
 原因在于其中存在 blind write 相关情况，使得冲突图可能出现环，但从“读到什么值”和“最终谁写入”的角度看，它仍能对应一个串行执行。
 
----
 
 ## Other Notions of Serializability
 
@@ -1183,7 +1058,6 @@ T27 -> T28 -> T29
 用并发控制协议施加约束，保证产生的调度属于某类可证明正确的调度
 ```
 
----
 
 ## Recoverability
 
@@ -1281,7 +1155,6 @@ Cascadeless schedule => Recoverable schedule
 
 实际系统通常更希望限制调度为 cascadeless。
 
----
 
 ## Concurrency Control Protocols
 
@@ -1368,7 +1241,6 @@ Read phase -> Validation phase -> Write phase
 
 如果验证阶段发现冲突，再回滚或重启事务。
 
----
 
 ## Weak Levels of Consistency
 
@@ -1404,7 +1276,6 @@ Read phase -> Validation phase -> Write phase
 accuracy <-> performance
 ```
 
----
 
 ## Transaction Isolation Levels
 
@@ -1514,7 +1385,6 @@ Dirty write 指：
 一个事务写入了另一个尚未提交或回滚事务已经写过的数据项
 ```
 
----
 
 ## Transaction Definition in SQL
 
@@ -1622,7 +1492,6 @@ connection.setTransactionIsolation(
 - 不同 DBMS 的默认隔离级别可能不同
 - 不同 DBMS 对同名隔离级别的实现细节也可能不同
 
----
 
 ## Transaction Boundaries
 

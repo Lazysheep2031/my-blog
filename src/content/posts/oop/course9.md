@@ -7,60 +7,6 @@ category: 笔记
 draft: false
 ---
 
-## 概述
-
-本讲讨论 C++ 中 **copy（拷贝）** 行为的发生时机、默认行为、潜在问题与定制方式。
-
-核心问题有三个：
-
-- copy 什么时候会发生；
-- copy 发生时，编译器默认做了什么；
-- 当类中管理资源时，为什么必须自己定义 copy constructor 和 copy assignment operator。
-
-> 默认生成的 copy 行为是 member-wise copy。它对普通数值成员通常没问题，但对 raw pointer 成员很危险，因为它只复制指针值，不复制指针指向的资源。
-
-## 目录
-
-- [概述](#概述)
-- [目录](#目录)
-- [Copy 行为的基本场景](#copy-行为的基本场景)
-  - [函数传值会触发 copy](#函数传值会触发-copy)
-  - [用 HowMany 观察对象数量](#用-howmany-观察对象数量)
-- [Copy constructor](#copy-constructor)
-  - [函数签名](#函数签名)
-  - [为什么参数必须是引用](#为什么参数必须是引用)
-  - [编译器自动生成的 copy constructor](#编译器自动生成的-copy-constructor)
-- [Member-wise copy](#member-wise-copy)
-  - [class-type member 会递归调用 copy constructor](#class-type-member-会递归调用-copy-constructor)
-  - [自己写空 copy constructor 的问题](#自己写空-copy-constructor-的问题)
-  - [普通类型和指针类型的区别](#普通类型和指针类型的区别)
-- [包含 raw pointer 的类](#包含-raw-pointer-的类)
-  - [Person 的基本实现](#person-的基本实现)
-  - [默认浅拷贝的问题](#默认浅拷贝的问题)
-  - [深拷贝的 copy constructor](#深拷贝的-copy-constructor)
-- [Initialization vs. Assignment](#initialization-vs-assignment)
-  - [两种语义](#两种语义)
-  - [默认生成的 operator=](#默认生成的-operator)
-  - [raw pointer 下的赋值问题](#raw-pointer-下的赋值问题)
-  - [正确的 copy assignment operator](#正确的-copy-assignment-operator)
-  - [self-assignment](#self-assignment)
-- [Rule of Zero 与 Rule of Three](#rule-of-zero-与-rule-of-three)
-  - [用 string 替代 char\*](#用-string-替代-char)
-  - [自动生成的三个特殊成员函数](#自动生成的三个特殊成员函数)
-  - [什么时候需要自己写](#什么时候需要自己写)
-- [Copy constructor 什么时候会被调用](#copy-constructor-什么时候会被调用)
-  - [初始化](#初始化)
-  - [传值参数](#传值参数)
-  - [按值返回](#按值返回)
-  - [copy elision](#copy-elision)
-- [Copy 与性能：vector 例子](#copy-与性能vector-例子)
-  - [push\_back 为什么会产生额外 copy](#push_back-为什么会产生额外-copy)
-  - [reserve 减少扩容 copy](#reserve-减少扩容-copy)
-  - [emplace\_back 原地构造](#emplace_back-原地构造)
-- [禁止 copy](#禁止-copy)
-
----
-
 ## Copy 行为的基本场景
 
 ### 函数传值会触发 copy
@@ -202,7 +148,6 @@ int main() {
 实际输出次数可能受编译器优化影响。编译器可以在安全时消除部分 copy，这就是 copy elision / return value optimization。
 :::
 
----
 
 ## Copy constructor
 
@@ -273,7 +218,6 @@ HowMany(const HowMany& other);
 
 这就是 raw pointer 成员危险的根源。
 
----
 
 ## Member-wise copy
 
@@ -403,7 +347,6 @@ B::B(const B& other)
 
 指针的地址被复制后，两个对象会指向同一块资源。
 
----
 
 ## 包含 raw pointer 的类
 
@@ -574,7 +517,6 @@ int main() {
 `Person(const Person& other)` 是 `Person` 的成员函数，因此它可以访问 `other.name`。`private` 限制的是类外代码，不限制同一个类的成员函数访问同类对象的私有成员。
 :::
 
----
 
 ## Initialization vs. Assignment
 
@@ -818,7 +760,6 @@ T& T::operator=(const T& rhs) {
 这里比较的是地址：`this != &rhs`。它判断两个对象是不是同一个对象，而不是判断两个对象的值是否相等。
 :::
 
----
 
 ## Rule of Zero 与 Rule of Three
 
@@ -908,7 +849,6 @@ this->p = other.p;
 本讲使用 `char*` 是为了展示 copy 的危险。实际 C++ 代码中，表示字符串应优先使用 `std::string`。
 :::
 
----
 
 ## Copy constructor 什么时候会被调用
 
@@ -1013,7 +953,6 @@ g++ -std=c++17 -fno-elide-constructors main.cpp -o main
 不要为了“看见 copy”而写低质量代码。实际编程时应写语义清晰的代码，让编译器做它能做的优化；当 profiler 显示 copy 成为瓶颈时，再针对性优化。
 :::
 
----
 
 ## Copy 与性能：vector 例子
 
@@ -1221,7 +1160,6 @@ int main() {
 需要原地构造时用 emplace_back，并传构造参数
 ```
 
----
 
 ## 禁止 copy
 
@@ -1267,4 +1205,3 @@ private:
 如果某种操作在语义上不应该发生，最好在编译期禁止它，而不是等运行期出 bug。
 :::
 
----

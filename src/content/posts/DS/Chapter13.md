@@ -7,93 +7,6 @@ category: 笔记
 draft: false
 ---
 
-## 概述
-
-这一章的核心是：
-
-> 数据库最终要落到磁盘 / SSD 上。关系表里的 tuple 不能直接“抽象地存在”，它必须被组织成 **record**，record 再被放进 **block**，block 再通过 **file organization** 和 **buffer manager** 被高效访问。
-
-从上到下可以理解为：
-
-- **Relation / tuple**：逻辑层看到的表和行
-- **Record / field**：物理层保存的一条记录和记录里的字段
-- **Block / page**：磁盘和内存之间传输的基本单位
-- **File organization**：一批 record 在文件里怎么排列
-- **Buffer manager**：哪些 block 留在内存，哪些 block 被替换出去
-
-这一章本质上回答一个问题：
-
-> 已经设计好的关系模式，实际在存储介质上应该怎么放，才能减少 I/O？
-
----
-
-## 目录
-
-- [概述](#概述)
-- [目录](#目录)
-- [Database Storage Architecture](#database-storage-architecture)
-- [File Organization](#file-organization)
-  - [文件、记录、字段、块](#文件记录字段块)
-  - [Fixed-Length Records](#fixed-length-records)
-  - [删除定长记录](#删除定长记录)
-    - [移动后续所有记录](#移动后续所有记录)
-    - [用最后一条记录填空](#用最后一条记录填空)
-    - [使用 Free List](#使用-free-list)
-  - [Variable-Length Records](#variable-length-records)
-  - [Slotted Page Structure](#slotted-page-structure)
-  - [Large Objects](#large-objects)
-- [Organization of Records in Files](#organization-of-records-in-files)
-  - [几种文件组织方式](#几种文件组织方式)
-  - [Heap File Organization](#heap-file-organization)
-  - [Free-Space Map](#free-space-map)
-  - [Sequential File Organization](#sequential-file-organization)
-    - [删除](#删除)
-    - [插入](#插入)
-  - [Multitable Clustering File Organization](#multitable-clustering-file-organization)
-  - [Table Partitioning](#table-partitioning)
-- [Data-Dictionary Storage](#data-dictionary-storage)
-  - [Relation 信息](#relation-信息)
-  - [User 与权限信息](#user-与权限信息)
-  - [统计信息](#统计信息)
-  - [物理组织信息](#物理组织信息)
-  - [Index 信息](#index-信息)
-- [Database Buffer](#database-buffer)
-  - [Buffer 与 Buffer Manager](#buffer-与-buffer-manager)
-  - [Buffer Manager 的工作流程](#buffer-manager-的工作流程)
-    - [情况一：block 已经在 buffer 中](#情况一block-已经在-buffer-中)
-    - [情况二：block 不在 buffer 中](#情况二block-不在-buffer-中)
-  - [Pinned Block](#pinned-block)
-  - [Shared Lock 与 Exclusive Lock](#shared-lock-与-exclusive-lock)
-  - [Output 与 Forced Output](#output-与-forced-output)
-- [Buffer Replacement Strategies](#buffer-replacement-strategies)
-  - [LRU](#lru)
-    - [Example](#example)
-    - [数据库里 LRU 的问题](#数据库里-lru-的问题)
-  - [Toss-Immediate 与 MRU](#toss-immediate-与-mru)
-    - [Toss-Immediate](#toss-immediate)
-    - [MRU](#mru)
-  - [Clock Algorithm](#clock-algorithm)
-  - [Write Reordering and Recovery](#write-reordering-and-recovery)
-- [Column-Oriented Storage](#column-oriented-storage)
-  - [Row Store 与 Column Store](#row-store-与-column-store)
-  - [列式存储的优点](#列式存储的优点)
-    - [Reduced I/O](#reduced-io)
-    - [Improved CPU Cache Performance](#improved-cpu-cache-performance)
-    - [Improved Compression](#improved-compression)
-    - [Vector Processing](#vector-processing)
-  - [列式存储的代价](#列式存储的代价)
-    - [Tuple Reconstruction Cost](#tuple-reconstruction-cost)
-    - [Tuple Deletion and Update Cost](#tuple-deletion-and-update-cost)
-    - [Decompression Cost](#decompression-cost)
-  - [ORC 与 Parquet](#orc-与-parquet)
-  - [Hybrid Row/Column Store](#hybrid-rowcolumn-store)
-- [Main-Memory Databases](#main-memory-databases)
-  - [不需要传统 Buffer Manager](#不需要传统-buffer-manager)
-  - [Record 不应频繁移动](#record-不应频繁移动)
-  - [内存中的列式存储](#内存中的列式存储)
-
----
-
 ## Database Storage Architecture
 
 数据库里的数据要持久保存，所以最终会放在 **non-volatile storage** 上，例如：
@@ -130,7 +43,6 @@ disk / SSD
 
 所以重点放在 SQL 查询背后的物理组织。
 
----
 
 ## File Organization
 
@@ -375,7 +287,6 @@ SQL 中常见类型：
 
 所以真实系统要在性能、备份大小、权限控制、一致性之间做权衡。
 
----
 
 ## Organization of Records in Files
 
@@ -603,7 +514,6 @@ transaction_2019
 - 分区键选得不好，会导致负载不均匀
 - 维护复杂度上升
 
----
 
 ## Data-Dictionary Storage
 
@@ -674,7 +584,6 @@ User_metadata(user_name, encrypted_password, group)
 
 所以这部分信息通常写在数据库代码中，或放在数据库文件的固定位置。
 
----
 
 ## Database Buffer
 
@@ -1017,7 +926,6 @@ buffer 允许写操作先发生在内存中，稍后再写回 disk。
 
 > buffer manager 不能随意写回 dirty block，它必须和 recovery subsystem 协调。
 
----
 
 ## Column-Oriented Storage
 
@@ -1150,7 +1058,6 @@ where ID = '10101';
 | Row-oriented storage | OLTP，事务处理，频繁点查和更新 |
 | Column-oriented storage | OLAP，决策支持，数据分析，大量扫描少数列 |
 
----
 
 ### ORC 与 Parquet
 
@@ -1220,7 +1127,6 @@ ORC File
 
 这介于纯行式和纯列式之间。
 
----
 
 ## Main-Memory Databases
 

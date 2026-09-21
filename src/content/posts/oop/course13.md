@@ -7,65 +7,6 @@ category: 笔记
 draft: false
 ---
 
-## 概述
-
-**Iterator（迭代器）** 提供了一套类似指针的统一访问接口：算法只通过迭代器顺序访问元素，不需要知道容器底层是连续数组、链表还是平衡树。
-
-本讲的主线是：
-
-- 从原生数组和指针理解 iterator 的来源；
-- 用 `std::find` 理解算法和容器如何通过 iterator 解耦；
-- 为自定义单链表 `List` 实现 `ListIter`；
-- 用 `iterator_traits` 提取迭代器关联类型，并统一处理 raw pointer；
-- 用 template specialization 支持指针类型；
-- 用 iterator category 和 tag dispatch 为 `advance()`、`distance()` 选择高效实现。
-
-> 容器负责封装“如何移动到下一个元素”；算法只依赖“可以解引用、可以移动、可以比较”的迭代器接口。
-
-## 目录
-
-- [概述](#概述)
-- [目录](#目录)
-- [为什么需要 Iterator](#为什么需要-iterator)
-  - [从指针到迭代器](#从指针到迭代器)
-  - [算法与数据结构解耦](#算法与数据结构解耦)
-  - [Iterator design pattern](#iterator-design-pattern)
-- [统一接口与 `std::find`](#统一接口与-stdfind)
-  - [半开区间 `[first, last)`](#半开区间-first-last)
-  - [`find` 的实现逻辑](#find-的实现逻辑)
-  - [课堂演示：同一算法适用于多种容器](#课堂演示同一算法适用于多种容器)
-  - [不同容器的移动能力](#不同容器的移动能力)
-- [Iterator 的指针式接口](#iterator-的指针式接口)
-  - [基本操作](#基本操作)
-  - [运算符重载的本质](#运算符重载的本质)
-- [为单链表设计 Iterator](#为单链表设计-iterator)
-  - [只暴露节点时的问题](#只暴露节点时的问题)
-  - [完整示例：`List` 与 `ListIter`](#完整示例list-与-listiter)
-  - [从内部细节到统一接口](#从内部细节到统一接口)
-  - [Range-based for loop 的基础](#range-based-for-loop-的基础)
-- [Associated type 与 `iterator_traits`](#associated-type-与-iterator_traits)
-  - [为什么算法需要关联类型](#为什么算法需要关联类型)
-  - [在自定义 iterator 中声明类型信息](#在自定义-iterator-中声明类型信息)
-  - [Raw pointer 带来的问题](#raw-pointer-带来的问题)
-  - [`iterator_traits` 的解决方式](#iterator_traits-的解决方式)
-  - [标准 traits 提供的五类信息](#标准-traits-提供的五类信息)
-- [Template specialization](#template-specialization)
-  - [Primary、full 与 partial specialization](#primaryfull-与-partial-specialization)
-  - [演示代码](#演示代码)
-  - [为何 traits 可以支持指针](#为何-traits-可以支持指针)
-- [Iterator category](#iterator-category)
-  - [五类迭代器能力](#五类迭代器能力)
-  - [Category tag 的继承关系](#category-tag-的继承关系)
-  - [常见容器对应的能力](#常见容器对应的能力)
-- [Tag dispatch：根据能力选择算法实现](#tag-dispatch根据能力选择算法实现)
-  - [`advance()` 的不同实现](#advance-的不同实现)
-  - [为什么仅靠模板参数名不能重载](#为什么仅靠模板参数名不能重载)
-  - [用 category tag 调度 `advance()`](#用-category-tag-调度-advance)
-  - [`distance()` 的调度](#distance-的调度)
-- [设计总结与使用原则](#设计总结与使用原则)
-
----
-
 ## 为什么需要 Iterator
 
 ### 从指针到迭代器
@@ -125,7 +66,6 @@ container -- exposes iterator --> algorithm
 
 这一模式不仅存在于 C++，在 Java、Python、Rust 等语言中也非常常见。
 
----
 
 ## 统一接口与 `std::find`
 
@@ -292,7 +232,6 @@ itv += 2;
 
 因为它可进行 constant-time random access。`list` 和 `set` 的 iterator 不提供这一操作，因为沿链表或树结构跨越多个元素需要逐步移动，复杂度不是常数时间。
 
----
 
 ## Iterator 的指针式接口
 
@@ -342,7 +281,6 @@ Iterator& operator++();
 
 让使用者采用与指针相似的写法，而容器真实的移动逻辑被封装在运算符实现内部。
 
----
 
 ## 为单链表设计 Iterator
 
@@ -589,7 +527,6 @@ for (auto it = l.begin(), last = l.end();
 
 因此，range-based for 并不要求容器是标准库容器；只要提供满足遍历需求的 iterator 接口即可。
 
----
 
 ## Associated type 与 `iterator_traits`
 
@@ -795,7 +732,6 @@ reference = const T&;
 
 > 课件第 26 页的图示表达了这一结构：`int*`、`const int*`、`list<int>::iterator`、`vector<int>::iterator` 和自定义 iterator 都进入 `iterator_traits`，算法统一取得上述关联类型。
 
----
 
 ## Template specialization
 
@@ -923,7 +859,6 @@ typename std::iterator_traits<I>::value_type
 
 无需区分传入的是自定义 iterator 还是原生指针。
 
----
 
 ## Iterator category
 
@@ -982,7 +917,6 @@ random_access_iterator_tag
 | `set<T>::iterator` | Bidirectional | 按有序遍历顺序前进或后退；不能修改 key |
 | 课堂 `ListIter<T>` | Forward | 单链表只能自然地沿 `next` 前进 |
 
----
 
 ## Tag dispatch：根据能力选择算法实现
 
@@ -1195,7 +1129,6 @@ my_distance(Iterator first, Iterator last) {
 
 对双向 iterator 而言，尽管它支持 `--`，给定 `[first, last)` 时仍通常通过正向遍历统计距离，因此可复用 input 版本。
 
----
 
 ## 设计总结与使用原则
 
@@ -1250,4 +1183,3 @@ l.sort();
 
 > 高层算法依赖稳定抽象，底层容器负责提供符合抽象且匹配自身结构的 iterator。这正是 STL 可以同时保持通用性与效率的重要原因。
 
----

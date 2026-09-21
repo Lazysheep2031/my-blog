@@ -7,74 +7,6 @@ category: 笔记
 draft: false
 ---
 
-## 概述
-
-**Template（模板）** 是 C++ 泛型编程的基础。它解决的问题是：当多份代码的逻辑相同，只有处理的数据类型不同，就把“类型”也做成参数，由编译器在需要时生成具体版本。
-
-主要内容：
-
-- function overloading 与 default arguments；
-- 为什么需要 templates，以及不用 templates 的几种替代方案；
-- function template 的定义、实例化、类型推导和重载规则；
-- class template 的定义、使用、成员函数写法；
-- multiple type parameters、nested templates、non-type parameters；
-- member templates；
-- templates 与 inheritance 的组合；
-- CRTP：用模板模拟一种静态多态；
-- 模板代码为什么通常写在 header file 中。
-
-> 模板的核心思想：不变的是算法或类的逻辑，变化的是类型。把变化的类型参数化，就能在保持类型安全的前提下复用代码。
-
-## 目录
-
-- [概述](#概述)
-- [目录](#目录)
-- [Function overloading](#function-overloading)
-  - [基本概念](#基本概念)
-  - [Overload and auto-cast](#overload-and-auto-cast)
-- [Default arguments](#default-arguments)
-  - [默认参数的含义](#默认参数的含义)
-  - [默认参数必须从右往左给](#默认参数必须从右往左给)
-- [Why templates?](#why-templates)
-  - [问题背景](#问题背景)
-  - [不用模板的几种做法](#不用模板的几种做法)
-    - [1. Clone the code](#1-clone-the-code)
-    - [2. Make a common base class](#2-make-a-common-base-class)
-    - [3. Untyped lists](#3-untyped-lists)
-  - [模板的基本思想](#模板的基本思想)
-- [Function templates](#function-templates)
-  - [从 swap 开始](#从-swap-开始)
-  - [模板语法](#模板语法)
-  - [实例化](#实例化)
-  - [模板参数推导](#模板参数推导)
-  - [函数模板与普通函数共存](#函数模板与普通函数共存)
-  - [显式给出模板参数](#显式给出模板参数)
-- [Class templates](#class-templates)
-  - [基本概念](#基本概念-1)
-  - [Vector 示例](#vector-示例)
-  - [类模板的成员函数定义](#类模板的成员函数定义)
-  - [类模板与函数模板组合：sort](#类模板与函数模板组合sort)
-- [更复杂的模板参数](#更复杂的模板参数)
-  - [多个类型参数](#多个类型参数)
-  - [嵌套模板参数](#嵌套模板参数)
-  - [Non-type template parameters](#non-type-template-parameters)
-- [Member templates](#member-templates)
-  - [跨类型 complex 构造](#跨类型-complex-构造)
-- [Templates and inheritance](#templates-and-inheritance)
-  - [类模板继承普通类](#类模板继承普通类)
-  - [类模板继承类模板](#类模板继承类模板)
-  - [普通类继承模板实例化类型](#普通类继承模板实例化类型)
-- [CRTP](#crtp)
-  - [基本形式](#基本形式)
-  - [用普通虚函数做 Newton solver](#用普通虚函数做-newton-solver)
-  - [普通函数模板版本](#普通函数模板版本)
-  - [CRTP 版本](#crtp-版本)
-  - [CRTP 的特点](#crtp-的特点)
-- [模板代码放在哪里](#模板代码放在哪里)
-- [写模板的建议流程](#写模板的建议流程)
-
----
-
 ## Function overloading
 
 ### 基本概念
@@ -138,7 +70,6 @@ int main() {
 普通函数重载可以依赖隐式转换，但隐式转换可能带来二义性。写代码时尽量让调用意图清晰，必要时使用显式类型转换。
 :::
 
----
 
 ## Default arguments
 
@@ -187,7 +118,6 @@ int groucho(int k = 1, int m = 2, int n = 3); // ok
 
 原因是：调用时实参按从左到右匹配。若中间参数有默认值，右边参数没有默认值，编译器无法判断用户省略的是哪一个参数。
 
----
 
 ## Why templates?
 
@@ -282,7 +212,6 @@ class List {
 - function template：例如 `std::sort`；
 - class template：例如 `std::vector<T>`、`std::list<T>`、`std::stack<T>`、`std::queue<T>`。
 
----
 
 ## Function templates
 
@@ -537,7 +466,6 @@ foo<float>();
 
 这里 `T` 没有出现在函数参数中，编译器无法根据实参推导，所以需要写 `foo<int>()`。
 
----
 
 ## Class templates
 
@@ -692,7 +620,6 @@ sort(vs); // sort(Vector<string>&)
 
 这说明模板不仅参数化类型，也隐含了对类型能力的要求。
 
----
 
 ## 更复杂的模板参数
 
@@ -853,7 +780,6 @@ FixedVector<int> v3; // FixedVector<int, 100>
 `Array<int, 3>` 和 `Array<int, 4>` 是不同类型。非类型参数会参与类型构造，这一点很重要。
 :::
 
----
 
 ## Member templates
 
@@ -973,7 +899,6 @@ U = double
 从宽类型到窄类型可能损失精度，例如 `double -> int` 会截断小数部分。member template 只提供转换通道，不保证转换语义一定安全。
 :::
 
----
 
 ## Templates and inheritance
 
@@ -1080,7 +1005,6 @@ class SupervisorGroup : public List<Employee*> {
 | 类模板继承类模板 | `template<class T> class D : public B<T> {}` | 每个 `D<T>` 对应一个 `B<T>` |
 | 普通类继承模板实例 | `class D : public B<int> {}` | `B<int>` 已经是具体 base class |
 
----
 
 ## CRTP
 
@@ -1462,7 +1386,6 @@ CRTP 的限制：
 - 写法较绕，对初学者不直观；
 - 报错仍可能比较长。
 
----
 
 ## 模板代码放在哪里
 
@@ -1523,7 +1446,6 @@ class Vector {
 模板定义放在头文件中通常不会像普通函数那样直接导致 multiple definition 问题。编译器和链接器有机制处理模板实例的合并。课堂中老师也强调：模板的东西基本都放 header file 里。
 :::
 
----
 
 ## 写模板的建议流程
 
@@ -1561,4 +1483,3 @@ void my_swap(T& x, T& y) {
 
 模板的强大来自泛化，但泛化之前要先确认普通逻辑本身正确。
 
----

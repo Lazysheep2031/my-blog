@@ -7,100 +7,6 @@ category: 笔记
 draft: false
 ---
 
-## 概述
-
-这一章的核心是：
-
-> 数据库最终要落到 **物理存储设备** 上。不同设备在 **速度、成本、可靠性、访问模式** 上差异很大，这些差异会直接影响数据库的文件组织、缓冲管理、索引设计、查询代价和故障恢复。
-
-从数据库系统角度看，物理存储要回答四个问题：
-
-- 数据放在哪一层存储上？
-- 一次 I/O 到底要花多久？
-- 随机访问和顺序访问差在哪里？
-- 如何在磁盘 / SSD / RAID 上提高性能并保证可靠性？
-
-简单说：
-
-- **上层 SQL 看见的是表**
-- **底层系统处理的是 block / page / disk / SSD / RAID**
-
----
-
-## 目录
-
-- [概述](#概述)
-- [目录](#目录)
-- [Physical Storage Media](#physical-storage-media)
-  - [评价存储介质的三个维度](#评价存储介质的三个维度)
-  - [Volatile vs Non-volatile](#volatile-vs-non-volatile)
-    - [Volatile storage](#volatile-storage)
-    - [Non-volatile storage](#non-volatile-storage)
-  - [常见存储介质](#常见存储介质)
-- [Storage Hierarchy](#storage-hierarchy)
-  - [Primary Storage](#primary-storage)
-  - [Secondary Storage](#secondary-storage)
-  - [Tertiary Storage](#tertiary-storage)
-  - [层次结构的本质](#层次结构的本质)
-- [Storage Interfaces](#storage-interfaces)
-  - [Disk Interface Standards](#disk-interface-standards)
-  - [SAN 与 NAS](#san-与-nas)
-    - [SAN](#san)
-    - [NAS](#nas)
-- [Magnetic Disks](#magnetic-disks)
-  - [磁盘基本结构](#磁盘基本结构)
-  - [Track / Sector / Cylinder](#track--sector--cylinder)
-    - [Track](#track)
-    - [Sector](#sector)
-    - [Cylinder](#cylinder)
-  - [Disk Controller](#disk-controller)
-- [Performance Measures of Disks](#performance-measures-of-disks)
-  - [Access Time](#access-time)
-  - [Seek Time](#seek-time)
-  - [Rotational Latency](#rotational-latency)
-  - [Data-transfer Rate](#data-transfer-rate)
-  - [Disk Block](#disk-block)
-  - [Sequential Access vs Random Access](#sequential-access-vs-random-access)
-    - [Sequential Access](#sequential-access)
-    - [Random Access](#random-access)
-  - [IOPS](#iops)
-  - [MTTF](#mttf)
-- [Flash Storage and SSD](#flash-storage-and-ssd)
-  - [NAND Flash](#nand-flash)
-  - [SSD](#ssd)
-  - [Flash 的写入问题](#flash-的写入问题)
-  - [Flash Translation Layer](#flash-translation-layer)
-  - [Wear Leveling](#wear-leveling)
-- [Storage Class Memory and NVM](#storage-class-memory-and-nvm)
-- [RAID](#raid)
-  - [为什么需要 RAID](#为什么需要-raid)
-  - [Mirroring](#mirroring)
-  - [Striping](#striping)
-    - [Bit-level striping](#bit-level-striping)
-    - [Block-level striping](#block-level-striping)
-  - [Parity](#parity)
-  - [常见 RAID Levels](#常见-raid-levels)
-    - [RAID 0](#raid-0)
-    - [RAID 1](#raid-1)
-    - [RAID 5](#raid-5)
-    - [RAID 6](#raid-6)
-  - [RAID 的工程问题](#raid-的工程问题)
-    - [Rebuild](#rebuild)
-    - [Software RAID vs Hardware RAID](#software-raid-vs-hardware-raid)
-    - [Scrubbing](#scrubbing)
-    - [Hot Swapping](#hot-swapping)
-- [Optimization of Disk-Block Access](#optimization-of-disk-block-access)
-  - [Buffering](#buffering)
-  - [Read-ahead / Prefetch](#read-ahead--prefetch)
-  - [Disk-arm Scheduling](#disk-arm-scheduling)
-  - [File Organization](#file-organization)
-    - [Extent](#extent)
-    - [Fragmentation](#fragmentation)
-  - [Non-volatile Write Buffers](#non-volatile-write-buffers)
-  - [Log Disk](#log-disk)
-
----
-
 ## Physical Storage Media
 
 数据库系统管理的是数据，但数据最终一定存放在某种 **storage media（存储介质）** 上。
@@ -164,7 +70,6 @@ draft: false
 | Optical Disk | 非易失、较慢 | 备份、归档，较少用于活跃数据库 |
 | Magnetic Tape | 非易失、顺序访问、便宜 | 长期归档、备份、大规模冷数据 |
 
----
 
 ## Storage Hierarchy
 
@@ -257,7 +162,6 @@ magnetic tape
 - 慢速设备负责大容量、长期保存的数据
 - 数据库通过 buffer、prefetch、索引、文件组织等机制，把慢设备的访问次数降下来
 
----
 
 ## Storage Interfaces
 
@@ -304,7 +208,6 @@ magnetic tape
 - SAN 更接近 disk system interface
 - NAS 更接近 file system interface
 
----
 
 ## Magnetic Disks
 
@@ -394,7 +297,6 @@ cylinder i = all ith tracks of all platters
 
 这说明磁盘暴露给操作系统的是抽象后的逻辑块地址，很多物理细节被 controller 隐藏了。
 
----
 
 ## Performance Measures of Disks
 
@@ -561,7 +463,6 @@ block size 有权衡：
 - 大规模系统中磁盘故障会变成常态
 - 需要 RAID / replication / backup 等机制保证可靠性
 
----
 
 ## Flash Storage and SSD
 
@@ -670,7 +571,6 @@ Flash 写入的难点来自两个限制：
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202604281427792.png" alt="Wear Leveling" style="width: 520px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
----
 
 ## Storage Class Memory and NVM
 
@@ -709,7 +609,6 @@ NVM 对数据库很重要，因为它会模糊传统界限：
 - 存储不一定只能 block-addressable
 - recovery、buffer manager、logging 的设计都可能受到影响
 
----
 
 ## RAID
 
@@ -954,7 +853,6 @@ rebuild 时间越长，系统处于降级状态的时间越长，风险越高。
 
 这可以降低 mean time to repair，从而降低数据丢失概率。
 
----
 
 ## Optimization of Disk-Block Access
 
@@ -1100,4 +998,3 @@ rebuild 时间越长，系统处于降级状态的时间越长，风险越高。
 - 顺序写日志相对快
 - 先保证日志持久，再慢慢把数据页刷回磁盘
 
----

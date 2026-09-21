@@ -7,128 +7,6 @@ category: 笔记
 draft: false
 ---
 
-## 概述
-
-这一章的核心是：
-
-> 系统可能崩溃、事务可能失败、磁盘也可能损坏。**Recovery System** 的任务是在这些失败之后，仍然保证事务的 **atomicity** 和 **durability**，并把数据库恢复到一致状态。
-
-恢复系统围绕一条主线展开：
-
-- 失败前：记录足够的信息，尤其是 **log**
-- 失败后：根据 log 执行 **redo** 和 **undo**
-- 为了效率：使用 **checkpoint**、**log buffering**、**group commit**、**fuzzy checkpoint**
-- 为了高可用：使用 **remote backup systems**
-- 为了高并发：支持 **early lock release** 和 **logical undo**
-- 工业级算法：**ARIES**
-
-这一章最重要的思想是：
-
-> 先把“怎么恢复”写进稳定存储，再允许真正修改数据库。
-
-这就是 **Write-Ahead Logging（WAL）** 的直觉。
-
----
-
-## 目录
-
-- [概述](#概述)
-- [目录](#目录)
-- [Failure Classification](#failure-classification)
-  - [Transaction failure](#transaction-failure)
-  - [System crash](#system-crash)
-  - [Disk failure](#disk-failure)
-- [Storage Structure](#storage-structure)
-  - [Volatile / Nonvolatile / Stable Storage](#volatile--nonvolatile--stable-storage)
-    - [Volatile storage](#volatile-storage)
-    - [Nonvolatile storage](#nonvolatile-storage)
-    - [Stable storage](#stable-storage)
-  - [Stable Storage 的近似实现](#stable-storage-的近似实现)
-  - [Data Access](#data-access)
-  - [Transaction 的 private work-area](#transaction-的-private-work-area)
-- [Recovery and Atomicity](#recovery-and-atomicity)
-- [Log-Based Recovery](#log-based-recovery)
-  - [Log Records](#log-records)
-  - [WAL](#wal)
-  - [Concurrency Control and Recovery](#concurrency-control-and-recovery)
-  - [Immediate Modification 与 Deferred Modification](#immediate-modification-与-deferred-modification)
-    - [Immediate-modification scheme](#immediate-modification-scheme)
-    - [Deferred-modification scheme](#deferred-modification-scheme)
-  - [Transaction Commit](#transaction-commit)
-  - [Undo 与 Redo](#undo-与-redo)
-    - [undo(Ti)](#undoti)
-    - [redo(Ti)](#redoti)
-  - [恢复时如何判断 Undo / Redo](#恢复时如何判断-undo--redo)
-  - [Repeating History](#repeating-history)
-  - [Checkpointing](#checkpointing)
-  - [checkpoint 后的恢复范围](#checkpoint-后的恢复范围)
-- [Recovery Algorithm](#recovery-algorithm)
-  - [正常执行时的 Logging](#正常执行时的-logging)
-  - [正常执行时的 Transaction Rollback](#正常执行时的-transaction-rollback)
-  - [系统崩溃后的 Recovery](#系统崩溃后的-recovery)
-    - [Redo phase](#redo-phase)
-    - [Undo phase](#undo-phase)
-- [Buffer Management](#buffer-management)
-  - [Log Record Buffering](#log-record-buffering)
-  - [Group Commit](#group-commit)
-  - [WAL Rules with Log Buffering](#wal-rules-with-log-buffering)
-  - [No-force 与 Steal](#no-force-与-steal)
-    - [Force / No-force](#force--no-force)
-    - [Steal / No-steal](#steal--no-steal)
-  - [Latch](#latch)
-  - [OS Buffer 与 Dual Paging](#os-buffer-与-dual-paging)
-    - [Reserved main memory](#reserved-main-memory)
-    - [Virtual memory](#virtual-memory)
-  - [Fuzzy Checkpointing](#fuzzy-checkpointing)
-- [Failure with Loss of Nonvolatile Storage](#failure-with-loss-of-nonvolatile-storage)
-- [Remote Backup Systems](#remote-backup-systems)
-  - [Failure Detection](#failure-detection)
-  - [Transfer of Control](#transfer-of-control)
-  - [Hot-Spare](#hot-spare)
-  - [One-safe / Two-very-safe / Two-safe](#one-safe--two-very-safe--two-safe)
-    - [One-safe](#one-safe)
-    - [Two-very-safe](#two-very-safe)
-    - [Two-safe](#two-safe)
-- [Early Lock Release and Logical Undo](#early-lock-release-and-logical-undo)
-  - [为什么需要 Logical Undo](#为什么需要-logical-undo)
-    - [Physical undo](#physical-undo)
-    - [Logical undo](#logical-undo)
-  - [Redo 仍然使用 Physical Redo](#redo-仍然使用-physical-redo)
-  - [Operation Logging](#operation-logging)
-  - [Rollback with Logical Undo](#rollback-with-logical-undo)
-    - [遇到普通 physical log](#遇到普通-physical-log)
-    - [遇到 operation-end](#遇到-operation-end)
-    - [遇到 redo-only record](#遇到-redo-only-record)
-    - [遇到 operation-abort](#遇到-operation-abort)
-    - [遇到 Ti start](#遇到-ti-start)
-  - [Failure Recovery with Logical Undo](#failure-recovery-with-logical-undo)
-- [ARIES](#aries)
-  - [ARIES 的核心改进](#aries-的核心改进)
-  - [Physiological Redo](#physiological-redo)
-  - [LSN 与 PageLSN](#lsn-与-pagelsn)
-    - [LSN](#lsn)
-    - [PageLSN](#pagelsn)
-  - [CLR](#clr)
-  - [Dirty Page Table](#dirty-page-table)
-  - [ARIES Checkpoint](#aries-checkpoint)
-  - [ARIES Recovery](#aries-recovery)
-    - [Analysis pass](#analysis-pass)
-    - [Redo pass](#redo-pass)
-    - [Undo pass](#undo-pass)
-  - [ARIES 的其他特性](#aries-的其他特性)
-    - [Recovery Independence](#recovery-independence)
-    - [Savepoints](#savepoints)
-    - [Fine-grained locking](#fine-grained-locking)
-    - [Recovery optimizations](#recovery-optimizations)
-- [Recovery in Main-Memory Databases](#recovery-in-main-memory-databases)
-  - [Index redo 可以省略](#index-redo-可以省略)
-  - [只做 redo logging](#只做-redo-logging)
-  - [并行恢复](#并行恢复)
-  - [NVRAM 补充](#nvram-补充)
-- [Shadow Copying 与 Shadow Paging](#shadow-copying-与-shadow-paging)
-
----
-
 ## Failure Classification
 
 数据库系统需要处理三类失败：
@@ -183,7 +61,6 @@ draft: false
 
 磁盘失败的朴素恢复思路是：先恢复最近一次 backup / dump，再把 backup 之后已经提交事务的日志重新做一遍。这个过程能恢复正确性，但会带来不可用时间，因此银行等关键系统通常还会配置 remote backup / hot-spare，实现异地热切换。
 
----
 
 ## Storage Structure
 
@@ -301,7 +178,6 @@ output(B)  : 把主存中的 buffer block B 写回磁盘
 - 后续可以直接访问本地副本 `xi`
 - `write(X)` 可以在事务 commit 前任意时刻执行
 
----
 
 ## Recovery and Atomicity
 
@@ -326,7 +202,6 @@ output(B)  : 把主存中的 buffer block B 写回磁盘
 
 这点很重要，因为恢复过程中也可能再次崩溃。恢复算法必须允许重复执行。
 
----
 
 ## Log-Based Recovery
 
@@ -713,7 +588,6 @@ T4 在 checkpoint 后开始，失败时仍未完成
 :::
 
 
----
 
 ## Recovery Algorithm
 
@@ -834,7 +708,6 @@ undo phase: 撤销 T2，并写 <T2 abort>
 ```
 :::
 
----
 
 ## Buffer Management
 
@@ -1043,7 +916,6 @@ DBMS 先按 WAL 写 log，再把 page 写到 database file
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260616142954.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
----
 
 ## Failure with Loss of Nonvolatile Storage
 
@@ -1079,7 +951,6 @@ DBMS 先按 WAL 写 log，再把 page 写到 database file
 
 普通文件会定期手动保存，数据库也要定期备份。但数据库不能只靠昨天晚上的备份，因为从备份到故障之间已经有大量提交事务。恢复时必须“备份 + 备份之后的提交日志 redo”配合使用。
 
----
 
 ## Remote Backup Systems
 
@@ -1190,7 +1061,6 @@ commit log 同时写到 primary 和 backup 后，事务才 commit
 - 比 two-very-safe 可用性更好
 - 正常情况下避免 one-safe 的 lost transaction 问题
 
----
 
 ## Early Lock Release and Logical Undo
 
@@ -1239,7 +1109,6 @@ commit log 同时写到 primary 和 backup 后，事务才 commit
 
 B+-tree：如果插入或删除时一直持有树上底层节点的锁直到事务结束，并发度会很差。early lock release 允许提前释放这些热点结构上的锁，但代价是恢复时不能简单把 page 或 record 恢复成 old value。
 
----
 
 ### Redo 仍然使用 Physical Redo
 
@@ -1258,7 +1127,6 @@ B+-tree：如果插入或删除时一直持有树上底层节点的锁直到事�
 
 直觉：redo 要把系统带回 crash 发生时的历史状态，必须重演当时已经发生过的物理变化；undo 是把未完成事务的语义效果取消，所以可以用反向逻辑操作实现。
 
----
 
 ### Operation Logging
 
@@ -1300,7 +1168,6 @@ B+-tree：如果插入或删除时一直持有树上底层节点的锁直到事�
 - 如果操作完成后 rollback，用 operation-end 里的 `(delete I9, K5, RID7)` 做 logical undo
 :::
 
----
 
 ### Rollback with Logical Undo
 
@@ -1359,7 +1226,6 @@ rollback 完成
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260616145251.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
----
 
 ### Failure Recovery with Logical Undo
 
@@ -1405,7 +1271,6 @@ rollback 完成
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260616145309.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
----
 
 ## ARIES
 
@@ -1754,7 +1619,6 @@ ARIES 支持细粒度锁，例如 index 上的 tuple-level locking。
   - 某个 page 正在 fetch 时，可以先处理其他 log records
   - page 到达后再执行对应 redo
 
----
 
 ## Recovery in Main-Memory Databases
 
@@ -1814,7 +1678,6 @@ ARIES 支持细粒度锁，例如 index 上的 tuple-level locking。
 - 仍可能需要 undo logging 处理事务 abort
 - 需要考虑 NVRAM 上原子更新的问题
 
----
 
 ## Shadow Copying 与 Shadow Paging
 

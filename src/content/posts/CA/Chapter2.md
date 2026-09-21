@@ -7,58 +7,6 @@ category: 笔记
 draft: false
 ---
 
-## 概述
-
-这一章讨论的是 **Pipelining（流水线）**。Chapter 1 主要研究性能该如何定量分析，这一章更关注：**在处理器实现层面，怎样通过重叠不同指令的执行过程来提升吞吐率**。
-
-本章内容大致沿着一条很自然的主线展开：
-
-- 先从顺序执行、一次重叠、二次重叠过渡到真正的流水线；
-- 再讨论流水线有哪些分类、怎样评价它的性能；
-- 然后进入最核心也最容易出题的部分：**pipeline hazards（流水线冒险）**；
-- 最后补上 **branch prediction（分支预测）** 与 **nonlinear pipelining scheduling（非线性流水调度）**。
-
-需要特别注意的是：
-
-- **流水线提升的核心是吞吐率（throughput），不是单条指令的执行延迟（latency）**；
-- 理想流水线很漂亮，但真实机器会受到 stage 不均衡、资源冲突、数据相关、控制相关等因素影响；
-- 因此这一章既有概念题，也有大量图示题、时序题、计算题。
-
----
-
-## 目录
-
-- [What is Pipelining](#what-is-pipelining)
-  - 从顺序执行到重叠执行
-  - 流水线的定义与基本直觉
-  - 指令/数据访存冲突与 advance control
-- [Classes of Pipelining](#classes-of-pipelining)
-  - stage / segment / depth / pipeline register
-  - 单功能 / 多功能，静态 / 动态
-  - 线性 / 非线性，有序 / 乱序，标量 / 向量
-- [Performance Evaluation of Pipelining](#performance-evaluation-of-pipelining)
-  - Throughput / Speedup / Efficiency
-  - bottleneck segment 与改进方法
-  - 双功能流水线点积例子
-- [Hazards of Pipelining](#hazards-of-pipelining)
-  - dependence 与 hazard 的区别
-  - structural / data / control hazards
-  - forwarding / bubble / code scheduling
-- [Data Hazards: Forwarding vs. Stalling](#data-hazards-forwarding-vs-stalling)
-  - forwarding 的检测条件
-  - double data hazard
-  - load-use hazard 与 stall 插入
-- [Control Hazards and Dynamic Branch Prediction](#control-hazards-and-dynamic-branch-prediction)
-  - stall on branch / predict not taken / delayed branch
-  - branch operand 的数据相关
-  - BHT / 1-bit predictor / 2-bit predictor / BTB
-- [Schedule of Nonlinear Pipelining](#schedule-of-nonlinear-pipelining)
-  - reservation table
-  - initial conflict vector / current conflict vector
-  - state transition graph
-
----
-
 ## What is Pipelining
 
 如果一个人从头到尾把一个任务的所有步骤都做完，那么系统是严格串行的；如果把一个任务拆成若干阶段，让不同的人分别负责不同阶段，那么多个任务就可以像接力一样前后错开地推进。
@@ -68,7 +16,6 @@ draft: false
 - 不是把一条指令“瞬间做完”；
 - 而是把多条指令在不同阶段**同时推进**。
 
----
 
 ### 从顺序执行到重叠执行
 
@@ -98,7 +45,6 @@ $$
 - 功能部件利用率低；
 - 当前阶段工作时，其他阶段对应的硬件经常在空闲。
 
----
 
 ### Single Overlapping Execution
 
@@ -124,7 +70,6 @@ $$
 - 功能部件利用率更高；
 - 但控制逻辑已经开始复杂起来。
 
----
 
 ### Twice Overlapping Execution
 
@@ -162,7 +107,6 @@ $$
 这说明“重叠几次”并不是固定不变的标签，它和具体的 stage 划分方式密切相关。
 :::
 
----
 
 ### 重叠执行不等于成熟流水线
 
@@ -181,7 +125,6 @@ $$
 - 相邻阶段之间的缓冲；
 - 更系统的控制机制。
 
----
 
 ### Pipelining 的定义
 
@@ -213,7 +156,6 @@ $$
 - **稳态阶段（steady state）**：之后每经过一个 $\Delta t_0$，就能完成一个新任务；
 - **排空阶段（drain）**：最后几条任务还需要走完剩余阶段。
 
----
 
 ### 访存冲突与 Instruction Buffer
 
@@ -244,7 +186,6 @@ slides 后面提到的 **advance control** 本质上也是这个思路：
 
 ![image.png](https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202603301113013.png)
 
----
 
 ## Classes of Pipelining
 
@@ -276,7 +217,6 @@ slides 后面提到的 **advance control** 本质上也是这个思路：
 
 它们反映的就是流水线的**建立**和**排空**开销。
 
----
 
 ### 流水线的一般特征
 
@@ -294,7 +234,6 @@ slides 后面提到的 **advance control** 本质上也是这个思路：
 - 顺序稳定、模式相似的处理过程；
 - 可以持续“喂饱”流水线的工作负载。
 
----
 
 ### 单功能流水线与多功能流水线
 
@@ -331,7 +270,6 @@ slides 里举的是浮点运算相关例子：同一组 segment 可以按不同�
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202603301116237.png" alt="Multi-function Pipeline" style="width: 320px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
----
 
 ### Static 与 Dynamic Multi-function Pipelining
 
@@ -361,7 +299,6 @@ slides 里举的是浮点运算相关例子：同一组 segment 可以按不同�
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202603301118648.png" alt="Dynamic Pipeline" style="width: 320px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
----
 
 ### 按层次分类
 
@@ -388,7 +325,6 @@ slides 里举的是浮点运算相关例子：同一组 segment 可以按不同�
 - 单处理器内部的指令流水；
 - 多处理器之间的宏观流水。
 
----
 
 ### Linear 与 Nonlinear Pipelining
 
@@ -418,7 +354,6 @@ $$
 
 这就是后面 **nonlinear pipeline scheduling** 要解决的问题。
 
----
 
 ### Ordered 与 Disordered Pipelining
 
@@ -434,7 +369,6 @@ $$
 
 它反映的是流水线内部是否允许更灵活的调度和完成顺序。
 
----
 
 ### Scalar 与 Vector Pipelining
 
@@ -447,7 +381,6 @@ $$
 具有向量数据表示和向量指令，把流水线技术与向量处理结合起来。  
 对于大量同构数据运算，向量流水线往往更能发挥硬件吞吐率优势。
 
----
 
 ## Performance Evaluation of Pipelining
 
@@ -486,7 +419,6 @@ $$
 - 单周期处理器被最慢指令“绑死”；
 - 流水线则把一条长路径拆散，让时钟周期向**最慢阶段**靠齐。
 
----
 
 ### Throughput
 
@@ -513,7 +445,6 @@ $$
 - 每经过一个时钟周期；
 - 就能完成一个任务。
 
----
 
 ### Speedup
 
@@ -539,7 +470,6 @@ $$
 
 这说明在理想情况下，流水线的最大加速比接近阶段数。
 
----
 
 ### Efficiency
 
@@ -561,7 +491,6 @@ $$
 - 大部分 stage 在大部分时间都处于工作状态；
 - 管线建立和排空的损失相对可以忽略。
 
----
 
 ### 当 stage 不均衡时：Bottleneck Segment
 
@@ -594,7 +523,6 @@ $$
 
 也就是说，虽然大多数阶段都很快，但整个流水线节拍只能跟着最慢的 $S_2$ 走。
 
----
 
 ### 解决瓶颈段的两种常见办法
 
@@ -632,7 +560,6 @@ $$
 - 硬件代价更高；
 - 数据分发和回收也要控制好。
 
----
 
 ### Example 1：静态双功能流水线上的向量点积
 
@@ -688,7 +615,6 @@ $$
 - 各段并不能始终满负荷工作；
 - 所以实际效率会明显低于理想值。
 
----
 
 ### Example 2：动态双功能流水线上的向量点积
 
@@ -733,7 +659,6 @@ $$
 
 因此最终加速比并没有显著超过前一个静态例子。
 
----
 
 ### 对流水线性能的几点讨论
 
@@ -785,7 +710,6 @@ $$
 - 数据相关和控制相关造成的 stall
 :::
 
----
 
 ## Hazards of Pipelining
 
@@ -810,7 +734,6 @@ $$
 
 真正的 data hazard，通常来自某种 dependence 在流水线中暴露成时序冲突。
 
----
 
 ### 三类 Hazard
 
@@ -825,7 +748,6 @@ $$
 
 这三类几乎覆盖了基础流水线里最重要的时序问题。
 
----
 
 ### Data Dependence
 
@@ -841,7 +763,6 @@ FADD.D  F4, F0, F2
 
 这类相关是真正的数据流关系，因此不能靠简单改名消除。
 
----
 
 ### Name Dependence
 
@@ -884,7 +805,6 @@ FSUB.D  F2, F6, F14
 - 它们反映的是“同名寄存器造成的约束”；
 - register renaming 可以消除 name dependence。
 
----
 
 ### Control Dependence
 
@@ -905,7 +825,6 @@ if p2 {
 - 下一条该取哪条指令；
 - 已经取来的指令是不是其实走错了路径。
 
----
 
 ### Structural Hazards
 
@@ -932,7 +851,6 @@ if p2 {
 - 指令 cache 与数据 cache 分离；
 - 或者至少在前端增加合适缓冲。
 
----
 
 ### Data Hazards
 
@@ -986,7 +904,6 @@ FSUB.D  F2, F6, F14
 在基础、顺序发射的整数流水线里，真正最常见的是 RAW；  
 WAR 和 WAW 更容易在乱序执行、多周期功能部件里变得显著。
 
----
 
 ### Forwarding：最常见的数据冒险缓解方法
 
@@ -1008,7 +925,6 @@ WAR 和 WAW 更容易在乱序执行、多周期功能部件里变得显著。
 
 也就是说，如果消费者需要值的时刻早于生产者真正产生值的时刻，那么单纯 forwarding 仍然不够，还是得 stall。
 
----
 
 ### Load-Use Hazard
 
@@ -1043,7 +959,6 @@ SD    R5, 12(R1)
   
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202603301144254.png" alt="Load-Use Hazard" style="width: 520px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
----
 
 ### Code Scheduling：用编译器重排来隐藏 Stall
 
@@ -1128,7 +1043,6 @@ sw   $t5, 16($t0)
 - 哪些指令之间有真正依赖；
 - 哪些独立指令可以前移填补 bubble。
 
----
 
 ## Data Hazards: Forwarding vs. Stalling
 
@@ -1138,7 +1052,6 @@ sw   $t5, 16($t0)
 - **forward 从哪里来**
 - **什么时候必须 stall**
 
----
 
 ### 一个基础序列
 
@@ -1160,7 +1073,6 @@ sw   $15, 100($2)
 
 为了回答这个问题，必须把寄存器号沿着 pipeline 一起传下去。
 
----
 
 ### 需要比较哪些寄存器号
 
@@ -1187,7 +1099,6 @@ sw   $15, 100($2)
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202603301148794.png" alt="Forwarding" style="width: 500px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
----
 
 ### Forwarding 的基本条件
 
@@ -1236,7 +1147,6 @@ if (MEM/WB.RegWrite and (MEM/WB.RegisterRd != 0)
 **Data Path With Forwarding**
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202603301148781.png" alt="Forwarding" style="width: 500px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
----
 
 ### Double Data Hazard：要选“最近的那个值”
 
@@ -1264,7 +1174,6 @@ add  $1, $1, $4
 
 这一步非常关键，因为它体现了 forwarding 并不是“有匹配就转发”，而是要保证拿到的是**最新版本**。
 
----
 
 ### Load-Use Hazard 的检测条件
 
@@ -1290,7 +1199,6 @@ if (ID/EX.MemRead and
 
 一旦检测到这种情况，就必须 stall 并插入 bubble。
 
----
 
 ### How to Stall the Pipeline
 
@@ -1317,7 +1225,6 @@ stall 的实现：
 **Datapath with Hazard Detection**:
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202603301149767.png" alt="Hazard Detection" style="width: 600px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
----
 
 ## Control Hazards and Dynamic Branch Prediction
 
@@ -1339,7 +1246,6 @@ control hazard 的根源是：
 提前到 **ID stage**，这样可以缩短 branch penalty。
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202603301330390.png" alt="Stall on Branch" style="width: 500px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
----
 
 ### 基本分支类型
 
@@ -1354,7 +1260,6 @@ control hazard 的根源是：
 
 其中真正让流水线头疼的是 conditional branch，因为它的方向在执行前不确定。
 
----
 
 ### Stall on Branch
 
@@ -1375,7 +1280,6 @@ control hazard 的根源是：
 
 所以这种办法通常只适合作为最基础的正确性方案，而不是高性能方案。
 
----
 
 ### Predict Not Taken
 
@@ -1395,7 +1299,6 @@ control hazard 的根源是：
 - 对“taken” 分支要承担 flush penalty。
 
 
----
 
 ### Static Branch Prediction
 
@@ -1416,7 +1319,6 @@ slides 给出的经验规则是：
 
 这类规则虽然粗糙，但实现简单，在没有复杂预测器时也能带来一定收益。
 
----
 
 ### Delayed Branch
 
@@ -1446,7 +1348,6 @@ slides 后面借 RISC-V 手册专门提醒：
 这一点在考试中常用来比较 “经典 MIPS 风格” 与 “现代 RISC-V 风格”。
 :::
 
----
 
 ### Branch Operand 的数据相关
 
@@ -1469,7 +1370,6 @@ slides 后面借 RISC-V 手册专门提醒：
 - branch hazard 不只是“跳不跳”的问题；
 - branch 自己使用的操作数，也可能触发 data hazard。
 
----
 
 ### Dynamic Branch Prediction
 
@@ -1492,7 +1392,6 @@ slides 后面借 RISC-V 手册专门提醒：
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202603301337549.png" alt="BHT" style="width: 500px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
----
 
 ### 1-Bit Predictor 的缺点
 
@@ -1505,7 +1404,6 @@ slides 后面借 RISC-V 手册专门提醒：
 这就是为什么 1-bit predictor 过于敏感：  
 一次偶然变化就会把状态完全翻转。
 
----
 
 ### 2-Bit Predictor
 
@@ -1530,7 +1428,6 @@ slides 后面借 RISC-V 手册专门提醒：
 - 对 loop 这种大多数时候 taken、仅最后一次 not taken 的分支更稳健；
 - 平均误判率比 1-bit predictor 更低。
 
----
 
 ### BTB：不仅要猜方向，还要更快拿到目标地址
 
@@ -1569,7 +1466,6 @@ BTB 的进一步好处：
 - 支持 **branch folding**
   - 某些无条件跳转甚至可做到几乎无延迟
 
----
 
 ### Integrated Instruction Fetch Unit
 
@@ -1582,7 +1478,6 @@ BTB 的进一步好处：
 
 也就是说，现代前端并不是“先取指，再单独预测，再单独访问 cache”，而是把这些功能高度耦合起来共同为高吞吐服务。
 
----
 
 ## Schedule of Nonlinear Pipelining
 
@@ -1595,7 +1490,6 @@ BTB 的进一步好处：
 - 新任务能否在某个时刻进入？
 - 如果进入，会不会和已有任务在某个 stage、某个时刻发生冲突？
 
----
 
 ### Reservation Table
 
@@ -1616,7 +1510,6 @@ BTB 的进一步好处：
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202603301348149.png" alt="reservation table" style="width: 500px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
----
 
 ### Initial Conflict Vector
 
@@ -1644,7 +1537,6 @@ $$
 - 1 表示禁止；
 - 0 表示允许。
 
----
 
 ### Current Conflict Vector
 
@@ -1710,7 +1602,6 @@ $$
 \frac{2+2+7}{3}=3.67
 $$
 
----
 
 ### State Transition Graph
 
@@ -1757,4 +1648,3 @@ $$
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202603301355376.png" alt="state transition graph" style="width: 500px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
----

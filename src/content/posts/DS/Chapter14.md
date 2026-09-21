@@ -7,113 +7,6 @@ category: 笔记
 draft: false
 ---
 
-## 概述
-
-这一章的核心是：
-
-> 索引（index）是数据库为了加速数据访问而维护的辅助数据结构。它用额外空间和维护代价，换取更低的查询 I/O 成本。
-
-索引最像图书馆的作者目录：
-
-- 目录本身不保存完整书籍内容
-- 目录按照某个查找键组织
-- 通过目录可以快速定位目标记录的位置
-
-数据库索引的基本权衡：
-
-- **Access time**：查找是否更快
-- **Insertion time**：插入是否更慢
-- **Deletion time**：删除是否更慢
-- **Space overhead**：额外占用多少空间
-
-这一章的主线是：
-
-1. 先理解有序索引：primary / secondary、dense / sparse、multilevel index
-2. 再理解最重要的索引结构：**B+-tree**
-3. 再比较 B+-tree file organization 与 B-tree
-4. 再讨论多属性索引、主存索引、Flash 索引
-5. 最后理解写优化索引：LSM-tree、buffer tree，以及 bitmap index
-
----
-
-## 目录
-
-- [概述](#概述)
-- [目录](#目录)
-- [Basic Concepts](#basic-concepts)
-  - [Search Key](#search-key)
-  - [Index Entry](#index-entry)
-  - [两类基本索引](#两类基本索引)
-  - [评价一个索引的标准](#评价一个索引的标准)
-- [Ordered Indices](#ordered-indices)
-  - [Primary Index / Clustering Index](#primary-index--clustering-index)
-  - [Secondary Index / Non-clustering Index](#secondary-index--non-clustering-index)
-  - [Index-Sequential File](#index-sequential-file)
-- [Dense Index 与 Sparse Index](#dense-index-与-sparse-index)
-  - [Dense Index](#dense-index)
-  - [Sparse Index](#sparse-index)
-  - [Dense 与 Sparse 的对比](#dense-与-sparse-的对比)
-- [Multilevel Index](#multilevel-index)
-- [B+-Tree Index](#b-tree-index)
-  - [为什么需要 B+-Tree](#为什么需要-b-tree)
-  - [B+-Tree 的结构约束](#b-tree-的结构约束)
-  - [B+-Tree 节点结构](#b-tree-节点结构)
-  - [Leaf Node](#leaf-node)
-  - [Non-leaf Node](#non-leaf-node)
-  - [Observations about B+ Tree](#observations-about-b-tree)
-  - [B+-Tree 查询](#b-tree-查询)
-  - [B+-Tree 高度与 I/O 成本](#b-tree-高度与-io-成本)
-  - [B+-Tree 插入](#b-tree-插入)
-  - [B+-Tree 删除](#b-tree-删除)
-  - [插入删除代价与节点利用率](#插入删除代价与节点利用率)
-- [B+-Tree Example](#b-tree-example)
-  - [手工插入例子](#手工插入例子)
-    - [插入 30](#插入-30)
-    - [插入 50](#插入-50)
-    - [插入 25](#插入-25)
-    - [删除 60](#删除-60)
-    - [删除 10](#删除-10)
-  - [高度估算](#高度估算)
-- [B+-Tree File Organization](#b-tree-file-organization)
-  - [与 B+-Tree Index 的区别](#与-b-tree-index-的区别)
-  - [空间利用率](#空间利用率)
-  - [文件组织估算](#文件组织估算)
-- [B-Tree Index Files](#b-tree-index-files)
-  - [B-Tree 与 B+-Tree 的区别](#b-tree-与-b-tree-的区别)
-  - [B-Tree 的优缺点](#b-tree-的优缺点)
-- [Secondary Index 的记录移动问题](#secondary-index-的记录移动问题)
-  - [直接保存 record pointer 的问题](#直接保存-record-pointer-的问题)
-  - [使用 primary-index search key 的方案](#使用-primary-index-search-key-的方案)
-  - [代价与收益](#代价与收益)
-- [Variable Length Keys 与 Prefix Compression](#variable-length-keys-与-prefix-compression)
-  - [Variable Length Strings as Keys](#variable-length-strings-as-keys)
-  - [Prefix Compression](#prefix-compression)
-- [Indices on Multiple Keys](#indices-on-multiple-keys)
-  - [多个单属性索引](#多个单属性索引)
-  - [Composite Search Key](#composite-search-key)
-  - [复合索引能高效支持什么查询](#复合索引能高效支持什么查询)
-  - [非唯一搜索键的处理](#非唯一搜索键的处理)
-- [Indexing in Main Memory](#indexing-in-main-memory)
-- [Bulk Loading and Bottom-Up Build](#bulk-loading-and-bottom-up-build)
-  - [逐条插入的问题](#逐条插入的问题)
-  - [Sorted Insertion](#sorted-insertion)
-  - [Bottom-Up B+-Tree Construction](#bottom-up-b-tree-construction)
-  - [Bulk Insert](#bulk-insert)
-- [Indexing on Flash](#indexing-on-flash)
-- [Write Optimized Indices](#write-optimized-indices)
-  - [为什么普通 B+-Tree 写入不友好](#为什么普通-b-tree-写入不友好)
-  - [Log-Structured Merge Tree](#log-structured-merge-tree)
-  - [Stepped-Merge Index](#stepped-merge-index)
-  - [LSM 中的删除与更新](#lsm-中的删除与更新)
-  - [Buffer Tree](#buffer-tree)
-- [Bitmap Indices](#bitmap-indices)
-  - [适用场景](#适用场景)
-  - [基本结构](#基本结构)
-  - [位运算查询](#位运算查询)
-  - [空间与计算优势](#空间与计算优势)
-
----
-
 ## Basic Concepts
 
 索引机制用于加速对目标数据的访问。
@@ -208,7 +101,6 @@ search-key    pointer
 
 索引加速查询，但会拖慢更新，并占用额外空间。
 
----
 
 ## Ordered Indices
 
@@ -272,7 +164,6 @@ secondary index 的问题是：
 - 索引帮助快速定位文件中的位置
 - 定位后可以顺序扫描
 
----
 
 ## Dense Index 与 Sparse Index
 
@@ -350,7 +241,6 @@ Sparse index：
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202605121339175.png" alt="sparse index with one entry per data block" style="width: 320px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
----
 
 ## Multilevel Index
 
@@ -377,7 +267,6 @@ Sparse index：
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202605121339257.png" alt="multilevel index" style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
----
 
 ## B+-Tree Index
 
@@ -843,7 +732,6 @@ $$
 - 随机插入：约 `2/3`
 - 按排序顺序插入：约 `1/2`
 
----
 
 ## B+-Tree Example
 
@@ -972,7 +860,6 @@ $$
 :::
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202605121409817.png" alt="B+-tree height estimation for person table" style="width: 520px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
----
 
 ## B+-Tree File Organization
 
@@ -1087,7 +974,6 @@ $$
 
 因此 100 万 records 在 B+-tree file organization 中通常 3 到 4 层即可覆盖。
 
----
 
 ## B-Tree Index Files
 
@@ -1125,7 +1011,6 @@ B-tree 和 B+-tree 类似，但有一个关键区别：
 
 > 实际数据库系统中，B-tree 的优势通常抵不过缺点，因此 B+-tree 更常用。
 
----
 
 ## Secondary Index 的记录移动问题
 
@@ -1344,7 +1229,6 @@ age = 20 -> (CS, record-id)
 
 其中 `record-id` 用来区分同一个 primary search key 下的不同记录。
 
----
 
 ## Variable Length Keys 与 Prefix Compression
 
@@ -1392,7 +1276,6 @@ prefix compression 的核心是：
 只要能正确区分左右子树，就足够。
 :::
 
----
 
 ## Indices on Multiple Keys
 
@@ -1536,7 +1419,6 @@ ai = v
   - clustering index：访问大多是顺序的
   - non-clustering index：每条记录可能一次随机 I/O
 
----
 
 ## Indexing in Main Memory
 
@@ -1562,7 +1444,6 @@ ai = v
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202605121439248.png" alt="Cache-conscious B+-tree" style="width: 520px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
----
 
 ## Bulk Loading and Bottom-Up Build
 
@@ -1666,7 +1547,6 @@ ai = v
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202605121440398.png" alt="Bulk insert into B+-tree example" style="width: 520px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
----
 
 ## Indexing on Flash
 
@@ -1690,7 +1570,6 @@ Flash 的特点：
 Flash 上的核心问题从“避免随机寻道”转向“减少写入和擦除”。
 :::
 
----
 
 ## Write Optimized Indices
 
@@ -1832,7 +1711,6 @@ LSM-tree 更像把随机写转成顺序批量合并。
 Buffer tree 更像在树节点中加缓冲，把小写入攒成批量下推。
 :::
 
----
 
 ## Bitmap Indices
 
@@ -1949,4 +1827,3 @@ Bitmap 的计算也很快：
 
 也可以用两个 byte 做表，速度更快，但内存开销更大。
 
----

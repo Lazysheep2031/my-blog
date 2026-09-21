@@ -7,148 +7,6 @@ category: 笔记
 draft: false
 ---
 
-## 概述
-
-这一章的核心是：
-
-> SQL 查询不会直接在磁盘文件上执行。数据库系统会先把查询翻译成关系代数表达式，再经过优化器选择具体执行计划，最后由执行引擎按计划访问数据并返回结果。
-
-查询处理的基本链条是：
-
-```text
-SQL query
-  -> parser and translator
-  -> relational algebra expression
-  -> optimizer
-  -> execution plan
-  -> evaluation engine
-  -> query output
-```
-
-这一章主要解决两个问题：
-
-- 一个关系代数操作怎么执行，例如 selection、sort、join、aggregation；
-- 一棵表达式树怎么整体执行，例如 materialization 和 pipelining。
-
-本章重点是各种算法的 **I/O cost**。
-
-为了简化分析，通常只统计：
-
-- block transfer 数量
-- seek 数量
-
-然后用下面公式估算代价：
-
-$$
-Cost = b \cdot t_T + S \cdot t_S
-$$
-
-其中：
-
-- $b$：block transfers 数量
-- $S$：seeks 数量
-- $t_T$：传输一个 block 的时间
-- $t_S$：一次 seek 的时间
-
----
-
-## 目录
-
-- [概述](#概述)
-- [目录](#目录)
-- [Basic Steps in Query Processing](#basic-steps-in-query-processing)
-  - [Parsing and Translation](#parsing-and-translation)
-  - [Optimization](#optimization)
-  - [Evaluation](#evaluation)
-  - [Evaluation Plan](#evaluation-plan)
-  - [EXPLAIN](#explain)
-- [Measures of Query Cost](#measures-of-query-cost)
-  - [代价模型](#代价模型)
-  - [buffer 对代价估计的影响](#buffer-对代价估计的影响)
-- [Selection Operation](#selection-operation)
-  - [File Scan](#file-scan)
-    - [A1 Linear Search](#a1-linear-search)
-  - [Index Scan](#index-scan)
-    - [A2 Clustering B+-tree Index, Equality on Key](#a2-clustering-b-tree-index-equality-on-key)
-    - [A3 Clustering B+-tree Index, Equality on Nonkey](#a3-clustering-b-tree-index-equality-on-nonkey)
-    - [A4 Secondary B+-tree Index, Equality on Key](#a4-secondary-b-tree-index-equality-on-key)
-    - [A4' Secondary B+-tree Index, Equality on Nonkey](#a4-secondary-b-tree-index-equality-on-nonkey)
-  - [Selections Involving Comparisons](#selections-involving-comparisons)
-    - [A5 Clustering B+-tree Index, Comparison](#a5-clustering-b-tree-index-comparison)
-    - [A6 Secondary B+-tree Index, Comparison](#a6-secondary-b-tree-index-comparison)
-  - [Implementation of Complex Selections](#implementation-of-complex-selections)
-    - [A7 Conjunctive Selection Using One Index](#a7-conjunctive-selection-using-one-index)
-    - [A8 Conjunctive Selection Using Composite Index](#a8-conjunctive-selection-using-composite-index)
-    - [A9 Conjunctive Selection by Intersection of Identifiers](#a9-conjunctive-selection-by-intersection-of-identifiers)
-    - [A10 Disjunctive Selection by Union of Identifiers](#a10-disjunctive-selection-by-union-of-identifiers)
-    - [Negation](#negation)
-  - [Bitmap Index Scan](#bitmap-index-scan)
-- [Sorting](#sorting)
-  - [External Sort-Merge](#external-sort-merge)
-    - [Create Sorted Runs](#create-sorted-runs)
-    - [Merge Runs](#merge-runs)
-  - [Cost of External Sort-Merge](#cost-of-external-sort-merge)
-    - [block transfer cost](#block-transfer-cost)
-    - [seek cost](#seek-cost)
-  - [advanced version](#advanced-version)
-- [Join Operation](#join-operation)
-  - [Nested-Loop Join](#nested-loop-join)
-  - [Block Nested-Loop Join](#block-nested-loop-join)
-    - [使用更多 buffer 的改进](#使用更多-buffer-的改进)
-  - [Indexed Nested-Loop Join](#indexed-nested-loop-join)
-  - [Merge Join](#merge-join)
-    - [buffer 分配优化](#buffer-分配优化)
-  - [Hybrid Merge Join](#hybrid-merge-join)
-  - [Hash Join](#hash-join)
-    - [build input 和 probe input](#build-input-和-probe-input)
-    - [hash join 算法](#hash-join-算法)
-    - [Recursive Partitioning](#recursive-partitioning)
-    - [Partition Skew and Overflow](#partition-skew-and-overflow)
-    - [Cost of Hash Join](#cost-of-hash-join)
-  - [Hybrid Hash Join](#hybrid-hash-join)
-  - [Complex Joins](#complex-joins)
-    - [conjunctive join condition](#conjunctive-join-condition)
-    - [disjunctive join condition](#disjunctive-join-condition)
-  - [Semijoin](#semijoin)
-  - [Joins over Spatial Data](#joins-over-spatial-data)
-- [Other Operations](#other-operations)
-  - [Duplicate Elimination](#duplicate-elimination)
-    - [sorting 方法](#sorting-方法)
-    - [hashing 方法](#hashing-方法)
-  - [Projection](#projection)
-  - [Aggregation](#aggregation)
-  - [Set Operations](#set-operations)
-    - [hashing 实现](#hashing-实现)
-      - [union](#union)
-      - [intersection](#intersection)
-      - [difference](#difference)
-  - [Outer Join](#outer-join)
-    - [join 后补 null](#join-后补-null)
-    - [修改 join 算法](#修改-join-算法)
-  - [Keyword Queries](#keyword-queries)
-- [Evaluation of Expressions](#evaluation-of-expressions)
-  - [Materialization](#materialization)
-    - [Double Buffering](#double-buffering)
-  - [Pipelining](#pipelining)
-  - [Demand-Driven Pipelining](#demand-driven-pipelining)
-  - [Producer-Driven Pipelining](#producer-driven-pipelining)
-  - [Iterator Model](#iterator-model)
-    - [open](#open)
-    - [next](#next)
-    - [close](#close)
-  - [Blocking Operators](#blocking-operators)
-    - [Continuous Stream Data](#continuous-stream-data)
-- [Query Processing in Memory](#query-processing-in-memory)
-  - [Cache-Conscious Algorithms](#cache-conscious-algorithms)
-    - [sorting](#sorting-1)
-    - [hash join](#hash-join-1)
-    - [tuple layout](#tuple-layout)
-    - [multithreading](#multithreading)
-  - [Query Compilation](#query-compilation)
-  - [Column-Oriented Storage](#column-oriented-storage)
-
----
-
 ## Basic Steps in Query Processing
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260519111742.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
@@ -270,7 +128,6 @@ startup_cost..total_cost
 - `startup_cost`：产生第一条 tuple 前的代价；
 - `total_cost`：产生全部结果的总代价。
 
----
 
 ## Measures of Query Cost
 
@@ -333,7 +190,6 @@ $$
 
 如果实际运行时数据已经在 buffer 中，真实代价可能显著低于估计代价。
 
----
 
 ## Selection Operation
 
@@ -1056,7 +912,6 @@ bitmap:  0 1 0 1 0 0 1 0
 - bitmap index scan 是 PostgreSQL 的一种执行策略，用 bitmap 收集将要访问的 data pages。
 :::
 
----
 
 ## Sorting
 
@@ -1491,7 +1346,6 @@ $b_b$ 增大时，每次 seek 后能连续读写更多 blocks；但一轮能合�
 所以这里存在 trade-off。
 :::
 
----
 
 ## Join Operation
 
@@ -2778,7 +2632,6 @@ for each hotel:
 这本质上是 indexed nested-loop join，只是 inner relation 上的索引不是 B+ 树，而是空间索引。
 :::
 
----
 
 ## Other Operations
 
@@ -3016,7 +2869,6 @@ K1, K2, ..., Kn
 
 用于排序和 top-k retrieval。
 
----
 
 ## Evaluation of Expressions
 
@@ -3234,7 +3086,6 @@ pipeline 也适用于 continuous-stream data。
 
 因此 stream processing 更依赖 pipeline。
 
----
 
 ## Query Processing in Memory
 
@@ -3348,4 +3199,3 @@ salary column
 Query processing in memory 中，列存和 compilation、vectorized execution 常一起发挥作用。
 :::
 
----

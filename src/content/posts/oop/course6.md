@@ -7,34 +7,6 @@ category: 笔记
 draft: false
 ---
 
-## 概述
-
-1. 一个类能不能直接包含另一个类的对象？——这就是 **composition**。
-2. 一个类能不能扩展另一个类的接口和实现？——这就是 **inheritance**。
-3. 类与类之间能访问哪些成员？——这就是 **access protection**。
-
-判断标准：
-
-| 关系 | 英文表达 | 典型语义 | C++ 实现方式 |
-|---|---|---|---|
-| 组合 | `A has a B` | A 拥有 / 使用 B | 把 `B` 作为 `A` 的成员字段 |
-| 继承 | `A is a B` | A 是一种 B | `class A : public B` |
-| 实现复用 | `A is implemented in terms of B` | A 内部用 B 实现 | 通常优先用组合 |
-
----
-
-## 目录
-
-- [Composition：组合复用](#composition组合复用)
-- [Inheritance：继承复用](#inheritance继承复用)
-- [Access protection：成员访问控制](#access-protection成员访问控制)
-- [继承方式：public / protected / private](#继承方式public--protected--private)
-- [Public inheritance、LSP 与 Upcasting](#public-inheritancelsp-与-upcasting)
-- [Name hiding：同名函数隐藏](#name-hiding同名函数隐藏)
-- [组合 vs 继承：设计判断](#组合-vs-继承设计判断)
-
----
-
 ## Composition：组合复用
 
 ### 组合的语义：has-a
@@ -225,7 +197,6 @@ void SavingsAccount::print()
 - 通过公开接口协作；
 - 把职责分派给真正拥有该数据的对象。
 
----
 
 ## Inheritance：继承复用
 
@@ -500,7 +471,6 @@ int main () {
 - `bob.get_title()` 不合法，因为 `Employee` 不是 `Manager`，没有 `get_title()`；
 - `bill.print(cout, "Employee:")` 不合法，原因是 **name hiding**，后面单独讲。
 
----
 
 ## Access protection：成员访问控制
 
@@ -876,7 +846,6 @@ Node* p = new Node(1);
 // p->data = 2; // 错：类外不能访问 private 成员
 ```
 
----
 
 ## 继承方式：`public` / `protected` / `private`
 
@@ -1030,7 +999,6 @@ int main() {
 
 `private` 继承更偏向实现复用，不表达自然的 `is-a` 关系。外部不能把 `B` 当作 `A` 使用。
 
----
 
 ## Public inheritance、LSP 与 Upcasting
 
@@ -1276,7 +1244,6 @@ int main() {
 - `override` 表示这个函数确实覆盖了基类虚函数；
 - 如果一个类准备用作多态基类，析构函数通常也应该声明为 `virtual`。
 
----
 
 ## Name hiding：同名函数隐藏
 
@@ -1383,7 +1350,6 @@ int main() {
 | 派生类定义同名函数，但没有 `using Base::func;` | 基类同名重载集合被隐藏 |
 | 派生类写 `using Base::func;` | 基类同名重载重新参与重载解析 |
 
----
 
 ## 组合 vs 继承：设计判断
 

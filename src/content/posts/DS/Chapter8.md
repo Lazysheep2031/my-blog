@@ -7,121 +7,6 @@ category: 笔记
 draft: false
 ---
 
-## 概述
-
-这一章的核心是：
-
-> 关系模型要求属性值是 **atomic（原子的）**，但真实应用里经常需要存 **非原子（non-atomic）**、**层次化（hierarchical）**、**对象化（object-based）**、**文本（textual）**、**空间（spatial）** 数据。
-
-
-**当“表 + 原子属性”不够用了，数据库系统要怎么扩展？**
-
-主线可以分成四块：
-
-- **Semi-structured Data**：模式不固定、结构可嵌套的数据，比如 `XML / JSON / RDF`
-- **Object Orientation**：把对象世界的一些能力带进数据库，比如类型、继承、引用、ORM
-- **Textual Data**：怎么查非结构化文本，怎么做 relevance ranking
-- **Spatial Data**：怎么表示地图、几何对象，以及怎么做空间查询
-
----
-
-## 目录
-
-- [概述](#概述)
-- [目录](#目录)
-- [Why Complex Data Types](#why-complex-data-types)
-  - [为什么关系模型会遇到限制](#为什么关系模型会遇到限制)
-  - [三条典型路线](#三条典型路线)
-  - [图书例子理解“复杂类型”](#图书例子理解复杂类型)
-    - [Non-1NF relation](#non-1nf-relation)
-    - [1NF 版本为什么 awkward](#1nf-版本为什么-awkward)
-    - [用 4NF 分解来缓解](#用-4nf-分解来缓解)
-- [Object-Based Databases / Object-Relational Ideas](#object-based-databases--object-relational-ideas)
-  - [SQL 对复杂类型的扩展方向](#sql-对复杂类型的扩展方向)
-  - [Collection Types](#collection-types)
-    - [Example：array + multiset](#examplearray--multiset)
-    - [set / multiset / array 的区别](#set--multiset--array-的区别)
-  - [Structured Types](#structured-types)
-    - [User-defined type](#user-defined-type)
-    - [Table Types](#table-types)
-  - [Inheritance](#inheritance)
-    - [表继承](#表继承)
-  - [Object Identity / References](#object-identity--references)
-    - [路径表达式（path expression）](#路径表达式path-expression)
-  - [Large Objects](#large-objects)
-  - [ORM（Object-Relational Mapping）](#ormobject-relational-mapping)
-    - [Hibernate Example](#hibernate-example)
-    - [ORM 的优点与代价](#orm-的优点与代价)
-- [Semi-Structured Data](#semi-structured-data)
-  - [Flexible Schema](#flexible-schema)
-    - [Wide column representation](#wide-column-representation)
-    - [Sparse column representation](#sparse-column-representation)
-  - [Multivalued / Nested Data Types](#multivalued--nested-data-types)
-    - [map（key-value map）](#mapkey-value-map)
-    - [array](#array)
-    - [array database](#array-database)
-  - [XML](#xml)
-    - [XML 的基本思想](#xml-的基本思想)
-    - [purchase order 例子](#purchase-order-例子)
-    - [XPath / path expressions](#xpath--path-expressions)
-    - [Tree model of XML documents](#tree-model-of-xml-documents)
-    - [DTD](#dtd)
-    - [XQuery](#xquery)
-  - [JSON](#json)
-    - [JSON 的基本结构](#json-的基本结构)
-    - [SQL 对 JSON 的支持](#sql-对-json-的支持)
-  - [RDF 与 Knowledge Graph](#rdf-与-knowledge-graph)
-    - [RDF](#rdf)
-    - [RDF 和 E-R 的关系](#rdf-和-e-r-的关系)
-    - [Graph view 与 triple view](#graph-view-与-triple-view)
-  - [SPARQL](#sparql)
-  - [RDF 如何表示 n-ary relationship](#rdf-如何表示-n-ary-relationship)
-    - [引入人工实体](#引入人工实体)
-    - [使用 quads](#使用-quads)
-- [Textual Data](#textual-data)
-  - [Information Retrieval 的基本目标](#information-retrieval-的基本目标)
-    - [简单 keyword query](#简单-keyword-query)
-  - [TF / IDF / relevance](#tf--idf--relevance)
-    - [Term](#term)
-    - [Term Frequency（TF）](#term-frequencytf)
-    - [Inverse Document Frequency（IDF）](#inverse-document-frequencyidf)
-    - [Relevance](#relevance)
-    - [Stop words 与 proximity](#stop-words-与-proximity)
-  - [PageRank](#pagerank)
-  - [Precision / Recall](#precision--recall)
-    - [Precision](#precision)
-    - [Recall](#recall)
-  - [Structured Data 上的 Keyword Query](#structured-data-上的-keyword-query)
-    - [Example](#example)
-- [Spatial Data](#spatial-data)
-  - [Geographic Data vs Geometric Data](#geographic-data-vs-geometric-data)
-    - [Geographic data](#geographic-data)
-    - [Geometric data](#geometric-data)
-  - [基本空间对象表示](#基本空间对象表示)
-    - [line segment](#line-segment)
-    - [polyline / linestring](#polyline--linestring)
-    - [polygon](#polygon)
-    - [3D object](#3d-object)
-  - [数据库中的空间类型与操作](#数据库中的空间类型与操作)
-  - [设计型空间数据库（CAD）](#设计型空间数据库cad)
-    - [简单对象](#简单对象)
-    - [复杂二维对象](#复杂二维对象)
-    - [复杂三维对象](#复杂三维对象)
-    - [wireframe model](#wireframe-model)
-    - [非空间属性](#非空间属性)
-    - [空间完整性约束](#空间完整性约束)
-  - [Raster Data vs Vector Data](#raster-data-vs-vector-data)
-    - [Raster data](#raster-data)
-    - [Vector data](#vector-data)
-  - [常见空间查询](#常见空间查询)
-    - [Region query](#region-query)
-    - [Nearness query](#nearness-query)
-    - [Nearest neighbor query](#nearest-neighbor-query)
-    - [Spatial graph query](#spatial-graph-query)
-    - [Spatial join](#spatial-join)
-
----
-
 ## Why Complex Data Types
 
 ### 为什么关系模型会遇到限制
@@ -252,7 +137,6 @@ flat-books(title, author, pub-name, pub-branch, keyword)
 **有些场景里，复杂结构本身就是合理的。**
 :::
 
----
 
 ## Object-Based Databases / Object-Relational Ideas
 
@@ -577,7 +461,6 @@ List students = session.createQuery("from Student as s order by s.ID asc").list(
 很大程度上取决于你是否仍然理解关系数据库本身。
 :::
 
----
 
 ## Semi-Structured Data
 
@@ -1164,7 +1047,6 @@ RDF 三元组只能直接表示二元关系。
 
 这里 `c1` 就是上下文实体。
 
----
 
 ## Textual Data
 
@@ -1346,7 +1228,6 @@ Zhang Katz
 
 **在结构化图上做关键词驱动的连接搜索。**
 
----
 
 ## Spatial Data
 
@@ -1603,4 +1484,3 @@ POLYGON((1 1, 2 3, 4 4, 1 1))
 - 普通 join 用等值 / 比较条件
 - spatial join 用的是 `contains`、`overlaps`、`intersects` 等空间谓词
 
----

@@ -7,105 +7,6 @@ category: 笔记
 draft: false
 ---
 
-## 概述
-
-本章围绕指令级并行（ILP）展开，先区分 dependence 与 hazard，说明为什么流水线会被依赖关系限制。随后用 Scoreboard 与 Tomasulo 展示动态调度如何实现乱序执行，并通过保留站与重命名消除 WAR/WAW；再引入 ROB，把“乱序执行 / 顺序提交”串成一条主线，解释精确异常与推测执行的关系。最后讨论进一步提高 ILP 的多发射技术：比较 Superscalar、VLIW 与 Superpipelining，并结合双发射动态调度、VLIW 循环展开和 MIPS R4000 分析它们的性能收益与限制。
-
-
----
-
-## 目录
-- [概述](#概述)
-- [目录](#目录)
-- [Review: Dependences and Hazards](#review-dependences-and-hazards)
-  - [dependence 和 hazard 的区别](#dependence-和-hazard-的区别)
-  - [三类主要 dependence](#三类主要-dependence)
-    - [Data Dependence](#data-dependence)
-    - [Name Dependence](#name-dependence)
-    - [Control Dependence](#control-dependence)
-  - [三类主要 hazard](#三类主要-hazard)
-  - [Example](#example)
-- [Dynamic Scheduling](#dynamic-scheduling)
-  - [顺序流水线的限制](#顺序流水线的限制)
-  - [动态调度的基本思想](#动态调度的基本思想)
-  - [乱序执行带来的新问题](#乱序执行带来的新问题)
-  - [Scoreboard Algorithm](#scoreboard-algorithm)
-    - [Example](#example-1)
-    - [基本思想](#基本思想)
-    - [从 ID 拆成 IS 和 RO](#从-id-拆成-is-和-ro)
-    - [Scoreboard 的四个阶段](#scoreboard-的四个阶段)
-      - [IS：检查结构冲突](#is检查结构冲突)
-      - [RO：等待操作数 ready](#ro等待操作数-ready)
-      - [EX：执行](#ex执行)
-      - [WB：写回并检查 WAR](#wb写回并检查-war)
-    - [三张状态表](#三张状态表)
-      - [Instruction Status](#instruction-status)
-      - [Function Component Status](#function-component-status)
-      - [Register Status](#register-status)
-      - [关键时刻 2：`FMUL.D` 准备写回](#关键时刻-2fmuld-准备写回)
-      - [关键时刻 3：`FDIV.D` 准备写回](#关键时刻-3fdivd-准备写回)
-    - [Scoreboard 的局限](#scoreboard-的局限)
-    - [Scoreboard 时序填写](#scoreboard-时序填写)
-      - [条件](#条件)
-      - [答案](#答案)
-      - [`FLD F6, 34(R2)`](#fld-f6-34r2)
-      - [`FLD F2, 45(R3)`](#fld-f2-45r3)
-      - [`FMUL.D F0, F2, F4`](#fmuld-f0-f2-f4)
-      - [`FSUB.D F8, F2, F6`](#fsubd-f8-f2-f6)
-      - [`FDIV.D F10, F0, F6`](#fdivd-f10-f0-f6)
-      - [`FADD.D F6, F8, F2`](#faddd-f6-f8-f2)
-  - [Tomasulo's Approach](#tomasulos-approach)
-    - [从 Scoreboard 到 Tomasulo](#从-scoreboard-到-tomasulo)
-    - [硬件结构：Reservation Station 与 CDB](#硬件结构reservation-station-与-cdb)
-    - [Tomasulo 的三个阶段](#tomasulo-的三个阶段)
-      - [Issue](#issue)
-      - [Execute](#execute)
-      - [Write Result](#write-result)
-    - [Example：硬件如何自动重命名](#example硬件如何自动重命名)
-    - [Tomasulo 的三张状态表](#tomasulo-的三张状态表)
-      - [Instruction Status Table](#instruction-status-table)
-      - [Reservation Station Table](#reservation-station-table)
-      - [Register Status Table](#register-status-table)
-    - [Example：状态表变化](#example状态表变化)
-      - [关键时刻 1：只有第一条 load 已经写回](#关键时刻-1只有第一条-load-已经写回)
-      - [关键时刻 2：`FMUL.D` 准备写回](#关键时刻-2fmuld-准备写回-1)
-    - [Tomasulo 的贡献与局限](#tomasulo-的贡献与局限)
-    - [Tomasulo 时序填写](#tomasulo-时序填写)
-- [Hardware-Based Speculation](#hardware-based-speculation)
-  - [为什么需要 ROB](#为什么需要-rob)
-  - [基于硬件推测的基本结构](#基于硬件推测的基本结构)
-  - [四个阶段：IS / EX / WB / Commit](#四个阶段is--ex--wb--commit)
-      - [Issue](#issue-1)
-      - [Execute](#execute-1)
-      - [Writeback](#writeback)
-      - [Commit](#commit)
-  - [ROB 记录什么](#rob-记录什么)
-  - [Example](#example-2)
-  - [Hardware-Based Speculation 时序填写](#hardware-based-speculation-时序填写)
-  - [三种方法对比](#三种方法对比)
-- [Exploiting ILP Using Multiple Issue and Static Scheduling](#exploiting-ilp-using-multiple-issue-and-static-scheduling)
-  - [从 Single-Issue 到 Multiple-Issue](#从-single-issue-到-multiple-issue)
-  - [两类 Multiple-Issue Processor](#两类-multiple-issue-processor)
-    - [Superscalar](#superscalar)
-    - [VLIW：Very Long Instruction Word](#vliwvery-long-instruction-word)
-  - [多发射实现方式对比](#多发射实现方式对比)
-  - [Static-Scheduled Superscalar](#static-scheduled-superscalar)
-    - [MIPS 式双发射](#mips-式双发射)
-  - [Dynamic-Scheduled Multiple Issue](#dynamic-scheduled-multiple-issue)
-    - [Extended Tomasulo：双发射](#extended-tomasulo双发射)
-    - [Example：向量元素加标量](#example向量元素加标量)
-    - [不带 ROB：分支之后的指令不能提前执行](#不带-rob分支之后的指令不能提前执行)
-    - [带 ROB 与推测执行：跨过分支继续执行](#带-rob-与推测执行跨过分支继续执行)
-  - [VLIW 的静态调度](#vliw-的静态调度)
-    - [Example：循环展开后的 VLIW 打包](#example循环展开后的-vliw-打包)
-    - [VLIW 的局限](#vliw-的局限)
-  - [Superpipelining Processor](#superpipelining-processor)
-    - [MIPS R4000：八段 Superpipeline](#mips-r4000八段-superpipeline)
-    - [深流水仍然存在 Load Delay](#深流水仍然存在-load-delay)
-  - [方法对比](#方法对比)
-
----
-
 ## Review: Dependences and Hazards
 
 ### dependence 和 hazard 的区别
@@ -253,7 +154,6 @@ FSUB.D  R6, R4, R5
 这里的重命名只是在说明思想。真实处理器里会维护 architectural register 和 physical register 的映射，保证最终对外表现仍然符合程序原始语义。
 :::
 
----
 
 ## Dynamic Scheduling
 
@@ -1213,7 +1113,6 @@ CDB 广播的特点是：一个结果可以在同一拍被多个等待者同时�
 
 这体现了乱序执行和乱序写回。
 
----
 
 ## Hardware-Based Speculation
 
@@ -1461,7 +1360,6 @@ Out-of-Order Execution / Writeback.
 | Tomasulo | 顺序 | 乱序 | 乱序 | 写回即完成 | 通过重命名消除 | 不能自然保证 |
 | Tomasulo + ROB | 顺序 | 乱序 | 乱序 | 顺序 commit | 通过重命名消除 | 可以保证 |
 
----
 
 ## Exploiting ILP Using Multiple Issue and Static Scheduling
 

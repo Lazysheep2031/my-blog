@@ -7,80 +7,6 @@ category: 笔记
 draft: false
 ---
 
-## 概述
-
-**Operator overloading（运算符重载）** 允许用户自定义类型使用类似内置类型的语法。
-
-本质上，重载运算符仍然是一次 **function call**：
-
-```cpp
-x + y;
-```
-
-可以被理解成：
-
-```cpp
-x.operator+(y);     // member function 形式
-operator+(x, y);    // global/free function 形式
-```
-
-核心内容：
-
-- 哪些运算符可以重载，哪些不能重载；
-- 运算符重载的基本限制；
-- member function 和 global function 两种实现方式；
-- `++` / `--` 前缀、后缀形式的区别；
-- 关系运算符、下标运算符 `[]`、函数调用运算符 `()` 的常见写法；
-- functor、lambda、`std::function` 的关系；
-- 用户自定义类型转换、`explicit` 和 conversion operator；
-- 什么时候应该使用运算符重载。
-
-
-## 目录
-
-- [概述](#概述)
-- [目录](#目录)
-- [Operator overloading 的基本思想](#operator-overloading-的基本思想)
-  - [为什么需要运算符重载](#为什么需要运算符重载)
-  - [运算符重载的本质](#运算符重载的本质)
-- [哪些运算符可以重载](#哪些运算符可以重载)
-  - [可以重载的运算符](#可以重载的运算符)
-  - [不能重载的运算符](#不能重载的运算符)
-  - [限制条件](#限制条件)
-- [基本语法](#基本语法)
-- [Member function 形式](#member-function-形式)
-  - [Integer 的加法](#integer-的加法)
-  - [隐式 this 参数](#隐式-this-参数)
-  - [member operator 的隐式转换限制](#member-operator-的隐式转换限制)
-  - [一元运算符](#一元运算符)
-- [Global function 形式](#global-function-形式)
-  - [普通 free function](#普通-free-function)
-  - [friend operator](#friend-operator)
-  - [global operator 的隐式转换](#global-operator-的隐式转换)
-- [参数传递与返回值](#参数传递与返回值)
-  - [参数传递](#参数传递)
-  - [返回值模式](#返回值模式)
-- [`++` 和 `--`](#-和---)
-  - [如何区分前缀和后缀](#如何区分前缀和后缀)
-  - [标准实现模式](#标准实现模式)
-- [关系运算符](#关系运算符)
-  - [`==` 和 `!=`](#-和-)
-  - [`<` 与其他比较运算符](#-与其他比较运算符)
-- [`operator[]`](#operator)
-- [`operator()` 与 functor](#operator-与-functor)
-  - [最小例子](#最小例子)
-  - [Example : 抽取 transform 模式](#example--抽取-transform-模式)
-  - [lambda 捕获与 std::function](#lambda-捕获与-stdfunction)
-  - [用 functor 改写 lambda](#用-functor-改写-lambda)
-- [用户自定义类型转换](#用户自定义类型转换)
-  - [单参数构造函数](#单参数构造函数)
-  - [`explicit` 禁止隐式转换](#explicit-禁止隐式转换)
-  - [Conversion operator](#conversion-operator)
-  - [两种转换方式并存的问题](#两种转换方式并存的问题)
-- [使用建议](#使用建议)
-
----
-
 ## Operator overloading 的基本思想
 
 ### 为什么需要运算符重载
@@ -132,7 +58,6 @@ operator+(x, y);
 
 > operator overloading = function call with operator syntax
 
----
 
 ## 哪些运算符可以重载
 
@@ -201,7 +126,6 @@ x + y * z;
 重载只能扩展已有语法的含义，不能重写 C++ 语法规则本身。
 :::
 
----
 
 ## 基本语法
 
@@ -231,7 +155,6 @@ Integer operator+(const Integer& lhs, const Integer& rhs) {
 }
 ```
 
----
 
 ## Member function 形式
 
@@ -375,7 +298,6 @@ z = -x;
 z.operator=(x.operator-());
 ```
 
----
 
 ## Global function 形式
 
@@ -467,7 +389,6 @@ z = 3 + y;  // operator+(Integer(3), y)
 - 可能需要 `friend`；
 - 或者需要通过 public interface 间接访问对象状态。
 
----
 
 ## 参数传递与返回值
 
@@ -525,7 +446,6 @@ const E& T::operator[](int index) const;
 v[10] = 45;
 ```
 
----
 
 ## `++` 和 `--`
 
@@ -586,7 +506,6 @@ Integer Integer::operator++(int) {
 常见写法是先实现前缀版本，再用前缀版本实现后缀版本。这样真正修改对象的逻辑只保留一份。
 :::
 
----
 
 ## 关系运算符
 
@@ -647,7 +566,6 @@ private:
 其他函数只表达逻辑关系。
 ```
 
----
 
 ## `operator[]`
 
@@ -713,7 +631,6 @@ v[10] = 45;
 这个例子为了说明 `operator[]`，省略了 copy constructor / copy assignment 等资源管理问题。真实工程中更应该使用 `std::vector<int>` 管理动态数组。
 :::
 
----
 
 ## `operator()` 与 functor
 
@@ -960,7 +877,6 @@ int main() {
 algorithm + callable object
 ```
 
----
 
 ## 用户自定义类型转换
 
@@ -1119,7 +1035,6 @@ double d = r.to_double();
 
 可读性更强，也更不容易产生意外转换。
 
----
 
 ## 使用建议
 

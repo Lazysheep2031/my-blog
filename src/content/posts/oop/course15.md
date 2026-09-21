@@ -7,62 +7,6 @@ category: 笔记
 draft: false
 ---
 
-## 概述
-
-**Smart pointer（智能指针）** 是标准库中用于管理动态资源的对象。它内部仍然保存 raw pointer，但通过构造、析构、拷贝、移动、运算符重载等机制，把资源释放逻辑封装进对象生命周期中。
-
-本节主要围绕三类智能指针展开：
-
-- `std::unique_ptr`：独占式所有权，不能拷贝，只能移动；
-- `std::shared_ptr`：共享式所有权，通过 reference count 判断何时释放资源；
-- `std::weak_ptr`：弱引用，不拥有资源，用来打破 `shared_ptr` 循环引用。
-
-智能指针背后综合：
-
-- templates：让智能指针可以管理任意类型 `T`；
-- operator overloading：重载 `*`、`->`、`[]`，让智能指针像普通指针一样使用；
-- copy / move semantics：决定所有权能否复制、能否转移；
-- reference counting：记录共享资源的所有者数量；
-- RAII：把资源生命周期绑定到对象生命周期。
-
-> 写 C++ 程序时，应尽量让资源由对象管理。能用智能指针表达所有权时，就不要手动散落 `new` / `delete`。
-
-## 目录
-
-- [概述](#概述)
-- [目录](#目录)
-- [为什么需要智能指针](#为什么需要智能指针)
-  - [raw pointer 的问题](#raw-pointer-的问题)
-  - [RAII 的基本思想](#raii-的基本思想)
-- [`unique_ptr`：独占所有权](#unique_ptr独占所有权)
-  - [基本使用](#基本使用)
-  - [像指针一样使用](#像指针一样使用)
-  - [不能拷贝](#不能拷贝)
-  - [移动语义](#移动语义)
-  - [`std::move` 的含义](#stdmove-的含义)
-  - [管理动态数组](#管理动态数组)
-- [实现一个简化版 `unique_ptr`](#实现一个简化版-unique_ptr)
-  - [管理单个对象的版本](#管理单个对象的版本)
-  - [管理数组的偏特化版本](#管理数组的偏特化版本)
-- [`shared_ptr`：共享所有权](#shared_ptr共享所有权)
-  - [基本使用](#基本使用-1)
-  - [reference count 的变化](#reference-count-的变化)
-  - [移动 `shared_ptr`](#移动-shared_ptr)
-- [实现一个简化版 `shared_ptr`](#实现一个简化版-shared_ptr)
-  - [ControlBlock](#controlblock)
-  - [完整实现](#完整实现)
-- [`shared_ptr` 的循环引用问题](#shared_ptr-的循环引用问题)
-  - [循环引用为什么释放不了](#循环引用为什么释放不了)
-  - [`weak_ptr` 的作用](#weak_ptr-的作用)
-- [UCPointer 设计](#ucpointer-设计)
-  - [`UCObject`：把引用计数放进被共享对象](#ucobject把引用计数放进被共享对象)
-  - [`UCPointer`：引用计数智能指针](#ucpointer引用计数智能指针)
-  - [String / StringRep：Envelope and Letter](#string--stringrepenvelope-and-letter)
-  - [copy-on-write](#copy-on-write)
-  - [这种设计的优缺点](#这种设计的优缺点)
-
----
-
 ## 为什么需要智能指针
 
 ### raw pointer 的问题
@@ -135,7 +79,6 @@ int main() {
 `unique_ptr` 的析构函数负责 `delete` 它所管理的对象。只要智能指针对象本身能正常析构，资源释放就会自动发生，包括提前返回和异常栈展开的情况。
 :::
 
----
 
 ## `unique_ptr`：独占所有权
 
@@ -312,7 +255,6 @@ int main() {
 `new T` 要配 `delete`，`new T[n]` 要配 `delete[]`。智能指针的类型也必须区分 `unique_ptr<T>` 和 `unique_ptr<T[]>`。
 :::
 
----
 
 ## 实现一个简化版 `unique_ptr`
 
@@ -477,7 +419,6 @@ int main() {
 }
 ```
 
----
 
 ## `shared_ptr`：共享所有权
 
@@ -579,7 +520,6 @@ cout << p2.use_count() << endl; // 1
 
 如果自己实现的 `shared_ptr` 没写 move constructor 和 move assignment，那么 `std::move(p1)` 可能仍然会绑定到 copy constructor / copy assignment 上，最后表现成“拷贝共享”，引用计数会增加。要得到真正的移动语义，就必须显式实现移动版本。
 
----
 
 ## 实现一个简化版 `shared_ptr`
 
@@ -739,7 +679,6 @@ s_ptr(s_ptr&& other) noexcept
 `operator*` 和 `operator->` 没有检查空指针。空智能指针的解引用和 raw pointer 一样是错误行为。调用前应保证 `get() != nullptr` 或 `operator bool()` 为真。
 :::
 
----
 
 ## `shared_ptr` 的循环引用问题
 
@@ -837,7 +776,6 @@ int main() {
 `weak_ptr` 表达的是“我可以看这个对象，但我不负责延长它的生命周期”。常见用法是 parent-child 结构中的反向指针、缓存、观察者列表等。
 :::
 
----
 
 ## UCPointer 设计
 
@@ -1153,4 +1091,3 @@ y ---> [count = 1 | "abcdef"]
 
 标准库 `std::shared_ptr` 使用的是 non-intrusive design：引用计数放在 control block 中，被管理类不需要继承特殊基类，所以适用范围更广。
 
----

@@ -7,65 +7,6 @@ category: 笔记
 draft: false
 ---
 
-## 概述
-
-- C++ 程序运行时的几块典型内存区域：代码/数据区、栈、堆
-- 不同变量分别放在哪里：global、static、参数、局部变量、动态分配对象
-- 编译单元、`extern`、`static` 与 linkage 的关系
-- 为什么 C++ 需要 `new/delete`，以及它和 `malloc/free` 的根本区别
-- 指针与引用的语义、常见写法与易错点
-- `const` 的核心规则，尤其是指针、引用、参数中的 `const`
-
-## 目录
-
-- [概述](#概述)
-- [目录](#目录)
-- [Memory Model](#memory-model)
-  - [不同变量通常放在哪里](#不同变量通常放在哪里)
-  - [局部变量](#局部变量)
-  - [全局变量与静态变量](#全局变量与静态变量)
-- [编译单元、声明、定义与 linkage](#编译单元声明定义与-linkage)
-  - [编译单元](#编译单元)
-  - [全局变量/函数：definition 与 declaration](#全局变量函数definition-与-declaration)
-  - [`extern`](#extern)
-  - [`static`：两种常见含义](#static两种常见含义)
-    - [文件作用域的 `static`](#文件作用域的-static)
-    - [局部 `static`](#局部-static)
-- [Singleton Pattern：受控的全局唯一对象](#singleton-pattern受控的全局唯一对象)
-- [Dynamic Memory Allocation](#dynamic-memory-allocation)
-  - [为什么需要动态内存](#为什么需要动态内存)
-  - [`new/delete` 与 `malloc/free` 的区别](#newdelete-与-mallocfree-的区别)
-    - [`malloc/free`](#mallocfree)
-    - [`new/delete`](#newdelete)
-  - [数组版本：`new[]` 与 `delete[]`](#数组版本new-与-delete)
-  - [动态内存的几个基本原则](#动态内存的几个基本原则)
-- [Pointer：地址、值、解引用](#pointer地址值解引用)
-  - [指针变量本身也有地址](#指针变量本身也有地址)
-  - [`p`、`*p`、`&p`、`&x`](#pppx)
-  - [常见用途](#常见用途)
-  - [基本操作符：`&`、`*`、`->`](#基本操作符-)
-- [Reference：更干净的间接访问](#reference更干净的间接访问)
-  - [引用的本质](#引用的本质)
-  - [引用与指针的关键区别](#引用与指针的关键区别)
-    - [引用必须初始化](#引用必须初始化)
-    - [引用不能重新绑定](#引用不能重新绑定)
-    - [引用不能是 null](#引用不能是-null)
-    - [引用常用于更干净的参数传递](#引用常用于更干净的参数传递)
-  - [生命周期问题](#生命周期问题)
-  - [引用的限制](#引用的限制)
-- [Constant](#constant)
-  - [`const` 的基本含义](#const-的基本含义)
-  - [非局部 `const` 的一个特点](#非局部-const-的一个特点)
-  - [编译期常量与运行期常量](#编译期常量与运行期常量)
-  - [指针里的 `const`：谁不能改](#指针里的-const谁不能改)
-    - [`int * const p`](#int--const-p)
-    - [`const int *p`](#const-int-p)
-  - [交叉绑定规则](#交叉绑定规则)
-  - [字符串字面量](#字符串字面量)
-  - [大对象参数为什么常写成 `const T&`](#大对象参数为什么常写成-const-t)
-
----
-
 ## Memory Model
 
 一个 C++ 程序运行时，通常可以粗略分成下面几块区域：
@@ -190,7 +131,6 @@ int foo(int x) {
 定义在函数外部的变量，以及用 `static` 声明出来的静态变量，具有更长的生命周期。它们通常在程序开始时就存在，到程序结束时才销毁。
 > **persistent storage：状态可以在整个程序运行期间持续保存。**
 
----
 
 ## 编译单元、声明、定义与 linkage
 
@@ -372,7 +312,6 @@ static int x = 10;
 这通常不适合做“跨文件共享变量”，因为它们看起来名字一样，但根本不是同一个对象。
 :::
 
----
 
 ## Singleton Pattern：受控的全局唯一对象
 
@@ -415,7 +354,6 @@ private:
 
 但也要注意：它本质上仍然是一种全局状态管理手段，不能滥用。
 
----
 
 ## Dynamic Memory Allocation
 
@@ -534,7 +472,6 @@ size_t *pc = (size_t*) pa;
 - 只申请不释放，会导致 **memory leak（内存泄漏）**
 - 重复释放同一块内存，会导致未定义行为
 
----
 
 ## Pointer：地址、值、解引用
 
@@ -613,7 +550,6 @@ ps->length();     // 等价写法
 
 `->` 本质上只是把“先解引用、再取成员”这个常见组合写得更紧凑。
 
----
 
 ## Reference：更干净的间接访问
 
@@ -743,7 +679,6 @@ void f(int*& p); // ok
 
 > 引用不是一个可自由操作、可嵌套储存的“普通对象”，它更像一种语言层面的别名机制。
 
----
 
 ## Constant
 
@@ -925,4 +860,3 @@ void print(const std::string& s);
 2. **只读访问**，防止函数内部误改参数
 3. **语义清晰**，调用者一看就知道这是“只读借用”
 
----

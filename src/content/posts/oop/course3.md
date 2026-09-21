@@ -7,50 +7,6 @@ category: 笔记
 draft: false
 ---
 
-## 概述
-
-- STL 是什么，为什么值得用
-- STL 的三大部分：containers / algorithms / iterators
-- 几个最典型的容器：`vector`、`list`、`map`、`stack`
-- STL 中“容器存数据，算法处理区间，迭代器把两者连接起来”的统一思路
-- 使用 STL 时最常见的几个 pitfall
-
-## 目录
-
-- [概述](#概述)
-- [目录](#目录)
-- [STL](#stl)
-- [STL 的三大部分](#stl-的三大部分)
-  - [Containers](#containers)
-  - [Algorithms](#algorithms)
-  - [Iterators](#iterators)
-- [Containers](#containers-1)
-  - [Sequential containers](#sequential-containers)
-  - [Associative containers](#associative-containers)
-  - [Unordered associative containers](#unordered-associative-containers)
-  - [Container adaptors](#container-adaptors)
-- [vector：最常用的动态顺序容器](#vector最常用的动态顺序容器)
-  - [vector 的特点](#vector-的特点)
-  - [vector 的常见操作](#vector-的常见操作)
-- [list：链表式顺序容器](#list链表式顺序容器)
-  - [list 的特点](#list-的特点)
-- [map：键值对容器](#map键值对容器)
-- [stack：容器适配器](#stack容器适配器)
-- [Algorithms](#algorithms-1)
-- [Iterators：连接容器与算法](#iterators连接容器与算法)
-- [Typedef、using 与 auto](#typedefusing-与-auto)
-  - [typedef](#typedef)
-  - [using](#using)
-  - [auto](#auto)
-- [自定义类如何接入 STL](#自定义类如何接入-stl)
-- [Pitfalls](#pitfalls)
-  - [vector 非法下标访问](#vector-非法下标访问)
-  - [map 的 silent insertion](#map-的-silent-insertion)
-  - [list.size() vs empty()](#listsize-vs-empty)
-  - [erase 后 iterator 失效](#erase-后-iterator-失效)
-
----
-
 ## STL
 
 `STL` 是 `Standard Template Library`，也就是 C++ 标准库中和泛型编程密切相关的一部分。
@@ -71,7 +27,6 @@ draft: false
 - **Portable code**：它是标准库的一部分，跨平台、跨编译器时更稳定
 - **Maintainable code**：后续自己或别人回来读代码时，更容易理解和修改
 
----
 
 ## STL 的三大部分
 
@@ -113,7 +68,6 @@ STL 可以先拆成三块来看:
 
 > container 存元素，algorithm 处理范围，iterator 负责访问与连接。
 
----
 
 ## Containers
 
@@ -168,7 +122,6 @@ STL 可以先拆成三块来看:
 
 它们会限制你能使用的操作，让接口更贴近某种抽象模型。
 
----
 
 ## vector：最常用的动态顺序容器
 
@@ -263,7 +216,6 @@ int main() {
 如果当前没有对应位置，直接写 `v[100] = 1;` 仍然可能出问题。
 :::
 
----
 
 ## list：链表式顺序容器
 
@@ -304,7 +256,6 @@ int main() {
 - `vector`：更像动态数组
 - `list`：更像链表
 
----
 
 ## map：键值对容器
 
@@ -361,7 +312,6 @@ map 的重点
 也就是你本来只是想查一下 key 是否存在，结果却悄悄插入了一个新条目。
 :::
 
----
 
 ## stack：容器适配器
 > 后进先出（LIFO, last in first out）
@@ -381,7 +331,6 @@ map 的重点
 好处是接口更清晰。  
 当你说“这里用 stack”时，别人马上知道你的数据访问模式是 LIFO，而不是任意位置都能操作。
 
----
 
 ## Algorithms
 
@@ -430,7 +379,6 @@ $$
 
 > STL 已经给了很多现成算法，很多时候只需要把区间交给它，而不是自己重写循环。
 
----
 
 ## Iterators：连接容器与算法
 
@@ -453,7 +401,6 @@ iterator 可以理解成 **generalized pointer**。
 - 容器负责提供 iterator
 - 算法通过 iterator 操作元素
 
----
 
 ## Typedef、using 与 auto
 
@@ -502,7 +449,6 @@ auto it = phonebook.begin();
 
 > STL 很强，但类型名也可能很长；`typedef`、`using`、`auto` 都是在降低书写和阅读成本。
 
----
 
 ## 自定义类如何接入 STL
 

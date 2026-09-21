@@ -7,66 +7,6 @@ category: 笔记
 draft: false
 ---
 
-## 概述
-
-**Streams（流）** 是 C++ 的输入输出抽象。
-
-C 语言主要使用：
-
-```cpp
-printf(...);
-scanf(...);
-```
-
-C++ 引入 stream：
-
-```cpp
-cout << x;
-cin >> x;
-```
-
-stream 的核心特点：
-
-- type-safe：根据变量类型自动选择输入输出方式；
-- extensible：可以为用户自定义类型重载 `operator<<` 和 `operator>>`；
-- object-oriented：把输入输出设备抽象成对象；
-- 支持 chaining：`cout << a << b << c`，`cin >> a >> b >> c`。
-
-## 目录
-
-- [概述](#概述)
-- [目录](#目录)
-- [为什么使用 streams](#为什么使用-streams)
-  - [优点](#优点)
-  - [缺点](#缺点)
-- [什么是 stream](#什么是-stream)
-- [Stream 命名习惯](#stream-命名习惯)
-- [Stream operations](#stream-operations)
-  - [Extractor](#extractor)
-  - [Inserter](#inserter)
-  - [Manipulator](#manipulator)
-- [Text stream 与 binary stream](#text-stream-与-binary-stream)
-- [预定义 streams](#预定义-streams)
-- [输入：extractors](#输入extractors)
-  - [`operator>>` 的基本用法](#operator-的基本用法)
-  - [自定义 extractor](#自定义-extractor)
-  - [其他输入函数](#其他输入函数)
-- [输出：inserters](#输出inserters)
-  - [`operator<<` 的基本用法](#operator-的基本用法-1)
-  - [自定义 inserter](#自定义-inserter)
-  - [其他输出函数](#其他输出函数)
-- [Formatting：manipulators](#formattingmanipulators)
-  - [常见 manipulators](#常见-manipulators)
-  - [自定义 manipulator](#自定义-manipulator)
-  - [Stream flags](#stream-flags)
-- [Example：给 Point 重载输入输出](#example给-point-重载输入输出)
-  - [为什么 `<<` / `>>` 要写成 free function](#为什么----要写成-free-function)
-  - [Hidden friend 写法](#hidden-friend-写法)
-  - [完整 Point 示例](#完整-point-示例)
-- [Example：组合类型 LineSegment 的输出](#example组合类型-linesegment-的输出)
-
----
-
 ## 为什么使用 streams
 
 ### 优点
@@ -112,7 +52,6 @@ std::ios::sync_with_stdio(false);
 cin.tie(nullptr);
 ```
 
----
 
 ## 什么是 stream
 
@@ -139,7 +78,6 @@ stream 的特点：
 - 对 `cin` / `cout` 通常不能随机访问；
 - 文件流可以支持一定程度的 random access。
 
----
 
 ## Stream 命名习惯
 
@@ -161,7 +99,6 @@ stream 的特点：
 `<strstream>` 是旧式 C string stream，现代 C++ 更常用 `<sstream>`。
 :::
 
----
 
 ## Stream operations
 
@@ -214,7 +151,6 @@ cout << setw(20) << "OK!";
 
 `hex`、`setw(20)` 不直接输出普通数据，而是改变后续输入输出的格式。
 
----
 
 ## Text stream 与 binary stream
 
@@ -234,7 +170,6 @@ Binary stream：
 
 本节课主要讲 text stream。
 
----
 
 ## 预定义 streams
 
@@ -251,7 +186,6 @@ C++ 标准库预定义了几个常用 stream：
 
 `clog` 也用于错误和调试信息，但它是 buffered。
 
----
 
 ## 输入：extractors
 
@@ -355,7 +289,6 @@ void putback(char); // 把一个字符放回 stream
 char peek();        // 查看下一个字符，但不消耗它
 ```
 
----
 
 ## 输出：inserters
 
@@ -445,7 +378,6 @@ cout << "hello" << endl;
 cout << "hello\n";
 ```
 
----
 
 ## Formatting：manipulators
 
@@ -565,7 +497,6 @@ cout.setf(flags);
 cout.unsetf(flags);
 ```
 
----
 
 ## Example：给 Point 重载输入输出
 
@@ -663,7 +594,6 @@ int main() {
 - 两个 operator 都返回 stream reference，保证可以 chaining；
 - 为了支持 `Point b; cin >> b;`，`Point` 需要 default constructor，这里通过默认参数实现。
 
----
 
 ## Example：组合类型 LineSegment 的输出
 
@@ -752,4 +682,3 @@ return out << s.start << " - " << s.end;
 小类型的抽象做完整后，大类型可以一层一层组合上去。
 ```
 
----

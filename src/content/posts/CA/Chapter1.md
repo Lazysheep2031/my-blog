@@ -7,33 +7,6 @@ category: 笔记
 draft: false
 ---
 
-## 概述
-
-这份笔记围绕计算机体系结构的入门核心展开，按“性能建模 → 定量分析 → ISA 组织方式”逐步展开。前半部分先建立性能比较与 CPU 时间公式，后半部分进入 ISA 设计与不同指令风格（Stack / Accumulator / Register-memory / Load-store）的对比，并配有表达式翻译示例，适合复习考试中的概念题与计算题。
-
-
-## 目录
-
-- [Classes of Computers](#classes-of-computers)
-  - 按用途分类（PC / Server / Embedded / Mobile / Supercomputer）
-  - Flynn 并行分类（SISD / SIMD / MISD / MIMD）
-- [Understanding Performance](#understanding-performance)
-  - Response Time 与 Throughput
-  - Performance 定义与执行时间关系
-  - Elapsed Time 与 CPU Time
-- [Quantitative Approaches](#quantitative-approaches)
-  - CPU Performance Formula（IC / CPI / Clock）
-  - 加权平均 CPI
-  - Amdahl’s Law（含并行扩展上限）
-- [Great Architecture Ideas](#great-architecture-ideas)
-  - 8 个经典体系结构思想
-- [ISA](#isa)
-  - ISA 的位置与作用
-  - ISA 规定内容与设计原则
-  - 4 类 ISA 写法与表达式示例
-
-
-
 ## Classes of Computers
 
 > 不同类型的计算机，设计目标不同，因此体系结构优化的重点也不同。
@@ -98,7 +71,6 @@ draft: false
 - 总吞吐能力
 - 大规模系统协同能力
 
----
 
 ### Flynn 分类：按并行结构分类
 
@@ -136,7 +108,6 @@ Multiple Instruction Streams, Multiple Data Streams
 - 多个处理单元独立执行不同指令、处理不同数据
 - 是现代多核处理器、并行机、服务器集群的重要基础模型
 
----
 
 ## Understanding Performance
 
@@ -173,7 +144,6 @@ Multiple Instruction Streams, Multiple Data Streams
 - 操作系统调度
 - I/O 开销
 
----
 
 ### 两个最基本的性能指标
 
@@ -206,7 +176,6 @@ Multiple Instruction Streams, Multiple Data Streams
 - 每秒处理多少请求
 - 每小时完成多少事务
 
----
 
 ### Performance 的数学定义
 
@@ -219,7 +188,6 @@ $$Performance = \frac{1}{Execution\ Time}$$
 - 执行时间越短，性能越高
 - 执行时间越长，性能越低
 
----
 
 **Example**
 
@@ -236,7 +204,6 @@ $$\frac{Performance_A}{Performance_B}=\frac{15}{10}=1.5$$
 - A 的性能是 B 的 1.5 倍
 - 或者说 A 比 B 快 1.5 倍
 
----
 
 #### Measuring Execution Time
 
@@ -268,7 +235,6 @@ $$\frac{Performance_A}{Performance_B}=\frac{15}{10}=1.5$$
 - **User CPU time**：程序本身使用 CPU 的时间
 - **System CPU time**：操作系统为该程序服务所花的 CPU 时间
 
----
 
 ## Quantitative Approaches
 
@@ -280,7 +246,6 @@ $$\frac{Performance_A}{Performance_B}=\frac{15}{10}=1.5$$
 1. 一个程序为什么快/慢？
 2. 某种改进到底能带来多大性能提升？
 
----
 
 ### CPU Performance Formula 
 
@@ -304,7 +269,6 @@ $$\frac{Performance_A}{Performance_B}=\frac{15}{10}=1.5$$
 > KiB / MiB / GiB 是二进制单位；  
 > KB / MB / GB 在工程中有时按十进制使用，需根据具体语境区分。
 
----
 
 #### CPU 性能的基本公式
 
@@ -330,7 +294,6 @@ $$
 Clock\ Rate = \frac{1}{Clock\ Cycle\ Time}
 $$
 
----
 
 #### Clock 的概念
 
@@ -360,7 +323,6 @@ $$
 4.0GHz = 4000MHz = 4.0 \times 10^9 Hz
 $$
 
----
 
 #### 如何提升 CPU 性能
 
@@ -384,7 +346,6 @@ $$
 所以不能只看一个指标，必须综合分析。
 :::
 
----
 
 #### CPU Time Example
 
@@ -427,7 +388,6 @@ $$
 Computer B 至少需要 **4GHz** 时钟频率。
 :::
 
----
 
 #### Instruction Count 与 CPI
 
@@ -451,7 +411,6 @@ $$
 
 CPI 主要由 **CPU 硬件实现** 决定。
 
----
 
 #### CPU 性能公式的完整展开
 
@@ -473,7 +432,6 @@ $$
 CPU\ Time = \frac{Instruction\ Count \times CPI}{Clock\ Rate}
 $$
 
----
 
 #### CPU Performance 的三个核心因素
 
@@ -500,7 +458,6 @@ $$
 
 必须综合比较三者。
 
----
 
 ### 平均 CPI（加权平均）
 平均 CPI 不是简单平均，而是按指令占比加权：
@@ -518,7 +475,6 @@ $$
 
 表示第 $i$ 类指令在程序中的**相对频率**。
 
----
 
 ### Amdahl’s Law
 
@@ -548,7 +504,6 @@ Amdahl 定律体现了一个核心思想：
 - 找到主要瓶颈
 - 优先优化最常用、最耗时的部分
 
----
 
 #### Amdahl 定律的等价理解
 
@@ -576,7 +531,6 @@ $$
 
 若把旧时间归一化为 1，就得到上面的标准形式。
 
----
 
 #### 常见结论
 
@@ -597,7 +551,6 @@ $$
 
 > **优先优化 common case / bottleneck。**
 
----
 
 #### Amdahl 定律在并行中的意义
 
@@ -622,7 +575,6 @@ $$
 - 处理器数量不是越多越“线性加速”
 - 串行部分会成为并行扩展的根本上限
 
----
 
 ## Great Architecture Ideas
 1. Design for Moore’s Law
@@ -676,7 +628,6 @@ $$
   - 多模冗余
   - 容错设计
 
----
 
 ## ISA
 
@@ -708,7 +659,6 @@ ISA 往下连接硬件实现：
 - 程序只要面向 ISA 编写，就不需要关心具体实现细节
 - 一个处理器更快、另一个更省电，不代表 ISA 不同，可能只是 microarchitecture 不同
 
----
 
 ### 从高级语言到机器执行
 
@@ -734,7 +684,6 @@ $$
 - 一条汇编通常对应一条机器指令
 - 指令集就是该机器支持的全部机器指令集合
 
----
 
 ### ISA 主要规定什么
 
@@ -805,7 +754,6 @@ $$
 - load / store
 - branch
 
----
 
 ### 指令集设计原则与影响因素
 
@@ -824,7 +772,6 @@ $$
 - Compiler：编译器越强，ISA 越可以简洁规则
 - Application：不同应用会推动专用指令或数据类型支持
 
----
 
 ### 4 类 ISA 写法
 
@@ -854,7 +801,6 @@ $$
 - **Memory-memory architecture**，属于扩展知识点
   - 它把操作数直接放在内存里计算，但现代通用处理器中并不主流
 
----
 
 ### Example 1
 
@@ -941,7 +887,6 @@ store C, R3
 - 规则最整齐
 - 是现代 RISC 最典型的风格
 
----
 
 ### Example 2
 `D = A * B - (A + C * B)`
@@ -1075,7 +1020,6 @@ sub E, D, E
 - 中间结果也常直接放内存
 - 表达力强，但现代高性能处理器中并不常见
 
----
 
 :::TIP
 为什么现代 ISA 更偏向 GPR / Load-store?
@@ -1091,4 +1035,3 @@ sub E, D, E
 > **GPR + load-store 的组织方式。**
 :::
 
----

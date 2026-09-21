@@ -7,57 +7,6 @@ category: 笔记
 draft: false
 ---
 
-## 概述
-
-**Polymorphism（多态）**。
-
-> 当我们用一个基类指针统一管理不同派生类对象时，如何让同一个函数调用根据对象的真实类型执行不同版本？
-> 使用 **virtual function**，让函数调用从 **static binding** 变成 **dynamic binding**。
-
----
-
-## 目录
-
-- [概述](#概述)
-- [目录](#目录)
-- [为什么需要多态](#为什么需要多态)
-  - [Ray tracing](#ray-tracing)
-  - [绘图程序中的例子](#绘图程序中的例子)
-- [Shape 继承体系](#shape-继承体系)
-  - [基类 `Shape`](#基类-shape)
-  - [`Ellipse` 和 `Circle`](#ellipse-和-circle)
-- [`virtual` 与 polymorphic call](#virtual-与-polymorphic-call)
-  - [没有 `virtual` 时：静态绑定](#没有-virtual-时静态绑定)
-  - [加入 `virtual` 后：动态绑定](#加入-virtual-后动态绑定)
-  - [用 `vector<Shape*>` 统一管理图形](#用-vectorshape-统一管理图形)
-- [Static binding vs. Dynamic binding](#static-binding-vs-dynamic-binding)
-- [Virtual destructor](#virtual-destructor)
-  - [为什么基类析构函数要写成 `virtual`](#为什么基类析构函数要写成-virtual)
-  - [析构调用链](#析构调用链)
-- [`virtual` 的底层机制：vptr 与 vtable](#virtual-的底层机制vptr-与-vtable)
-  - [对象大小为什么会变大](#对象大小为什么会变大)
-  - [同一类对象共享同一张 vtable](#同一类对象共享同一张-vtable)
-  - [派生类有自己的 vtable](#派生类有自己的-vtable)
-  - [`override` 与函数签名检查](#override-与函数签名检查)
-  - [通过 vtable 手动调用函数](#通过-vtable-手动调用函数)
-- [类型转换与对象切片](#类型转换与对象切片)
-  - [派生类对象赋值给基类对象](#派生类对象赋值给基类对象)
-  - [指针赋值不会切片，但可能泄漏](#指针赋值不会切片但可能泄漏)
-  - [引用参数中的虚函数调用](#引用参数中的虚函数调用)
-  - [危险实验：手动复制 vptr](#危险实验手动复制-vptr)
-- [Overriding](#overriding)
-  - [`override` 的作用](#override-的作用)
-  - [向上调用基类版本](#向上调用基类版本)
-- [Return type relaxation](#return-type-relaxation)
-- [Overloading and virtual](#overloading-and-virtual)
-  - [覆盖所有重载版本](#覆盖所有重载版本)
-  - [用 `using` 引入基类重载集合](#用-using-引入基类重载集合)
-- [Abstract classes](#abstract-classes)
-- [Protocol / Interface classes](#protocol--interface-classes)
-  - [Unix character device 例子](#unix-character-device-例子)
-
----
-
 ## 为什么需要多态
 
 ### Ray tracing
@@ -148,7 +97,6 @@ Shape
 - 共同数据和共同操作放在基类；
 - 不同图形差异化的行为定义为 `virtual`，交给派生类实现。
 
----
 
 ## Shape 继承体系
 
@@ -263,7 +211,6 @@ Circle object
 
 其中 `vptr` 是实现 `virtual` 的常见隐藏指针，后面单独讲。
 
----
 
 ## `virtual` 与 polymorphic call
 
@@ -471,7 +418,6 @@ Ellipse::render()
 如果容器中存的是 `vector<Shape>` 而不是 `vector<Shape*>`，派生类对象会被切片，不能实现多态。多态通常依赖指针或引用。
 :::
 
----
 
 ## Static binding vs. Dynamic binding
 
@@ -501,7 +447,6 @@ virtual 函数：动态绑定
 
 > 动态绑定通常发生在通过基类指针或基类引用调用 virtual function 时。
 
----
 
 ## Virtual destructor
 
@@ -607,7 +552,6 @@ delete p;
 
 > 派生类析构函数执行完后，基类析构函数会被自动调用，不需要手动写 `Shape::~Shape()`。
 
----
 
 ## `virtual` 的底层机制：vptr 与 vtable
 
@@ -914,7 +858,6 @@ d.bar1(20);
 Derived::bar1(&d, 20);
 ```
 
----
 
 ## 类型转换与对象切片
 
@@ -1107,7 +1050,6 @@ pb->bar();     // 可能动态调用 Derived::bar()
 这段实验只用于说明 vptr/vtable 与 dynamic binding 的关系。实际程序中不能手动改 vptr，也不能依赖对象内部布局。
 :::
 
----
 
 ## Overriding
 
@@ -1177,7 +1119,6 @@ public:
 
 > 在基类行为基础上增加派生类的新功能，不需要复制基类原来的代码。
 
----
 
 ## Return type relaxation
 
@@ -1233,7 +1174,6 @@ virtual BinaryExpr self();
 
 不合法，因为返回值是对象本身，按值返回不支持这种放宽。按值返回还会涉及对象切片问题。
 
----
 
 ## Overloading and virtual
 
@@ -1289,7 +1229,6 @@ public:
 如果一个 virtual function 有多个 overloaded variants，派生类覆盖其中一个时，要检查其他同名重载是否被隐藏。
 :::
 
----
 
 ## Abstract classes
 
@@ -1338,7 +1277,6 @@ Shape s;          // 错误：Shape 是抽象类
 Shape* p = new Circle(10.0f);  // 可以：指向具体派生类对象
 ```
 
----
 
 ## Protocol / Interface classes
 
@@ -1397,4 +1335,3 @@ void use_device(CDevice& dev) {
 
 这样就能把“使用设备的代码”和“具体设备实现”解耦。
 
----

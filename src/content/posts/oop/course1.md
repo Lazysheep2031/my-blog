@@ -7,28 +7,6 @@ category: 笔记
 draft: false
 ---
 
-## 概述
-
-核心是：
-
-- 基础输入输出（`cin` / `cout`）
-- `std::string` 作为对象的常见操作
-- 文件输入输出（`ifstream` / `ofstream`）
-- 正则替换（`regex_replace`）
-
-整体重点是理解“对象 + 成员函数 + 运算符重载”的使用方式。
-
-## 目录
-
-- [概述](#概述)
-- [目录](#目录)
-- [基础 I/O 示例](#基础-io-示例)
-- [Using Objects：string 常用操作](#using-objectsstring-常用操作)
-- [文件 I/O（fstream）](#文件-iofstream)
-- [正则表达式（regex）](#正则表达式regex)
-
----
-
 ## 基础 I/O 示例
 
 ```cpp
@@ -51,9 +29,8 @@ g++ main.cpp
 ./a.out
 ```
 
----
 
-## Using Objects：string 常用操作
+## Using Objects
 
 `string` 是类对象，可以调用成员函数、也可以用重载运算符。
 
@@ -100,9 +77,8 @@ int main() {
 }
 ```
 
----
 
-## 文件 I/O（fstream）
+## 文件 I/O
 
 ```cpp
 #include <fstream>
@@ -129,9 +105,8 @@ int main() {
 - `ifstream` 读文件
 - 使用 `>>` 读取时按空白分词
 
----
 
-## 正则表达式（regex）
+## 正则表达式
 
 ```cpp
 #include <iostream>
@@ -154,4 +129,3 @@ int main()
 - `regex`：定义匹配模式
 - `regex_replace(text, pattern, new_text)`：按模式替换
 
----

@@ -7,185 +7,6 @@ category: 笔记
 draft: false
 ---
 
-## 概述
-
-这一章讨论的是 **memory hierarchy（存储层次）**：当 CPU 速度远高于主存，而主存又远小于外存时，系统如何通过多级存储结构，在 **速度、容量、成本、功耗** 之间取得折中。
-
-本章主线可以分成两部分：
-
-1. **Cache**
-   - 利用 temporal locality 和 spatial locality，把近期或相邻的数据保存在更靠近 CPU 的小而快存储中；
-   - 围绕四个基本问题展开：block 放在哪里、如何查找、miss 时替换谁、write 时如何处理；
-   - 通过 AMAT、memory stall cycles 等公式分析 cache 对 CPU 性能的影响；
-   - 进一步讨论降低 hit time、miss rate、miss penalty，以及提高 cache bandwidth 的典型优化方法。
-
-2. **Virtual Memory**
-   - 在 OS 和 MMU 的配合下，把程序看到的 virtual address 映射到 physical address；
-   - 让进程拥有连续、独立的虚拟地址空间，而物理内存可以不连续分配；
-   - 通过 page table、TLB、page fault、protection bits 等机制，实现内存扩展、进程隔离、共享与保护。
-
-本章的核心是理解：**存储系统的设计本质上是在不同层级之间转移访问代价**。Cache 试图让大多数访问停留在更快层级；Virtual Memory 则进一步把主存和外存纳入统一的地址空间管理中。两者共同构成现代计算机系统中 CPU、OS 和 memory system 协同工作的基础。
-
----
-
-## 目录
-- [概述](#概述)
-- [目录](#目录)
-- [Introduction](#introduction)
-  - [从 Load/Store 到 Memory Hierarchy](#从-loadstore-到-memory-hierarchy)
-  - [Locality](#locality)
-  - [Cache](#cache)
-    - [Cache Hit / Cache Miss](#cache-hit--cache-miss)
-    - [Block / Line](#block--line)
-- [Technology Trend and Memory Hierarchy](#technology-trend-and-memory-hierarchy)
-  - [Processor-Memory Gap](#processor-memory-gap)
-  - [SRAM / DRAM / Storage](#sram--dram--storage)
-  - [Memory Hierarchy](#memory-hierarchy)
-  - [Cache Miss](#cache-miss)
-  - [3C Misses](#3c-misses)
-  - [Split Cache vs Unified Cache](#split-cache-vs-unified-cache)
-  - [Three classes of computers with different concerns in memory hierarchy](#three-classes-of-computers-with-different-concerns-in-memory-hierarchy)
-- [Four Questions for Cache Designers](#four-questions-for-cache-designers)
-  - [Q1：Block Placement](#q1block-placement)
-    - [Direct Mapped](#direct-mapped)
-    - [Fully Associative](#fully-associative)
-    - [Set Associative](#set-associative)
-    - [Example](#example)
-  - [Q2：Block Identification](#q2block-identification)
-    - [查找方式](#查找方式)
-      - [Direct Mapped](#direct-mapped-1)
-      - [Fully Associative](#fully-associative-1)
-      - [Set Associative](#set-associative-1)
-    - [FSM Control Simple Cache](#fsm-control-simple-cache)
-      - [FSM](#fsm)
-    - [State Machine](#state-machine)
-      - [Idle](#idle)
-      - [Compare Tag](#compare-tag)
-      - [Write-Back](#write-back)
-      - [Allocate](#allocate)
-    - [Cache 容量计算](#cache-容量计算)
-      - [地址划分](#地址划分)
-        - [行存储内容](#行存储内容)
-      - [完整 Cache 容量的一般公式](#完整-cache-容量的一般公式)
-    - [Example](#example-1)
-      - [Example 1](#example-1)
-      - [Example 2](#example-2)
-      - [Example 3](#example-3)
-  - [Q3：Block Replacement](#q3block-replacement)
-    - [替换策略](#替换策略)
-      - [Random](#random)
-      - [FIFO](#fifo)
-    - [LRU](#lru)
-      - [OPT](#opt)
-    - [Example](#example-2)
-    - [Thrashing and Belady Anomaly](#thrashing-and-belady-anomaly)
-    - [Thrashing](#thrashing)
-      - [Belady Anomaly](#belady-anomaly)
-      - [Stack Property](#stack-property)
-    - [Comparison Pair](#comparison-pair)
-  - [Q4：Write Strategy](#q4write-strategy)
-    - [Write Hit](#write-hit)
-      - [Write-Through](#write-through)
-      - [Write-Back](#write-back-1)
-    - [Write Miss](#write-miss)
-      - [Write Allocate](#write-allocate)
-      - [No-Write-Allocate](#no-write-allocate)
-    - [常见组合](#常见组合)
-    - [Write Stall and Write Buffer](#write-stall-and-write-buffer)
-    - [Example](#example-3)
-- [Memory System Performance](#memory-system-performance)
-  - [CPU Execution Time and Memory Stall Cycles](#cpu-execution-time-and-memory-stall-cycles)
-  - [AMAT](#amat)
-  - [Example](#example-4)
-- [Improve Cache Performance](#improve-cache-performance)
-  - [Reducing the Hit Time](#reducing-the-hit-time)
-    - [Small and Simple First-Level Caches](#small-and-simple-first-level-caches)
-    - [Way Prediction](#way-prediction)
-  - [Increasing Cache Bandwidth](#increasing-cache-bandwidth)
-    - [Pipelined Caches](#pipelined-caches)
-    - [Multibanked Caches](#multibanked-caches)
-    - [Nonblocking Caches](#nonblocking-caches)
-  - [Reducing the Miss Penalty](#reducing-the-miss-penalty)
-    - [Multilevel Caches](#multilevel-caches)
-    - [Critical Word First / Early Restart](#critical-word-first--early-restart)
-    - [Read Miss Priority Over Write Miss](#read-miss-priority-over-write-miss)
-    - [Merging Write Buffers](#merging-write-buffers)
-    - [Victim Cache](#victim-cache)
-  - [Reducing the Miss Rate](#reducing-the-miss-rate)
-    - [Larger Block Size](#larger-block-size)
-    - [Larger Cache Size](#larger-cache-size)
-    - [Higher Associativity](#higher-associativity)
-    - [Compiler Optimizations](#compiler-optimizations)
-      - [Loop Interchange](#loop-interchange)
-      - [Blocking / Tiling](#blocking--tiling)
-  - [Reducing Miss Penalty or Miss Rate via Parallelism](#reducing-miss-penalty-or-miss-rate-via-parallelism)
-    - [Hardware Prefetching](#hardware-prefetching)
-    - [Compiler-Controlled Prefetching](#compiler-controlled-prefetching)
-  - [Extending the Memory Hierarchy](#extending-the-memory-hierarchy)
-    - [Using HBM to Extend the Memory Hierarchy](#using-hbm-to-extend-the-memory-hierarchy)
-    - [Using CXL to Extend the Memory Hierarchy](#using-cxl-to-extend-the-memory-hierarchy)
-    - [Using UnifiedBus to Extend the Memory Hierarchy](#using-unifiedbus-to-extend-the-memory-hierarchy)
-- [Additional Techniques Often Discussed with Cache Optimization](#additional-techniques-often-discussed-with-cache-optimization)
-  - [Skewed-Associative Cache](#skewed-associative-cache)
-  - [Pseudo-Associative Cache](#pseudo-associative-cache)
-  - [Cache Coloring](#cache-coloring)
-  - [System-Level Cache](#system-level-cache)
-- [GPU Memory and Cache-Related Topics](#gpu-memory-and-cache-related-topics)
-  - [GPU Shared Memory](#gpu-shared-memory)
-  - [GPU Memory Hierarchy](#gpu-memory-hierarchy)
-  - [Unified Memory Architecture](#unified-memory-architecture)
-- [How to Compare These Techniques](#how-to-compare-these-techniques)
-- [A Compact Takeaway Table](#a-compact-takeaway-table)
-- [Virtual Memory](#virtual-memory)
-  - [OS、MMU 与 Virtual Memory](#osmmu-与-virtual-memory)
-  - [Program Thinks vs Program Uses](#program-thinks-vs-program-uses)
-  - [Virtual Memory 的三个核心作用](#virtual-memory-的三个核心作用)
-    - [扩容：Main Memory + Secondary Storage](#扩容main-memory--secondary-storage)
-    - [灵活管理：物理地址可以不连续](#灵活管理物理地址可以不连续)
-    - [隔离与保护：每个进程有自己的地址空间](#隔离与保护每个进程有自己的地址空间)
-  - [Cache vs Virtual Memory](#cache-vs-virtual-memory)
-  - [Virtual Memory Allocation](#virtual-memory-allocation)
-    - [Paged Virtual Memory](#paged-virtual-memory)
-    - [Segmented Virtual Memory](#segmented-virtual-memory)
-    - [Paging vs Segmentation](#paging-vs-segmentation)
-  - [Four Questions for Virtual Memory](#four-questions-for-virtual-memory)
-    - [Q1：Where can a block be placed in main memory?](#q1where-can-a-block-be-placed-in-main-memory)
-    - [Q2：How is a block found if it is in main memory?](#q2how-is-a-block-found-if-it-is-in-main-memory)
-    - [Q3：Which block should be replaced on a virtual memory miss?](#q3which-block-should-be-replaced-on-a-virtual-memory-miss)
-    - [Q4：What happens on a write?](#q4what-happens-on-a-write)
-  - [Address Translation](#address-translation)
-    - [Page Table 的基本作用](#page-table-的基本作用)
-    - [Page Table Size Example](#page-table-size-example)
-    - [为什么需要 TLB？](#为什么需要-tlb)
-  - [Translation Lookaside Buffer](#translation-lookaside-buffer)
-    - [TLB Hit](#tlb-hit)
-    - [TLB Miss](#tlb-miss)
-    - [TLB Access Steps](#tlb-access-steps)
-  - [Page Size Selection](#page-size-selection)
-    - [Larger Page Size 的优点](#larger-page-size-的优点)
-    - [Larger Page Size 的代价](#larger-page-size-的代价)
-    - [Smaller Page Size 的优点](#smaller-page-size-的优点)
-    - [Multiple Page Sizes](#multiple-page-sizes)
-  - [Address Translation with Cache](#address-translation-with-cache)
-    - [基本位宽](#基本位宽)
-    - [TLB 位宽](#tlb-位宽)
-    - [L1 Cache 位宽](#l1-cache-位宽)
-    - [L2 Cache 位宽](#l2-cache-位宽)
-    - [地址翻译伪代码](#地址翻译伪代码)
-  - [现代处理器中的访问路径](#现代处理器中的访问路径)
-  - [Protection and Sharing among Programs](#protection-and-sharing-among-programs)
-    - [Multiprogramming](#multiprogramming)
-    - [Process](#process)
-    - [Process Protection](#process-protection)
-    - [Proprietary Page Tables](#proprietary-page-tables)
-    - [Rings](#rings)
-    - [Keys and Locks](#keys-and-locks)
-  - [Virtual Memory and Virtual Machine](#virtual-memory-and-virtual-machine)
-    - [Virtual Memory](#virtual-memory-1)
-    - [Virtual Machine](#virtual-machine)
-
----
-
 ## Introduction
 
 ### 从 Load/Store 到 Memory Hierarchy
@@ -265,7 +86,6 @@ cache 的两个最基本设计动作，正好就对应这两点：
 - 空间局部性 -> 不是只搬一个 word，而是把一整块相邻数据一起搬上来。
 :::
 
----
 
 ### Cache
 
@@ -317,7 +137,6 @@ cache 和 memory 之间传输数据时，基本单位不是单个 word，而是�
 - `tag` 决定当前这行里放的是不是我要的那个 block。
 :::
 
----
 
 ## Technology Trend and Memory Hierarchy
 
@@ -471,7 +290,6 @@ L1 一般是 split
 - cache 设计没有唯一最优；
 - **同样的 hierarchy，在不同系统目标下会选出不同折中**。
 
----
 
 ## Four Questions for Cache Designers
 
@@ -1762,7 +1580,6 @@ No-Write-Allocate vs Write-Allocate
 
 >如果后续确实还要继续访问这个 block；那么 write allocate 往往更合适。也就是说，write allocate 的效果本质上还是靠 locality 在支撑。
 
----
 
 ## Memory System Performance
 
@@ -1923,7 +1740,6 @@ $$
 
 - **哪怕 miss rate 只有 2%，只要 miss penalty 足够大，cache 仍然会深刻影响整体性能**
 
----
 ## Improve Cache Performance
 
 衡量 cache 优化，最核心的还是三件事：
@@ -1979,7 +1795,6 @@ L1 cache 几乎每次访存都会经过，所以 **L1 的 hit time 往往比它�
 - **小而快的 L1**
 - **大而慢的 L2 / L3**
 
----
 
 #### Way Prediction
 
@@ -2450,7 +2265,6 @@ cache 更大时，能留下更多 block，因此：
 - 索引和替换逻辑更复杂；
 - 查找路径也更难实现得非常规整。
 
----
 
 ### Pseudo-Associative Cache
 
@@ -2497,7 +2311,6 @@ cache 更大时，能留下更多 block，因此：
 - cache 行为并不完全由硬件决定；
 - **内存分配策略也能改变 cache 冲突模式**
 
----
 
 ### System-Level Cache
 
@@ -2523,7 +2336,6 @@ cache 更大时，能留下更多 block，因此：
 - 多主设备竞争更激烈；
 - QoS / priority / partitioning 都更关键。
 
----
 
 ## GPU Memory and Cache-Related Topics
 
@@ -2612,7 +2424,6 @@ GPU 的 **unified memory** 指的是：
 - **用更强的软件透明性**
 - 换取 **对访问模式更高的要求**
 
----
 
 ## How to Compare These Techniques
 
@@ -2640,7 +2451,6 @@ GPU 的 **unified memory** 指的是：
    - complexity
    - programmability
 
----
 
 ## A Compact Takeaway Table
 
@@ -2667,7 +2477,6 @@ GPU 的 **unified memory** 指的是：
 | GPU shared memory | programmer-managed fast reuse | tiled GPU kernels | small capacity, bank conflicts |
 | Unified memory | simplify CPU-GPU memory use | heterogeneous programming | migration overhead |
 
----
 
 ## Virtual Memory
 

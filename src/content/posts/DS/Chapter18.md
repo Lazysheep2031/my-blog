@@ -7,64 +7,6 @@ category: 笔记
 draft: false
 ---
 
-## 概述
-
-这一章的核心是：
-
-> 数据库允许多个事务并发执行，但并发执行的结果必须保持正确。**Concurrency Control** 要做的事情，就是设计事务访问数据的规则，使实际产生的调度满足隔离性，通常目标是 **conflict serializability**。
-
-第 17 章已经给出理论工具：
-
-- 事务、调度、冲突操作
-- serial schedule / serializable schedule
-- precedence graph
-- conflict serializability
-- isolation levels
-
-第 18 章回答实现层问题：
-
-> DBMS 具体用什么协议，让实际并发调度保持正确？
-
-本章主要内容：
-
-- **Lock-Based Protocols**：基于锁的并发控制，重点是 Two-Phase Locking
-- **Deadlock Handling**：死锁预防、检测、恢复
-- **Graph-Based Protocols**：基于数据项偏序的协议
-- **Multiple Granularity**：多粒度封锁
-- **Insert / Delete / Phantom**：插入、删除与幽灵现象
-- **Index Concurrency**：索引结构上的并发控制
-- **Multiversion Schemes**：多版本并发控制
-- **Timestamp-Based Protocols**：时间戳排序协议
-- **Validation-Based Protocols**：验证协议 / 乐观并发控制
-- **Snapshot Isolation**：快照隔离
-- **Weak Levels of Consistency**：实践中的弱一致性级别
-- **Transactions across User Interaction**：跨用户交互的事务处理
-
----
-
-## 目录
-
-- [概述](#概述)
-- [Lock-Based Protocols](#lock-based-protocols)
-- [Two-Phase Locking](#two-phase-locking)
-- [Two-Phase Locking 的证明](#two-phase-locking-的证明)
-- [2PL 的变种](#2pl-的变种)
-- [Lock Manager](#lock-manager)
-- [Deadlock Handling](#deadlock-handling)
-- [Graph-Based Protocols](#graph-based-protocols)
-- [Multiple Granularity](#multiple-granularity)
-- [Insert、Delete 与 Phantom](#insertdelete-与-phantom)
-- [Index Concurrency](#index-concurrency)
-- [Multiversion Schemes](#multiversion-schemes)
-- [Timestamp-Based Protocols](#timestamp-based-protocols)
-- [Validation-Based Protocols](#validation-based-protocols)
-- [Snapshot Isolation](#snapshot-isolation)
-- [Weak Levels of Consistency](#weak-levels-of-consistency)
-- [Transactions across User Interaction](#transactions-across-user-interaction)
-- [总结](#总结)
-
----
-
 ## Lock-Based Protocols
 
 ### Lock 的基本思想
@@ -170,7 +112,6 @@ lock-S(B);      // 需要等待 T3 释放 B
 
 并发控制管理器需要设计公平的等待队列和 victim 选择策略，避免 starvation。
 
----
 
 ## Two-Phase Locking
 
@@ -221,7 +162,6 @@ display(A+B);
 - `LP(Ti)` 之后，`Ti` 只能释放锁
 - 所有事务可以按照 lock point 的先后顺序串行化
 
----
 
 ## Two-Phase Locking 的证明
 
@@ -311,7 +251,6 @@ LP(Tj) < LP(Ti)
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260609134805.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
----
 
 ## 2PL 的变种
 
@@ -434,7 +373,6 @@ unlock(A);
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260609134919.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
----
 
 ## Lock Manager
 
@@ -514,7 +452,6 @@ transaction -> list of locks held by transaction
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260609134945.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
----
 
 ## Deadlock Handling
 
@@ -741,7 +678,6 @@ transaction -> list of locks held by transaction
 
 这样事务 commit / abort 时，可以快速释放它持有的全部锁。
 
----
 
 ## Graph-Based Protocols
 
@@ -795,7 +731,6 @@ Graph-based protocols 是 2PL 的替代方案。
 - 有些调度可以由 tree protocol 产生，但不能由 2PL 产生
 - 有些调度可以由 2PL 产生，但不能由 tree protocol 产生
 
----
 
 ## Multiple Granularity
 
@@ -925,7 +860,6 @@ database
 - 提高锁粒度
 - 降低并发度
 
----
 
 ## Insert、Delete 与 Phantom
 
@@ -1038,7 +972,6 @@ T2: insert a new account at Perryridge
 其中 `25` 是 next key。  
 如果另一个事务想插入 `18`，它会与这个范围锁冲突，从而避免 phantom。
 
----
 
 ## Index Concurrency
 
@@ -1087,7 +1020,6 @@ B+-tree 常用思想是 **crabbing**，也叫 **latch coupling**。
 - 通过额外链接处理释放和重新获得锁之间发生的结构变化
 
 
----
 
 ## Multiversion Schemes
 
@@ -1290,7 +1222,6 @@ Qk = W-timestamp <= TS(Ti) 的最新版本
 
 该协议保证 serializability。
 
----
 
 ## Timestamp-Based Protocols
 
@@ -1463,7 +1394,6 @@ Thomas' Write Rule 认为：
 - 提高并发度
 - 允许一些 view-serializable 但非 conflict-serializable 的调度
 
----
 
 ## Validation-Based Protocols
 
@@ -1594,7 +1524,6 @@ write(A)
 - 冲突概率高
 - 事务执行很久后才在 validation 阶段失败，回滚代价大
 
----
 
 ## Snapshot Isolation
 
@@ -1907,7 +1836,6 @@ for update;
 - 对范围 / 谓词查询仍需要 key-range locking 或 predicate locking
 
 > [插图占位｜slid
----
 
 ## Weak Levels of Consistency
 
@@ -1963,7 +1891,6 @@ SQL 允许非串行化执行。
 set isolation level serializable;
 ```
 
----
 
 ## Transactions across User Interaction
 
