@@ -107,9 +107,8 @@ int connect(int sockfd, const struct sockaddr *addr, socklen_t addrlen);
 假设程序需要获取源文件名和目标文件名，然后把源文件内容复制到目标文件。
 
 <details>
-<summary>展开解答：调用序列、返回状态与错误处理</summary>
+<summary>调用序列、返回状态与错误处理</summary>
 
-按课件的交互式例子，并结合教材正文补全：
 
 ```text
 输出提示，读取源文件名和目标文件名
@@ -351,7 +350,7 @@ fork()：建立子进程
 | **程序设计语言支持** | 编译器、汇编器、解释器、调试器 |
 | **程序装入与执行** | 绝对装入器、可重定位装入器、链接编辑器、覆盖装入器，以及相应调试支持 |
 | **通信** | 用户间发送消息、浏览网页、电子邮件、远程登录、跨机器传送文件 |
-| **应用程序** | 课件将其列入系统提供的软件环境；教材举出浏览器、文字处理、数据库等随系统提供的应用 |
+| **应用程序** | 系统提供的软件环境； |
 
 **文件管理** 侧重文件对象及目录组织；**文件修改** 侧重文件内部的内容。状态工具通常还会把取得的数据整理、格式化后显示出来；一些系统通过 **注册表（Registry）** 存储和检索配置。
 
@@ -460,3 +459,419 @@ XEventsQueued             U
 | **提供机制，把界面策略交给客户端** | 提供实现交互所需的基础能力，由客户端决定具体的用户界面政策 |
 
 这些原则共同强调：**基础系统保持清晰的职责和通用能力，具体选择尽量留在可以变化的位置。**
+
+## Operating System Structure
+
+### Simple Structure: MS-DOS
+
+MS-DOS 的设计目标是在很小的空间内提供尽可能多的功能。它没有清晰的模块划分，各层功能与接口之间也缺少良好分离。
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260920161655.png" alt="MS-DOS 的层次及跨层访问关系" style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+
+应用程序 ：使用系统和底层设备提供的功能
+常驻系统程序 ：提供系统运行所需的基本服务
+MS-DOS 设备驱动 ：与具体设备交互
+ROM BIOS 设备服务 ： 固件中的基本输入输出能力
+
+箭头允许跨过中间部分直接访问底层。因此，**没有实现严格的层间边界。**
+
+### Layered Approach
+
+**分层结构（Layered Approach）** 把系统划分成若干层。
+
+最低层 `layer 0` 是硬件，最高层 `layer N` 是用户接口；每层使用较低层提供的操作与服务。
+
+一层可以看成“**数据结构＋操作这些数据的函数**”。它对上提供接口，并隐藏内部实现。
+
+```text
+用户接口                         第 N 层
+    ↓ 使用下层提供的服务
+……
+    ↓
+较底层的服务与设备访问
+    ↓
+硬件                             第 0 层
+```
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260921142603.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+便于分工开发 ：先约定接口，不同层的实现可相对独立推进
+便于理解与维护 ：使用下层服务时，不必了解全部实现细节
+便于调试与验证 ：可以从最底层开始，逐层检查
+
+分层代价：
+首先，**层次不一定容易划分**：内存、进程、文件等功能可能互相依赖。
+其次，一个请求经过多个中间层，会增加接口处理、数据传递等开销。
+
+### Monolithic Structure: Traditional UNIX
+
+**单体内核（Monolithic Kernel，也称宏内核）** 将大量内核功能放在同一内核地址空间中实现。
+传统 UNIX 分为两大部分：**系统程序与内核**。
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260920162438.png" alt="传统 UNIX 的系统调用接口、内核与硬件" style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+图中**系统调用接口以下、物理硬件以上**的区域属于内核，包含文件系统、CPU 调度、内存管理、终端处理和设备驱动等功能。
+
+| 特点 | 影响 |
+| --- | --- |
+| 多种服务在同一内核空间运行 | 内部函数间交互直接，通信开销较低 |
+| 功能联系紧密 | 修改某一部分可能影响其他部分 |
+| 大量代码具有内核权限 | 错误的影响范围可能较大 |
+
+Linux 既具有单体内核的特点，也支持可加载模块。
+
+### Microkernel System Structure
+
+**微内核（Microkernel）** 尽量缩小内核中的功能集合，将其他服务放入用户空间，并通过消息传递协作。
+
+| 留在内核的核心机制 | 可以移到用户空间的服务 |
+| --- | --- |
+| 基本调度、内存管理、通信等 | 文件服务、部分设备服务等，具体划分依系统设计而定 |
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260921142927.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+#### Example
+
+**Application Reading a File**
+
+<details>
+<summary>微内核中的文件请求怎样完成？</summary>
+
+```text
+用户态应用提出文件请求
+          ↓ 消息
+微内核提供通信机制
+          ↓
+用户态文件服务处理请求
+          ↓ 消息回复
+应用取得结果
+```
+
+与多个服务都处于同一内核空间的组织相比，这里需要协调不同服务进程。
+**一次完整的文件服务，可能包含多次跨边界交互。** 但具体消息数和切换次数依实现而定。
+</details>
+
+### Modules
+
+**可加载内核模块（Loadable Kernel Module）** 将内核的一部分功能组织成独立组件，按需要在启动时或运行期间加载。各组件通过已定义的接口协作。
+
+这具有面向对象思想：核心组件各自封装功能，通过接口联系。
+
+| 与其他结构比较 | 区别 |
+| --- | --- |
+| 与严格分层比较 | 模块之间可按接口直接调用，依赖关系更灵活 |
+| 与典型微内核比较 | 内核模块仍在内核空间工作，模块间可直接调用，不必统一通过跨进程消息传递 |
+| 与固定编入全部功能比较 | 可以把不常用、当前不需要的功能留在磁盘，需要时再加载 |
+
+#### Example
+
+**On-Demand Loading of Device Drivers and Game Resources**
+
+<details>
+<summary>为什么无需把所有功能都在开机时装入内存？</summary>
+
+机器当前没有使用这些设备时，对应功能可以不必一开始就全部驻留。需要支持相应设备时，再通过模块机制提供功能。
+
+**磁盘中保存的全部内容，不要求同时驻留内存。**
+
+</details>
+
+#### Solaris Modular Approach
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260920163432.png" alt="Solaris 核心内核与不同类型的可加载模块" style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+图中核心 Solaris 内核周围包含：**调度类、文件系统、可加载系统调用、可执行文件格式、STREAMS 模块、其他模块，以及设备与总线驱动**。
+
+
+### Mac OS X Structure
+
+**混合结构（Hybrid Structure）** 结合不同组织方式，在性能、功能、可维护性和隔离之间进行取舍。
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260920163457.png" alt="Mac OS X 的 Mach、BSD 与上层应用环境" style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+上部是应用环境与公共服务，下部的内核环境结合 **Mach 与 BSD**。
+Mach 提供调度、内存和通信等基础能力，BSD 提供相应 UNIX/POSIX 功能；为了减少跨地址空间的开销，相关内核组成部分被结合到同一地址空间中。
+
+### Comparison of Operating-System Structures
+
+| 结构 | 核心组织方式 | 主要收益 | 主要限制 |
+| --- | --- | --- | --- |
+| 简单结构 | 功能边界与接口分离较弱 | 在有限条件下实现功能 | 耦合强，维护和保护困难 |
+| 分层结构 | 按较低层到较高层组织依赖 | 便于分工、理解、逐层验证 | 层次难划分，逐层交互有开销 |
+| 单体内核 | 多种服务在同一内核空间实现 | 内部交互直接、效率较高 | 功能联系紧密，错误影响可能较广 |
+| 微内核 | 核心保留基本机制，其他服务移至用户空间 | 有利于隔离、扩展、移植 | 服务间通信与切换有开销 |
+| 可加载模块 | 核心加按需加载的组件 | 灵活扩展并减少不必要的驻留 | 内核模块仍具有较高权限 |
+| 混合结构 | 结合不同组织方式 | 根据目标综合取舍 | 实际结构复杂，需具体分析 |
+
+**这些分类并非全部互斥。** 例如，单体内核可以具有模块化设计；一个系统也可以局部采用分层，在其他部分使用不同组织方式。
+
+## Virtual Machines
+
+### Virtual Machine Abstraction
+
+**虚拟机（Virtual Machine，VM）** 把一台物理计算机的硬件能力抽象成多个执行环境。每个环境可运行自己的操作系统，使其中的程序看到独立的处理器、内存和设备视图。
+
+**虚拟机监控器（Virtual Machine Monitor，VMM，也称 Hypervisor）** 负责建立、运行和管理这些虚拟机，并协调它们对真实资源的使用。
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260920163954.png" alt="非虚拟机系统与多个虚拟机的结构对比" style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+左图是一套内核管理多个进程；右图在物理硬件之上加入虚拟化实现，每个虚拟机拥有自己的内核和进程。
+
+**分时系统为进程提供执行机会，系统虚拟机进一步提供可供客户操作系统使用的机器环境。**
+
+### How the Illusion of a Dedicated Machine Is Created
+
+虚拟化的基本思想：
+
+| 物理资源 | 向上提供的表象或功能 |
+| --- | --- |
+| CPU | 通过调度，使不同环境获得自己的执行机会 |
+| 内存 | 向各环境提供其可使用的内存视图 |
+| 文件系统与假脱机 | 提供虚拟读卡机、虚拟行式打印机 |
+| 分时终端 | 作为虚拟机操作者的控制台 |
+
+这些虚拟资源最终仍需映射到物理资源。**逻辑上独立，物理硬件数量不增加。**
+
+### VMware Architecture
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260920164240.png" alt="宿主操作系统、虚拟化层与多个客户操作系统" style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+上面运行虚拟化层，再运行 FreeBSD、Windows NT、Windows XP 等客户系统。每个客户系统有自己的虚拟 CPU、虚拟内存和虚拟设备；宿主系统也可以直接运行本地应用。
+
+| 名称 | 含义 |
+| --- | --- |
+| **宿主操作系统（Host OS）** | 运行虚拟化软件并管理底层资源的系统 |
+| **客户操作系统（Guest OS）** | 虚拟机内部运行的系统 |
+| 虚拟化层 | 为客户系统提供虚拟硬件环境并协调资源 |
+
+### Example
+
+用户看到的是分配给虚拟环境的资源配置，背后可能与其他虚拟机共享同一物理服务器。
+
+<details>
+<summary>为什么 10 台物理机器可能承载更多份逻辑资源需求？</summary>
+
+有 10 台物理机器，但提供给用户的虚拟资源需求合计达到约 20 台机器的计算能力。
+
+前提是：**不同用户不会一直同时满载**。当实际需求错峰出现时，系统能让同一份硬件服务更多用户；当需求同时升高时，就可能发生资源竞争，实际性能受到影响。
+
+</details>
+
+### Isolation, Development, Testing, and Sharing
+
+| 用途或特征 | 价值 |
+| --- | --- |
+| **隔离** | 将不同客户系统的执行环境分开，减少直接干扰 |
+| **系统开发与测试** | 在虚拟环境中修改、运行和测试系统，尽量避免破坏主力环境 |
+| **多系统共存** | 在同一物理机器上使用不同系统进行开发或兼容性测试 |
+| **资源整合** | 把多台低负载系统的工作合并到较少的物理机器上 |
+
+虚拟化系统还可以提供暂停、快照、克隆等功能，使测试前保存状态、失败后恢复更加方便。
+
+<details>
+<summary>虚拟机相互隔离，是否就完全无法通信或共享文件？</summary>
+
+可以通过**受控的共享文件系统或虚拟网络**提供共享和通信。
+
+</details>
+
+### Why Virtual Machines Are Difficult to Implement
+
+客户系统既要看到类似真实硬件的接口，又不能不受限制地控制整台物理机器。
+**虚拟用户态与虚拟内核态**也要得到正确处理。
+
+<details>
+<summary>客户内核想执行特权操作时怎么办？</summary>
+
+在一种传统双模式模型中，客户系统的“虚拟内核态”仍不能等同于物理机器的最高管理权限。客户内核执行受保护操作时，可以由 VMM 获得控制，再代表客户执行或模拟相应效果。
+
+这样，客户系统保留“自己有内核”的视图，真实资源仍由虚拟化层管理。
+
+若客户程序使用与宿主不同的 CPU 指令集，还涉及指令集模拟。
+
+</details>
+
+### VM vs Docker
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260921144040.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+**容器（Container）** 为应用及其依赖提供相对独立的运行环境。
+**系统虚拟机通常各有客户内核；图中的多个容器共享运行它们的宿主内核。**
+
+| 比较项 | 系统虚拟机 | 图中的容器模型 |
+| --- | --- | --- |
+| 提供的环境 | 虚拟硬件及其上的操作系统 | 应用、库、配置等运行环境 |
+| 内核 | 每个客户系统有自己的内核 | 多个容器共享同一个宿主内核 |
+| 不同系统的支持 | 可以承载不同客户系统，需满足虚拟化或模拟条件 | 应用仍受共享内核及接口兼容性的约束 |
+| 资源开销 | 还要维护客户系统本身 | 通常更轻量，无需每个容器各运行一套客户内核 |
+| 隔离边界 | 以虚拟机器环境为边界 | 以操作系统提供的容器隔离机制为基础 |
+| 典型用途 | 运行不同系统、系统开发与测试 | 分离应用环境、管理依赖与部署 |
+
+
+#### Example:
+
+**Dependency Conflicts Between Two Model Projects**
+
+<details>
+<summary>人脸识别项目与卫星图像项目需要不同版本的依赖，怎么办？</summary>
+
+项目 A 使用 PyTorch 2.1 一类的新依赖，项目 B 依赖 1.x 一类的旧版本。如果整个机器只维护一套全局环境，修改版本来满足 B，就可能破坏 A。
+
+可分别组织环境：
+
+```text
+项目 A → 环境 A → A 所需的软件、库、配置
+项目 B → 环境 B → B 所需的软件、库、配置
+```
+
+重点在于**把应用的依赖集合分开管理**。容器可以保存更完整的应用运行环境；
+
+</details>
+
+<details>
+<summary>在 Mac 上使用 Docker，容器里就是另一套 macOS 吗？</summary>
+
+Docker Desktop 的官方文档说明，它通过 Linux 虚拟机运行 Linux 容器；在 Mac 上使用这种方式时，可以概括为：
+
+```text
+macOS → Linux 虚拟机 → Docker Engine → 多个 Linux 容器
+```
+
+容器共享的是这台 Linux 虚拟机的内核。**虚拟机和容器可以组合使用**，所以“容器共享内核”与“Docker Desktop 内部使用虚拟机”并不矛盾。
+
+</details>
+
+### The Java Virtual Machine
+
+**Java 虚拟机（Java Virtual Machine，JVM）** 提供的是程序语言的执行环境。它接受 Java 字节码，并由对应平台上的实现完成执行。
+
+```text
+Java 源程序
+     ↓ javac 编译
+字节码 .class 文件
+     ↓ 类加载与执行
+对应平台上的 JVM
+     ↓
+宿主操作系统与硬件
+```
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260920164751.png" alt="Java 字节码、类加载器、解释器与宿主系统" style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+图中，**类加载器（Class Loader）** 装入程序和 Java API 的 `.class` 文件，再交给执行部分处理，没有直接产生特定 CPU 的本地机器码。不同平台具有对应的 JVM 实现，字节码与统一接口使程序不必直接处理全部平台差异。
+
+
+<details>
+<summary>JVM 只会逐条解释执行吗？</summary>
+
+**即时编译（Just-in-Time Compilation，JIT）**：把相应字节码编译为宿主机器的本地指令，再使用编译后的代码执行。
+
+字节码验证：检查装入的字节码是否满足相应要求
+
+垃圾回收：回收不再使用的对象所占空间。
+
+因此，“Java 编译为字节码”与“运行时还可以编译成本地代码”属于不同阶段，可以同时成立。跨平台也需要相应 JVM 与依赖支持，不是完全不受版本和外部库约束。
+
+</details>
+
+### Distinguishing Different Virtual Environments
+
+| 对象 | 主要提供什么？ | 是否各有独立客户内核？ |
+| --- | --- | --- |
+| 系统虚拟机 | 虚拟硬件上的操作系统环境 | 通常有 |
+| 容器 | 共享宿主内核上的应用环境 | 通常没有 |
+| JVM | Java 字节码与语言运行时环境 | 没有 |
+| Python 虚拟环境 | 独立的 Python 包及相关环境配置 | 没有 |
+
+## Operating System Generation
+
+### Configuring the System for Specific Hardware
+
+**系统生成（System Generation，SYSGEN）** 关注怎样使一套操作系统适合具体机器。操作系统可能面向一类机器设计，但实际机器的设备与配置各不相同，需要取得相应硬件信息并选择功能。
+
+```text
+取得或编写操作系统代码
+          ↓
+根据目标硬件与需求进行配置
+          ↓
+生成相应系统：编译或选择、链接模块等
+          ↓
+安装到可供启动的存储环境
+          ↓
+启动系统
+```
+
+`SYSGEN` 表示配置与生成系统的概念；
+
+### Three Operating-System Generation Approaches
+
+| 方式 | 何时选择所需功能？ | 取舍 |
+| --- | --- | --- |
+| 按配置重新编译 | 编译时 | 定制程度高，但生成工作较多 |
+| 选择已有目标模块再链接 | 链接时 | 不必全部重新编译，但灵活性受模块划分影响 |
+| 模块化系统按参数选择功能 | 运行时 | 便于适应配置变化，需要相应动态机制 |
+
+系统生成决定**系统包含什么、怎样适应机器**；系统启动决定**机器如何找到并开始执行它**。
+
+## System Boot
+
+### Where the Initial Boot Code Comes From
+
+计算机刚上电时，操作系统还没有运行，因此不能依赖已经存在的操作系统服务来装入自己。
+
+**引导程序（Bootstrap Program／Boot Loader）** 负责找到内核、把它装入内存，并开始执行。
+
+上电后执行从硬件规定的位置开始，初始启动代码保存在**固件（Firmware）** 中。
+
+```text
+上电或复位
+    ↓
+从规定入口执行固件中的初始代码
+    ↓
+初始化必要状态，找到后续引导代码
+    ↓
+找到内核映像，装入内存
+    ↓
+开始执行内核
+    ↓
+内核继续初始化、建立文件系统与服务环境
+```
+
+### Multistage Boot Process
+
+一种分阶段方式：位于固定存储位置的**引导块（Boot Block）** 先装入更完整的引导程序，再由它装入内核。
+> 初始代码空间有限，因此可以逐步装入功能更完整的后续代码。
+
+| 对象 | 主要职责 |
+| --- | --- |
+| 固件中的初始代码 | 在操作系统运行前开始执行，准备并定位后续启动阶段 |
+| 引导块中的代码 | 在相应启动方案中，衔接到后续引导程序 |
+| 引导程序 | 定位、装入并启动内核 |
+| **内核映像（Kernel Image）** | 内核本身的可装入表示 |
+| 已运行的内核 | 完成后续初始化并建立系统服务 |
+
+<details>
+<summary>引导扇区、MBR 与内核映像</summary>
+
+**引导扇区／引导块中的代码负责启动衔接；内核映像保存内核代码。** 
+
+</details>
+
+## AI Era
+
+### Two Control Planes in the AI Era
+
+```text
+传统系统：应用 → API／系统调用 → 内核 → 硬件
+
+智能体系统：用户意图
+              ↓
+           LLM／智能体：理解目标并规划行动
+              ↓
+           应用、工具、API
+              ↓
+           内核：管理资源并执行受保护操作
+              ↓
+           硬件
+```
+

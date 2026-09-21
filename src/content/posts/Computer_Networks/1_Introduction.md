@@ -708,6 +708,10 @@ OSI 模型本身没有规定各层必须采用的具体服务和协议，因此�
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260914163513.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
+> 关注最小单位：Physical layer 是 bit， Data link layer 是 frame，Network layer 是 packet，Transport layer 是 segment。
+
+> 端到端传输的最底层是transport layer
+
 图中有源主机、中间路由器和目的主机。两台主机可能相隔很远，数据需经过多个中间节点。
 
 ```text
@@ -720,8 +724,365 @@ OSI 模型本身没有规定各层必须采用的具体服务和协议，因此�
 
 访问百度：本机先到默认网关，再经学校出口、运营商网络等节点，逐跳到达目的地。
 
-### Physical Layer Functions
 
-**物理层（Physical Layer）** 负责在通信信道上传输原始比特，涉及实际的机械、电气、时序接口和传输介质。
 
----
+### Physical Layer
+
+**物理层（Physical Layer）** 负责在通信信道上传输原始比特，是上层网络功能的基础。它需要约定：用什么信号表示 0 和 1、每个比特持续多长时间、通信能否同时双向进行，以及连接器和线路如何连接等。
+
+物理层中的基本数据单位是 **bit**。
+
+Physical media 分为三类：
+1. Guided media：有线传输介质，例如双绞线、同轴电缆、光纤。
+2. Unguided media：无线传输介质，例如电磁波、红外线。
+3. Satellite：卫星通信，通常使用微波频段。
+
+### Data Link Layer
+
+**数据链路层（Data Link Layer）** 负责在相邻节点之间可靠传输帧，处理物理层可能出现的误码、丢帧等问题。
+
+基本数据单位是 **帧（Frame）**。
+
+**三大功能**
+
+**分帧(Framing)** ：发送方把数据组织成一帧一帧，再依次发送
+**差错控制(Error Control)** ：检测错误，并按协议采用重传或纠错等处理方式
+（Important）**流量控制(Flow Control)** ：协调发送速度，避免接收方被数据淹没
+
+:::EXAMPLE
+**为什么较易出错的无线链路需要考虑纠错？**
+
+一帧因噪声或干扰受损，要求重传后，新的一次传输仍可能受损。若编码能在一定差错范围内恢复原信息，就可以减少依赖重传的次数。
+:::
+
+#### Medium Access Control
+
+广播网络还多出一个问题：**多台设备共享同一个信道，谁可以在什么时候发送？**
+
+这由数据链路层中的**介质访问控制子层（Medium Access Control，MAC）** 处理。
+> 它关注共享信道的访问与冲突问题；前面的分帧、差错控制与流量控制关注怎样完成链路上的数据传送。
+
+:::EXAMPLE
+**教室内多台设备通过无线接入点上网。**
+
+大家都要使用无线通信资源，多个发送活动可能相互干扰，因此需要访问规则。
+:::
+
+典型链路层协议有 **Ethernet、Wi-Fi、PPP**
+
+
+### Network Layer
+
+**网络层（Network Layer）** 负责让分组从源端到达目的端。它要把多条链路连接成完整路径，并处理不同网络之间的互联问题。
+
+基本数据单位是 **分组（Packet）**。
+
+**路由选择** 是核心：网络分布在许多设备上，各节点需要协作，让分组沿适当的路径前进。
+
+两类路由算法：**链路状态（Link-state）** 与 **距离向量（Distance-vector）**。
+
+路由协议 : **IPv4、IPv6、ICMP**，以及 **RIP、OSPF、BGP** 等。
+
+网络层还需要面对**拥塞控制、服务质量（QoS）与异构网络互联**：即使找到一条可达路径，也要考虑这条路径能否承载流量，以及不同网络的地址、分组大小等条件是否兼容。
+
+###  Transportation Layer
+
+**传输层（Transport Layer，亦称运输层）是本章分层模型中最低的端到端层。** 源主机与目的主机中的对等实体通过协议进行通信，下方的网络层负责让分组经过沿途节点。
+
+根据具体协议，传输层接收上层数据，进行必要的分段，把数据交给网络层，并在接收端完成相应处理。
+
+传输层的数据单位是 **segment（报文段）**。
+
+Connection-oriented transport protocols（面向连接的运输协议）如 TCP 提供可靠的字节流服务
+ 
+Connectionless transport protocols（无连接的运输协议）如 UDP 提供不可靠的数据报服务.
+
+### Session Layer and Presentation Layer
+
+**会话层（Session Layer）** 为不同机器上的用户建立会话，并提供以下服务：
+
+| 服务 | 含义 |
+| --- | --- |
+| 对话控制 | 记录当前轮到哪一方发送 |
+| 令牌管理 | 避免双方同时执行某个关键操作 |
+| 同步 | 为长时间传输设置检查点，故障恢复后从相应位置继续 |
+
+**表征层（Presentation Layer，亦称表示层）** 关注所传信息的**语法与语义**。不同计算机内部的数据表示可能不同，通信时需要约定抽象的数据结构及传输编码，使双方能够一致地解释信息。
+
+**会话层协调一次交互如何进行，表征层处理信息如何表示和解释。** 
+
+### Application Layer
+
+**应用层（Application Layer）** 包含用户应用所需的网络协议。浏览器、电子邮件、文件传输等业务利用下层的通信能力，按照各自的应用协议交换信息。
+
+| 协议 | 本章给出的用途 |
+| --- | --- |
+| HTTP | 获取网页，支撑万维网 |
+| SMTP | 电子邮件传送 |
+| FTP | 文件传输 |
+| DNS | 将主机名映射到网络地址 |
+| TELNET | 虚拟终端／远程终端 |
+| RTP | 传送语音、视频等实时媒体 |
+
+### The TCP/IP Reference Model
+
+模型自下而上分为四层：
+
+**链路层 → 互联网层 → 传输层 → 应用层。**
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260921102036.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+#### The Link Layer
+
+**链路层（Link Layer）** 规定主机如何利用底层传输链路，满足上方互联网层的需要。
+> **主机与传输链路之间的接口**
+
+#### The Internet Layer
+
+**互联网层（Internet Layer）** 大致对应 OSI 的网络层。它定义 IP 分组的格式及处理规则，使分组能够穿过不同网络到达目的地；各分组可以独立传递，接收顺序也可能与发送顺序不同。
+
+两个关键协议是：**IP** 负责分组传递，**ICMP** 为 IP 提供配套的控制功能。路由与拥塞是这一层的重要问题。
+
+#### The Transport Layer
+
+TCP/IP 的传输层让源主机与目的主机的对等实体通信。
+
+**TCP 在 IP 提供的传递能力之上，形成可靠、面向连接的字节流服务。** 发送端把字节流分成报文段，交给互联网层；接收端的 TCP 再把收到的内容组织为输出字节流。
+
+```text
+发送端应用字节流 → TCP 分段 → IP 分组传递
+                                  ↓
+接收端应用字节流 ← TCP 重组 ← 接收端 IP
+```
+
+**下层无连接，上层仍可以面向连接。** IP 的服务形式与 TCP 的服务形式并不冲突。每一层可以通过自己的协议，为上层提供不同于下层的服务。
+
+UDP 则为不需要 TCP 这套服务保证、或希望自行处理相关问题的应用提供无连接传递。
+
+#### The Application Layer
+
+应用可以包含自己需要的会话与表示功能
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260921151333.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+### The Model Used in This Book
+
+**五层混合模型**，保留物理层与数据链路层的区分，同时把上层应用相关功能集中到应用层：
+
+**物理层 → 数据链路层 → 网络层 → 传输层 → 应用层。**
+
+| 层次 | 英文名称 | 主要问题 |
+| --- | --- | --- |
+| 5 | Application | 应用按照什么规则交换信息？ |
+| 4 | Transport | 端到端提供什么传输服务？ |
+| 3 | Network | 分组怎样穿过网络到达目的地？ |
+| 2 | Link | 直接相连的节点怎样传送帧、处理差错与共享信道？ |
+| 1 | Physical | 比特怎样变成信号并通过介质传输？ |
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260921151359.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+### The OSI vs. TCP/IP
+
+**OSI 七层，TCP/IP 四层，教材五层。**
+
+| 比较项 | OSI | TCP/IP |
+| --- | --- | --- |
+| 模型与对应协议的先后 | 先提出参考模型，再设计相应协议 | 先有协议，再用模型描述已有协议 |
+| 层数 | 7 层 | 4 层 |
+| 会话层、表征层 | 单独列出 | 不单独列出；应用包含所需功能 |
+| 物理层、数据链路层 | 分别列出 | 底层由 Link 部分概括，没有单独列出的 Physical 层 |
+| 第三层对应名称 | Network | Internet |
+
+| 所在层 | OSI | TCP/IP |
+| --- | --- | --- |
+| 网络层／互联网层 | 支持无连接与面向连接两种通信 | 提供无连接通信 |
+| 传输层 | 面向连接通信 | TCP 面向连接，UDP 无连接 |
+
+<details>
+<summary>为什么 TCP 仍然可以面向连接？</summary>
+
+TCP 属于传输层。它使用下层 IP 的分组传递能力，再通过自身协议向应用提供面向连接、可靠的服务，因此“IP 无连接”与“TCP 面向连接”能够同时成立。
+
+</details>
+
+## Standardization
+
+
+| 编号 | 主题 |
+| --- | --- |
+| 802.1 | 局域网的概述与体系结构 |
+| 802.2 | 逻辑链路控制 |
+| 802.3 | 以太网 |
+| 802.11 | 无线局域网／Wi-Fi |
+| 802.15 | 个人区域网，表中以 Bluetooth、Zigbee 为例 |
+| 802.16 | 宽带无线，表中以 WiMAX 为例 |
+
+<details>
+<summary>ISO、OSI、IEEE 802.11、WiFi Alliance 分别属于什么？</summary>
+
+**ISO** 是标准化组织；**OSI** 是参考模型；**IEEE 802.11** 是无线局域网标准；**WiFi Alliance** 承担产品互操作相关的角色。
+
+</details>
+
+## Metric Units
+
+### Bits, Bytes, and Prefixes
+
+$$
+1\ \text{byte}=8\ \text{bit}
+$$
+
+| 常用量 | 换算 |
+| --- | --- |
+| 1 kbps | $10^3\ \text{bit/s}$ |
+| 1 Mbps | $10^6\ \text{bit/s}$ |
+| 1 Gbps | $10^9\ \text{bit/s}$ |
+| 1 Tbps | $10^{12}\ \text{bit/s}$ |
+| 1 ms | $10^{-3}\ \text{s}$ |
+| 1 μs | $10^{-6}\ \text{s}$ |
+| 1 ns | $10^{-9}\ \text{s}$ |
+| 1 ps | $10^{-12}\ \text{s}$ |
+
+**小写 b 表示 bit，大写 B 表示 byte。** 速率单位带 `/s`，表示单位时间内传送的数据量；时间单位不带 `/s`。
+
+<details>
+<summary>完整前缀表</summary>
+
+| 小量级前缀 | 数量级 | 大量级前缀 | 数量级 |
+| --- | --- | --- | --- |
+| milli | $10^{-3}$ | kilo | $10^3$ |
+| micro | $10^{-6}$ | mega | $10^6$ |
+| nano | $10^{-9}$ | giga | $10^9$ |
+| pico | $10^{-12}$ | tera | $10^{12}$ |
+| femto | $10^{-15}$ | peta | $10^{15}$ |
+| atto | $10^{-18}$ | exa | $10^{18}$ |
+| zepto | $10^{-21}$ | zetta | $10^{21}$ |
+| yocto | $10^{-24}$ | yotta | $10^{24}$ |
+
+</details>
+
+### The Textbook's Unit Convention
+
+$$
+1\ \mathrm{KB}=2^{10}\ \mathrm{byte},\qquad
+1\ \mathrm{MB}=2^{20}\ \mathrm{byte}
+$$
+
+$$
+1\ \mathrm{GB}=2^{30}\ \mathrm{byte},\qquad
+1\ \mathrm{TB}=2^{40}\ \mathrm{byte}
+$$
+
+通信速率的 kbps、Mbps、Gbps、Tbps 采用 $10^3$、$10^6$、$10^9$、$10^{12}$ bit/s。
+
+## Quantitative Metrics of the Performance of Packet-Switching Networks
+
+**时延（Delay）、丢包（Loss）、吞吐量（Throughput）**。
+
+**时延回答“要等多久”，丢包回答“有没有未能继续传送的数据”，吞吐量回答“单位时间实际传了多少数据”。**
+
+### Four Types of Delay
+
+| 时延 | 发生在什么阶段 | 主要取决于什么 |
+| --- | --- | --- |
+| 处理时延（Processing delay） | 检查首部、确定输出方向，完成必要检查 | 节点处理工作与处理能力 |
+| 排队时延（Queuing delay） | 等待前面到达的分组获得发送机会 | 之前积压的分组、流量负载与调度情况 |
+| 发送时延（Transmission delay） | 把整个分组逐步送上输出链路 | 分组长度 $L$ 与链路速率 $R$ |
+| 传播时延（Propagation delay） | 信号沿链路从一端传播到另一端 | 链路距离 $d$ 与传播速度 $v$ |
+
+在“节点处理 → 排队 → 输出链路发送 → 沿链路传播”的记账方式下，可把一次节点及后续链路的时延写为：
+
+$$
+d_{\text{nodal}}
+=d_{\text{proc}}+d_{\text{queue}}+d_{\text{trans}}+d_{\text{prop}}
+$$
+
+这里后两个量为：
+
+$$
+\boxed{d_{\text{trans}}=\frac{L}{R}}
+\qquad
+\boxed{d_{\text{prop}}=\frac{d}{v}}
+$$
+
+$L$ 用 bit，$R$ 用 bit/s；$d$ 用 m，$v$ 用 m/s。
+
+#### Processing Delay
+
+**处理时延**包括检查分组首部中的有关字段，以及决定从哪个输出接口继续发送。
+
+#### Queuing Delay
+
+**排队时延**是等待其他分组先被处理或发送的时间。它受当时的队列情况影响，不能只根据链路距离计算。
+
+#### Transmission Delay
+
+**发送时延是把整个分组送上链路所需的时间。**
+
+若分组长 $L$ bit，链路每秒能接收 $R$ bit，发送完成就需要 $L/R$ 秒。开始发送时，后面的比特还没有进入链路；发送完成时，最后一个比特刚刚进入链路。
+
+因此，**分组越长，发送时延越大；链路速率越高，发送时延越小。** 这一项与链路的地理长度没有直接关系。
+
+#### Propagation Delay
+
+**传播时延是信号从链路一端到另一端所需的时间。**
+
+#### Transmission vs. Propagation
+
+| 改变的条件 | 发送时延 $L/R$ | 传播时延 $d/v$ |
+| --- | --- | --- |
+| 只把分组长度变为原来两倍 | 变为两倍 | 不变 |
+| 只把链路比特率变为原来两倍 | 变为一半 | 不变 |
+| 只把链路距离变为原来两倍 | 不变 | 变为两倍 |
+| 只改变信号在介质中的传播速度 | 不变 | 随 $v$ 改变 |
+
+<details>
+<summary>定义推导：第一个比特与最后一个比特什么时候到达？</summary>
+
+只考虑一条链路，忽略处理、排队和额外开销；以**第一个比特开始进入链路**的时刻为 $t=0$。
+
+| 事件 | 时刻 |
+| --- | --- |
+| 第一个比特开始发送 | $0$ |
+| 整个分组发送完毕 | $L/R$ |
+| 第一个比特到达接收端 | $d/v$ |
+| 最后一个比特到达接收端，分组收齐 | $L/R+d/v$ |
+
+
+</details>
+
+### End-to-End Delay
+
+在**单个分组、逐跳存储转发、各段分组长度不变**的简化模型中，端到端时延可写为：
+
+$$
+d_{\text{end-to-end}}
+=\sum_{\text{各处理节点}}d_{\text{proc},i}
++\sum_{\text{各排队位置}}d_{\text{queue},i}
++\sum_{\text{各链路}}\left(\frac{L}{R_i}+\frac{d_i}{v_i}\right)
+$$
+
+```text
+主机 A → 路由器 R1 → 路由器 R2 → 主机 B
+          三条链路、两个中间路由器
+```
+
+### Packet Loss
+
+**链路前的队列容量有限。** 当新分组到达时，如果相关缓冲区已经满了，就没有空间继续存放它，可能发生丢包。
+
+两种丢弃情形：**检查发现数据受损**，以及**缓冲区已满**。前者与差错有关，后者与队列容量及负载有关。
+
+```text
+到达负载较大 → 队列积压 → 缓冲区用满 → 新到达的分组被丢弃
+```
+
+### Throughput and the Bottleneck Link
+
+**吞吐量**描述单位时间内实际传送的数据量，常用 bit/s。它受路径上的**瓶颈链路（Bottleneck link）**限制。
+
+若一条固定路径依次经过速率为 $R_1,R_2,\ldots,R_n$ 的链路，在没有其他流量竞争、节点处理不构成更低限制的简化模型中：
+
+$$
+\boxed{\text{吞吐量的链路速率上限}=\min_i R_i}
+$$
