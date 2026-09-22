@@ -180,11 +180,17 @@ $$
 y''+y=0,
 $$
 
+<details>
+<summary>展开解答</summary>
+
 已知 $\cos x$ 和 $\sin x$ 是线性无关解，所以通解为
 
 $$
 \boxed{y=c_1\cos x+c_2\sin x.}
 $$
+
+</details>
+
 
 ## Linear Equations of Higher Order
 
@@ -284,6 +290,9 @@ $$
 y''-5y'+6y=0
 $$
 
+<details>
+<summary>展开解答</summary>
+
 的特征方程为
 
 $$
@@ -295,6 +304,9 @@ $$
 $$
 \boxed{y=c_1e^{2x}+c_2e^{3x}.}
 $$
+
+</details>
+
 
 ### Repeated Real Roots
 
@@ -316,6 +328,9 @@ $$
 y''+2y'+y=0
 $$
 
+<details>
+<summary>展开解答</summary>
+
 的特征方程是
 
 $$
@@ -327,6 +342,9 @@ $$
 $$
 \boxed{y=(c_1+c_2x)e^{-x}.}
 $$
+
+</details>
+
 
 > [!TIP]
 > 重根并不是“重复写同一个 $e^{rx}$”，而是会产生
@@ -362,6 +380,9 @@ $$
 y''-4y'+5y=0
 $$
 
+<details>
+<summary>展开解答</summary>
+
 的特征方程是
 
 $$
@@ -379,6 +400,9 @@ $$
 $$
 \boxed{y=e^{2x}(c_1\cos x+c_2\sin x).}
 $$
+
+</details>
+
 
 ### Repeated Complex Roots
 
@@ -663,6 +687,9 @@ $$
 y^{(3)}+y''=3e^x+4x^2.
 $$
 
+<details>
+<summary>展开解答</summary>
+
 先解对应齐次方程：
 
 $$
@@ -691,6 +718,9 @@ $$
 
 > **只对发生重合的那一块乘 $x^s$，并且 $s$ 由相应特征根的重数决定。**
 
+</details>
+
+
 **Example：**
 
 一个非常典型的“只需写 trial form”的例子是
@@ -698,6 +728,9 @@ $$
 $$
 y^{(3)}+9y'=x\sin x+x^2e^{2x}.
 $$
+
+<details>
+<summary>展开解答</summary>
 
 其 characteristic equation 为
 
@@ -731,6 +764,9 @@ y_p(x)=A\cos x+B\sin x+Cx\cos x+Dx\sin x+Ee^{2x}+Fxe^{2x}+Gx^2e^{2x}.
 $$
 
 这里最重要的是把 **closure under differentiation** 的整组项一次写完整。
+
+</details>
+
 
 ### Variation of Parameters
 
@@ -826,6 +862,9 @@ $$
 y''+y=\tan x
 $$
 
+<details>
+<summary>展开解答</summary>
+
 先解 homogeneous equation：
 
 $$
@@ -873,11 +912,17 @@ $$
 
 > **先求 $y_c$，再选合适的方法求 $y_p$。**
 
+</details>
+
+
 **Example 2**
 
 $$
 y''-2y'+y=2xe^x.
 $$
+
+<details>
+<summary>展开解答</summary>
 
 先解齐次方程：
 
@@ -941,11 +986,17 @@ $$
 
 这里也能顺便看出：因为右端 $2xe^x$ 与齐次解中的 $e^x,xe^x$ 发生重合，所以若用 undetermined coefficients，trial form 需要从 $x^2e^x$ 再往上乘到三次，最终也会得到 $x^3e^x$ 这一型。
 
+</details>
+
+
 **Example 3**
 
 $$
 x^2y''-3xy'+4y=x^2\ln x.
 $$
+
+<details>
+<summary>展开解答</summary>
 
 这是一道 **Euler equation 的非齐次版本**。先化成标准形式：
 
@@ -1036,11 +1087,17 @@ $$
 \boxed{y=x^2(c_1+c_2\ln x)+\frac{1}{6}x^2(\ln x)^3.}
 $$
 
+</details>
+
+
 **Example 4**
 
 $$
 (1-x)y''+xy'-y=-(1-x)^2.
 $$
+
+<details>
+<summary>展开解答</summary>
 
 这道题最能体现三种方法之间的配合：
 
@@ -1201,6 +1258,9 @@ $$
 - **已知一个 homogeneous solution** $\Rightarrow$ 用 **reduction of order**；
 - **已有两组基本解，要求 nonhomogeneous particular solution** $\Rightarrow$ 用 **variation of parameters**。
 
+</details>
+
+
 ## Endpoint Problems and Eigenvalues
 
 前面大部分内容都建立在 **initial value problem (IVP)** 的唯一性之上。一个典型二阶 IVP 是
@@ -1239,6 +1299,9 @@ y''+3y=0,
 \qquad y(\pi)=0.
 $$
 
+<details>
+<summary>展开解答</summary>
+
 通解为
 
 $$
@@ -1263,6 +1326,9 @@ $$
 \boxed{y(x)\equiv 0.}
 $$
 
+</details>
+
+
 **Example 2: Infinitely Many Nontrivial Solutions**
 
 再看
@@ -1272,6 +1338,9 @@ y''+4y=0,
 \qquad y(0)=0,
 \qquad y(\pi)=0.
 $$
+
+<details>
+<summary>展开解答</summary>
 
 通解为
 
@@ -1302,6 +1371,9 @@ $$
 
 > **边值问题并不自动唯一，参数稍微变化，就可能在“无解”和“无穷多解”之间切换。**
 
+</details>
+
+
 ### Eigenvalues and Eigenfunctions
 
 把上述问题统一写成
@@ -1323,6 +1395,9 @@ $$
 $$
 y''+\lambda y=0, y(0)=0, y(L)=0
 $$
+
+<details>
+<summary>展开解答</summary>
 
 分三种情况讨论。
 
@@ -1435,6 +1510,9 @@ $$
 
 这说明一个典型现象：**eigenvalues 通常不是连续的一段，而是一串离散的数列。**
 
+</details>
+
+
 **Example 4: Changing Boundary Conditions Changes the Spectrum**
 
 若把边界条件改成
@@ -1444,6 +1522,9 @@ y''+\lambda y=0,
 \qquad y(0)=0,
 \qquad y'(L)=0,
 $$
+
+<details>
+<summary>展开解答</summary>
 
 仍先考虑 $\lambda>0$，设 $\lambda=\alpha^2$。此时
 
@@ -1486,6 +1567,9 @@ $$
 $$
 
 这说明：**边界条件一变，允许的模态和对应的 spectrum 也会跟着改变。**
+
+</details>
+
 
 ### General Procedure: Determinant Equation
 
@@ -1537,6 +1621,9 @@ $$
 f(x)=e^{-x}-
 \int_0^x t\,f(x-t)\,dt.
 $$
+
+<details>
+<summary>展开解答</summary>
 
 表面上这是一个 integral equation，但它其实可以化成 ODE。
 
@@ -1677,6 +1764,9 @@ $$
 
 **某些 integral equation 可以通过求导变成更熟悉的 differential equation。**
 
+</details>
+
+
 ### Two Integrals by the Feynman Method
 
 > **在积分号下对参数求导（differentiate under the integral sign）**。
@@ -1690,6 +1780,9 @@ $$
 $$
 \text{Compute } \int_0^{\infty}\dfrac{\sin x}{x}\,dx
 $$
+
+<details>
+<summary>展开解答</summary>
 
 定义
 
@@ -1758,10 +1851,16 @@ $$
 $$
 \boxed{\int_0^{\infty}\frac{\sin x}{x}\,dx=\frac{\pi}{2}.}
 $$
+
+</details>
+
 **Example 2**
 $$
 \text{Compute } \int_0^{\infty}\frac{\cos x}{x^2+1}\,dx.
 $$
+
+<details>
+<summary>展开解答</summary>
 
 这题可以和前一个例子统一起来处理。仍然定义参数积分族
 
@@ -1913,6 +2012,9 @@ $$
 \boxed{\int_0^{\infty}\frac{\cos x}{x^2+1}\,dx=\frac{\pi}{2e}.}
 $$
 
+</details>
+
+
 这两题都体现了同一个核心：
 
 > **把一个看起来不容易直接算的积分，升级成一个带参数的函数，再去解它满足的微分方程。**
@@ -1920,7 +2022,7 @@ $$
 ### Kepler's First and Second Laws
 **怎样用 ODE + 极坐标把物理定律推成轨道方程。**
 
-#### 1. Polar Coordinates 下的基础公式
+#### 1. Basic Formulas in Polar Coordinates
 
 在平面极坐标中，记
 
@@ -1961,7 +2063,7 @@ $$
 $$
 
 
-#### 2. Newton 引力定律与运动方程
+#### 2. Newton's Law of Gravitation and Equations of Motion
 
 中心天体质量为 $M$，行星质量为 $m$。万有引力大小为
 

@@ -262,6 +262,9 @@ $$
 (x^2-4)y''+3xy'+y=0
 $$
 
+<details>
+<summary>展开解答</summary>
+
 先化标准形式：
 
 $$
@@ -329,11 +332,17 @@ $$
 - 递推式隔两个下标连一次，所以自然分成 **偶数链** 和 **奇数链**；
 - 因此两个基本解常常就是**只含偶次幂**和**只含奇次幂**的两组级数。
 
+</details>
+
+
 #### Example 2
 
 $$
 y''-xy'-x^2y=0
 $$
+
+<details>
+<summary>展开解答</summary>
 
 先观察：
 
@@ -384,6 +393,9 @@ $$
 
 - 递推关系变成了 **three-term recurrence**；
 
+</details>
+
+
 ### Radius of Convergence and Nearest Singular Point
 
 对 ordinary point 附近的幂级数解，除了会得到 recurrence relation，还要记住一个很重要的结论：
@@ -398,6 +410,9 @@ $$
 x=\pm 3i,
 $$
 
+<details>
+<summary>展开解答</summary>
+
 那么：
 
 - 若在 $x=0$ 展开，最近奇点距离是 $3$，因此级数解的收敛半径至少为 $3$；
@@ -406,6 +421,9 @@ $$
   \sqrt{4^2+3^2}=5,
   $$
   因此收敛半径至少为 $5$。
+
+</details>
+
 
 所以：
 
@@ -600,6 +618,9 @@ $$
 $$
 xy''+2y'+xy=0.
 $$
+
+<details>
+<summary>展开解答</summary>
 
 先写成 regular singular 的标准形式：
 $$
@@ -810,11 +831,17 @@ y(x)=C_1\frac{\sin x}{x}+C_2\frac{\cos x}{x}.
 $$
 :::
 
+</details>
+
+
 #### Example 2
 
 $$
 x^2y''+(6x+x^2)y'+xy=0.
 $$
+
+<details>
+<summary>展开解答</summary>
 
 先写成标准形式：
 $$
@@ -1033,6 +1060,9 @@ y(x)=C_1\,y_1(x)+C_2\,y_2(x).
 }
 $$
 
+</details>
+
+
 
 ## Method of Frobenius: The Exceptional Cases
 
@@ -1169,7 +1199,6 @@ $$
 
 > $\ln x$ 是 reduction-of-order 公式中的积分自然产生的。
 
----
 
 ### Example
 #### Example 1: the case $r_1=r_2$
@@ -1179,6 +1208,9 @@ $$
 $$
 x^2y''+xy'+x^2y=0
 $$
+
+<details>
+<summary>展开解答</summary>
 
 $$
 y=\sum_{n=0}^{\infty}a_nx^{n+r},\qquad a_0\neq 0.
@@ -1407,6 +1439,9 @@ $$
 
 correction series 的系数往往要通过代回原方程逐项比较来求。
 
+</details>
+
+
 #### Example 2: the case $r_1-r_2=N>0$
 
 **Bessel equation of order 1**
@@ -1414,6 +1449,9 @@ correction series 的系数往往要通过代回原方程逐项比较来求。
 $$
 x^2y''+xy'+(x^2-1)y=0.
 $$
+
+<details>
+<summary>展开解答</summary>
 
 对应的 indicial equation 有两根
 
@@ -1605,6 +1643,9 @@ $$
 y_2(x)=y_1(x)\ln x-\frac1x+\frac{x}{8}+\frac{x^3}{32}-\frac{11x^5}{4608}+\cdots
 }
 $$
+
+</details>
+
 
 
 ## Bessel Equation and Special Functions

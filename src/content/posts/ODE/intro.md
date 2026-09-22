@@ -25,7 +25,6 @@ draft: false
 > _Elementary Differential Equations_ (5th Edition)
 > C. Henry Edwards, David E. Penney, China Machine Press, 2006
 
----
 
 ## Goals and Requirements
 
@@ -39,7 +38,6 @@ draft: false
 
 > ⭐ 标记为选讲/扩展内容。
 
----
 
 ## Teaching Calendar
 

@@ -76,8 +76,6 @@ $$
 
 最后再代入初值确定常数。
 
----
-
 **Case 2**：$h(y_0)=0$
 这时常数函数
 
@@ -102,6 +100,9 @@ $$
 x^2+y^2=4
 $$
 
+<details>
+<summary>展开解答</summary>
+
 对它求导：
 
 $$
@@ -125,6 +126,9 @@ $$
 
 而初值会选定其中一个分支。
 
+</details>
+
+
 #### General Solution
 带任意常数 $C$ 的解族通常叫通解。
 
@@ -142,8 +146,6 @@ $$
 
 都属于通解族。
 
----
-
 #### Singular Solution
 奇异解是：
 
@@ -158,6 +160,9 @@ $$
 \frac{dy}{dx}=6x(y-1)^{2/3}
 $$
 
+
+<details>
+<summary>展开解答</summary>
 
 $$
 \frac{dy}{(y-1)^{2/3}}=6x\,dx
@@ -231,6 +236,9 @@ $$
 
 而这正和存在唯一性定理呼应：  
 这里右端 $f(x,y)=6x(y-1)^{2/3}$ 在 $y=1$ 附近关于 $y$ 的性质不够好，所以唯一性会失效。
+
+</details>
+
 :::
 
 ### Applications
@@ -246,8 +254,6 @@ $$
 - $P(t)$：种群数量
 - $k$：增长率
 - $M$：环境容量
-
----
 
 $$
 \frac{dP}{P\left(1-\frac{P}{M}\right)}=k\,dt
@@ -310,8 +316,6 @@ $$
 $P=0$ 和 $P=M$ 也是常数解，需要单独检查；  
 它们有时能在通解表达式中体现出来，有时最好单独写明。
 
----
-
 #### Torricelli’s law
 
 考虑底部有小孔的水箱。
@@ -346,8 +350,6 @@ $$
 \frac{dV}{dt}=-k\sqrt{y}
 $$
 
----
-
 若水箱在高度 $y$ 的横截面积为 $A(y)$，则
 
 $$
@@ -372,9 +374,6 @@ $$
 \boxed{A(y)\frac{dy}{dt}=-k\sqrt{y}}
 $$
 
----
-
-
 ### Extensions and Reductions
 
 #### Equidimensional Equations
@@ -384,8 +383,6 @@ $$
 $$
 
 这种方程右边只依赖于比值 $y/x$，叫 **equidimensional equation**（也常被称作 homogeneous type）。
-
----
 
 **标准换元**:
 
@@ -405,14 +402,17 @@ $$
 
 代回原方程后，通常可以化成关于 $u$ 的 separable equation。
 
----
+##### Example
 
-##### Example: Equidimensional Substitution
+**Equidimensional Substitution**
 
 $$
 xy'-y=\sqrt{x^2-y^2}
 $$
 
+
+<details>
+<summary>展开解答</summary>
 
 $$
 y'=\sqrt{1-\left(\frac{y}{x}\right)^2}+\frac{y}{x}
@@ -476,7 +476,8 @@ $$
 
 这又是“分离变量时可能漏掉特殊解”的同一类问题。
 
----
+</details>
+
 
 #### Linear Fractional Form
 
@@ -488,8 +489,6 @@ f\!\left(
 $$
 
 目标：把它转化为更容易的方程，通常是 equidimensional，再进一步化成 separable。
-
----
 
 **Case 1**：$c_1=c_2=0$
 
@@ -503,8 +502,6 @@ f\!\left(
 $$
 
 这是关于 $x,y$ 同次的比值，可直接看成 equidimensional 型，再令 $u=y/x$。
-
----
 
 **Case 2**：常数项不全为 0，且两条直线有唯一交点
 
@@ -531,8 +528,6 @@ $$
 
 从而化成 equidimensional 方程，再继续令 $w=v/u$。
 
----
-
 **Case 3**：分子分母中的线性部分成比例
 
 若
@@ -543,9 +538,6 @@ $$
 
 则表达式可进一步简化成“一个线性组合”的函数形式，再寻找合适换元。
 
----
-
-
 ### Solving Strategy for First-Order ODEs
 
 **Step 1：Identify**
@@ -555,8 +547,6 @@ $$
 - 能不能通过换元化成 separable？
 - 有没有明显常数解？
 
----
-
 **Step 1.5：Convert（Optional）**
 如果不是直接 separable，尝试：
 
@@ -564,12 +554,8 @@ $$
 - 平移 $u=x-\alpha,\ v=y-\beta$
 - 观察线性分式是否可化简
 
----
-
 **Step 2：Solve**
 分离变量并积分。
-
----
 
 **Step 3：Check lost / special solutions**
 检查：
@@ -578,12 +564,8 @@ $$
 - 有没有奇异解
 - 解是否满足原方程
 
----
-
 **Step 4：Use initial condition**
 代入初值求常数，并确定正确分支。
-
----
 
 **Step 5：State the answer clearly**
 答案要写清：
@@ -592,8 +574,6 @@ $$
 - 特解 or 通解
 - 是否还有额外常数解/奇异解
 - 定义区间
-
----
 
 ## Linear First-Order Equations
 
@@ -623,8 +603,6 @@ $$\boxed{y'+P(x)y=Q(x)}$$
 
 称为 **非齐次（nonhomogeneous）** 线性方程。
 
----
-
 ### Integrating Factor Method
 
 对方程
@@ -637,9 +615,6 @@ $$y'+P(x)y=Q(x)$$
 因为  $$(\rho y)'=\rho y'+\rho' y$$
 
 所以只要让$\rho'=\rho P(x)$,就能把$\rho y'+\rho P(x)y$认成$(\rho y)'$.
-
-
----
 
 由
 
@@ -658,8 +633,6 @@ $$
 $$
 \boxed{\rho(x)=e^{\int P(x)\,dx}}
 $$
-
----
 
 乘上积分因子后：
 
@@ -687,8 +660,6 @@ y=\frac{1}{\rho(x)}\left(\int \rho(x)Q(x)\,dx+C\right)
 }
 $$
 
----
-
 **核心**：
 
 $$
@@ -696,8 +667,6 @@ $$
 $$
 
 这才是积分因子法的本质。
-
----
 
 #### Standard Workflow
 
@@ -735,9 +704,6 @@ y=\frac{1}{\rho}\left(\int \rho Q\,dx+C\right)
 }
 $$
 
----
-
-
 #### Example 1
 
 求解
@@ -746,6 +712,9 @@ $$
 y'+y=e^x
 $$
 
+
+<details>
+<summary>展开解答</summary>
 
 **Step 1: Standard form**
 这里
@@ -787,9 +756,6 @@ $$
 y=\frac12 e^x+Ce^{-x}
 }
 $$
-
----
-
 **What this example shows**
 
 **Integrating factor works fully when $Q(x)\neq 0$.**
@@ -802,7 +768,8 @@ $$
 
 这正好对应后面的结构定理。
 
----
+</details>
+
 
 #### Example 2
 
@@ -812,6 +779,9 @@ $$
 x^2y'+xy=\sin x,\qquad y(1)=y_0
 $$
 
+
+<details>
+<summary>展开解答</summary>
 
 **Step 1: Rewrite to standard form**
 当 $x\neq 0$ 时，除以 $x^2$：
@@ -864,8 +834,6 @@ y(x)=\frac1x\left[y_0+\int_1^x \frac{\sin t}{t}\,dt\right]
 }
 $$
 
----
-
 **Key takeaways from this example**
 
 **Why is the solution defined on the positive half-axis?**
@@ -880,7 +848,7 @@ $$
 $x=0$ 不是一条解曲线，而是方程的 **奇点（singular point）**。  
 它和前面讨论的 **奇异解 singular solution** 不是一回事。
 
----
+</details>
 
 ### Existence and Uniqueness for Linear ODEs
 
@@ -899,31 +867,6 @@ $$
 $$
 
 而且这个解在整个区间 $I$ 上存在。
-
----
-
-#### Key Consequences
-
-**Linear IVPs are highly well-behaved.**
-不像前面某些非线性例子会出现：
-- 多个解
-- 奇异解
-- 只能局部定义
-
-线性方程在系数连续时非常“安全”。
-
----
-
-**The solution extends over the full continuity interval.**
-不是只在初值点附近，而是在 $P,Q$ 连续的整个区间上。
-
----
-
-**First-order linear equations have no singular solutions.**
-积分因子法得到的通解已经包含所有解，  
-不会再额外冒出“通解之外的特殊解”。
-
----
 
 ### Initial-Value Integrating Factor Formula
 
@@ -952,13 +895,9 @@ y_0+\int_{x_0}^{x}\rho(t)Q(t)\,dt
 }
 $$
 
----
-
 #### Benefits
 - 自动满足初值
 - 不用最后再额外求常数 $C$
-
----
 
 ### Structure: Homogeneous + Particular
 
@@ -982,9 +921,6 @@ $$
 \boxed{y(x)=Y(x)+y^*(x)}
 $$
 
----
-
-
 #### Linear Superposition Principle
 
 对非齐次线性方程
@@ -1001,8 +937,6 @@ $$
 
 这是 **Principle of Linear Superposition（线性叠加原理）**。
 
----
-
 ### Bernoulli Equation
 
 **Standard form**
@@ -1013,8 +947,6 @@ y'+P(x)y=Q(x)y^n,\qquad n\neq 0,1
 $$
 
 这是一个非线性方程，但可以通过换元化为线性方程。
-
----
 
 **Substitution**
 令
@@ -1033,15 +965,18 @@ $$
 
 解出 $z$ 后，再反代回 $y$。
 
----
+#### Example
 
-#### Example: Bernoulli Equation in Detail
+**Bernoulli Equation in Detail**
 
 考虑几何推导得到的方程
 
 $$
 y'=\frac{y}{2x}-\frac{x}{2y}
 $$
+
+<details>
+<summary>展开解答</summary>
 
 改写成
 
@@ -1117,7 +1052,7 @@ $$
 \boxed{y^2=Cx-x^2}
 $$
 
----
+</details>
 
 ## Substitution Methods and Exact Equations
 
@@ -1143,8 +1078,6 @@ $$
 
 （若 $b\neq 0$），对 $x$ 求导后可把原方程化成关于 $v$ 的 **separable equation**。
 
----
-
 #### Standard substitution
 
 对最常见的形式
@@ -1167,13 +1100,14 @@ $$
 
 代回后得到关于 $v$ 的一阶方程，再分离变量。
 
----
-
 #### Classic example
 
 $$
 \frac{dy}{dx}=(x+y+3)^2
 $$
+
+<details>
+<summary>展开解答</summary>
 
 令
 
@@ -1219,12 +1153,10 @@ y(x)=\tan(x+C)-x-3
 }
 $$
 
----
-
 > [!TIP]
 > 看到右边只依赖于某个线性组合 $ax+by+c$，就优先考虑把这个整体设为新变量。
 
----
+</details>
 
 ### Homogeneous Equations
 
@@ -1237,8 +1169,6 @@ $$
 则称其为 **homogeneous first-order equation**。
 
 这类方程右边只依赖于比值 $y/x$。
-
----
 
 #### Standard substitution
 
@@ -1269,8 +1199,6 @@ $$
 
 这就是一个 **separable equation**。
 
----
-
 #### How to recognize it
 
 若微分方程能整理成
@@ -1287,13 +1215,14 @@ $$
 
 其中 $P,Q$ 的每一项都有相同总次数，则通常可化成 homogeneous equation。
 
----
-
 #### Classic example
 
 $$
 2xy\frac{dy}{dx}=4x^2+3y^2
 $$
+
+<details>
+<summary>展开解答</summary>
 
 改写为
 
@@ -1351,7 +1280,7 @@ y^2+4x^2=kx^3
 }
 $$
 
----
+</details>
 
 #### Domain check
 
@@ -1372,15 +1301,11 @@ $$
 - 若 $k>0$，则 $x\ge \dfrac{4}{k}$
 - 若 $k<0$，则 $x\le \dfrac{4}{k}$
 
----
-
 > [!TIP]
 > 对 homogeneous equation，解完后常要额外检查：
 > - $\ln|x|$ 带来的区间限制
 > - 根号带来的定义域限制
 > - 写成 $y=\pm\sqrt{g(x)}$ 后要求 $g(x)\ge 0$
-
----
 
 #### A Special Homogeneous IVP with Radical
 
@@ -1389,6 +1314,9 @@ $$
 $$
 x\frac{dy}{dx}=y+\sqrt{x^2-y^2},\qquad y(x_0)=0,\quad x_0>0.
 $$
+
+<details>
+<summary>展开解答</summary>
 
 先除以 $x$：
 
@@ -1448,8 +1376,6 @@ y(x)=x\sin\!\left(\ln\frac{x}{x_0}\right)
 }
 $$
 
----
-
 ##### Region restriction
 
 因为原方程中有根号
@@ -1480,7 +1406,7 @@ $$
 
 本身也是解，称为 **singular solution curves**。
 
----
+</details>
 
 ### Exact Equations
 
@@ -1510,8 +1436,6 @@ $$
 \boxed{F(x,y)=C}.
 $$
 
----
-
 #### Exactness criterion
 
 在通常的连续性条件下，若
@@ -1523,8 +1447,6 @@ $$
 $$
 
 则方程是 exact。
-
----
 
 #### How to find the potential function $F(x,y)$
 
@@ -1544,13 +1466,14 @@ $$
 
 也可反过来先由 $F_y=N$ 对 $y$ 积分。
 
----
-
 #### Classic example
 
 $$
 y^3\,dx+3xy^2\,dy=0
 $$
+
+<details>
+<summary>展开解答</summary>
 
 这里
 
@@ -1582,7 +1505,7 @@ $$
 \boxed{y=kx^{-1/3}}.
 $$
 
----
+</details>
 
 #### Important remark: exactness depends on the form
 
@@ -1611,8 +1534,6 @@ $$
 > [!WARNING]
 > exactness 不是“解集本身”的性质，而与方程写成的具体形式 $Mdx+Ndy=0$ 有关。
 
----
-
 ### Integrating Factor for Nonexact Equations
 
 若
@@ -1631,8 +1552,6 @@ $$
 
 这个 $\mu$ 叫做 **integrating factor**。
 
----
-
 #### Exactness condition after multiplying by $\mu$
 
 需要满足
@@ -1642,8 +1561,6 @@ $$
 $$
 
 一般直接求 $\mu(x,y)$ 很难，所以常先试两种简单情形：
-
----
 
 ##### Case 1: $\mu=\mu(x)$
 
@@ -1661,8 +1578,6 @@ $$
 }
 $$
 
----
-
 ##### Case 2: $\mu=\mu(y)$
 
 若
@@ -1679,16 +1594,12 @@ $$
 }
 $$
 
----
-
 > [!TIP]
 > 线性方程中的积分因子
 > $$
 > \rho(x)=e^{\int P(x)\,dx}
 > $$
 > 本质上就是 exact equation 理论中的一个特殊情形。
-
----
 
 ## Reducible Second-Order Equations
 
@@ -1699,8 +1610,6 @@ F(x,y,y',y'')=0.
 $$
 
 若其中 **缺少 $y$** 或 **缺少 $x$**，则常可通过代换降为一阶方程。
-
----
 
 ### Dependent variable $y$ missing
 
@@ -1750,13 +1659,14 @@ y(x)=\int p(x,C_1)\,dx+C_2
 }
 $$
 
----
-
 #### Example
 
 $$
 y''+(y')^2=0
 $$
+
+<details>
+<summary>展开解答</summary>
 
 令
 
@@ -1796,7 +1706,7 @@ y=\ln|x+C_1|+C_2
 }
 $$
 
----
+</details>
 
 ### Independent variable $x$ missing
 
@@ -1854,13 +1764,14 @@ $$
 
 通常最后得到的是 **隐式解**。
 
----
-
 #### Classic example
 
 $$
 yy''=(y')^2
 $$
+
+<details>
+<summary>展开解答</summary>
 
 这里缺少 $x$。令
 
@@ -1920,7 +1831,7 @@ $$
 
 其中 $A,B$ 为任意常数。
 
----
+</details>
 
 #### Important remark
 
@@ -1938,9 +1849,6 @@ $$
 - $B=0$ 时，得到所有水平直线 $y=A$
 - $A<0$ 时，对应关于 $x$ 轴的对称
 - $B<0$ 时，对应关于 $y$ 轴的反射型指数曲线
-
----
-
 
 ## Implicit First-Order Equations and 3D Embedding
 
@@ -1977,8 +1885,6 @@ $$
 - 再把这条空间曲线投影回 $(x,y)$-平面，得到原微分方程的解曲线。
 
 这就是 **Parametrization with 3D Embedding**。
-
----
 
 ### Basic geometric idea
 
@@ -2018,8 +1924,6 @@ $$
 所以真正的任务是：
 
 > 在曲面 $F(x,y,p)=0$ 上找一条曲线，使它同时满足 $dy=p\,dx$。
-
----
 
 ### General procedure of 3D embedding
 
@@ -2078,8 +1982,6 @@ $$
 x=f(u,\psi(u)),\qquad y=g(u,\psi(u)).
 $$
 
----
-
 ### Direct substitution as a simpler method
 
 在很多例子里，其实不必完整走“两个参数 $u,v$”那一套。  
@@ -2110,8 +2012,6 @@ $$
 
 这就是 **Direct substitution**。
 
----
-
 ### Examples
 
 #### Example 1
@@ -2121,6 +2021,9 @@ $$
 $$
 (y')^2+y-x=0.
 $$
+
+<details>
+<summary>展开解答</summary>
 
 令
 
@@ -2137,8 +2040,6 @@ p^2+y-x=0
 y=x-p^2
 }
 $$
-
----
 
 ##### Method 1: direct parametrization
 
@@ -2212,8 +2113,6 @@ $$
 
 其中 $v$ 是自由参数。
 
----
-
 ##### Method 2: direct substitution
 
 由
@@ -2271,8 +2170,6 @@ $$
 
 这就是参数解，其中 $p$ 是自由参数。
 
----
-
 ##### Note
 
 这个例子说明：
@@ -2325,7 +2222,7 @@ $$
 - p-discriminant 给出的是 **candidate curve**，不是自动成立的奇异解；
 - 找到 candidate 以后，必须再检查它是否真的是原方程的解。
 
----
+</details>
 
 #### Example 2: Clairaut-Type Equation and Singular Solution
 
@@ -2334,6 +2231,9 @@ $$
 $$
 y=xy'+\frac{(y')^2}{2}.
 $$
+
+<details>
+<summary>展开解答</summary>
 
 令
 
@@ -2371,8 +2271,6 @@ $$
 
 这给出两种可能性。
 
----
-
 ##### Branch 1: $\dfrac{dp}{dx}=0$
 
 则
@@ -2398,8 +2296,6 @@ y=Cx+\frac{C^2}{2}
 $$
 
 这是一族直线，称为 **general solution family**。
-
----
 
 ##### Branch 2: $x+p=0$
 
@@ -2429,8 +2325,6 @@ $$
 \boxed{\text{singular solution}}
 $$
 
----
-
 ##### Geometric interpretation
 
 对于一般解族
@@ -2454,7 +2348,8 @@ $$
 
 > 一族一般解曲线的包络线。
 
----
+</details>
+
 
 #### Example 3
 
@@ -2463,6 +2358,9 @@ $$
 $$
 x(y')^2-2yy'+9x=0.
 $$
+
+<details>
+<summary>展开解答</summary>
 
 令
 
@@ -2485,8 +2383,6 @@ $$
 y=\frac{xp}{2}+\frac{9x}{2p}
 }
 $$
-
----
 
 ##### Differentiate
 
@@ -2521,8 +2417,6 @@ $$
 
 因此又分成两支。
 
----
-
 ##### Branch 1: $1-\dfrac{9}{p^2}=0$
 
 即
@@ -2546,8 +2440,6 @@ y=\pm 3x
 $$
 
 这两条直线是 singular solutions。
-
----
 
 ##### Branch 2: $x\dfrac{dp}{dx}-p=0$
 
@@ -2597,8 +2489,6 @@ y=\pm 3x
 }
 $$
 
----
-
 ##### Important observation
 
 这个例子再次说明：
@@ -2613,7 +2503,7 @@ $$
 
 这和前面 Example 2 的结构完全一致。
 
----
+</details>
 
 #### Example 4
 
@@ -2622,6 +2512,9 @@ $$
 $$
 y^2+(y')^2=1.
 $$
+
+<details>
+<summary>展开解答</summary>
 
 令
 
@@ -2644,8 +2537,6 @@ $$
 
 这里 $x$ 不受约束，可保留为自变量。
 
----
-
 ##### Use the relation $p=y'$
 
 因为
@@ -2667,8 +2558,6 @@ $$
 $$
 
 所以有两种可能。
-
----
 
 ##### Branch 1: $\sin\theta=0$
 
@@ -2697,8 +2586,6 @@ $$
 y=1,\qquad y=-1
 }
 $$
-
----
 
 ##### Branch 2: $1+\dfrac{d\theta}{dx}=0$
 
@@ -2736,10 +2623,6 @@ y=\pm 1
 }
 $$
 
----
-
-
-
 ##### Why are $y=\pm 1$ singular solutions?
 
 因为对于一般解
@@ -2753,8 +2636,7 @@ $$
 
 所以依然属于 singular solutions。
 
----
-
+</details>
 
 #### Example 5
 
@@ -2762,6 +2644,9 @@ Consider the implicit first-order ODE
 $$
 y\bigl(1+(y')^2\bigr)=1.
 $$
+
+<details>
+<summary>展开解答</summary>
 
 Let
 $$
@@ -2779,8 +2664,6 @@ y=\frac{1}{1+p^2}
 }
 $$
 
----
-
 ##### Differentiate with respect to $x$
 
 Since $p=y'$, differentiate
@@ -2796,8 +2679,6 @@ Because $\dfrac{dy}{dx}=p$, we get
 $$
 p=-\frac{2p}{(1+p^2)^2}\frac{dp}{dx}.
 $$
-
----
 
 ##### Branch 1: $p=0$
 
@@ -2823,8 +2704,6 @@ $$
 is a solution.
 
 This is a **singular solution**.
-
----
 
 ##### Branch 2: $p\neq 0$
 
@@ -2873,8 +2752,6 @@ $$
 
 where $p$ is a free parameter.
 
----
-
 ##### Geometric remark
 
 Since
@@ -2899,7 +2776,8 @@ is touched by the family of parametric solution curves, and it is the envelope o
 
 Therefore $y=1$ is a **singular solution**.
 
----
+</details>
+
 
 ## Singular Solutions
 
@@ -2919,9 +2797,6 @@ $$
 \text{All Solutions}=\text{General Solutions}+\text{Singular Solutions}.
 }
 $$
-
-
----
 
 #### Geometric definition
 
@@ -2943,8 +2818,6 @@ $$
 
 则这条解曲线称为 singular solution。
 
----
-
 #### General solution vs singular solution
 
 - **General solution**: 通常是一族由参数 $C$ 描述的解曲线。
@@ -2965,8 +2838,6 @@ y=-\frac{x^2}{2}
 $$
 
 是它们的包络线，所以它是 singular solution。
-
----
 
 #### Typical ways singular solutions appear
 
@@ -2995,8 +2866,6 @@ Examples:
   \sin\theta\left(1+\frac{d\theta}{dx}\right)=0
   $$
 
----
-
 **2. From dividing by a possibly zero factor**
 
 在 separable equation 或化简过程中，如果除掉了某个可能为零的因子，就可能把特殊解支丢掉。
@@ -3008,8 +2877,6 @@ $$
 $$
 
 中，$y\equiv 1$ 就是这样被漏掉的 singular solution。
-
----
 
 **3. As an envelope of the general solution family**
 
@@ -3026,8 +2893,6 @@ $$
 > [!TIP]
 > 判断 singular solution 时，不要只看“能不能代入某个常数得到”，还要看它是否是一般解族的 tangent envelope。
 
----
-
 :::WARNING
 在分离变量、消元、因式分解时，若随手除掉某个因子，往往会把 singular solution 丢掉。
 
@@ -3038,8 +2903,6 @@ $$
 - 最终答案是否应写成 “general solution + singular solutions”；
 - 若你算出了 p-discriminant，它到底只是 candidate，还是已经验证过的真正解。
 :::
-
----
 
 ### p-discriminant
 
@@ -3063,8 +2926,6 @@ $$
 
 则这条曲线称为该方程的 **p-discriminant**。
 
----
-
 #### Why does it matter?
 
 它的重要性不只是“多一个定义”，而是因为它给了我们一个很快的找奇异解入口。
@@ -3075,8 +2936,6 @@ $$
 
 所以在 implicit ODE 里，`p-discriminant` 是一个很实用的 screening tool。
 
----
-
 #### Relation with singular solutions
 
 **Necessary condition**
@@ -3086,8 +2945,6 @@ $$
 $$
 \text{singular solution} \Longrightarrow \text{p-discriminant}.
 $$
-
----
 
 **Sufficient condition under suitable hypotheses**
 
@@ -3117,8 +2974,6 @@ $$
 
 只在额外条件满足时成立。
 
----
-
 #### How to use it in problem solving
 
 面对 implicit first-order ODE，常见流程是：
@@ -3142,8 +2997,6 @@ $$
 > [!IMPORTANT]
 > p-discriminant 的作用是帮你找到“可能的奇异解”，不是直接替代验算。
 
----
-
 ### **Example**
 
 重新看讲义中的代表题：
@@ -3152,13 +3005,14 @@ $$
 (y')^2+y-x=0.
 $$
 
+<details>
+<summary>展开解答</summary>
+
 令
 
 $$
 F(x,y,p)=p^2+y-x.
 $$
-
----
 
 #### Method idea
 
@@ -3166,8 +3020,6 @@ $$
 
 - **Step 1**: 用 $p=y'$ 把方程化成参数形式，得到一般解族；
 - **Step 2**: 再用 p-discriminant 检查有没有额外的 singular solution。
-
----
 
 #### Key steps
 
@@ -3210,8 +3062,6 @@ y-x=0
 \boxed{y=x}.
 $$
 
----
-
 #### Final conclusion
 
 曲线
@@ -3244,7 +3094,7 @@ $$
 
 它的解只来自前面求出的那族参数型 general solutions。
 
----
+</details>
 
 ### Bonus: Picard Local Existence and Uniqueness
 
@@ -3282,5 +3132,3 @@ $$
 上存在唯一解。
 
 这就是 **Picard local existence and uniqueness theorem** 的表述。
-
----

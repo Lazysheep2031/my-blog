@@ -329,6 +329,9 @@ $$
 \frac{dx}{dt}=x(4-x)-3.
 $$
 
+<details>
+<summary>展开解答</summary>
+
 二次方程
 
 $$
@@ -350,6 +353,9 @@ $$
 
 - 初始鱼群多于 100 条，长期趋于 300 条；
 - 初始鱼群少于 100 条，会被完全捕捞掉。
+
+</details>
+
 
 ### Bifurcation and Dependence on Parameters
 
@@ -385,7 +391,6 @@ $$
 
 > **critical points 的位置、数目与稳定性都可能依赖于参数；当参数穿过某个临界值时，系统结构会突然改变。**
 
----
 
 ## Stability and the Phase Plane
 
@@ -481,7 +486,7 @@ $$
 - 这是二维 nonlinear system 里很有代表性的现象。
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202604241616951.png" alt="limit cycle" style="width: 320px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
-### Examplee
+### Example
 
 **a simple frictionless pendulum**
 
@@ -490,6 +495,9 @@ $$
 $$
 \theta''+a^2\sin\theta=0.
 $$
+
+<details>
+<summary>展开解答</summary>
 
 令
 
@@ -524,7 +532,9 @@ $$
 
 ![image.png](https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202604241624956.png)
 
----
+</details>
+
+
 
 ## Linear and Almost Linear Systems
 
@@ -638,7 +648,7 @@ $$
 - 是否 equal；
 - real part 的 sign 是 positive 还是 negative。
 
-#### 常用分类总结
+#### Summary of Common Classifications
 
 1. 两个实特征值，异号
 $$
@@ -696,6 +706,9 @@ $$
 
 $\dot x=2x+7y,\ \dot y=x-4y$
 
+<details>
+<summary>展开解答</summary>
+
 写成矩阵：
 
 $$
@@ -724,6 +737,9 @@ $$
 这个例子很适合记住：
 
 > **2D linear system 的 local behavior，本质上又回到了 matrix eigenvalue problem。**
+
+</details>
+
 
 ### Almost linear systems
 
@@ -762,7 +778,6 @@ $$
 > 若 eigenvalues 已经清楚地落在 “real parts both negative / both positive / opposite signs” 这些非边界区域，线性化结论通常最可靠。  
 > 真正要警惕的是 repeated root 和 pure imaginary 这两类 borderline cases。
 
----
 
 ## Ecological Models: Predators and Competitors
 
@@ -897,6 +912,9 @@ $$
 \end{cases}
 $$
 
+<details>
+<summary>展开解答</summary>
+
 它的四个 critical points 是
 
 $$
@@ -928,6 +946,9 @@ $$
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202604241626709.png" alt="phase portrait" style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
+</details>
+
+
 ## Example
 
 **peaceful coexistence**
@@ -940,6 +961,9 @@ $$
 \dot y=16y-2y^2-xy.
 \end{cases}
 $$
+
+<details>
+<summary>展开解答</summary>
 
 它的四个 critical points 是
 
@@ -967,6 +991,9 @@ $$
 - competition 强于 inhibition $\Rightarrow$ coexistence point 往往变成 saddle；
 - inhibition 强于 competition $\Rightarrow$ coexistence point 往往变成 stable sink。
 
+</details>
+
+
 ### A more complicated scenario
 
 $$
@@ -975,6 +1002,9 @@ $$
 \dot y=y^2-4y+xy.
 \end{cases}
 $$
+
+<details>
+<summary>展开解答</summary>
 
 先因式分解：
 
@@ -1081,4 +1111,6 @@ $$
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202604241635775.png" alt="phase portrait" style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
----
+</details>
+
+

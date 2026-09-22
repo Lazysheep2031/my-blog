@@ -7,9 +7,9 @@ category: 笔记
 draft: false
 ---
 
-## 两大系统
+## Homogeneous and Nonhomogeneous Systems
 
-### 齐次系统 
+### Homogeneous Systems
 $\mathbf{x}'=A\mathbf{x}$
 
 1. 小系统时可以先用 **elimination**；
@@ -17,7 +17,7 @@ $\mathbf{x}'=A\mathbf{x}$
 3. 遇到重根时要区分 **complete** 与 **defective**；
 4. 最后用 **matrix exponential** 统一表达。
 
-### 非齐次系统
+### Nonhomogeneous Systems
 $\mathbf{x}'=A\mathbf{x}+\mathbf{f}(t)$
 
 $$
@@ -29,7 +29,6 @@ $$
 - $\mathbf{x}_c$ 来自对应齐次系统；
 - $\mathbf{x}_p$ 用 **待定系数法** 或 **参数变易法** 求。
 
----
 
 ## The Method of Elimination
 
@@ -37,7 +36,7 @@ $$
 
 > **system of first-order ODEs $\rightarrow$ single higher-order linear ODE**
 
-### 标准流程
+### Standard Workflow
 
 对一个二元系统
 
@@ -67,6 +66,9 @@ x' = 4x-3y,\\
 y' = 6x-7y.
 \end{cases}
 $$
+
+<details>
+<summary>展开解答</summary>
 
 从第二个方程解出 $x$：
 
@@ -116,6 +118,9 @@ $$
 x(t)=\frac32 C_1e^{2t}+\frac13 C_2e^{-5t}.
 $$
 
+</details>
+
+
 
 **Example 2**
 
@@ -125,6 +130,9 @@ x' = x+2y+e^t,\\
 y' = 4x+3y.
 \end{cases}
 $$
+
+<details>
+<summary>展开解答</summary>
 
 仍然用 elimination。
 
@@ -182,7 +190,9 @@ $$
 x(t)=\frac12 C_1e^{5t}-C_2e^{-t}+\frac14 e^t.
 $$
 
----
+</details>
+
+
 
 ## The Eigenvalue Method for Homogeneous Systems
 
@@ -214,7 +224,7 @@ $$
 
 ### Example 
 
-#### Case 1：特征值全为单实根
+#### Case 1: Distinct Real Eigenvalues
 
 若 $A$ 有 $n$ 个不同实特征值 $\lambda_1,\dots,\lambda_n$，对应线性无关特征向量 $\mathbf{v}_1,\dots,\mathbf{v}_n$，则 general solution 为
 
@@ -233,6 +243,9 @@ y'=x+z,\\
 z'=6x-6y+5z.
 \end{cases}
 $$
+
+<details>
+<summary>展开解答</summary>
 
 对应矩阵
 
@@ -396,7 +409,10 @@ $$
 
 这个例子是最理想情形：  **不同实特征值 $\Rightarrow$ 直接拼解。**
 
-#### Case 2：出现复特征值
+</details>
+
+
+#### Case 2: Complex Eigenvalues
 
 若 $A$ 有复特征值
 
@@ -436,6 +452,9 @@ y' = x+3y-z,\\
 z' = -x+2y+3z.
 \end{cases}
 $$
+
+<details>
+<summary>展开解答</summary>
 
 对应矩阵
 
@@ -585,8 +604,11 @@ c_3
 \right].
 $$
 
+</details>
 
-#### Case 3：重特征值
+
+
+#### Case 3: Repeated Eigenvalues
 
 若特征值 $\lambda_0$ 重数为 $k$，则会出现
 
@@ -606,7 +628,6 @@ $$
 
 这一部分内容在后面会讲。
 
----
 
 ## Multiple Eigenvalue Solutions
 
@@ -630,6 +651,9 @@ A=
 6&4&3
 \end{pmatrix}.
 $$
+
+<details>
+<summary>展开解答</summary>
 
 其特征方程为
 
@@ -724,6 +748,9 @@ c_1\mathbf{v}_1e^{5t}
 +c_3\mathbf{v}_3e^{3t}.
 $$
 
+</details>
+
+
 **Example 2：二重 defective eigenvalue**
 
 看矩阵
@@ -735,6 +762,9 @@ A=
 3&7
 \end{pmatrix}.
 $$
+
+<details>
+<summary>展开解答</summary>
 
 特征方程为
 
@@ -863,7 +893,10 @@ t-\frac13\\
 \end{pmatrix}e^{4t}.
 $$
 
-### Jordan chain 公式
+</details>
+
+
+### Jordan Chain Formulas
 
 如果某个特征值 $\lambda$ 只有 1 个普通特征向量，但代数重数为 3，那么需要一条长度为 3 的链：
 
@@ -917,6 +950,9 @@ A=
 2&-2&1&-3
 \end{pmatrix}.
 $$
+
+<details>
+<summary>展开解答</summary>
 
 其特征方程为
 $$
@@ -1088,8 +1124,10 @@ t\\
 }
 $$
 
+</details>
 
----
+
+
 
 ## Matrix Exponentials and Linear Systems
 
@@ -1121,7 +1159,7 @@ $$
 \mathbf{x}(t)=\Phi(t)\Phi(0)^{-1}\mathbf{x}_0.
 $$
 
-### 矩阵指数
+### Matrix Exponentials
 
 矩阵指数定义为
 
@@ -1165,7 +1203,7 @@ $$
 - 复特征值：$e^{At}$ 里出现 $e^{\alpha t}\cos \beta t,\ e^{\alpha t}\sin \beta t$；
 - defective 重根：$e^{At}$ 里自然出现 $t e^{\lambda t},\ \frac{t^2}{2}e^{\lambda t}$ 等项。
 
-### 计算 $e^{At}$ 的三种思路
+### Three Approaches to Computing $e^{At}$
 
 **方法 1：$A$ 可对角化**
 
@@ -1244,6 +1282,9 @@ A=
 \end{pmatrix},
 $$
 
+<details>
+<summary>展开解答</summary>
+
 则
 
 $$
@@ -1270,6 +1311,9 @@ $$
 
 > **幂零矩阵的矩阵指数会截断成有限多项式。**
 
+</details>
+
+
 
 **Example 2:defective 情形下由 generalized eigenvectors 计算 $e^{At}$**
 
@@ -1283,6 +1327,9 @@ A=
 0&0&3
 \end{pmatrix},
 $$
+
+<details>
+<summary>展开解答</summary>
 
 特征值为 $5,3,3$。其中 $\lambda=3$ 是二重 defective 根。
 
@@ -1425,6 +1472,9 @@ e^{3t} & 2e^{5t}-2e^{3t} & 4e^{5t}-(4+3t)e^{3t}\\
 \end{pmatrix}.
 $$
 
+</details>
+
+
 ## Nonhomogeneous Linear Systems
 
 $x=x_c+x_p$
@@ -1469,6 +1519,9 @@ $$
 \end{pmatrix}.
 $$
 
+<details>
+<summary>展开解答</summary>
+
 因为右端是线性向量，所以猜
 
 $$
@@ -1511,6 +1564,9 @@ $$
 $$
 x_1(t)=4t+17,\qquad x_2(t)=-6t-25.
 $$
+
+</details>
+
 
 ### Variation of Parameters
 
@@ -1577,6 +1633,9 @@ $$
 \end{pmatrix}.
 $$
 
+<details>
+<summary>展开解答</summary>
+
 若已知齐次系统的 fundamental matrix $\Phi(t)$，则先算
 
 $$
@@ -1598,6 +1657,9 @@ e^{At}\left[
 \right].
 $$
 
+</details>
+
+
 **Example 2**
 
 $$
@@ -1607,6 +1669,9 @@ y' = 2x+y-2z,\\
 z' = 3x+2y+z+e^t\cos 2t.
 \end{cases}
 $$
+
+<details>
+<summary>展开解答</summary>
 
 Step 1：先解对应齐次系统
 
@@ -1821,9 +1886,9 @@ C_1e^t
 \end{pmatrix}.
 $$
 
----
+</details>
 
-## 本章方法总表
+## Summary of Methods
 
 | 目标 | 场景 | 推荐方法 | 核心公式 |
 |---|---|---|---|
@@ -1834,4 +1899,3 @@ $$
 | 找非齐次特解 | 右端很规则 | **Undetermined Coefficients** | 猜同型特解 |
 | 找非齐次特解 | 一般情形 | **Variation of Parameters** | $x_p=\Phi\int \Phi^{-1}f\,dt$ |
 
----
