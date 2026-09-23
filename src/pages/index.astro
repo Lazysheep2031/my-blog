@@ -14,7 +14,6 @@ const posts = (await getSortedPosts()).filter(post => !post.data.draft)
         <p class="eyebrow">NOTES & EXPLORATIONS</p>
         <h1>Lazysheep<span class="brand-dot">.</span></h1>
         <p class="home-motto">Be Happy Every Day</p>
-        <div class="home-links"><a href={url('/courses/')}>课程笔记 <span aria-hidden="true">↗</span></a><a href={url('/research/')}>科研记录 <span aria-hidden="true">↗</span></a></div>
     </section>
     <section aria-labelledby="recent-heading">
         <div class="section-heading"><h2 id="recent-heading">最近更新</h2><a href={url('/blog/')}>全部文章 <span aria-hidden="true">↗</span></a></div>

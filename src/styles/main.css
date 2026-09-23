@@ -202,10 +202,6 @@ body { background: var(--page-bg); color: var(--deep-text); font-family: -apple-
 .home-intro h1 { font-size: clamp(3.4rem, 7vw, 5.5rem); letter-spacing: -.065em; line-height: 1.12; font-weight: 600; margin: 24px 0 15px; }
 .home-motto { font-size: 21px; letter-spacing: .025em; }
 .home-description { margin-top: 16px; color: var(--muted); font-size: 15px; line-height: 1.8; }
-.home-links { display: flex; gap: 26px; margin-top: 30px; font-size: 14px; }
-.home-links a { padding-bottom: 5px; border-bottom: 1px solid var(--line-divider); }
-.home-links a:hover { color: var(--primary); border-color: var(--primary); }
-.home-links span { margin-left: 12px; color: var(--primary); }
 .section-heading { display: flex; align-items: baseline; justify-content: space-between; padding-bottom: 18px; border-bottom: 1px solid var(--line-divider); }
 .section-heading h2 { font-size: 21px; font-weight: 600; }
 .section-heading a { font-size: 13px; color: var(--muted); }
