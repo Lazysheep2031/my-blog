@@ -194,7 +194,7 @@ $$
 | $q_3$，终态 | $q_1$ | $q_2$ |
 | $q_4$，陷阱 | $q_4$ | $q_4$ |
 
-<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260922220926.png"  style="width: 320px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260929140918.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
 这五个状态分别可由 $e,a,ab,aba,b$ 到达，并且不能继续合并：
 - 接受与非接受状态用空串区分；
@@ -204,7 +204,7 @@ $$
 
 </details>
 
-2. **识别含子串 `bb` 或 `bab` 的串。**
+1. **识别含子串 `bb` 或 `bab` 的串。**
 
 <details>
 <summary>展开解析</summary>
