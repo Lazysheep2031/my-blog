@@ -1,7 +1,8 @@
 ---
 title: Process Synchronization
 published: 2026-10-13
-description: 竞争条件、临界区问题、Peterson 算法、硬件同步、信号量及其阻塞实现，以及有界缓冲区和读者—写者问题
+updated: 2026-10-15
+description: 竞争条件与同步工具、管程及其实现、经典同步问题与课堂例题，以及事务、恢复、并发控制和一致性模型
 tags: [操作系统]
 category: 笔记
 draft: false
@@ -598,7 +599,7 @@ P1：申请 S，等待 P0 释放
 
 ## Classic Problems of Synchronization
 
-两个经典问题：**有界缓冲区问题**与**读者—写者问题**。
+三个经典问题：**有界缓冲区问题**、**读者—写者问题**和**哲学家进餐问题**。
 
 ### Bounded-Buffer Problem
 
@@ -854,15 +855,1173 @@ R1、R2 可以在读取阶段重叠。R1 离开时不能释放写入许可，因
 
 这一写法具有读者优先的特点。已有读者活动时，新的读者可以加入；等待中的写者可能一直等不到 `readcount` 归零，因此存在写者饥饿的可能。
 
-所以，此算法实现了本题的访问互斥规则，但不能据此保证每个写者都有界等待。公平版本及其他变体不在本次讲授范围内。
+所以，此算法实现了本题的访问互斥规则，但不能据此保证每个写者都有界等待。
 
-## Solving Synchronization Problems
+### Dining-Philosophers Problem
 
-信号量题需要同时检查**结果正确性**和**并发程度**。写解法时可以按下面的次序组织：
+五位哲学家围坐，每人进餐需要相邻的两根筷子，每根筷子只能由一人占用。哲学家交替思考、进餐，不能用“规定所有人严格轮流吃饭”来代替对合理并发的分析。
 
-1. **列清共享对象与约束**：谁修改哪些变量？哪些访问必须互斥？哪些语句有先后依赖？是否还存在空／满条件？
-2. **给每个信号量写明含义和初值**：互斥许可常从 1 开始；等待尚未发生的事件从 0 开始；资源计数根据初始可用数量设置。
-3. **确定最小且完整的保护范围**：把相关读改写和边界判断保护起来，无关计算尽量留在外面。
-4. **用交错执行检查错误**：特别检查初始为空、初始为满、双方同时申请、首位／末位参与者，以及持有一个许可再等待另一个的情况。
+```c
+semaphore chopstick[5] = {1, 1, 1, 1, 1};
+```
 
-最后再确认：**许可由谁产生、谁消耗；等待者是否阻塞了改变条件的人；唤醒后是否仍需等待 CPU；是否可能长期让某一方得不到机会。**
+对哲学家 `i`，两根筷子的编号为 `i` 和 `(i + 1) % 5`。取模使编号首尾相接。
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261019093601.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+#### Naive Solution and Deadlock
+
+直接方案：
+
+```c
+while (true) {
+    wait(chopstick[i]);
+    wait(chopstick[(i + 1) % 5]);
+
+    eat();
+
+    signal(chopstick[i]);
+    signal(chopstick[(i + 1) % 5]);
+    think();
+}
+```
+
+**每根筷子的互斥得到保证，但整个算法仍可能死锁。**
+
+<details>
+<summary>反例：每人各拿一根筷子后会发生什么？</summary>
+
+```text
+P0：持有 C0，等待 C1
+P1：持有 C1，等待 C2
+P2：持有 C2，等待 C3
+P3：持有 C3，等待 C4
+P4：持有 C4，等待 C0
+```
+
+每人都停在第二个 `wait`，需要等邻居释放筷子；邻居也无法完成进餐并执行释放操作。等待关系形成闭环。
+
+> 死锁不要求五人精确地“同一纳秒”拿筷子。只要调度形成“所有第一条申请完成，所有第二条申请尚未成功”的状态，就足以出现上述结果。
+
+</details>
+
+#### Limiting the Number of Contenders
+
+**最多允许 4 人参与拿筷子的过程，可以避免上述死锁；它不自动保证没有饥饿。** 还有同时分配两根筷子、非对称拿筷子等方案，限制人数只是其中一种。
+
+```c
+semaphore room = 4;
+
+while (true) {
+    think();
+    wait(room);                  // 必须在拿任何筷子之前取得资格
+
+    wait(chopstick[i]);
+    wait(chopstick[(i + 1) % 5]);
+    eat();
+    signal(chopstick[(i + 1) % 5]);
+    signal(chopstick[i]);
+
+    signal(room);                // 归还筷子后再归还参与资格
+}
+```
+
+<details>
+<summary>为什么 4 人足够？限制 3 人、限制 N−1 人呢？</summary>
+
+按原算法，等待第二根筷子的进程只能等待其下一位邻居。沿等待关系向前追踪，要形成一个闭环，必须绕完整张五人圆桌。
+
+最多 4 人参与时，至少有一位不持有筷子，无法形成这个五人的等待闭环。例如 P4 未参与，P0–P3 各持有第一根筷子时，P3 所需的 C4 空闲，P3 可以继续进餐、释放筷子。
+
+一般化到同样的 $N$ 人环形模型，限制同时参与者数量为 $K$，其中
+
+$$
+1\le K\le N-1,
+$$
+
+可以避免这种资源等待死锁。前提包括：参与资格先于筷子申请；正常执行者最终完成进餐并归还资源；没有额外引入其他循环等待。
+
+限制 3 人同样可行，但进一步收紧了参与资格。**“最多 4 人参与”不等于“4 人同时吃饭”**：五根筷子下，最多只有两位不相邻的哲学家同时进餐。
+
+</details>
+
+<details>
+<summary>为什么没有死锁，仍可能有人一直吃不到？</summary>
+
+若等待队列、资源分配和调度缺少公平性，一个申请者可能反复失去 `room` 或筷子的竞争，其他人却持续完成进餐。
+
+所以应分别检查：**筷子互斥、系统无死锁、个体无饥饿**。前两个性质不能直接推出第三个。
+
+另一种常见的讨论补充是给筷子规定全局编号，所有人先取较小编号，再取较大编号；等待依赖沿编号增大，无法成环。也可以让奇偶编号的哲学家采用相反的拿筷子次序。
+
+</details>
+
+## Monitors
+
+### Motivation and Structure
+
+使用信号量时，程序员需要安排正确的申请、释放和等待顺序。
+
+**管程（Monitor）** 把共享状态、访问这些状态的过程以及同步规则组织在一起，并提供同一实例内部的自动互斥：
+
+$$
+\boxed{\text{同一管程内，同时获准执行受保护代码的线程数}\le 1}
+$$
+
+```c
+monitor Example {
+    /* 共享状态 */
+
+    procedure operation1(...) { ... }
+    procedure operation2(...) { ... }
+
+    initialization_code() { ... }
+}
+```
+
+即使两个线程调用不同的过程，只要它们属于**同一个管程实例**，也受同一互斥约束。不同管程实例不因此共享一把全局锁。
+
+**进入条件是取得管程的互斥执行权。** 管程可获得时，申请者有机会进入；有持有者时，其他申请者等待。持有者只是被 CPU 调度出去，却没有退出或执行释放管程的条件等待，管程仍被它占有。
+
+**此刻没有线程在 CPU 上执行管程代码** 不足以证明管程空闲；应看互斥执行权是否已释放。
+
+### Condition Variables
+
+自动互斥只保证访问不能冲突。有时线程已经进入管程，却发现业务条件不满足，例如消费者发现缓冲区为空。这时需要**条件变量（Condition Variable）**。
+
+```c
+condition notEmpty;
+
+while (count == 0)
+    notEmpty.wait();
+```
+
+条件变量本身不保存 `count > 0` 这个布尔判断，也不会自动检测共享数据变化。**程序检查共享状态，条件变量组织等待与通知。**
+
+**`x.wait()`**：当前线程登记到 `x` 的条件等待队列，释放该管程的互斥执行权并暂停；恢复时重新取得管程执行权，再从等待位置继续。登记等待与释放执行权之间必须正确协调，避免丢失唤醒。
+
+**`x.signal()`**：有等待者时通知其中一个；没有等待者时，通知不积累成将来的许可。它不替代修改共享状态的语句，也不自动证明业务条件已经满足。
+
+### Entry Queue and Condition Queue
+
+| 等待位置 | 为什么等待？ | 怎样继续？ |
+| --- | --- | --- |
+| 入口队列 | 尚未取得管程执行权 | 被允许取得管程后，开始相应调用 |
+| 条件等待队列 | 已进入过管程，但所需条件不满足，执行了 `x.wait()` | 收到通知，并按管程语义重新取得执行权后，从等待处继续 |
+
+**两类等待者都不占有管程执行权。** 条件队列画在管程框内，表示它属于这个管程的同步结构，并不表示等待线程还在操作共享数据。
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261019094412.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+<details>
+<summary>A 在条件变量上等待、B 正在执行、C 等待进入，分别意味着什么？</summary>
+
+```text
+A：此前进入过；执行 x.wait() 后已释放管程，在条件队列中暂停
+B：当前持有管程执行权，可以检查和修改共享状态
+C：申请进入，但尚未取得执行权，在入口处等待
+```
+
+B 退出时，入口申请者可以竞争执行权。**仅仅退出管程，不会自动唤醒所有条件等待者。** 如果没有相应通知，A 可以继续在 `x` 上等待，即使此刻管程没有持有者。
+
+</details>
+
+### Signal-and-Wait and Signal-and-Continue
+
+A 等待 `x`，B 在管程内执行 `x.signal()`。要保持互斥，就必须安排二者的交接次序。
+
+**Signal-and-Wait（Hoare 风格）**：有等待者时，B 暂停，将执行权交给 A。A 离开管程或再次等待后，暂停的通知者才有机会恢复。
+
+```text
+B 修改状态 → B signal → A 接管并继续 → A 退出／等待 → B 恢复
+```
+
+**Signal-and-Continue（Mesa 风格）**：B 发出通知后继续持有管程；A 等待重新获得执行权。B 释放管程后，A 才可能继续，中间还可能有其他竞争者先进入。
+
+```text
+B 修改状态 → B signal → B 继续 → B 释放管程 → A 重新取得执行权
+```
+
+因此，**“A 被唤醒”与“A 此刻已经在管程内执行”要分开**。Hoare 风格让通知者等待，Mesa 风格让被通知者等待；均不允许两人同时执行同一管程的受保护代码。
+
+<details>
+<summary>为什么条件等待常写 while，不能看到 signal 就直接继续？</summary>
+
+假设 B 放入一个元素并通知 A。采用 Mesa 语义时，在 A 重新取得管程前，另一个消费者 C 可能先进入，把该元素取走。
+
+A 必须再次判断：
+
+```c
+while (count == 0)
+    notEmpty.wait();
+
+remove_item();
+```
+
+`while` 检查的是**恢复执行时的当前状态**。不能把 `signal()` 理解为一张永远有效、独占某个具体数据项的票；是否为等待者预留资源，由额外协议决定。
+
+</details>
+
+### Semaphore, Mutex, and Condition Variable
+
+三个层次应分开：**信号量管理许可，互斥锁管理独占访问，管程封装共享状态与互斥操作；条件变量在管程或配套锁之下管理条件等待。**
+
+信号量与管程条件变量：
+
+| 操作特征 | 信号量 | 条件变量 |
+| --- | --- | --- |
+| `wait` 是否总需要等待 | 有可用许可时直接通过 | 经典抽象中，调用就是登记等待并让出管程 |
+| 没有等待者时 `signal` | 保留新增的许可 | 不保留通知 |
+| 等待时是否自动释放其他锁 | 不会 | 释放所关联的管程／互斥锁；不自动释放所有其他锁 |
+| 通知者与被通知者 | 不因该通知而自动获得对其他共享数据的互斥保护 | 遵守同一管程的互斥与交接规则 |
+
+<details>
+<summary>同一个账户例子：两种工具都能正确实现“余额不足时等存款”</summary>
+
+**讨论补充。** 为突出机制，假定只有一位可能等待的取款者 B，另一线程 C 负责存款，取款额固定为 80，当前余额为 20；没有取消或异常退出。
+
+信号量版本：
+
+```c
+int balance = 20;
+semaphore mutex = 1;
+semaphore changed = 0;
+
+/* B：取款 */
+P(mutex);
+while (balance < 80) {
+    V(mutex);                   // 等钱以前，必须让存款者访问余额
+    P(changed);
+    P(mutex);                   // 恢复后重新保护条件检查
+}
+balance -= 80;
+V(mutex);
+
+/* C：存款 */
+P(mutex);
+balance += 100;
+V(mutex);
+V(changed);
+```
+
+如果 C 在 B 真正执行 `P(changed)` 前就发出 `V(changed)`，许可会被保留，B 不会因此错过这次通知。
+
+管程版本，采用 Mesa 语义：
+
+```c
+monitor Account {
+    int balance = 20;
+    condition changed;
+
+    procedure withdraw80() {
+        while (balance < 80)
+            changed.wait();
+        balance -= 80;
+    }
+
+    procedure deposit100() {
+        balance += 100;
+        changed.signal();
+    }
+}
+```
+
+B 调用 `changed.wait()` 时让出管程，C 可以进入并存款。B 重新取得执行权后检查余额、取款，最后余额为 40。
+
+**错误只发生在这样的协议中**：B 持有 `mutex`，却一直循环等待余额增加；C 存款也需要这把锁，因而无法改变余额。这个错误不构成“信号量无法解决该问题”的证据。
+
+上述简化信号量方案不作为任意多个、不同取款额等待者的通用解法；多等待者需要继续设计通知分配、重新检查及取消协议。
+
+</details>
+
+### Monitor Solution to Dining Philosophers
+
+**统一检查两侧资源，并在管程内登记进餐许可**，避免每人先占一根筷子再互相等待。
+
+每人有三种状态：`THINKING`、`HUNGRY`、`EATING`。其中 `EATING` 表示已经获得进餐许可；线程可能刚获许可、尚未得到 CPU 真正开始吃饭。
+
+```c
+monitor DP {
+    enum { THINKING, HUNGRY, EATING } state[5];
+    condition self[5];
+
+    void pickup(int i) {
+        state[i] = HUNGRY;
+        test(i);
+        if (state[i] != EATING)
+            self[i].wait();
+    }
+
+    void putdown(int i) {
+        state[i] = THINKING;
+        test((i + 4) % 5);
+        test((i + 1) % 5);
+    }
+
+    void test(int i) {
+        if (state[(i + 4) % 5] != EATING &&
+            state[i] == HUNGRY &&
+            state[(i + 1) % 5] != EATING) {
+            state[i] = EATING;
+            self[i].signal();
+        }
+    }
+
+    initialization_code() {
+        for (int i = 0; i < 5; i++)
+            state[i] = THINKING;
+    }
+}
+```
+
+每位哲学家的外部调用顺序为：
+
+```c
+DP.pickup(i);
+eat();                          // 位于管程之外
+DP.putdown(i);
+```
+
+**管程互斥保护的是许可检查与状态更新。实际进餐在管程之外，因此不相邻的哲学家可以并发进餐。**
+
+<details>
+<summary>逐个理解 pickup、test、putdown</summary>
+
+`pickup(i)` 先表示自己有需求，再调用 `test(i)`。两侧都未获得进餐许可时，`test` 把自己改为 `EATING`；否则自己执行 `self[i].wait()`，让出管程。
+
+如果 `test(i)` 在当前 `pickup(i)` 中就成功，`self[i]` 上此时可以没有等待者，`signal()` 没有效果。**许可已保存在 `state[i] = EATING` 中**，后面的 `if` 因而不执行 `wait()`，仍可正确通过。
+
+`putdown(i)` 表示自己结束进餐，接着分别检查左右邻居。许可通过修改邻居的 `state` 来分配，再通知对应邻居。其他申请者观察到该邻居为 `EATING`，便不会分配与它冲突的许可。
+
+例如 P0、P2 已获准进餐，P1 申请后等待。仅 P0 结束时，P2 仍为 `EATING`，P1 还不能通过；两侧均释放后，才可能将 P1 改为 `EATING` 并通知它。
+
+</details>
+
+<details>
+<summary>用 if，是否能一概解释成“它只能用于 Hoare 管程”？</summary>
+
+**对前面对话的精确化。** 普通 Mesa 条件等待应使用 `while` 重查；但本题还包含**专属状态预留**：`test(i)` 在通知前已经设置 `state[i] = EATING`，其他线程不会替 `i` 撤销这份许可，只有 `i` 自己结束进餐时才修改它。
+
+因此，在每位哲学家对应唯一执行者、只按此协议通知、没有虚假唤醒的抽象下，原代码的 `if` 有该预留机制支撑，不能只凭 `if` 就断言它一定采用 Hoare 语义。面向可能虚假唤醒或更一般通知的实现，可以改为：
+
+```c
+while (state[i] != EATING)
+    self[i].wait();
+```
+
+这是实现边界的补充说明。
+
+</details>
+
+<details>
+<summary>正确性与局限：为什么无死锁，却仍可能饥饿？</summary>
+
+互斥更新 `state` 保证相邻两人不会同时取得 `EATING` 许可。等待者不会占有一根筷子阻挡他人，消除了直接方案中“每人占一根”的死锁局面。
+
+但是，左右邻居可能交替保持进餐，使中间某位哲学家每次被检查时至少有一侧正在吃。系统持续有人进餐，这一位却长期无法获得许可。
+
+</details>
+
+### Implementing a Monitor Using Semaphores
+
+这里实现 **Signal-and-Wait** 语义。
+
+```c
+semaphore mutex = 1;            // 管程入口
+semaphore next = 0;             // 暂时让出执行权的通知者等待于此
+int next_count = 0;
+
+/* 每个条件变量 x 各有一组 */
+semaphore x_sem = 0;
+int x_count = 0;
+```
+
+外部调用管程过程 `F` 时，执行如下封装：
+
+```c
+P(mutex);
+
+/* body of F */
+
+if (next_count > 0)
+    V(next);
+else
+    V(mutex);
+```
+
+退出时若有已经让出执行权的通知者，优先交还给它；否则开放普通入口。`next` 对应的等待者与入口等待者、条件等待者是三类不同角色。
+
+<details>
+<summary>条件等待 x.wait() 的底层代码</summary>
+
+```c
+x_count++;
+if (next_count > 0)
+    V(next);
+else
+    V(mutex);
+P(x_sem);
+x_count--;
+```
+
+先登记自己，再让出管程；随后通过 `x_sem` 等待。恢复时已接到管程执行权的交接，完成等待者计数更新，从原位置继续。
+
+这里不再次执行 `P(mutex)`，因为普通入口仍可能被关闭，执行权由通知者直接交接给自己。
+
+</details>
+
+<details>
+<summary>条件通知 x.signal() 的底层代码</summary>
+
+```c
+if (x_count > 0) {
+    next_count++;
+    V(x_sem);
+    P(next);
+    next_count--;
+}
+```
+
+B 通知 A 后，B 在 `next` 上等待。A 退出或再次条件等待时，看见 `next_count > 0`，通过 `V(next)` 把执行权交回。
+
+`x_count == 0` 时整个通知不做事，符合条件变量“无等待者则不保留通知”的语义。
+
+**原子性边界。** 这些语句是建立在原子 P/V 操作之上的管程实现协议，不要求把整段代码合成一条硬件指令。若 `V(x_sem)` 先于对方真正执行 `P(x_sem)`，底层信号量会保留许可；`next` 也同理。交接期间通知者不会继续执行管程的业务代码，普通入口也不会因此同时放开。不能把这里替换成缺少登记与握手的“解锁，然后普通睡眠”。
+
+</details>
+
+### Implementing a Semaphore Using a Java Monitor
+
+基本实现：
+
+```java
+public class Semaphore {
+    private int value;
+
+    public Semaphore(int initial) {
+        value = initial;
+    }
+
+    public synchronized void up() {
+        ++value;
+        notify();
+    }
+
+    public synchronized void down() throws InterruptedException {
+        while (value == 0)
+            wait();
+        --value;
+    }
+}
+```
+
+同一对象的同步方法通过对象监视器互斥执行。`down()` 在没有许可时调用 `wait()`，释放该对象的锁；`up()` 先增加 `value`，再通过 `notify()` 通知等待者。
+
+**许可保存在 `value` 中，通知本身不积累许可。** 所以先调用 `up()`、后调用 `down()` 也能工作，即使那次 `notify()` 没有唤醒任何人。
+
+被通知的线程仍需重新取得对象监视器，`while` 用于重新检查许可。此处是课件的基本原理示例，假定初始值非负，并未给出完整的参数验证、溢出和异常策略。
+
+## Synchronization Examples
+
+### Solaris Synchronization
+
+**自适应互斥锁（Adaptive Mutex）**根据持锁线程是否正在某个处理器上运行，选择自旋或阻塞：持有者正在运行时，短暂自旋可能很快等到释放；持有者没有运行时，让等待者睡眠，避免无效占用 CPU。
+
+这是一种对“等待代价”的判断，无法保证正在运行的持锁者一定立即释放。课件还列出条件变量、读写锁，以及用于组织锁等待线程的 **turnstile** 队列结构。
+
+### Windows XP Synchronization
+
+单处理器和多处理器：单处理器上可以屏蔽相关中断，保护短小的内核访问；多处理器上还需要自旋锁等跨处理器互斥机制。
+
+**分派器对象（Dispatcher Object）**可用于实现互斥、信号量、事件和定时器。对象具有 `signaled`／`nonsignaled` 状态，影响线程的等待与唤醒；定时器可以在指定时间经过后通知等待者。
+
+事件与条件变量都能表达等待与通知，但不能仅凭用途相似就认为二者的状态保留、唤醒数量和复位语义完全相同。
+
+### Linux Synchronization
+
+单处理器环境可以通过禁止／恢复内核抢占保护相应短临界区；多处理器环境需要获取／释放自旋锁。较长等待则考虑能够阻塞的机制。
+
+**禁止抢占与关闭中断需要区分。** 前者约束任务切换，后者约束相关中断处理；只禁止当前 CPU 的抢占，不能阻止其他 CPU 或所有中断上下文访问共享数据。
+
+### Pthreads Synchronization
+
+Pthreads 将互斥锁、条件变量、读写锁等能力提供给应用程序。它规定接口，不限定某个特定内核的内部实现。课件 p.50 对其他扩展的分类是该课件的介绍口径；这里重点掌握所使用的同步行为。
+
+用一个字符缓冲区和 `buffer_has_item` 表示空／满，写者与读者共用 `mutex`。下面保留其**轮询检查**的同步核心，将延时操作写成伪代码：
+
+```c
+char buffer;
+int buffer_has_item = 0;
+pthread_mutex_t mutex;          // 在线程启动前完成初始化
+
+/* writer */
+while (true) {
+    pthread_mutex_lock(&mutex);
+    if (buffer_has_item == 0) {
+        buffer = make_new_item();
+        buffer_has_item = 1;
+    }
+    pthread_mutex_unlock(&mutex);
+    delay();                    // 课件使用 pthread_delay_np
+}
+
+/* reader */
+while (true) {
+    pthread_mutex_lock(&mutex);
+    if (buffer_has_item == 1) {
+        consume_item(buffer);
+        buffer_has_item = 0;
+    }
+    pthread_mutex_unlock(&mutex);
+    delay();
+}
+```
+
+**判断状态与存取数据由同一把锁保护**，防止看见旧状态后进行错误操作。延时放在解锁之后，避免睡眠时占着缓冲区锁。
+
+<details>
+<summary>注意</summary>
+
+`mutex` 保护的是 `buffer` 与 `buffer_has_item` 的一致访问。普通整数 `buffer_has_item` 只表达状态，没有自己的等待队列。
+
+这里把 `make_new_item()` 和 `consume_item()` 放在锁内。若这些操作耗时较长，可以另外设计“锁外准备／处理，锁内存取”的版本。
+
+</details>
+
+## Examples of Using Semaphores
+
+### Exercise 1: Ticket Hall
+
+售票厅最多容纳 20 位购票者；未满时可以进入，已满时在厅外等待。定义信号量，解释取值并写出程序。
+
+**模型：20 个可分配的入厅名额。**
+
+<details>
+<summary>解答：一个计数信号量即可控制容量</summary>
+
+```c
+semaphore S = 20;
+
+void customer() {
+    P(S);
+    enter_hall();
+    buy_ticket();
+    leave_hall();
+    V(S);
+}
+```
+
+进入—购票—V
+
+采用前文“先减一，负值时阻塞”的信号量实现时：`S > 0` 表示仍有相应数量的可用许可；`S = 0` 表示没有剩余许可；`S < 0` 时，绝对值表示尚未得到许可的等待者数量。
+
+`S = 0` 简称为“厅内已有 20 人”。更精确地说，这是**20 个名额已经分配或保留**。
+例如，20 个名额已占用、另有 4 人等待时，记录值为 −4。有人离开并执行 V 后，值变为 −3，并向一位等待者交付许可。
+
+</details>
+
+<details>
+<summary>讨论补充：顾客不买了就走？</summary>
+
+**已经取得名额、进入后不买票。** 无论买票与否，离开时都必须归还一次名额。所有正常的提前退出分支都要经过清理：
+
+```c
+P(S);
+enter_hall();
+if (still_wants_ticket())
+    buy_ticket();
+leave_hall();
+V(S);
+```
+
+在取得名额后直接 `return`，却漏掉 V，会造成许可泄漏。反过来，在人仍占用厅内空间时提前 V，也可能让新来者进入，破坏实际人数上限。
+
+**还未取得名额、排队中取消。** 需要撤销等待请求，处理“取消时恰好已被分配许可”的竞争。尚未取得许可的顾客不能简单执行一次普通 V 来冒充资源释放。
+
+**满员时立即离开、不排队。** 这又是一个不同题意：不能直接使用会阻塞的 P 来判断失败。可以用受互斥保护的计数器完成“检查—登记／离开”，或者使用有明确原子语义的非阻塞申请操作。
+
+</details>
+
+### Exercise 2: Fruit Plate
+
+盘子只能放一个水果；爸爸放苹果或橘子，女儿只取苹果，儿子只取橘子。初始盘子为空。
+
+**模型：一个空位许可，两个按类别区分的消费许可。**
+
+<details>
+<summary>解答：三个信号量与三个并发进程</summary>
+
+```c
+semaphore empty = 1;
+semaphore apple = 0;
+semaphore orange = 0;
+
+/* father */
+while (true) {
+    fruit = prepare_fruit();
+    P(empty);
+    put_on_plate(fruit);
+    if (fruit == APPLE)
+        V(apple);
+    else
+        V(orange);
+}
+
+/* daughter */
+while (true) {
+    P(apple);
+    a = take_apple();
+    V(empty);
+    eat(a);
+}
+
+/* son */
+while (true) {
+    P(orange);
+    o = take_orange();
+    V(empty);
+    eat(o);
+}
+```
+
+女儿按苹果许可对称补全。水果被取出后，盘子已经空闲，所以无需等吃完才 `V(empty)`。
+
+只用一个 `full` 会失去类别信息，可能让儿子得到“有苹果”的许可。分成 `apple` 和 `orange`，才能让指定消费者通过。
+
+容量为 1 且按此交接协议执行时，从写入到取出完成期间，不会给生产者下一次写入许可；另一个类别的消费者也无法通过。因此对这一盘子的存取无需另加 `mutex`。
+
+</details>
+
+<details>
+<summary>讨论补充：盘子容量改成 N > 1，为什么增加 mutex？</summary>
+
+按普通共享篮子的实现，设置：
+
+```c
+semaphore empty = N;
+semaphore apple = 0;
+semaphore orange = 0;
+semaphore mutex = 1;
+```
+
+容量增大后，已有水果与空位可以同时存在。生产者、两个消费者因而可能同时满足许可条件，需要额外保护共享存储结构。
+
+```c
+/* father */
+fruit = prepare_fruit();
+P(empty);
+P(mutex);
+put_into_basket(fruit);
+V(mutex);
+if (fruit == APPLE) V(apple);
+else V(orange);
+
+/* daughter；son 将 apple 改为 orange，并取橘子 */
+P(apple);
+P(mutex);
+a = take_one_apple();
+V(mutex);
+V(empty);
+eat(a);
+```
+
+**先等所需资源，再锁共享结构。** 若儿子先取得 `mutex`，再等待不存在的橘子，爸爸就无法进入临界区放橘子，形成死锁。
+
+该变体假定允许按种类选取水果。如果改成只能取队首的严格 FIFO 混合队列，知道“某处有苹果”还不足以保证女儿能取走队首，需要另行设计。
+
+这是容量扩大后的通用有界缓冲区方案；只有额外规定并证明特殊存储实现安全时，才讨论省去互斥锁。
+
+</details>
+
+### Exercise 3: Bus Driver and Conductor
+
+司机执行“启动—行驶—停车”，售票员执行“关门—售票—开门”。保证关门后启动、停车后开门，同时保留行驶与售票的并发。
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261019095312.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+<details>
+<summary>解答：两个初值为 0 的事件许可</summary>
+
+```c
+semaphore door_closed = 0;
+semaphore arrived = 0;
+
+/* driver */
+while (true) {
+    P(door_closed);
+    start_bus();
+    drive();
+    stop_bus();
+    V(arrived);
+}
+
+/* conductor */
+while (true) {
+    close_door();
+    V(door_closed);
+    sell_tickets();
+    P(arrived);
+    open_door();
+}
+```
+
+`door_closed` 对应课件的 `s1`，`arrived` 对应 `s2`。一次关门产生一个本轮启动许可，一次停车产生一个本轮开门许可。
+
+两个初值为 0，是因为**第一轮所依赖的动作尚未完成并发出通知**。特别是 `arrived = 0` 表示尚未获得本轮到站停车的通知，不应解释为汽车在系统初始化时物理上一定正在运动。
+
+售票员发出关门许可后即可售票，司机同时可以行驶；没有要求整个两个进程轮流串行执行。
+
+</details>
+
+### Exercise 4: Odd-Even Buffer
+
+R 向容量为 1 的 B 存入整数；W1 取出奇数并打印，W2 取出偶数并打印。不能读取空缓冲区，每个数只打印一次。题面还规定旧数被“取出打印后”，R 才能再存入新数。
+
+<details>
+<summary>解答：按题面严格要求，把空位许可放在打印之后归还</summary>
+
+```c
+semaphore empty = 1;
+semaphore odd = 0;
+semaphore even = 0;
+int B;
+
+/* R */
+while (true) {
+    int x = read_number();
+    P(empty);
+    B = x;
+    if (B % 2 != 0) V(odd);
+    else V(even);
+}
+
+/* W1 */
+while (true) {
+    P(odd);
+    int y = B;
+    print(y);
+    V(empty);
+}
+
+/* W2 */
+while (true) {
+    P(even);
+    int z = B;
+    print(z);
+    V(empty);
+}
+```
+
+读取下一次输入到 R 的局部变量，与真正覆盖共享 B 是不同动作。代码在 `P(empty)` 之前读入局部 `x`，但不会提前把它写入 B。
+
+同水果盘容量为 1 的情形，三个信号量已经串接对 B 的访问，不需要额外的缓冲区 `mutex`。
+
+</details>
+
+<details>
+<summary>signal 在 print 前还是后？</summary>
+
+```c
+y = B;
+signal(S);
+print(y);
+```
+
+这能防止旧数据被覆盖后丢失，因为它已复制到局部变量；但不能保证“旧数打印完成后才写入新数”。
+
+例如先存 3，W1 复制 3 并归还许可后被切走；R 存入 8，W2 先打印 8，W1 最后才打印 3。这不符合题目的严格文字顺序。
+
+</details>
+
+### Exercise 5: One-Lane Road
+
+A、B 之间同方向多辆车可以通行，不同方向不能同时通行。道路空闲时任一端可以申请；当前方向车辆全部离开、暂无新车进入时，另一方向等待者应有机会通过。
+
+**同组共享，异组互斥**。
+
+<details>
+<summary>解答：两把计数保护锁，一把共享道路许可</summary>
+
+```c
+semaphore S1 = 1;               // 保护 ab 的检查和更新
+semaphore S2 = 1;               // 保护 ba 的检查和更新
+semaphore Sab = 1;              // 道路使用权
+int ab = 0, ba = 0;
+
+/* 一辆 A -> B 的车 */
+P(S1);
+if (ab == 0)
+    P(Sab);
+ab++;
+V(S1);
+
+travel_A_to_B();
+
+P(S1);
+ab--;
+if (ab == 0)
+    V(Sab);
+V(S1);
+
+/* 一辆 B -> A 的车 */
+P(S2);
+if (ba == 0)
+    P(Sab);
+ba++;
+V(S2);
+
+travel_B_to_A();
+
+P(S2);
+ba--;
+if (ba == 0)
+    V(Sab);
+V(S2);
+```
+
+每个计数器登记已加入本方向通行组、尚未完成退出的车辆。**本方向第一辆车申请 `Sab`，最后一辆车归还 `Sab`**，中间车辆无需逐辆申请道路独占许可。
+
+`S1`、`S2` 都只覆盖短暂的登记与退出，不能覆盖整个行驶过程，否则会把同方向车辆也串行化。
+
+这里 `Sab` 使用信号量语义，第一辆车与最后一辆车可以不同；不能直接把它替换成要求由持有线程解锁的普通互斥锁，而不调整协议。
+
+</details>
+
+<details>
+<summary>为什么必须保护“我是第一辆／最后一辆”的判断？持锁等路权会不会死锁？</summary>
+
+若同侧两辆车同时看到计数为 0，都申请一次 `Sab`，就可能让同方向的车辆互相阻挡。计数判断与更新需要放进同一个临界区。
+
+A 侧第一辆车可能持有 `S1` 等待 `Sab`。这不必然形成死锁：正在通行的 B 侧车辆退出时使用 `S2`，释放路权无需取得 `S1`。等 B 侧最后一辆车归还路权，A 侧第一辆车便可继续。
+
+因此，判断持锁等待是否有问题，要追踪**负责解除等待的进程是否也需要这把锁**。
+
+</details>
+
+<details>
+<summary>讨论补充：初始化时两端同时来车，谁优先？</summary>
+
+初始 `Sab = 1`。两车可以分别取得 `S1`、`S2`，但随后都需要申请同一个 `Sab`。
+
+原子 P 操作只允许一个申请者取得唯一许可。谁先成功，哪个方向先通行；另一个等待。
+
+先后由实际执行交错及信号量实现决定。若采用负值记录等待者的实现，另一车阻塞时 `Sab` 的内部值可以为 −1。
+
+</details>
+
+<details>
+<summary>安全性与公平性：本方向持续来车时，另一端会怎样？</summary>
+
+一个方向的计数持续大于 0 时，该组一直保有路权，新来的同方向车还可加入，另一方向可能饥饿。
+
+</details>
+
+### Exercise 6: Sleeping Barber
+
+一位理发师、5 个等待座位；无人时理发师休息，有空位的顾客等待，满员的顾客直接离开。最多可有 **1 位正在理发的顾客＋5 位等待者**。
+
+
+#### Original Slide Solution
+
+<details>
+<summary>代码</summary>
+
+```c
+semaphore customers = 0;
+semaphore operator = 0;
+semaphore mutex = 1;
+int waiting = 0;
+
+/* 理发师 */
+while (true) {
+    P(customers);
+    cut_hair();
+    V(operator);
+}
+
+/* 顾客 */
+P(mutex);
+if (waiting < 5) {
+    waiting++;
+    V(customers);
+    V(mutex);
+
+    P(operator);
+    P(mutex);
+    waiting--;
+    V(mutex);
+} else {
+    V(mutex);
+    leave_shop();
+}
+```
+
+`mutex` 保护 `waiting < 5` 的检查与更新。若已有 4 人等待，两位顾客不能都依据同一个旧值 4 被接纳。
+
+`customers` 提供可等待的顾客到达通知。`waiting` 是可在锁内检查的业务计数器。
+
+在该代码中，`operator` 在 `cut_hair()` **之后**被 V，因此代码将它用作服务后的通知。
+
+</details>
+
+#### A Reference Design with Explicit Matching
+
+**补全方案**
+
+<details>
+<summary>参考代码：FIFO 等待队列＋每位顾客独立的叫号与完成通知</summary>
+
+设每位顾客有独立请求记录，保留到本次服务交接完成；内存分配、异常取消和回收细节省略。
+
+```c
+semaphore customers = 0;
+semaphore mutex = 1;
+int waiting = 0;
+Queue<Request*> queue;
+
+/* 每位顾客独有，各自初值均为 0 */
+struct Request {
+    semaphore called = 0;
+    semaphore seated = 0;
+    semaphore finished = 0;
+    semaphore left = 0;
+};
+
+/* 顾客 c */
+P(mutex);
+if (waiting == 5) {
+    V(mutex);
+    leave_shop();
+    return;
+}
+queue.push(c);
+waiting++;
+V(customers);
+V(mutex);
+
+P(c->called);                   // 只等待自己的叫号
+sit_in_barber_chair();
+V(c->seated);
+P(c->finished);
+leave_barber_chair();
+V(c->left);
+
+/* 理发师 */
+while (true) {
+    P(customers);               // 没有待服务请求时休息
+    P(mutex);
+    Request* c = queue.pop();
+    waiting--;                  // 叫号转入服务，释放等待名额
+    V(c->called);
+    V(mutex);
+
+    P(c->seated);
+    cut_hair(c);
+    V(c->finished);
+    P(c->left);                 // 顾客离开理发位后再服务下一位
+}
+```
+
+这里 `waiting` 只统计尚未被叫号的队列请求，范围为 $0\le waiting\le 5$。顾客被叫号时，在模型中离开等待区、转入服务流程；正在服务者另占理发位。
+
+四个局部通知把“叫号—入座—完成—离座”明确配对。顾客和理发师都在等待这些动作以前释放 `mutex`，对方可以继续完成操作。
+
+队列采用 FIFO 且每次服务最终结束、参与者得到运行机会时，已接纳的顾客能按队列被服务。满员离开的顾客不会增加 `waiting`，也不向 `customers` 发布不存在的请求。
+
+</details>
+
+### Exercise 7: Two Production Workshops and One Assembler
+
+两个车间分别生产 A、B 零件，放到各自货架 F1、F2；每个货架容量为 10。装配者每次各取一个 A 和一个 B，再组装产品。
+
+<details>
+<summary>解答：两个有界缓冲区，装配者依次消费</summary>
+
+```c
+semaphore emptyA = 10, fullA = 0, mutexA = 1;
+semaphore emptyB = 10, fullB = 0, mutexB = 1;
+
+/* producer A */
+while (true) {
+    a = produce_A();
+    P(emptyA);
+    P(mutexA);
+    put(F1, a);
+    V(mutexA);
+    V(fullA);
+}
+
+/* producer B */
+while (true) {
+    b = produce_B();
+    P(emptyB);
+    P(mutexB);
+    put(F2, b);
+    V(mutexB);
+    V(fullB);
+}
+
+/* assembler */
+while (true) {
+    P(fullA);
+    P(mutexA);
+    a = take(F1);
+    V(mutexA);
+    V(emptyA);
+
+    P(fullB);
+    P(mutexB);
+    b = take(F2);
+    V(mutexB);
+    V(emptyB);
+
+    assemble(a, b);
+}
+```
+
+`emptyA/fullA` 管理 F1 的容量与数据可用性，`mutexA` 保护货架实际存取；F2 同理。两把独立锁允许不同货架同时被访问。
+
+装配者拿到 A 后可以在不占用 F1 锁的情况下等待 B。**配套要求落在组装之前：必须已有一个 A 和一个 B；取件操作无需在同一时刻完成，也无需一直同时锁住两个货架。**
+
+</details>
+
+<details>
+<summary>为什么要有 mutex？怎样避免容易写出的死锁？</summary>
+
+`P(emptyA)` 只证明申请者取得了一个空位许可，不能直接证明所有货架内部操作都可无保护地并发执行。普通有界缓冲区解法还用 `mutexA` 保护实际存取和相关共享元数据。
+
+顺序错误的例子：
+
+```c
+P(mutexA);
+P(emptyA);                      // F1 已满时，持锁等空位
+```
+
+生产者占着锁等待空位，装配者又需要这把锁才能取件、归还空位，造成相互等待。标准顺序应为 `P(emptyA); P(mutexA)`；装配者相应先 `P(fullA)`，再 `P(mutexA)`。
+
+组装过程只使用已经取出的局部零件，放在货架锁外。等待 B 时也没有持有 `mutexA`，减少无关资源的阻塞。
+
+</details>
+
+### Exercise 8: Concurrent Operations on Complex Numbers
+
+ 三个线程访问复数结构体，要求添加必要信号量保证互斥，并尽量保留并发度。
+
+#### Original Code
+
+```c
+typedef struct {
+    float a;
+    float b;
+} cnum;
+
+cnum x, y, z;                   // 全局变量
+
+cnum add(cnum p, cnum q) {
+    cnum s;
+    s.a = p.a + q.a;
+    s.b = p.b + q.b;
+    return s;
+}
+
+/* thread1 */
+cnum w;
+w = add(x, y);
+/* ... */
+
+/* thread2 */
+cnum w;
+w = add(y, z);
+/* ... */
+
+/* thread3 */
+cnum w;
+w.a = 1;
+w.b = 1;
+z = add(z, w);
+y = add(y, w);
+/* ... */
+```
+
+每个线程的 `w` 都是自己的局部变量。`add` 的形参和临时变量也为局部数据；共享读取发生在复制实参的过程中，共享写入发生在对 `y`、`z` 的赋值中。
+
+| 代码区域 | 读取的共享对象 | 修改的共享对象 |
+| --- | --- | --- |
+| 线程 1 | `x, y` | 无 |
+| 线程 2 | `y, z` | 无 |
+| 线程 3 的第一条赋值 | `z` | `z` |
+| 线程 3 的第二条赋值 | `y` | `y` |
+
+**读—读允许并发；同一对象的读—写必须协调。** 不应给整个 `add` 函数加一把全局大锁，导致不同输入、纯局部计算也全部串行。
+
+#### Reference Solution
+
+**参考解**
+
+<details>
+<summary>两把“冲突对”信号量：保留线程 1 与线程 2 并发</summary>
+
+```c
+semaphore s13 = 1;              // 协调线程 1 与线程 3 对 y 的冲突
+semaphore s23 = 1;              // 协调线程 2 与线程 3 对 y、z 的冲突
+
+/* thread1 */
+cnum w;
+P(s13);
+w = add(x, y);
+V(s13);
+/* ... */
+
+/* thread2 */
+cnum w;
+P(s23);
+w = add(y, z);
+V(s23);
+/* ... */
+
+/* thread3 */
+cnum w;
+w.a = 1;
+w.b = 1;
+
+P(s23);
+z = add(z, w);                 // 修改 z：只需排除线程 2
+V(s23);
+
+P(s13);
+P(s23);
+y = add(y, w);                 // 修改 y：同时排除线程 1、2
+V(s23);
+V(s13);
+/* ... */
+```
+
+线程 1、2 使用不同信号量，因此可以同时读取 `y`。线程 3 更新 `z` 时不取得 `s13`，保留与线程 1 的并发；更新 `y` 时同时取得两把锁，排除两个读取者。
+
+不会形成“双方各拿一个、互相等另一个”的环：只有线程 3 在同一临界区内申请两把锁；线程 1 只申请 `s13`，线程 2 只申请 `s23`，完成后即可释放，不会等待线程 3 所持的另一把锁。
+
+**加锁必须在读取共享实参之前。** 若先把 `y`、`z` 复制进形参，进入 `add` 后才上锁，复制共享结构体时的竞争已经发生。
+
+</details>
+
+<details>
+<summary>进一步缩小临界区，以及“最大并发度”的解释边界</summary>
+
+因为 `add` 按值接收参数且只计算局部值，可以先在保护下取得完整快照，再到锁外相加。例如线程 2：
+
+```c
+P(s23);
+cnum local_y = y;
+cnum local_z = z;
+V(s23);
+
+cnum w = add(local_y, local_z);
+```
+
+线程 1 也可先在 `s13` 保护下复制 `y`。这样缩短受保护部分，保留纯计算并发。采用读写锁分别保护 `y`、`z` 也是另一条思路，但需要定义读者组与写者的协调协议。
+
+这里的“尽量保留并发”针对已展示代码的读写冲突及所选保护粒度，不能在省略号内容未知时声称证明了整个程序的全局最优并发度。
+
+若题目额外要求 `z` 与 `y` 的两次更新必须整体不可分割，那么要扩大保护范围，代价是降低并发；原题画面没有给出这项额外不变式。
+
+</details>
