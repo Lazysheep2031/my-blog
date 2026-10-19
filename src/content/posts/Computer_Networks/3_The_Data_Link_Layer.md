@@ -1092,7 +1092,7 @@ $$
 | 接收方收到并交付帧 0 | 仍为 $\{0\}$，ACK 尚未回来 | $\{1\}$ |
 | 发送方收到 ACK0 | 空，下一帧可用序号 1 | $\{1\}$ |
 
-<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261012211434.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261019101016.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
 ### A One-Bit Sliding Window Protocol
 

@@ -2,7 +2,7 @@
 title: Process Synchronization
 published: 2026-10-13
 updated: 2026-10-15
-description: 竞争条件与同步工具、管程及其实现、经典同步问题与课堂例题，以及事务、恢复、并发控制和一致性模型
+description: 竞争条件与同步工具、管程及其实现、经典同步问题，以及事务、恢复、并发控制和一致性模型
 tags: [操作系统]
 category: 笔记
 draft: false
@@ -1319,15 +1319,13 @@ public class Semaphore {
 
 **许可保存在 `value` 中，通知本身不积累许可。** 所以先调用 `up()`、后调用 `down()` 也能工作，即使那次 `notify()` 没有唤醒任何人。
 
-被通知的线程仍需重新取得对象监视器，`while` 用于重新检查许可。此处是课件的基本原理示例，假定初始值非负，并未给出完整的参数验证、溢出和异常策略。
+被通知的线程仍需重新取得对象监视器，`while` 用于重新检查许可。
 
 ## Synchronization Examples
 
 ### Solaris Synchronization
 
 **自适应互斥锁（Adaptive Mutex）**根据持锁线程是否正在某个处理器上运行，选择自旋或阻塞：持有者正在运行时，短暂自旋可能很快等到释放；持有者没有运行时，让等待者睡眠，避免无效占用 CPU。
-
-这是一种对“等待代价”的判断，无法保证正在运行的持锁者一定立即释放。课件还列出条件变量、读写锁，以及用于组织锁等待线程的 **turnstile** 队列结构。
 
 ### Windows XP Synchronization
 
@@ -1345,7 +1343,7 @@ public class Semaphore {
 
 ### Pthreads Synchronization
 
-Pthreads 将互斥锁、条件变量、读写锁等能力提供给应用程序。它规定接口，不限定某个特定内核的内部实现。课件 p.50 对其他扩展的分类是该课件的介绍口径；这里重点掌握所使用的同步行为。
+Pthreads 将互斥锁、条件变量、读写锁等能力提供给应用程序。它规定接口，不限定某个特定内核的内部实现。
 
 用一个字符缓冲区和 `buffer_has_item` 表示空／满，写者与读者共用 `mutex`。下面保留其**轮询检查**的同步核心，将延时操作写成伪代码：
 
@@ -1362,7 +1360,7 @@ while (true) {
         buffer_has_item = 1;
     }
     pthread_mutex_unlock(&mutex);
-    delay();                    // 课件使用 pthread_delay_np
+    delay();                    // 使用 pthread_delay_np
 }
 
 /* reader */
@@ -1565,7 +1563,7 @@ while (true) {
 }
 ```
 
-`door_closed` 对应课件的 `s1`，`arrived` 对应 `s2`。一次关门产生一个本轮启动许可，一次停车产生一个本轮开门许可。
+`door_closed` 对应 `s1`，`arrived` 对应 `s2`。一次关门产生一个本轮启动许可，一次停车产生一个本轮开门许可。
 
 两个初值为 0，是因为**第一轮所依赖的动作尚未完成并发出通知**。特别是 `arrived = 0` 表示尚未获得本轮到站停车的通知，不应解释为汽车在系统初始化时物理上一定正在运动。
 
@@ -2025,3 +2023,401 @@ cnum w = add(local_y, local_z);
 若题目额外要求 `z` 与 `y` 的两次更新必须整体不可分割，那么要扩大保护范围，代价是降低并发；原题画面没有给出这项额外不变式。
 
 </details>
+
+
+## Atomic Transactions
+
+### System Model
+
+**事务（Transaction）**是一组完成同一逻辑功能的操作。原子事务要求这些操作作为整体生效：**全部完成，或者全部撤销**。
+
+**与互斥锁的联系：** 锁可以阻止其他执行者看到不受允许的交错访问，但不会自动撤销崩溃前已经写入存储的数据。事务还要解决故障恢复。
+
+<details>
+<summary>讨论中的转账例子：为什么只有 mutex 不够？</summary>
+
+A 初始为 500，B 初始为 300，转账 100：
+
+```text
+扣 A：500 → 400
+加 B：300 → 400
+```
+
+若只完成扣款就崩溃，留下 A=400、B=300，总额减少。即使两条语句原来被同一个互斥锁保护，锁也没有提供恢复旧数据所需的信息。
+
+事务应保证最终可恢复为转账前的 `(500, 300)`，或者提交后的 `(400, 400)`，不留下只完成一半的结果。
+
+这里的原子性是**整体可观察效果**的原子性，不要求两次磁盘写真的在同一条机器指令内完成。
+
+</details>
+
+### ACID Properties
+
+| 性质 | 要求 | 含义 |
+| --- | --- | --- |
+| Atomicity | 整体生效或整体撤销 | 扣款与入账不能只保留一半 |
+| Consistency | 保持所要求的数据约束 | 正确转账维持总额等业务不变式 |
+| Isolation | 并发事务按规定隔离 | 本节用可串行化描述所要求的并发效果 |
+| Durability | 成功提交的结果可持久保留 | 在所考虑故障后仍能恢复已提交转账 |
+
+一致性还依赖事务逻辑本身正确。把错误的金额计算包进事务，并不会自动使业务规则正确。
+
+### Types of Storage Media
+
+**易失性存储（Volatile Storage）**：内存、缓存等，系统崩溃可能使其中信息丢失。
+
+**非易失性存储（Nonvolatile Storage）**：磁盘、磁带等，通常能在系统崩溃后保留信息，但设备本身仍可能损坏。
+
+**稳定存储（Stable Storage）**：信息不丢失的理想化抽象。
+
+## Log-Based Recovery
+
+### Write-Ahead Logging
+
+**预写日志（Write-Ahead Logging，WAL）** 先记录修改所需的信息，再执行相应的数据更新。
+
+每条修改日志记录：**事务编号、数据项、旧值、新值**。
+
+```text
+<T0 start>
+<T0, A, 90, 100>
+<T0, B, 150, 200>
+<T0 commit>
+```
+
+这表示 T0 将 A 从 90 改为 100、B 从 150 改为 200。
+
+正确顺序可以概括为：
+
+```text
+记录 start
+    ↓
+持久记录 A、B 的旧值和新值
+    ↓
+更新 A、B
+    ↓
+持久记录 commit
+```
+
+不能先更新 A、B，再补日志。中间故障会使恢复程序缺少旧值或缺少已进行修改的证据。
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261019132950.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+### Undo and Redo
+
+**UNDO** 使用旧值撤销未完成事务的修改；**REDO** 使用新值重建已提交事务的效果。
+
+简化恢复规则：
+
+```text
+有 start、没有 commit → UNDO
+有 start、有 commit   → REDO
+```
+
+为什么提交后还可能需要 REDO？持久的提交记录证明事务成功，但数据修改的存储状态可能仍需要恢复程序根据日志补齐。
+
+<details>
+<summary>例题：崩溃后，两笔事务如何处理？</summary>
+
+```text
+<T0 start>
+<T0, A, 90, 100>
+<T0 commit>
+<T1 start>
+<T1, B, 150, 200>
+<crash>
+```
+
+T0 已提交，重做其修改，确保 `A = 100`。T1 没有提交记录，撤销其修改，确保 `B = 150`。
+
+</details>
+
+### Idempotence and Operation Order
+
+恢复过程自己也可能被故障打断，因此要求 UNDO、REDO 具有**幂等性（Idempotence）**：重复执行应与执行一次得到相同效果。
+
+```text
+REDO：A = 100    → 重复设置不会累加
+UNDO：A = 90     → 重复设置不会累减
+```
+
+直接用 `A += 10` 重做，执行两次会重复增加，不能在没有额外去重信息的情况下保证幂等。
+
+<details>
+<summary>按日志语义推导：一个事务连续修改同一数据，撤销顺序为什么重要？</summary>
+
+日志记录 `A: 90→100`，随后 `A: 100→120`。撤销时应从后往前恢复：先回到 100，再回到 90。若反过来，先写 90 后写 100，最终会停在错误的中间状态。
+
+重做则按原更新次序重放：先到 100，再到 120。幂等性并不意味着不同记录可以任意交换顺序。
+
+</details>
+
+## Checkpoints
+
+### Purpose and Procedure
+
+日志很长时，从系统运行之初全部扫描、重做代价很高。**检查点（Checkpoint）**记录一个可利用的恢复边界，缩小恢复范围。
+
+简化检查点过程：先将尚在易失存储中的日志写到稳定存储，再将已修改的数据写出，最后持久记录 `<checkpoint>`。
+
+**检查点不能把未提交事务自动变成已提交事务。** 检查点之前开始、当时还没结束的事务，可能仍需要撤销早于检查点的修改。
+
+### Example
+
+**Four Transactions around a Checkpoint**
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261019133113.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+<details>
+<summary>按图判断：哪些忽略、哪些 REDO、哪些 UNDO？</summary>
+
+按图中事务线段的结束表示正常提交理解：
+
+**T1** 在检查点以前已经完成。其已提交结果在检查点中写出，通常无需再处理。
+
+**T2** 在检查点以前开始、检查点以后提交，并在故障以前结束。它属于检查点时的活动事务，恢复时需要保证其提交结果，执行 REDO。
+
+**T3** 在检查点以前开始，到故障仍未提交。执行 UNDO，可能需要追溯检查点以前的日志。
+
+**T4** 在检查点以后开始，到故障仍未提交。执行 UNDO。
+
+</details>
+
+## Concurrent Atomic Transactions
+
+### Serial Schedules and Serializability
+
+**调度（Schedule）** 表示多个事务操作的执行顺序，每个事务内部仍须遵守自身程序次序。
+
+**串行调度（Serial Schedule）** 先完整执行一笔事务，再执行下一笔。讨论 $N$ 个事务的排列时，共有 $N!$ 种串行顺序。
+
+把全部事务放进同一个巨大临界区可以得到串行执行，但并发性很低。**可串行化（Serializability）**允许事务操作交错，要求交错效果等价于某个串行顺序。
+
+不同串行顺序未必产生相同结果。可串行化要求符合其中某种合法串行顺序，不要求所有顺序结果一致。
+
+> **讨论补充**：仅比较某组初值下的最终数值，不能充分证明可串行化；事务读到了什么、读写依赖是否一致，也要考虑。
+
+### Conflicting Operations
+
+两个操作冲突，需要同时满足：**属于不同事务、访问同一数据项、至少一个是写操作**。
+
+同一项的读—读不冲突；读—写、写—读、写—写冲突。不同数据项之间通常没有这一层的数据项读写冲突。
+
+操作规则：两个**相邻、来自不同事务、互不冲突**的操作可以交换，不改变相应执行效果。若通过这样一系列交换能得到串行调度，就称原调度**冲突可串行化（Conflict Serializable）**。
+
+### Example
+
+**Transforming the Slide Schedule**
+
+先展示 T0 完成后 T1 执行。用 `R0(A)` 表示 T0 读 A，`W0(A)` 表示 T0 写 A：
+
+```text
+R0(A), W0(A), R1(A), W1(A), R0(B), W0(B), R1(B), W1(B)
+```
+
+<div style="display: flex; justify-content: center; gap: 16px;">
+  <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261019133243.png" style="width: calc(50% - 8px); max-width: 420px; height: auto; object-fit: contain; align-self: flex-start;" />
+  <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261019133254.png" style="width: calc(50% - 8px); max-width: 420px; height: auto; object-fit: contain; align-self: flex-start;" />
+</div>
+
+<details>
+<summary>解答：为什么等价于 T0 → T1？</summary>
+
+T1 的 A 操作与 T0 的 B 操作访问不同数据项，可以通过相邻交换把 `R0(B), W0(B)` 向前移到 T1 的 A 操作之前，得到：
+
+```text
+R0(A), W0(A), R0(B), W0(B), R1(A), W1(A), R1(B), W1(B)
+```
+
+即先 T0、后 T1。交换过程没有颠倒同一事务的内部顺序，也没有颠倒同一数据项的冲突顺序。
+
+反过来，若一个调度在 A 上要求 T0 先于 T1，在 B 上又要求 T1 先于 T0，就找不到同时满足两项要求的串行顺序。这可用于快速定位冲突循环。
+
+</details>
+
+## Locking Protocols
+
+### Shared and Exclusive Locks
+
+将锁与数据项关联，事务先申请相应访问权：**共享锁（S）允许读，排他锁（X）允许读写。**
+
+多个 S 可以共存；X 与其他事务的 S、X 都不兼容。某事务申请的锁与当前持有锁冲突时，需要等待。
+
+这与读者—写者规则一致：多个读者共享，写者独占。
+
+### Two-Phase Locking
+
+**两阶段锁协议（Two-Phase Locking，2PL）**把每笔事务分为两个阶段：
+
+```text
+增长阶段：可以取得新锁，不释放锁
+    ↓ 第一次释放锁
+收缩阶段：可以释放已有锁，不再取得新锁
+```
+
+例如：
+
+```text
+lock(A) → lock(B) → 操作数据 → unlock(A) → unlock(B)
+```
+
+**“两阶段”描述每笔事务的加锁／解锁次序，不表示只允许使用两把锁。** 一旦进入收缩阶段，就不能再申请一个以前没有持有的新锁。
+
+在各事务都遵守数据项锁规则和 2PL 的模型下，可以保证冲突可串行化。
+
+<details>
+<summary>推导：为什么 2PL 能建立一个串行等价顺序？</summary>
+
+将事务获得最后一个锁的时刻称为它的锁点。2PL 保证事务释放任何锁之前，已完成所有锁的获取。
+
+若 Ti 对某数据项的冲突访问在 Tj 之前，Tj 获得相应不兼容锁，要等 Ti 释放。Ti 的锁点先于这次释放；Tj 的锁点不早于它获得该锁。因此这条冲突依赖要求 Ti 的锁点早于 Tj 的锁点。
+
+所有冲突依赖都沿锁点的先后方向，因而可以用锁点次序构造串行等价顺序。
+
+</details>
+
+### Deadlock under Two-Phase Locking
+
+**2PL 不保证无死锁。**
+
+```text
+T1：取得 A 的锁 → 请求 B 的锁，等待
+T2：取得 B 的锁 → 请求 A 的锁，等待
+```
+
+两者都还处于增长阶段，都没有违反“释放后不得再加锁”，但已各自持有对方需要的资源，形成死锁。
+
+**可串行化与无死锁是两个不同性质。** 一个并发控制协议可以保证成功完成的调度满足串行等价，同时仍需要额外的死锁处理机制。
+
+## Timestamp-Based Protocols
+
+### Ordering Transactions in Advance
+
+为事务 Ti 分配时间戳 $TS(T_i)$。使用系统时钟或递增逻辑计数器；数值较小者在预定串行顺序中较早。
+
+$$
+TS(T_i)<TS(T_j)\quad\Longrightarrow\quad
+\text{冲突操作应与 }T_i\rightarrow T_j\text{ 的串行顺序一致。}
+$$
+
+它不要求旧事务的所有操作都完成后，新事务才能开始。不同数据项上的非冲突操作仍能交错执行。
+
+### Per-Item Timestamps
+
+每个数据项 Q 维护两个值：
+
+**$R\text{-}TS(Q)$**：成功读取 Q 的事务中，最大的事务时间戳。
+
+**$W\text{-}TS(Q)$**：成功写入 Q 的事务中，最大的事务时间戳。
+
+它们记录访问者的**事务时间戳**，不应直接理解为对应 I/O 操作完成的真实墙钟时间。
+
+### Read Rule
+
+Ti 执行 `read(Q)`：
+
+$$
+TS(T_i)<W\text{-}TS(Q)
+\quad\Longrightarrow\quad
+\text{拒绝读取，回滚 }T_i.
+$$
+
+因为按既定顺序 Ti 应在那次较新写入之前读取，当前值已经被较新的事务覆盖。
+
+否则允许读取，并更新：
+
+$$
+R\text{-}TS(Q)\leftarrow\max\bigl(R\text{-}TS(Q),TS(T_i)\bigr).
+$$
+
+### Write Rule
+
+Ti 执行 `write(Q)` 时，有两种拒绝情况：
+
+$$
+TS(T_i)<R\text{-}TS(Q)
+\quad\text{或}\quad
+TS(T_i)<W\text{-}TS(Q).
+$$
+
+第一种表示较新的事务已经读取了 Q；现在再补入一个按串行次序本应更早发生的写入，会破坏那个读取所依据的顺序。
+
+第二种表示较新的事务已经写过 Q；旧事务现在再覆盖它，会颠倒规定的写入顺序。
+
+两者都不发生时，执行写入并设：
+
+$$
+W\text{-}TS(Q)\leftarrow TS(T_i).
+$$
+
+采用基本协议对以上违规操作进行回滚，并给重启事务分配新时间戳。这里的比较用严格小于号：事务可以读取或继续修改自己已写入的数据，不应因为时间戳相等被直接拒绝。
+
+### Example
+
+**The Schedule**
+
+为方便推演，令 $TS(T_2)=2$、$TS(T_3)=3$，A、B 初始读写时间戳均为 0。
+
+```text
+T2: read(B)   → R-TS(B) = 2
+T3: read(B)   → R-TS(B) = 3
+T3: write(B)  → W-TS(B) = 3
+T2: read(A)   → R-TS(A) = 2
+T3: read(A)   → R-TS(A) = 3
+T3: write(A)  → W-TS(A) = 3
+```
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261019133603.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+<details>
+<summary>为什么 T3 已经写 B，T2 仍可以读 A？改成再次读 B 呢？</summary>
+
+协议针对每个数据项分别检查。T3 写 B 并不意味着它已经写 A；此时 A 的写时间戳仍为 0，因此 T2 读 A 合法。
+
+如果第四步改成 T2 再次读 B，就有：
+
+$$
+TS(T_2)=2<W\text{-}TS(B)=3,
+$$
+
+该读取被拒绝，T2 回滚。
+
+如果 T3 先读 A，使 $R\text{-}TS(A)=3$，随后 T2 尝试写 A，即使 A 还没被 T3 写过，也会因为 $2<3$ 违反写规则。
+
+</details>
+
+### Correctness and Limitations
+
+基本时间戳排序保证冲突可串行化，并避免锁等待形成的死锁。冲突操作按预定时间戳次序执行，违反顺序者回滚重启。
+
+**无死锁不等于没有代价。** 事务可能多次回滚，已经执行的工作可能白做；仅凭该规则也不能保证每个事务只需有限次重试。这是从重启机制能直接看出的进展限制。
+
+对比两阶段锁：前者通过加锁等待协调冲突，可能死锁；此处的基本时间戳协议通过检查并拒绝违规操作维护次序，不形成相同的锁等待环。
+
+## Consistency Models
+
+### Sequential Consistency
+
+**顺序一致性（Sequential Consistency）**：执行结果等价于把所有处理器的操作放入某个全局顺序，并且每个处理器自己的操作仍按程序规定的次序出现。
+
+重点是“存在共同的全局顺序”和“保留各自程序顺序”。这个全局顺序不必把整个进程或整个事务作为不可分割块。
+
+<details>
+<summary>例子：怎样理解保留程序顺序？</summary>
+
+初始 `a = b = 0`。P1 依次执行 `a = 1; b = 1;`，P2 依次读 `b`、再读 `a`。
+
+如果 P2 读到 `b = 1`，在相应全局顺序中，P1 的 `b = 1` 已经位于这次读取以前。又由于 P1 的 `a = 1` 必须更早，P2 后面再读 `a` 时，不能在没有其他写入的情况下读回 0。
+
+</details>
+
+### Causal Consistency
+
+**因果一致性（Causal Consistency）** 要求所有节点以一致次序观察可能具有因果关联的内存操作。彼此没有因果关系的并发写入，可以被不同节点观察为不同顺序。
+
+例如，一条回复依赖于先看到的一条消息；需要保留这组因果先后。两位用户独立发布、互不依赖的消息，则不一定被所有节点排成同一先后顺序。
+
+### Eventual Consistency
+
+**最终一致性（Eventual Consistency）**：对某数据项不再有新更新后，经过传播与协调，各副本最终对该数据给出一致结果。
+。
