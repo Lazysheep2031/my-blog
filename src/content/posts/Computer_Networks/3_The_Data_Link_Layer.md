@@ -1,7 +1,8 @@
 ---
 title: The Data Link Layer
 published: 2026-10-12
-description: 数据链路层概述、分帧、检错与纠错、基本链路协议，以及完整的滑动窗口协议
+updated: 2026-10-19
+description: 数据链路层概述、分帧、检错与纠错、基本链路协议、滑动窗口，以及 PPP、SONET、ADSL／ATM／AAL5 和 DOCSIS
 tags: [计算机网络]
 category: 笔记
 draft: false
@@ -710,7 +711,7 @@ $$
 - $F$：附在末尾的 $r=n-m$ 位帧校验序列（FCS）。
 - $P$：双方约定的 $r+1$ 位生成模式；$Q$、$R$：除法的商与余数。
 
-$P$ 的最高位与最低位都为 1，长度比 FCS 多一位。教材还将位串解释为多项式的系数，例如：
+$P$ 的最高位与最低位都为 1，长度比 FCS 多一位。将位串解释为多项式的系数，例如：
 
 $$
 10011\;\longleftrightarrow\;x^4+x+1
@@ -1054,7 +1055,9 @@ $$
 
 #### Sending Window
 
-发送窗口包含当前允许发送、且尚未得到确认的帧所对应的序号。窗口中的帧可能已经发出，也可能已准备好、允许发送。
+发送窗口规定当前允许发送的连续循环序号范围，其中既可以有已发出但未确认的帧，也可以有尚未使用的发送额度。
+
+**最大允许窗口与当前占用要分开。** 发送窗口从 0 开始增长描述已发送但未确认的区间：取入一个新分组后占用增加，确认到来后占用减少；预设的最大窗口不会因此变成 0。
 
 **已发出但未确认的帧必须保留副本**，因为它们可能在途中损坏或丢失。
 
@@ -1094,6 +1097,28 @@ $$
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261019101016.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
+#### Logical Windows and Buffers
+
+**帧、缓冲区、滑动窗口分别是什么？**
+
+帧是协议组织的数据单元；缓冲区保存待发、待重传或已收到的分组；窗口用序号规定“当前允许处理哪些帧”。分组放入 `buffer`／`out_buf`，需要发送时再构造帧。**窗口前移通过更新序号或索引完成，无须把全部数据在内存中搬动一格。**
+
+SR 可以先把后到序号的帧写入缓冲。因此，窗口的连续性不能用“内存无法跳跃读取”解释；它来自这里采用的连续序号范围、有限缓冲、新旧帧区分与按序交付规则。
+
+<details>
+<summary>讨论例：发送 0、1、2、3，帧 1 丢失，能否直接改发 1、4、5、6？</summary>
+
+取 $M=8$、最大发送和接收窗口均为 4，按协议 6 的**累计 ACK**分析。
+
+1. 接收方收到 0，交付后期待 1；随后收到 2、3，先缓存。接收窗口为 `[1,2,3,4]`，累计确认仍只能到 0。
+2. 发送方收到 ACK0 后，发送范围也可以变为 `[1,2,3,4]`。可以新发 4；遇到有效 NAK 或相应超时，可以重传 1。
+3. 帧 1 尚未补齐并取得相应确认时，5、6 仍在允许发送范围之外。不能仅因 2、3 已经在对端缓存，就把固定的连续窗口替换成 `[1,4,5,6]`。
+4. 补到 1 后，接收方可以连续交付 1、2、3，随后发 ACK3。发送方收到它后，窗口才推进到 `[4,5,6,7]`。若 4 也已到达并缓存，接收方还可以继续交付 4，累计确认到 4。
+
+这里要区分：**对端已经收到某帧**，与**本端已经取得该帧的有效确认**。
+
+</details>
+
 ### A One-Bit Sliding Window Protocol
 
 **协议 4 是双向停等协议**：双方同时具有发送和接收职责，最大发送窗口与接收窗口均为 1，序号为 0、1。
@@ -1103,6 +1128,20 @@ $$
 **`next_frame_to_send`**：本机当前发送分组的序号。
 
 **`frame_expected`**：本机接下来期待从对端收到的序号。
+
+#### Initial ACK and State Variables
+
+`next_frame_to_send` 描述本机发往对端的方向，`frame_expected` 描述对端发往本机的方向。
+
+发出帧中的确认字段为：
+
+$$
+\texttt{s.ack}=1-\texttt{frame\_expected}
+$$
+
+`frame_expected` 指下一帧期待收到什么，`s.ack` 指最近已经按序收到什么。例如，处理完对端的帧 0 后，期待值变为 1，发出的确认就是 0。
+
+**初始 `ack=1` 不表示真的收到过帧 1。** 它是初始化约定：对方正在等待帧 0 的确认，收到初始 ACK1 不会误判帧 0 已成功到达。这个 ACK 也不表示希望对方下一帧发送 1。
 
 #### Two Independent Checks
 
@@ -1165,8 +1204,6 @@ A → B：(0, 1, A2)
 
 这样会出现额外副本。接收端依靠 `frame_expected` 去重，仍可保持每份分组只交付一次；但部分帧的传送没有带来新分组，浪费了带宽。
 
-红箭头为超时重传；该实现每轮事件处理后都会发送当前帧，未确认当前发送帧的接收事件也可能触发重复发送。
-
 </details>
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261012211600.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
@@ -1222,7 +1259,7 @@ $$
 R T_p=50\times10^3\times250\times10^{-3}=12500\,\mathrm{bit}
 $$
 
-折算为帧数，课件记为 $BD$：
+折算为帧数，记为 $BD$：
 
 $$
 BD=\frac{R T_p}{L}=12.5\ \text{帧}
@@ -1256,7 +1293,7 @@ $$
 U=\min\left(1,\frac{W}{1+2a}\right)
 $$
 
-**填满链路所需的窗口下限，与避免序号歧义的窗口上限，需要同时满足。**
+**填满链路所需的窗口下限，与避免序号歧义的窗口上限，需要同时满足。** $\lceil2BD+1\rceil$ 是上述理想条件下达到满利用率所需的下限，并非所有协议必须固定采用的窗口大小。
 
 ### A Protocol Using Go Back N
 
@@ -1284,6 +1321,19 @@ $$
 
 不给被丢弃的帧发送确认表示不会把确认推进到这些被丢弃的新序号；这不妨碍反向帧继续捎带最近连续正确接收位置的 ACK。
 
+<details>
+<summary>捎带确认、累计确认、滑动窗口是不是同一件事？</summary>
+
+它们是三个不同的设计维度：
+
+- **捎带确认**决定 ACK 放在哪里：装进反向数据帧，还是单独成帧。
+- **累计确认**决定 ACK 确认多少：ACK3 可以一次确认连续收到的 0–3。
+- **窗口大小**决定取得确认前，最多允许多大的发送范围。
+
+因此，采用独立 ACK 的协议也可以有多帧窗口、使用累计确认；不能由“没有捎带确认”推出发送窗口必须为 1。
+
+</details>
+
 #### Assumptions of Protocol 5
 
 协议 5 使用**双向数据和捎带累计确认，不发送独立 ACK 帧**。它允许有噪声，网络层也不必一直有分组，新的可发送分组通过 `network_layer_ready` 事件到来。
@@ -1308,6 +1358,8 @@ $$
 代码写作 `(frame_expected + MAX_SEQ) % (MAX_SEQ + 1)`，以避免负数取模问题。
 
 初始化 `frame_expected=0` 时，ACK 为 `MAX_SEQ`。例如 $M=8$ 时初始 ACK7；发送端还会检查这个 ACK 是否落在当前未确认范围内，不会把它当成“已确认了所有帧”。
+
+`packet buffer[MAX_SEQ + 1]` 可以为 0–7 共八种序号提供直接索引位置，但协议 5 仍最多允许 `MAX_SEQ=7` 帧未确认。
 
 #### Circular Interval and the between Function
 
@@ -1447,13 +1499,17 @@ $$
 
 因此，序号共 8 个时，最多允许 7 帧未确认。
 
+**若序号字段有 4 位，GBN 最大发送窗口为 $2^4-1=15$，接收窗口仍为 1。**
+
 </details>
 
 #### Multiple Timers
 
 协议 5 为每一份未确认帧维护**逻辑定时器**。各帧发送时刻不同，可以独立超时；任一超时事件进入上述整批重传处理。
 
-多个逻辑定时器不要求多只物理时钟。图 3-20 用一个软件队列记录各个到期时间或时间差，由一只时钟驱动。
+多个逻辑定时器不要求多只物理时钟。图 3-20 用软件链表维护到期次序，由一只时钟驱动；队首到期后，移除该项并让后继成为新的队首。
+
+图中的 `Ticks to go` 使用相对前一项的时间差。队列中的 5、8、6 ticks 分别对应从当前起 5、13、19 ticks 后到期。经过 5 ticks、第一项到期后，下一项仍需等待 8 ticks。
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261012212637.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
@@ -1462,6 +1518,8 @@ $$
 **选择重传（Selective Repeat，SR）** 允许接收方把丢失帧之后正确到达的帧先缓存起来；需要恢复时，只重传具体缺失或超时的帧，避免 GBN 的整批重复发送。
 
 发送方、接收方都维护窗口。接收端窗口大于 1 时，可以乱序接收，但仍须按序向网络层交付。
+
+**协议 6 仍使用累计 ACK，并加入 NAK 与独立 ACK 定时器。** “选择重传”主要体现在保留乱序帧、只重传具体需要恢复的帧；不能把它直接等同于“每个乱序帧都独立确认”。图中的 ACK5，要等帧 2 的缺口补齐后才发出。
 
 #### Example
 
@@ -1645,6 +1703,8 @@ $M=2^k$ 为序号空间，窗口大小均指最大允许值。
 
 **共同要求：损坏数据不交付，重复数据不重复交付，分组向网络层按序交付；发送方在取得确认前保留重传所需副本。**
 
+**统一 ACK 约定。** 本章代码使用“ACK$n$ 确认至 $n$”；有些题目采用“ACK$n$ 表示下一期待序号为 $n$”。
+
 <details>
 <summary>延伸计算：卫星例题需要 26 帧窗口，序号至少要几位？</summary>
 
@@ -1663,3 +1723,420 @@ $$
 所以在相同的持续发送需求下，GBN 至少需要 5 位序号，SR 至少需要 6 位序号。
 
 </details>
+
+## Examples of Data Link Protocols
+
+两种点对点场景是：**SONET 光纤链路连接运营商不同位置的路由器；ADSL 利用电话网本地环路连接用户与运营商。**
+
+### Point-to-Point Protocol
+
+**点对点协议（Point-to-Point Protocol，PPP）** 位于数据链路层，为两端设备提供承载多种网络层协议的框架，可以适配不同的下层传输技术。主要标准是 RFC 1661 和 RFC 1662。
+
+#### Three Main Features
+
+**成帧与检错。** 明确数据单元的边界，并加入校验字段，检测传输中发生的错误。
+
+**链路控制协议（Link Control Protocol，LCP）。** 建立、配置、测试 PPP 链路，协商选项，并在不再需要时终止链路。
+
+**网络控制协议族（Network Control Protocols，NCPs）。** 为每一种需要支持的网络层协议配置相应的控制协议，协商该网络层协议所需的参数。
+
+#### LCP and NCP
+
+**LCP 管理链路的共用配置；NCP 管理某个网络层协议的专属配置。**
+
+例如，双方需要约定能接收多大的数据单元、是否压缩某些 PPP 字段，属于链路配置；使用 IP 时需要配置 IP 相关参数，则交给对应的 NCP。更换或增加网络层协议时，可以使用相应 NCP，无须把它的全部配置逻辑塞进 LCP。
+
+```text
+                      同一条 PPP 链路
+                            │
+                 LCP：链路共用选项与管理
+                            │
+             ┌──────────────┴──────────────┐
+       IPv4 对应的 NCP                IPv6 对应的 NCP
+             │                             │
+          IPv4 分组                      IPv6 分组
+```
+
+**标准补充，用于具体化前面的讨论：** IPv4 对应 IPCP；IPv6 对应 IPv6CP，例如协商接口标识符。IPv6CP 不能简单等同于分配一个完整 IPv6 地址。
+
+<details>
+<summary>为什么要分成两类控制协议？LCP 协商完成后，是否立即就能传 IP？</summary>
+
+两端首先要在链路共用规则上取得一致，随后还要完成具体网络层协议的配置。LCP 协商成功，只说明链路配置这一关通过；若对应 NCP 尚未配置完成，该网络层协议还没有进入可传数据的状态。
+
+例如，同一链路同时支持 IPv4 与 IPv6，它们的具体配置需求不同，可以分别由各自的 NCP 处理。这种分工减少链路管理与具体网络层协议之间的耦合。
+
+**LCP 与 NCP 的区别是管理对象和配置职责；不能把 NCP 理解成承载用户 IP 数据的另一个数据封装层。** 数据传输时，IP 分组直接作为 PPP 所承载的网络层分组；NCP 报文用于事先及必要时的配置管理。
+
+</details>
+
+### Packet over SONET
+
+#### Protocol Stack and Physical-Layer Role
+
+**同步光网络（Synchronous Optical Network，SONET）** 在这里承担光纤上的物理传输：规定传输速率、信号与复用等特性。PPP 在它之上提供分帧和协议识别。
+
+```text
+路由器 A                            路由器 B
+   IP                                  IP
+   PPP                                 PPP
+   SONET ─────────── 光纤 ──────────── SONET
+```
+
+**四层模型与五层模型的归类。** 第一章的 TCP/IP 四层模型把物理层与数据链路层相关技术放在较宽泛的链路层范围内；本章分开讨论两层时，按图中的职责把 SONET 放在 PPP 下方的物理层。ADSL 也要结合这一层次区分理解。
+
+#### Fixed-Rate Transmission and Frame Mapping
+
+SONET 提供规定速率的比特流，按固定大小的字节载荷组织，每隔：
+
+$$
+125\ \mu\mathrm{s}
+$$
+
+重复一次，即每秒 $8000$ 个周期。**即使没有用户数据，同步传输结构也继续运行**，填入空闲字节或约定模式；不要求空闲内容一定全为 0。
+
+PPP 数据帧是变长的，因此两种“帧”的边界不要求相同：
+
+```text
+IP 分组 → PPP 帧 → 映射到连续的 SONET 载荷中
+```
+
+**一份 PPP 帧可以跨越相邻 SONET 载荷。** 接收方从下层取得字节流，再按 PPP 自己的分隔规则恢复帧，不能把一个 SONET 载荷的结束位置直接当作 PPP 帧尾。
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261019140503.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+### The PPP Frame Format
+
+```text
+Flag | Address | Control | Protocol | Payload | FCS | Flag
+ 7E      FF        03      1或2字节     变长    2或4字节  7E
+```
+
+| 字段 | 长度或取值 | 作用 |
+| --- | --- | --- |
+| Flag | 1 字节，`0x7E = 01111110` | 标识帧边界 |
+| Address | 1 字节，`0xFF = 11111111` | 固定的全站地址形式，无须给这条点对点链路上的各站单独分配该字段 |
+| Control | 1 字节，`0x03 = 00000011` | 表示本节使用的无编号帧 |
+| Protocol | 默认 2 字节，可按相应选项压缩 | 告诉接收端载荷属于哪种协议 |
+| Payload | 可变长，默认最大接收长度为 1500 字节 | 承载 IP 分组、LCP 报文、NCP 报文等 |
+| FCS／Checksum | 通用格式通常 2 字节，也有 4 字节形式 | 利用 CRC 检测错误 |
+
+**1500 字节是默认上限，不是每帧固定长度。**
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261019140540.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+#### Protocol Identification
+
+**以 0 位开头的编码用于 IPv4、IPv6 等网络层协议；以 1 位开头的编码用于 PPP 的配置／控制协议。**
+
+这个字段使接收方能够区分：当前收到的是用户 IP 数据，还是用于建立与配置链路的控制报文。LCP、NCP 报文也由 PPP 承载，不能把所有 PPP 载荷都当作 IP 分组。
+
+例如，链路建立时收到一帧，其 Protocol 指向 LCP，接收端就把载荷交给 LCP 处理；进入正常 IP 传输后，Protocol 指向对应 IP 协议，再交给网络层。
+
+#### Byte Stuffing
+
+本节的 PPP 字节成帧中，边界标志为 `0x7E`，转义字节为 `0x7D`。数据中出现需要转义的字节 $b$ 时，发送：
+
+$$
+\boxed{b\longrightarrow \mathtt{0x7D}\;\Vert\;(b\oplus\mathtt{0x20})}
+$$
+
+例子：
+
+$$
+\mathtt{0x7E}\oplus\mathtt{0x20}=\mathtt{0x5E}
+$$
+
+所以：
+
+```text
+数据中的 7E → 7D 5E
+真正的边界 7E → 仍为 7E
+```
+
+接收方识别帧边界后，遇到 `7D` 就去掉它，再将后一个字节与 `20` 异或，恢复原字节。转义字节自身的处理：`7D → 7D 5D`。
+
+<details>
+<summary>展开：转义、还原，以及为什么不能与“连续五个 1 后插 0”混用</summary>
+
+以数据 `41 7E 7D 42` 为例，仅考虑这里展示的两种特殊字节：
+
+```text
+原始字节：41     7E       7D     42
+转义结果：41   7D 5E    7D 5D   42
+```
+
+接收端：
+
+```text
+7D 5E → 5E XOR 20 → 7E
+7D 5D → 5D XOR 20 → 7D
+```
+
+因此还原为 `41 7E 7D 42`。
+
+</details>
+
+相邻 PPP 帧之间可以共用一个 Flag；空闲时也可以发送多个 Flag 填充链路。
+
+#### Error Detection and Service Model
+
+帧格式图把校验字段写成 **Checksum**，这里使用的是 **CRC 型 FCS**，与前面“16 位反码求和”的 Internet Checksum 算法要区分。校验失败说明检测到错误，不能据此认为 FCS 能直接修复全部错误。
+
+**无编号模式提供无连接、无确认的数据传送服务。** 它没有前面协议 4–6 中用来逐帧确认和重传的数据序号机制。PPP 具备 LCP 建链过程，并不自动意味着用户数据采用滑动窗口可靠传送。
+
+<details>
+<summary>为什么 PPP 需要建立链路，却可以提供无确认的数据服务？</summary>
+
+需要区分两个问题：
+
+**链路管理**：双方建立运行关系、协商格式和选项、必要时认证、配置网络层；由 LCP 和相应 NCP 等完成。
+
+**用户数据交付**：是否为每份数据编号、确认、超时重传，并承诺可靠、有序交付；本节的 PPP 无编号模式没有提供前面滑动窗口那套数据可靠性交付机制。
+
+</details>
+
+#### Scrambling for Synchronization
+
+PPP 数据映射进 SONET 载荷时，还会涉及**扰码（Scrambling）**。
+
+按这个概念模型，若数据为 $d$，扰码序列为 $p$：
+
+$$
+x=d\oplus p,\qquad x\oplus p=d
+$$
+
+它与第二章的时钟恢复问题对应。**字节填充负责数据透明性与帧边界；CRC 负责检错；扰码改善比特流特征。**
+
+### PPP Link Up and Down
+
+```text
+DEAD
+  │ 物理连接可用
+  ▼
+ESTABLISH       交换 LCP 报文，协商链路选项
+  │ 协商成功
+  ▼
+AUTHENTICATE    若要求认证，检查对端身份
+  │ 认证成功／无需认证
+  ▼
+NETWORK         交换对应 NCP 报文，配置网络层协议
+  │ 相应配置完成
+  ▼
+OPEN            传送该网络层协议的数据分组
+  │ 结束使用
+  ▼
+TERMINATE       终止链路
+  │ 完成关闭、物理连接断开
+  ▼
+DEAD
+```
+
+**DEAD** 表示物理层尚未建立连接。物理连接可用后，才进入 LCP 所处理的建立阶段；LCP 自己不承担把断开的电缆接通这一物理工作。
+
+**ESTABLISH** 阶段，两端可以提出选项、接受或拒绝选项，也可以提出替代方案。**NETWORK** 阶段再配置具体的网络层协议。相应配置完成后，进入 **OPEN**，开始承载用户数据。
+
+图中也包含失败路径：协商失败可能回到 DEAD；认证失败进入终止过程。**认证是可选的**。
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261019140840.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+### ADSL, ATM, and AAL5
+
+#### Access Technology and Network Devices
+
+**非对称数字用户线（ADSL）** 利用电话双绞线本地环路提供数据接入，上下行容量通常不同。它的物理层采用第二章介绍的多载波调制思路，称为 OFDM，也称离散多音调制 DMT。
+
+**数字用户线接入复用器（DSLAM）** 是运营商侧汇聚、处理多条 DSL 用户线路的设备。
+
+**ADSL 是传输技术，DSLAM 是使用这类技术的网络设备。** 两个名字相近，不能互换。
+
+```text
+用户计算机 ── 以太网 ── DSL modem
+                           │
+                      电话本地环路
+                           │ ADSL
+                           ▼
+                    DSLAM／关联路由器 ── ISP 网络
+```
+
+接入线路上的数据到达 DSLAM 或与之连接的路由器后，提取 IP 分组，再交给 ISP 网络转发。
+
+#### The Protocol Stack
+
+本节采用的 **ATM 承载 ADSL 示例**为：
+
+```text
+IP
+PPP
+AAL5
+ATM
+ADSL
+```
+
+PPP 继续负责链路配置与承载 IP；ADSL 负责底层调制和传输。中间为什么还需要 ATM 和 AAL5？关键是**上层变长数据单元与 ATM 固定长度信元之间存在格式差异**。
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261019140920.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+#### ATM Cells and Virtual Circuits
+
+**异步传输模式（Asynchronous Transfer Mode，ATM）** 按固定长度的**信元（Cell）**传送信息，每个信元为：
+
+$$
+\boxed{53\ \text{字节}=5\ \text{字节头部}+48\ \text{字节载荷}}
+$$
+
+这些载荷可以承载语音、数据、电视等信息。固定而较小的信元，使链路能按较细的单位在不同业务之间分配传输机会。
+
+**ATM 是面向连接的技术。** 每个信元的头部携带虚电路标识；设备根据已建立连接的转发信息，将信元沿相应路径传送。
+
+#### Segmentation and Reassembly
+
+每个 ATM 信元只能携带 48 字节载荷，上层交来的数据通常更长且长度不固定，因此需要适配层。
+
+**ATM 适配层 5（ATM Adaptation Layer 5，AAL5）** 负责这类分组数据的**分段与重组（Segmentation and Reassembly）**：发送时把适配后的数据切成若干份 48 字节载荷；接收时再重组成上层数据单元。
+
+```text
+上层变长数据
+    ↓ 加上适配层尾部及必要填充
+长度为 48 字节整数倍的 AAL5 数据单元
+    ↓ 每 48 字节切一段
+[48 字节] [48 字节] [48 字节] ...
+    ↓ 每段加入 5 字节 ATM 头部
+[53 字节信元] [53 字节信元] [53 字节信元] ...
+```
+
+接收端沿相反方向恢复；AAL5 的长度信息帮助区分真实载荷与填充，CRC 用于检查重组后的数据。
+
+#### AAL5 Frame Format
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261019141038.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+```text
+PPP Protocol | PPP Payload | Pad | Unused | Length | CRC
+   1或2字节       可变       0–47字节  2字节   2字节   4字节
+└────── AAL5 Payload ──────┘         └── AAL5 Trailer：8字节 ──┘
+```
+
+**尾部共 8 字节**：由 2 字节 Unused、2 字节 Length 和 4 字节 CRC 组成。
+
+**没有额外的地址字段。** ATM 信元头部中的虚电路标识已经承担沿已建立路径转发的作用，AAL5 无须再次增加目的地址。
+
+**填充后的整体长度必须是 48 的整数倍。**
+
+<details>
+<summary>为什么 AAL5 中只保留 PPP 的 Protocol 和 Payload？</summary>
+
+在这里的 PPP over ATM 映射中，AAL5 载荷放入的是 **PPP Protocol 和 PPP Payload**。
+
+ATM／AAL5 已经提供分帧与适配，AAL5 尾部还提供 CRC，因此这一映射不再把完整 HDLC-like PPP 格式的 Flag、Address、Control 和独立 PPP FCS 全部重复封装进去。
+
+PPP Protocol 仍有必要：它告诉对端重组出的内容是 IP 分组，还是 LCP 等控制报文。因此，即使外部成帧机制变化，PPP 的多协议承载和配置框架仍然有作用。
+
+**“两种链路都用 PPP”不等于“两种链路都原样携带同一套 PPP 头尾”。**
+
+</details>
+
+<details>
+<summary>例题：1000 字节数据经过 AAL5／ATM，需要多少个信元？</summary>
+
+设 $L=1000$ 字节是**整个 AAL5 载荷长度**，已经包含本例中的 PPP Protocol 与 PPP Payload。
+
+加入 8 字节尾部后：
+
+$$
+L+8=1008=21\times48
+$$
+
+因此无需额外 Pad，需要 **21 个 ATM 信元**。每个信元再加自己的 5 字节头部，ATM 层总发送长度为：
+
+$$
+\boxed{21\times53=1113\ \text{字节}}
+$$
+
+这里尚未计入 ADSL 物理层的编码等开销。
+
+一般公式可由同样的格式推导：
+
+$$
+N_{\mathrm{cell}}=\left\lceil\frac{L+8}{48}\right\rceil,\qquad
+P=48N_{\mathrm{cell}}-(L+8),\qquad
+L_{\mathrm{ATM}}=53N_{\mathrm{cell}}
+$$
+
+其中 $0\le P\le47$。
+
+若“1000 字节”指 IP 分组，另外还要放入 2 字节 PPP Protocol，则 $L=1002$：
+
+$$
+N_{\mathrm{cell}}=\left\lceil\frac{1002+8}{48}\right\rceil=22,\qquad
+P=1056-1010=46
+$$
+
+此时需要 22 个信元，ATM 层发送 $22\times53=1166$ 字节。
+
+</details>
+
+### Data Over Cable Service Interface Specification
+
+**有线电缆数据服务接口规范（Data Over Cable Service Interface Specification，DOCSIS）** 用于通过有线电视接入基础设施提供数据业务。
+
+#### Cable Modem and CMTS
+
+**Cable Modem** 位于用户侧；**电缆调制解调器终端系统（Cable Modem Termination System，CMTS）** 位于运营商侧，管理多个用户的接入与传输资源。
+
+```text
+用户 A 的 Cable Modem ──┐
+用户 B 的 Cable Modem ──┼── HFC 接入网络 ── CMTS ── 运营商网络
+用户 C 的 Cable Modem ──┘
+```
+
+**CMTS 的位置和性质：它是运营商侧的网络设备，不是家里的机顶盒**
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261019141232.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+#### Shared Channels and MAC
+
+DOCSIS 的内容涉及**物理层／物理介质相关子层（PMD）**和**介质访问控制子层（MAC）**。
+
+- **下行**：CMTS → 用户终端。
+- **上行**：用户终端 → CMTS。
+
+上下行资源由多个 Cable Modem 共享。因此除了成帧与纠错，还要解决**带宽如何分配、用户如何使用共享信道**的问题；
+
+CMTS 不只传用户数据，还周期性发送管理信息，涉及**测距、信道分配及其他资源分配任务**。
+
+#### Framing before DOCSIS 3.1
+
+DOCSIS 3.1 之前的下行传输使用 MPEG 传输汇聚结构，单位长度为：
+
+$$
+\boxed{188\ \text{字节}=4\ \text{字节头部}+184\ \text{字节载荷}}
+$$
+
+#### Modulation Profiles and Error Correction
+
+DOCSIS 3.1 中
+
+```text
+DOCSIS 分组
+    ↓ 按业务流标识、QoS 参数和调制配置组织
+相同调制配置的发送缓冲
+    ↓ Codeword Builder
+FEC 码字
+    ↓ 对应物理层调制
+共享信道
+```
+
+**调制配置（Modulation Profile）** 是对应 OFDM 各子载波的调制阶数／比特装载列表。它说明各子载波采用怎样的调制和承载能力。按相同配置组织缓冲，有助于把数据交给对应的码字构造与物理传输过程。
+
+各配置的发送缓冲应保持较浅，避免形成明显排队时延。随后把 DOCSIS 帧映射为**前向纠错（FEC）**码字：下行采用 BCH 与 LDPC 保护，上行采用 LDPC 保护。
+
+#### Idle Filling and Channel Bonding
+
+**空闲填充。** 没有下行 DOCSIS 数据帧时，通过相应空闲内容填充 OFDM／码字结构，例如全零比特填充内容或在码字中填入 1 序列。
+
+这部分称为 **byte stuffing**。
+
+**信道绑定（Channel Bonding）。** 自 DOCSIS 3.0 起，一个用户可以同时使用多条上行、下行信道。它把多条信道资源结合起来，提高用户可用的总传输能力。
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261019141355.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
