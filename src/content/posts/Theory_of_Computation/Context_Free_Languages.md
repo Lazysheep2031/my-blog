@@ -500,3 +500,245 @@ $$
 对非空合法括号串，第一个左括号的匹配位置唯一确定分解 $(x)y$，再递归处理 $x,y$，就得到唯一的树结构。
 
 **文法歧义是某个表示的性质；固有歧义是语言的性质。** 若一个 CFL 的所有 CFG 表示都存在歧义，称它具有固有歧义。一个具体文法有歧义，尚不能断言它的语言具有固有歧义。
+
+## Pushdown Automata
+
+### From Finite Automata to a Stack
+
+有限自动机只能通过有限个状态保存信息。处理回文串时，需要记住前半段并按相反顺序核对后半段；处理括号匹配时，需要保存尚未匹配的左括号。这些任务自然对应一个**后进先出（LIFO）的栈**。
+
+**下推自动机（Pushdown Automaton，PDA）** 在有限控制器之外增加一个栈。它从左向右读输入，可以读一个输入符号并操作栈，也可以暂时不读输入，只改变状态和栈。
+
+栈允许使用任意有限的存储空间，但只能在栈顶操作。读取顺序与栈的存取方式共同决定了它的能力。
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261020144950.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+### Formal Definition
+
+采用六元组：
+
+$$
+M=(K,\Sigma,\Gamma,\Delta,s,F),
+$$
+
+其中：
+
+- $K$：有限状态集；
+- $\Sigma$：输入字母表；
+- $\Gamma$：栈字母表，可以与输入字母表不同；
+- $s\in K$：初始状态；
+- $F\subseteq K$：终态集；
+- $\Delta$：**有限的**转换关系，满足
+
+$$
+\Delta\subseteq
+\bigl(K\times(\Sigma\cup\{e\})\times\Gamma^*\bigr)
+\times\bigl(K\times\Gamma^*\bigr).
+$$
+
+**允许一次替换栈顶的一个有限字符串。** 因此转换中的栈操作对象属于 $\Gamma^*$，长度可以为零、一个或多个符号；后面会把这种一般形式化成更受限制的简单 PDA。
+
+### Transitions and Configurations
+
+转换
+
+$$
+((p,a,\beta),(q,\gamma))\in\Delta
+$$
+
+表示：在状态 $p$，如果剩余输入以 $a$ 开头、栈顶以 $\beta$ 开头，就读掉 $a$，把栈顶的 $\beta$ 替换成 $\gamma$，进入 $q$。
+
+- 若 $a=e$，不消耗输入，读头保持不动。
+- 若 $\beta=e$，不要求匹配任何栈符号，可以直接压入 $\gamma$；**这也适用于非空栈，不能把它理解为“检查栈是否为空”。**
+- 若 $\gamma=e$，弹出 $\beta$。
+- 若 $\beta=\gamma=e$，栈保持不变。
+
+例如，$((p,a,e),(q,b))$ 读一个 $a$ 并压入 $b$；$((p,a,b),(q,e))$ 读一个 $a$ 并弹出栈顶的 $b$。
+
+PDA 的**配置（Configuration）** 写作
+
+$$
+(q,w,\alpha)\in K\times\Sigma^*\times\Gamma^*,
+$$
+
+三个分量依次表示当前状态、**尚未读取的输入**、栈内容。本章始终约定**栈顶在左**：栈串 $abc$ 的栈顶是 $a$，栈底是 $c$。
+
+一次合法转换可以完整地写为：
+
+$$
+(p,ay,\beta\eta)\vdash_M(q,y,\gamma\eta),
+\qquad ((p,a,\beta),(q,\gamma))\in\Delta.
+$$
+
+其中 $\eta$ 是保持不变的栈底部分。$\vdash_M^*$ 是 $\vdash_M$ 的自反、传递闭包，表示**零步或多步**计算。
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261020145151.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+### Acceptance Conditions
+
+初始栈为空。它接受 $w$ 当且仅当
+
+$$
+\exists f\in F,\qquad
+(s,w,e)\vdash_M^*(f,e,e).
+$$
+
+这要求某条有限计算同时满足：**输入读完、栈清空、进入终态**。因此
+
+$$
+L(M)=\{w\in\Sigma^*:\exists f\in F,\ (s,w,e)\vdash_M^*(f,e,e)\}.
+$$
+
+一般 PDA 允许同一配置有多个可用转换。接受的含义是**存在一条成功的计算分支**；某些分支卡住或无法接受，不妨碍其他分支接受。
+
+### Example
+
+1. **Marked Palindromes**
+
+构造 PDA 接受
+
+$$
+L=\{wcw^R:w\in\{a,b\}^*\}.
+$$
+
+**思路：读到 $c$ 前将符号依次压栈；读到 $c$ 后，逐个读输入并与栈顶配对弹出。** $c$ 明确标出了前后两段的分界。
+
+取
+
+$$
+K=\{s,f\},\quad\Sigma=\{a,b,c\},\quad
+\Gamma=\{a,b\},\quad F=\{f\},
+$$
+
+转换关系包含：
+
+$$
+\begin{aligned}
+&((s,a,e),(s,a)), &&((s,b,e),(s,b)),\\
+&((s,c,e),(f,e)),\\
+&((f,a,a),(f,e)), &&((f,b,b),(f,e)).
+\end{aligned}
+$$
+
+进入 $f$ 后还需要继续读输入、清空栈，不能在刚读到 $c$ 时就宣告接受。$w=e$ 时，输入 `c` 也在语言中。
+
+<details>
+<summary>展开例题：输入 abbcbba 的完整计算</summary>
+
+$$
+\begin{aligned}
+(s,abbcbba,e)
+&\vdash(s,bbcbba,a)\\
+&\vdash(s,bcbba,ba)\\
+&\vdash(s,cbba,bba)\\
+&\vdash(f,bba,bba)\\
+&\vdash(f,ba,ba)\\
+&\vdash(f,a,a)\\
+&\vdash(f,e,e).
+\end{aligned}
+$$
+
+压入的顺序是 $a,b,b$，弹出的顺序是 $b,b,a$，恰好核对 $w^R$。若输入与栈顶不匹配，或输入读完后栈里仍有符号，这条分支不能接受。
+
+</details>
+
+2. **Even-Length Palindromes**
+
+对
+
+$$
+L=\{ww^R:w\in\{a,b\}^*\},
+$$
+
+沿用上例的两个状态和压栈、匹配转换，把分界转换改成
+
+$$
+((s,e,e),(f,e)),
+$$
+
+并取输入字母表 $\Sigma=\{a,b\}$。
+
+在状态 $s$，机器可以继续读符号并压栈，也可以通过上述 $e$ 转换切换到匹配阶段。这个选择相当于**非确定地猜测中点**。
+
+猜得过早或过晚的分支会失败；输入确为偶数长度回文时，存在恰好在中点切换的分支。空串通过 $(s,e,e)\vdash(f,e,e)$ 接受。
+
+3. **Equal Numbers of a and b**
+
+构造 PDA 接受
+
+$$
+L=\{w\in\{a,b\}^*:w\text{ 中 }a,b\text{ 的数量相等}\}.
+$$
+
+这里字符顺序任意。**栈保存已经读取的前缀中尚未抵消的同类符号**：读到同类符号就压栈，读到异类符号就弹出一个；栈底保留标记 $c$。
+
+设前缀为 $u$，用 $\#_a(u)$、$\#_b(u)$ 分别表示其中的字符数量。令 $d=\#_a(u)-\#_b(u)$，则状态 $q$ 下的栈始终满足
+
+$$
+\text{stack}=
+\begin{cases}
+a^dc,&d>0,\\
+c,&d=0,\\
+b^{-d}c,&d<0.
+\end{cases}
+$$
+
+这个不变式同时给出了设计方法和正确性依据。
+
+<details>
+<summary>展开完整构造与输入 abbbabaa 的计算</summary>
+
+取 $K=\{s,q,f\}$，$\Sigma=\{a,b\}$，$\Gamma=\{a,b,c\}$，$F=\{f\}$。转换为
+
+$$
+\begin{aligned}
+&(1)&&((s,e,e),(q,c)),\\
+&(2)&&((q,a,c),(q,ac)),\\
+&(3)&&((q,a,a),(q,aa)),\\
+&(4)&&((q,a,b),(q,e)),\\
+&(5)&&((q,b,c),(q,bc)),\\
+&(6)&&((q,b,b),(q,bb)),\\
+&(7)&&((q,b,a),(q,e)),\\
+&(8)&&((q,e,c),(f,e)).
+\end{aligned}
+$$
+
+转换 (1) 放入栈底标记；(2)–(7) 更新数量差；(8) 在数量差为零时弹掉标记并进入终态。
+
+$$
+\begin{aligned}
+(s,abbbabaa,e)
+&\vdash(q,abbbabaa,c)\\
+&\vdash(q,bbbabaa,ac)\\
+&\vdash(q,bbabaa,c)\\
+&\vdash(q,babaa,bc)\\
+&\vdash(q,abaa,bbc)\\
+&\vdash(q,baa,bc)\\
+&\vdash(q,aa,bbc)\\
+&\vdash(q,a,bc)\\
+&\vdash(q,e,c)\\
+&\vdash(f,e,e).
+\end{aligned}
+$$
+
+不变式对空前缀成立，每一种读入转换也保持它。因此读完整个输入后，栈只剩 $c$ 当且仅当 $a,b$ 数量相等。若尚有输入就提前使用 (8)，由于 $f$ 没有后续转换，这条分支不会接受。
+
+</details>
+
+### Finite Automata as Pushdown Automata
+
+任何有限自动机都可看成始终不使用栈的 PDA。将 NFA 的每条转换
+
+$$
+(p,a,q)
+$$
+
+替换为
+
+$$
+((p,a,e),(q,e)),
+$$
+
+其余状态、初态、终态保持一致，便得到相同语言。栈一直为空，所以接受条件与原 NFA 对齐。
+
+这说明 PDA 至少能够接受所有正则语言；回文等例子展示了栈带来的额外能力。
