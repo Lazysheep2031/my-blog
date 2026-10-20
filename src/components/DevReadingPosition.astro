@@ -1,0 +1,82 @@
+---
+// Included only by the development server; never shipped in the built site.
+---
+<script is:inline>
+(() => {
+	const key = "blog:dev-reading-position";
+	const page = () => location.pathname + location.search + location.hash;
+	let saved;
+	try {
+		saved = JSON.parse(sessionStorage.getItem(key) || "null");
+		sessionStorage.removeItem(key);
+	} catch {}
+
+	const navigation = performance.getEntriesByType("navigation")[0];
+	let restoring = navigation?.type === "reload" && saved?.page === page()
+		&& Number.isFinite(saved?.y);
+
+	// Preserve a section-relative position when edits above it change page height.
+	const remember = () => {
+		if (restoring) return;
+		const headings = [...document.querySelectorAll("#post-container :is(h2,h3,h4)[id]")];
+		const anchor = headings.filter(node => node.getBoundingClientRect().top <= 100).at(-1);
+		try {
+			sessionStorage.setItem(key, JSON.stringify({
+				page: page(),
+				y: window.scrollY,
+				anchor: anchor?.id,
+				offset: anchor?.getBoundingClientRect().top,
+			}));
+		} catch {}
+	};
+	window.addEventListener("pagehide", remember);
+
+	if (!restoring) return;
+	const originalRestoration = history.scrollRestoration;
+	history.scrollRestoration = "manual";
+	const restore = () => {
+		if (!restoring) return;
+		const anchor = saved.anchor && document.getElementById(saved.anchor);
+		const y = anchor && Number.isFinite(saved.offset)
+			? window.scrollY + anchor.getBoundingClientRect().top - saved.offset
+			: saved.y;
+		window.scrollTo({ top: y, behavior: "instant" });
+	};
+	const stop = () => {
+		restoring = false;
+		history.scrollRestoration = originalRestoration;
+		observer.disconnect();
+		cancelAnimationFrame(frame);
+		for (const event of ["wheel", "touchstart", "pointerdown", "keydown"]) {
+			window.removeEventListener(event, stop);
+		}
+	};
+	// Restore while the document arrives, before the normal first painted frame.
+	let frame = 0;
+	const schedule = () => {
+		cancelAnimationFrame(frame);
+		frame = requestAnimationFrame(restore);
+	};
+	const observer = new MutationObserver(schedule);
+	observer.observe(document.documentElement, { childList: true, subtree: true });
+	document.addEventListener("DOMContentLoaded", restore, { once: true });
+	window.addEventListener("load", async () => {
+		await document.fonts.ready;
+		restore();
+		stop();
+	}, { once: true });
+	// Never pull the reader back after they deliberately scroll or navigate.
+	for (const event of ["wheel", "touchstart", "pointerdown", "keydown"]) {
+		window.addEventListener(event, stop, { passive: true });
+	}
+	setTimeout(stop, 5000);
+})();
+</script>
+<style is:inline>
+	/* Replaying the theme's entrance animation makes every save feel like navigation. */
+	.onload-animation {
+		animation: none !important;
+		opacity: 1 !important;
+		transform: none !important;
+	}
+</style>

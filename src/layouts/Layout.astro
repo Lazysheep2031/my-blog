@@ -12,6 +12,7 @@ import "@fontsource/roboto/500.css";
 import "@fontsource/roboto/700.css";
 
 import ConfigCarrier from "@components/ConfigCarrier.astro";
+import DevReadingPosition from "@components/DevReadingPosition.astro";
 import Analytics from "@vercel/analytics/astro";
 import { profileConfig, siteConfig } from "@/config";
 import {
@@ -86,6 +87,7 @@ const bannerOffset =
 	  data-overlayscrollbars-initialize
 >
 	<head>
+		{import.meta.env.DEV && <DevReadingPosition />}
 
 		<title>{pageTitle}</title>
 
