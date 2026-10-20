@@ -95,7 +95,7 @@ int z;
 iss >> x >> y >> z;
 ```
 
-1. `>>` 是“**尽量多读，直到失败**”
+1. `>>` 是“ **尽量多读，直到失败** ”
 
 - 读 `int`：
   - 跳过空白
@@ -104,7 +104,7 @@ iss >> x >> y >> z;
   - 跳过空白
   - 读到下一个空白
 
-- @ 这和 `cin` **完全一样**。
+- @ 这和 `cin` **完全一样** 。
 
 2. 失败 ≠ 抛异常
    如果失败了，比如：
@@ -113,7 +113,7 @@ iss >> x >> y >> z;
    而是：
 
 - `iss.fail()` → `true`
-- 之后的所有 `>>` 都会**直接跳过，不干活**
+- 之后的所有 `>>` 都会 **直接跳过，不干活**
 
 3. stream 有状态位（state bits）
 
@@ -156,7 +156,7 @@ int stringToInteger(const string& str) {
 | `"abc"`    | fail   | —      | ❌   |
 | `"123 "`   | 成功   | fail   | ✅   |
 
-> **一次成功不代表输入是干净的**💡 
+> **一次成功不代表输入是干净的** 💡 
 
 ## State bits
 
@@ -237,7 +237,7 @@ What is your name? Avery Wang What is your age? Where are you from? Hello Avery(
 `Avery Wang\n`
 结果是：
 `name = "Avery"`
-输入缓冲区中 **还剩下**：
+输入缓冲区中 **还剩下** ：
 `"Wang\n"`
 
 ---
@@ -361,7 +361,7 @@ std::unordered_map<std::forward_list<Student>, std::unordered_set<...>>::iterato
 
 ### `using`
 
-**用 Type Alias（类型别名）解决**：`using`
+**用 Type Alias（类型别名）解决** ：`using`
 
 ```cpp
 using map_iterator = std::unordered_map< std::forward_list<Student>, std::unordered_set<...> >::iterator;
@@ -382,7 +382,7 @@ using 新名字 = 原类型;
 - 一处改动，全局受益：只要改 alias 那一行即可
 - 表达语义：`map_iterator` 让读者立刻知道它是某个 map 的迭代器
 
-**alias 仍然有点易错**，因为你仍然需要自己决定到底用哪个：
+**alias 仍然有点易错** ，因为你仍然需要自己决定到底用哪个：
 
 - `iterator` 还是 `const_iterator`？
 - 如果你写的是：
@@ -431,7 +431,7 @@ auto& refMult = multiplier;    // 引用：double&
 auto func = [](auto i){ return i*2; }; // lambda 的闭包类型（很长，auto 很有用）
 ```
 
-**一个重要坑**：字符串字面量
+**一个重要坑** ：字符串字面量
 
 - `auto name = "Avery";` 推导成 **const char\***（C 风格字符串）
 - 如果你想要 `std::string`，写：
@@ -448,8 +448,8 @@ auto name = std::string{"Avery"};
 
 **Correctness**
 
-- 避免**未初始化变量**（尤其是你本来想写某个复杂类型，但写错导致没赋上）
-- 避免**隐式转换的坑**（比如把某个复杂 iterator 类型写错）
+- 避免 **未初始化变量** （尤其是你本来想写某个复杂类型，但写错导致没赋上）
+- 避免 **隐式转换的坑** （比如把某个复杂 iterator 类型写错）
 - 避免 `iterator` vs `const_iterator` 搞混
 
 **Flexibility**
@@ -464,7 +464,7 @@ auto name = std::string{"Avery"};
 ✅ 建议用：
 
 - **类型从上下文一眼能看出**
-- **确切类型不重要**（你只关心能用它做什么）
+- **确切类型不重要** （你只关心能用它做什么）
   - 典型：迭代器、lambda 的闭包类型、模板返回值
 
 ❌ 不建议用：
@@ -552,7 +552,7 @@ cout << mn << " " << mx;
 > std::string
 > ```
 >
-> 它是 **C++ 标准库里的一个类（class）**，不是 C 语言的字符串。
+> 它是 **C++ 标准库里的一个类（class）** ，不是 C 语言的字符串。
 >
 > `std::string` 的本质
 >
@@ -561,7 +561,7 @@ cout << mn << " " << mx;
 > - 记录长度
 > - 可以安全复制、传参、返回
 >
-> 和 C 语言的字符串（`char[]` / `char*`）**完全不是一类东西**
+> 和 C 语言的字符串（`char[]` / `char*`） **完全不是一类东西**
 >
 > `&`：引用（reference）
 >
@@ -626,13 +626,13 @@ cout << mn << " " << mx;
 >
 > **“类型的函数 / 类型的类”**
 >
-> **普通函数**（固定类型）
+> **普通函数** （固定类型）
 >
 > ```cpp
 > int add(int a, int b);
 > ```
 >
-> **模板函数**（类型参数化）
+> **模板函数** （类型参数化）
 >
 > ```cpp
 > template<typename T>
@@ -694,7 +694,7 @@ cout << mn << " " << mx;
 > | `begin()`  | `iterator`       |
 > | `cbegin()` | `const_iterator` |
 >
-> 因为有时候你**明确想表达“只读遍历”**：
+> 因为有时候你 **明确想表达“只读遍历”** ：
 >
 > ```cpp
 > for (auto it = v.cbegin(); it != v.cend(); ++it) {
@@ -753,6 +753,6 @@ cout << mn << " " << mx;
 > - 别人库里的 `string`
 > - 标准库里的 `string`
 >
-> 会**名字冲突**
+> 会 **名字冲突**
 >
 > `std::` 就是为了防止冲突。

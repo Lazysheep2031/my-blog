@@ -84,7 +84,7 @@ int main() {
 
 ### 基本使用
 
-`unique_ptr<T>` 表示对一个 `T` 对象的 **unique ownership（独占所有权）**。
+`unique_ptr<T>` 表示对一个 `T` 对象的 **unique ownership（独占所有权）** 。
 
 ```cpp
 #include <iostream>
@@ -157,7 +157,7 @@ p2 ---^
 
 ### 移动语义
 
-虽然不能拷贝，但可以移动。移动表示 **转移所有权**。
+虽然不能拷贝，但可以移动。移动表示 **转移所有权** 。
 
 ```cpp
 #include <iostream>

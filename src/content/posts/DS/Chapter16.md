@@ -86,7 +86,7 @@ $$
 \right)
 $$
 
-这些仍然只是**逻辑表达式**。  
+这些仍然只是 **逻辑表达式** 。  
 一个完整的 **evaluation plan（执行计划）** 还需要明确：
 
 - `dept_name='Music'` 是否使用索引
@@ -205,7 +205,7 @@ cost = f .. l
 > 对每一个合法数据库实例，它们都产生相同的结果。
 
 传统关系代数把 relation 当作集合。  
-SQL 的输入输出一般采用 **multiset / bag semantics（多重集语义）**，所以优化器必须保证：
+SQL 的输入输出一般采用 **multiset / bag semantics（多重集语义）** ，所以优化器必须保证：
 
 - 结果中的 tuple 值相同
 - 每个 tuple 出现的次数也相同
@@ -353,7 +353,7 @@ $$
 \sigma_{\theta_1}(E_1) \bowtie_{\theta} \sigma_{\theta_2}(E_2)
 $$
 
-这就是 **selection pushdown**。
+这就是 **selection pushdown** 。
 
 它通常有利，因为：
 
@@ -390,7 +390,7 @@ $$
 \right)
 $$
 
-这是 **projection pushdown**。
+这是 **projection pushdown** 。
 
 核心要求：
 
@@ -510,7 +510,7 @@ $$
 \sigma_{\theta_1}(E_1) \mathbin{\text{⟕}}_{\theta} E_2
 $$
 
-若谓词 $\theta_1$ 对右侧 $E_2$ 的 `null` 扩展 tuple 会返回 `false` 或 `unknown`，即 $\theta_1$ 是 **null-rejecting predicate**，则：
+若谓词 $\theta_1$ 对右侧 $E_2$ 的 `null` 扩展 tuple 会返回 `false` 或 `unknown`，即 $\theta_1$ 是 **null-rejecting predicate** ，则：
 
 $$
 \sigma_{\theta_1}(E_1 \mathbin{\text{⟕}}_{\theta} E_2)
@@ -677,11 +677,11 @@ until 不再出现新表达式
 
 优化方式：
 
-- **共享公共子表达式**：表达式用 DAG 而非大量重复的树表示。
-- **检测重复表达式**：同样的子表达式只保存一份。
-- **Dynamic Programming / Memoization**：一个子问题的最优计划只计算一次。
-- **Cost-based pruning**：明显不可能胜出的计划尽早剪枝。
-- **Heuristics**：只搜索更有希望的结构，例如 left-deep join tree。
+- **共享公共子表达式** ：表达式用 DAG 而非大量重复的树表示。
+- **检测重复表达式** ：同样的子表达式只保存一份。
+- **Dynamic Programming / Memoization** ：一个子问题的最优计划只计算一次。
+- **Cost-based pruning** ：明显不可能胜出的计划尽早剪枝。
+- **Heuristics** ：只搜索更有希望的结构，例如 left-deep join tree。
 
 
 ## Statistical Information for Cost Estimation
@@ -705,7 +705,7 @@ until 不再出现新表达式
 
 这类估计称为：
 
-> **Cardinality Estimation（基数估计）**：估计每个关系代数子表达式会产生多少 tuple。
+> **Cardinality Estimation（基数估计）** ：估计每个关系代数子表达式会产生多少 tuple。
 
 Cardinality estimation 一旦严重失准，可能导致：
 
@@ -752,8 +752,8 @@ $$
 
 常见形式：
 
-- **Equi-width histogram**：每个桶覆盖相同的值域区间
-- **Equi-depth histogram**：每个桶尽量包含相近数量的 tuple
+- **Equi-width histogram** ：每个桶覆盖相同的值域区间
+- **Equi-depth histogram** ：每个桶尽量包含相近数量的 tuple
 
 用途：
 
@@ -1066,8 +1066,8 @@ $$
 :::TIP
 这个例子要记住：
 
-- **约束信息**，例如 primary key / foreign key，可以直接给出更可靠的 cardinality。
-- **统计估计**是在不知道更强语义约束时的退而求其次。
+- **约束信息** ，例如 primary key / foreign key，可以直接给出更可靠的 cardinality。
+- **统计估计** 是在不知道更强语义约束时的退而求其次。
 :::
 
 ### 其他操作的结果大小估计
@@ -1424,7 +1424,7 @@ $$
 
 这种以后可能有价值的排序属性称为：
 
-> **Interesting sort order**：对后续 join、`order by` 或 `group by` 可能有用的中间结果排序顺序。
+> **Interesting sort order** ：对后续 join、`order by` 或 `group by` 可能有用的中间结果排序顺序。
 
 因此动态规划不能只保存：
 
@@ -1538,7 +1538,7 @@ where exists (
 instructor.ID
 ```
 
-这个属性叫做 **correlation variable（相关变量）**。
+这个属性叫做 **correlation variable（相关变量）** 。
 
 SQL 语义上，可以把内层 subquery 理解为一个依赖外层当前 tuple 的函数：
 
@@ -1549,7 +1549,7 @@ SQL 语义上，可以把内层 subquery 理解为一个依赖外层当前 tuple
 
 这种执行方式称为：
 
-> **Correlated evaluation（相关执行）**。
+> **Correlated evaluation（相关执行）** 。
 
 问题：
 
@@ -1574,7 +1574,7 @@ where instructor.ID = teaches.ID
 - 普通 join 会为每条匹配 `teaches` tuple 输出一份教师 tuple
 - `exists` 只要求“至少存在一条”，不会因为多次匹配而增加外层 tuple 的出现次数
 
-为保持 SQL multiset 语义，应使用 **semijoin（半连接）**。
+为保持 SQL multiset 语义，应使用 **semijoin（半连接）** 。
 
 定义：
 
@@ -1622,7 +1622,7 @@ where not exists (
 );
 ```
 
-可使用 **anti-semijoin（反半连接）**：
+可使用 **anti-semijoin（反半连接）** ：
 
 $$
 \Pi_{\text{name}}
@@ -1670,7 +1670,7 @@ $$
 
 把 nested query 转换为 join / semijoin / anti-semijoin 的过程称为：
 
-> **Decorrelation（去相关）**。
+> **Decorrelation（去相关）** 。
 
 收益：
 
@@ -1767,7 +1767,7 @@ group by dept_name;
 
 保持物化视图与基表一致的任务称为：
 
-> **Materialized View Maintenance（物化视图维护）**。
+> **Materialized View Maintenance（物化视图维护）** 。
 
 可选方式：
 
@@ -1782,7 +1782,7 @@ group by dept_name;
 
 > 只根据基表发生的变化，计算视图中应新增或删除的部分。
 
-这叫 **Incremental View Maintenance（增量视图维护）**。
+这叫 **Incremental View Maintenance（增量视图维护）** 。
 
 ### Differential 与 Incremental Maintenance
 
@@ -1791,7 +1791,7 @@ group by dept_name;
 - $i_r$：插入到 $r$ 的 tuple 集合
 - $d_r$：从 $r$ 删除的 tuple 集合
 
-这两个变化集合称为 relation 的 **differential（差分）**。
+这两个变化集合称为 relation 的 **differential（差分）** 。
 
 更新操作可等价看成：
 
@@ -2136,7 +2136,7 @@ where A > 10;
 
 这称为：
 
-> **Halloween Problem**：更新改变了用于定位待更新 tuple 的查询执行过程，使同一 tuple 被错误地反复处理。
+> **Halloween Problem** ：更新改变了用于定位待更新 tuple 的查询执行过程，使同一 tuple 被错误地反复处理。
 
 解决方式：
 

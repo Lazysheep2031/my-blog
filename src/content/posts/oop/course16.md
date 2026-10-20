@@ -25,10 +25,10 @@ a = (int)d;
 
 它的问题主要有两个：
 
-1. **语义不明确**：同一个 `(T)x` 可能表示普通数值转换、去除 `const`、父子类转换、甚至强行按另一种类型解释内存；
-2. **不利于搜索和审查**：项目中很难快速区分哪些地方做了危险转换。
+1. **语义不明确** ：同一个 `(T)x` 可能表示普通数值转换、去除 `const`、父子类转换、甚至强行按另一种类型解释内存；
+2. **不利于搜索和审查** ：项目中很难快速区分哪些地方做了危险转换。
 
-C++ 更推荐使用 **named cast**：
+C++ 更推荐使用 **named cast** ：
 
 ```cpp
 static_cast<T>(expr)
@@ -173,7 +173,7 @@ C* pc = dynamic_cast<C*>(pa);  // returns nullptr
 - 如果转换成功，返回有效指针；
 - 如果指针转换失败，返回 `nullptr`；
 - 如果引用转换失败，抛出 `std::bad_cast`；
-- 源类型必须是 **polymorphic type（多态类型）**，也就是类中至少有一个虚函数。
+- 源类型必须是 **polymorphic type（多态类型）** ，也就是类中至少有一个虚函数。
 
 如果 `A` 没有虚函数：
 
@@ -502,7 +502,7 @@ basic_istream      basic_ostream
 
 默认情况下，多重继承中的基类会被复制。
 
-这称为 **Vanilla MI**。特点是：
+这称为 **Vanilla MI** 。特点是：
 
 - members are duplicated；
 - derived class has access to full copies of each base class；
@@ -569,7 +569,7 @@ m.m_i++;  // ERROR: D1::B1::m_i or D2::B1::m_i?
 
 ### Protocol / Interface classes
 
-多重继承相对安全的使用场景是继承多个 **protocol / interface classes**。
+多重继承相对安全的使用场景是继承多个 **protocol / interface classes** 。
 
 Protocol / Interface class 通常是一个抽象基类，满足：
 
@@ -597,7 +597,7 @@ public:
 
 ### Virtual base classes
 
-如果希望 diamond inheritance 中只保留一份共同基类，可以使用 **virtual base class**。
+如果希望 diamond inheritance 中只保留一份共同基类，可以使用 **virtual base class** 。
 
 ```cpp
 struct B1 {
@@ -629,7 +629,7 @@ M
 
 `D1` 和 `D2` 共享同一份 `B1`，所以 `m.m_i` 不再二义。
 
-对 C++ 来说，`virtual` 往往意味着 **indirect**：
+对 C++ 来说，`virtual` 往往意味着 **indirect** ：
 
 - virtual member functions 使用 dynamic binding，本质上有指针间接寻址；
 - virtual base classes 也通过间接方式表示共享基类。

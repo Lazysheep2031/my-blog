@@ -43,7 +43,7 @@ draft: true
 
 ### Example: `myminmax`
 
-当多个函数 **逻辑完全相同**，只是参数/返回值类型不同（如 `int` vs `string`），就适合用函数模板合并：
+当多个函数 **逻辑完全相同** ，只是参数/返回值类型不同（如 `int` vs `string`），就适合用函数模板合并：
 
 ```cpp
 template <typename T>
@@ -93,13 +93,13 @@ auto [min3, max3] = my_minmax<int>(3, 3);
 
 显式指定 `T` 的常见用途：
 
-- **解决类型推导冲突**：例如 `my_minmax(2, 2.3)` 推导失败（一个 `int` 一个 `double`），可以写成：
+- **解决类型推导冲突** ：例如 `my_minmax(2, 2.3)` 推导失败（一个 `int` 一个 `double`），可以写成：
 
 ```cpp
 auto [min, max] = my_minmax<double>(2, 2.3); // 让 2 提升为 2.0
 ```
 
-- **强制选择你想要的版本**（哪怕参数能转换）
+- **强制选择你想要的版本** （哪怕参数能转换）
 
 > [!NOTE]  
 > 显式指定 `T` 并不会取消“隐式接口”要求：  
@@ -122,7 +122,7 @@ auto [minV, maxV] = my_minmax<double>(4.2, -7.9);
 1. 先得到一个 `std::pair<double, double>` 的对象（临时值）
 2. 再把它的 `.first` 和 `.second` 拆出来，分别命名为 `minV` / `maxV`
 
-因此 `minV`、`maxV` 的类型会**跟随返回的 pair 中元素的类型**变化：
+因此 `minV`、`maxV` 的类型会 **跟随返回的 pair 中元素的类型** 变化：
 
 - `my_minmax<double>` → `minV/maxV` 都是 `double`
 - `my_minmax<std::string>` → `minV/maxV` 都是 `std::string`
@@ -131,7 +131,7 @@ auto [minV, maxV] = my_minmax<double>(4.2, -7.9);
 
 ### 拷贝 vs 引用绑定：`auto` / `auto&` / `const auto&`
 
-Structured binding 的三种常见写法会决定：拆出来的是 **“值（拷贝/移动）”** 还是 **“引用（绑定到原对象成员）”**。
+Structured binding 的三种常见写法会决定：拆出来的是 **“值（拷贝/移动）”** 还是 **“引用（绑定到原对象成员）”** 。
 
 #### 值绑定（拷贝/移动）：`auto [a, b] = expr;`
 
@@ -234,7 +234,7 @@ mismatch(InputIt1 first1, InputIt1 last1, InputIt2 first2) {
 
 ## Variadic Templates
 
-Variadic templates 的目标：**让模板/函数接受任意数量的类型参数或函数参数**。  
+Variadic templates 的目标： **让模板/函数接受任意数量的类型参数或函数参数** 。  
 常见形式：
 
 - `typename... Ts`：一包类型（type pack）
@@ -283,7 +283,7 @@ bar(make(args)...);  // 对每个 args 做 make(args)，再把结果展开
 ## Concept Lifting
 
 前面写过 implicit interface：模板里写了 `<`、`==`、`<<`，就意味着类型必须支持这些操作。  
-问题是：**这种要求是隐藏的**，往往直到编译失败才知道。
+问题是： **这种要求是隐藏的** ，往往直到编译失败才知道。
 
 Concept lifting 的直觉：
 
@@ -356,7 +356,7 @@ int countOccurences(It begin, It end, const T& val) {
 countOccurences(v1.begin(), v1.end(), v2.begin());
 ```
 
-第三个参数传入的是 **iterator**（位置），但函数里写的是 `*it == val`（把元素和 val 比较）。  
+第三个参数传入的是 **iterator** （位置），但函数里写的是 `*it == val`（把元素和 val 比较）。  
 于是会变成：`int == iterator` → 编译错误。
 
 > [!NOTE]  
@@ -373,7 +373,7 @@ countOccurences(v1.begin(), v1.end(), v2.begin());
 
 ### 1️⃣ Implicit Interface 是什么？
 
-模板函数对类型的“要求”，不是写在签名里，而是**隐藏在模板实现里**。  
+模板函数对类型的“要求”，不是写在签名里，而是 **隐藏在模板实现里** 。  
 比如：
 
 - `my_minmax(T a, T b)` 用了 `a < b` → 要求 `T` 支持 `<`

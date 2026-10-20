@@ -9,7 +9,7 @@ draft: false
 
 ## SQL Overview
 
-SQL 是 **Structured Query Language**，也就是结构化查询语言。
+SQL 是 **Structured Query Language** ，也就是结构化查询语言。
 
 它的作用不是只查询而已，而是同时负责：
 
@@ -27,7 +27,7 @@ SQL 是 **Structured Query Language**，也就是结构化查询语言。
 
 #### 1. DDL
 
-DDL 是 **Data Definition Language**，数据定义语言。
+DDL 是 **Data Definition Language** ，数据定义语言。
 
 它解决的问题是：
 
@@ -51,7 +51,7 @@ DDL 不只是定义列名和类型，理论上还可以描述：
 
 #### 2. DML
 
-DML 是 **Data Manipulation Language**，数据操作语言。
+DML 是 **Data Manipulation Language** ，数据操作语言。
 
 它解决的问题是：
 
@@ -74,7 +74,7 @@ DML 是 **Data Manipulation Language**，数据操作语言。
 
 ## Data Definition
 
-这一部分回答的是：**关系在 SQL 里到底怎么定义出来。**
+这一部分回答的是： **关系在 SQL 里到底怎么定义出来。**
 
 ### 数据类型
 
@@ -240,7 +240,7 @@ create table instructor (
 
 - 主键必须唯一
 - 主键不能为 `null`
-- slides 特别强调：**primary key declaration automatically ensures not null**
+- slides 特别强调： **primary key declaration automatically ensures not null**
 
 也就是说，只要某列被声明成主键，它自动就不能是空值。
 
@@ -549,7 +549,7 @@ from instructor, teaches;
 
 > `instructor × teaches`
 
-也就是 **笛卡尔积**。
+也就是 **笛卡尔积** 。
 
 这一步本身通常没什么实际意义，但它是多表查询的出发点。
 
@@ -564,7 +564,7 @@ from instructor
 where dept_name = 'Comp. Sci.' and salary > 80000;
 ```
 
-`where` 对应关系代数中的 **选择**。
+`where` 对应关系代数中的 **选择** 。
 
 它解决的问题是：
 
@@ -599,7 +599,7 @@ where dept_name = 'Comp. Sci.' and salary > 80000;
 
 **`distinct` 与 `all`**
 
-SQL **默认允许重复**。
+SQL **默认允许重复** 。
 
 例如：
 
@@ -1054,7 +1054,7 @@ limit 0, 3
 - SQL 允许关系中有重复
 - 查询结果里也允许重复
 
-因此 SQL 更接近 **multiset / bag（多重集）**，而不是严格的集合。
+因此 SQL 更接近 **multiset / bag（多重集）** ，而不是严格的集合。
 
 
 本章讲了三个标准集合运算：

@@ -76,7 +76,7 @@ display(A+B);
 
 ### Lock-Based Protocols 的陷阱
 
-基于锁的协议容易产生 **deadlock**。
+基于锁的协议容易产生 **deadlock** 。
 
 例子：
 
@@ -105,7 +105,7 @@ lock-S(B);      // 需要等待 T3 释放 B
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260609134718.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
-另一个问题是 **starvation**：
+另一个问题是 **starvation** ：
 
 - 某事务一直等待某数据项的 `X` 锁，但不断有其他事务获得该数据项的 `S` 锁
 - 某事务在死锁恢复中反复被选为 victim 并回滚
@@ -117,7 +117,7 @@ lock-S(B);      // 需要等待 T3 释放 B
 
 **Two-Phase Locking Protocol，2PL，两阶段封锁协议** 是本章最重要的锁协议。
 
-它保证产生的调度是 **conflict-serializable**。
+它保证产生的调度是 **conflict-serializable** 。
 
 ### 两个阶段
 
@@ -169,7 +169,7 @@ display(A+B);
 
 > 如果所有事务都遵循 2PL，则任意产生的调度都是 conflict-serializable，并且可以按照事务 lock point 的先后顺序串行化。
 
-证明使用 **precedence graph**。
+证明使用 **precedence graph** 。
 
 ### 关键引理
 
@@ -268,7 +268,7 @@ LP(Tj) < LP(Ti)
 
 ### Strict Two-Phase Locking
 
-**Strict 2PL，严格两阶段封锁**：
+**Strict 2PL，严格两阶段封锁** ：
 
 > 事务必须一直持有所有 `X` 锁，直到 commit 或 abort。
 
@@ -284,7 +284,7 @@ LP(Tj) < LP(Ti)
 
 ### Rigorous Two-Phase Locking
 
-**Rigorous 2PL，强两阶段封锁**：
+**Rigorous 2PL，强两阶段封锁** ：
 
 > 事务必须一直持有所有锁，包括 `S` 锁和 `X` 锁，直到 commit 或 abort。
 
@@ -423,7 +423,7 @@ write(D):
 
 ### Lock Table
 
-lock manager 维护 **lock table**，通常是内存中的 hash table：
+lock manager 维护 **lock table** ，通常是内存中的 hash table：
 
 - key：被锁定的数据项名
 - value：该数据项上的请求队列
@@ -457,7 +457,7 @@ transaction -> list of locks held by transaction
 
 ### 死锁定义
 
-如果存在一组事务，使得集合中的每个事务都在等待集合中另一个事务释放锁，则系统进入 **deadlock**。
+如果存在一组事务，使得集合中的每个事务都在等待集合中另一个事务释放锁，则系统进入 **deadlock** 。
 
 2PL 能保证 conflict serializability，但不能保证无死锁。
 
@@ -585,7 +585,7 @@ T2: wait for lock-X(A)
 
 死锁也可以不预防，改为检测。
 
-使用 **wait-for graph**：
+使用 **wait-for graph** ：
 
 ```text
 G = (V, E)
@@ -843,7 +843,7 @@ database
 
 ### Lock Granularity Escalation
 
-如果某事务在某一层持有过多低层锁，系统可以进行 **lock escalation**：
+如果某事务在某一层持有过多低层锁，系统可以进行 **lock escalation** ：
 
 ```text
 许多 record-level S locks  ->  一个 table-level S lock
@@ -870,7 +870,7 @@ database
 - 删除 tuple：事务必须持有该 tuple 的 `X` 锁
 - 插入 tuple：事务会获得新 tuple 的 `X` 锁
 
-但只锁 tuple 仍会导致一个特殊问题：**phantom phenomenon**。
+但只锁 tuple 仍会导致一个特殊问题： **phantom phenomenon** 。
 
 ### Phantom Phenomenon
 
@@ -920,7 +920,7 @@ T2: insert a new account at Perryridge
 
 ### Index Locking Protocol
 
-更高并发的方案是 **index locking**。
+更高并发的方案是 **index locking** 。
 
 规则：
 
@@ -954,7 +954,7 @@ T2: insert a new account at Perryridge
 
 > 范围查询与会改变该范围结果的插入 / 删除 / 更新事务发生冲突。
 
-这类思想常称为 **key-range locking** 或 **next-key locking**。
+这类思想常称为 **key-range locking** 或 **next-key locking** 。
 
 例子：
 
@@ -989,7 +989,7 @@ Index 与普通数据项不同。
 
 ### Crabbing Protocol
 
-B+-tree 常用思想是 **crabbing**，也叫 **latch coupling**。
+B+-tree 常用思想是 **crabbing** ，也叫 **latch coupling** 。
 
 搜索 / 插入 / 删除时：
 
@@ -1014,7 +1014,7 @@ B+-tree 常用思想是 **crabbing**，也叫 **latch coupling**。
 - 二者可能形成死锁
 - 可以 abort 并重启 search，不必 abort 整个事务
 
-更好的协议包括 **B-link tree protocol**，其直观思路是：
+更好的协议包括 **B-link tree protocol** ，其直观思路是：
 
 - 在获得 child lock 前释放 parent lock
 - 通过额外链接处理释放和重新获得锁之间发生的结构变化
@@ -1399,7 +1399,7 @@ Thomas' Write Rule 认为：
 
 ### 基本思想
 
-Validation-based protocol 也称 **optimistic concurrency control**。
+Validation-based protocol 也称 **optimistic concurrency control** 。
 
 适合冲突概率低的场景。
 
@@ -1773,7 +1773,7 @@ x = 17, y = 3
 
 这个结果不等价于任何串行顺序。
 
-这就是 **write skew**。
+这就是 **write skew** 。
 
 插入场景也会出现 skew：
 

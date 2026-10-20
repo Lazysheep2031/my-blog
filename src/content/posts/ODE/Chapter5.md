@@ -12,9 +12,9 @@ draft: false
 ### Homogeneous Systems
 $\mathbf{x}'=A\mathbf{x}$
 
-1. 小系统时可以先用 **elimination**；
-2. 一般情形用 **eigenvalue method**；
-3. 遇到重根时要区分 **complete** 与 **defective**；
+1. 小系统时可以先用 **elimination** ；
+2. 一般情形用 **eigenvalue method** ；
+3. 遇到重根时要区分 **complete** 与 **defective** ；
 4. 最后用 **matrix exponential** 统一表达。
 
 ### Nonhomogeneous Systems
@@ -635,8 +635,8 @@ $$
 
 设特征值 $\lambda$ 的代数重数为 $k$。
 
-- 若它能给出 $k$ 个线性无关特征向量，称为 **complete**；
-- 若它给不出这么多特征向量，则称为 **defective**。
+- 若它能给出 $k$ 个线性无关特征向量，称为 **complete** ；
+- 若它给不出这么多特征向量，则称为 **defective** 。
 
 ### Example
 **Example 1：重根但 complete**
@@ -739,7 +739,7 @@ $$
 
 因此 $\lambda=3$ 虽然是二重根，但确实给出了两条线性无关特征向量。
 
-因此虽然 $\lambda=3$ 是重根，但它是 **complete**，通解仍然像普通情形一样：
+因此虽然 $\lambda=3$ 是重根，但它是 **complete** ，通解仍然像普通情形一样：
 
 $$
 \mathbf{x}(t)=
@@ -819,7 +819,7 @@ $$
 \end{pmatrix}.
 $$
 
-于是 $\lambda=4$ 是 **defective**。
+于是 $\lambda=4$ 是 **defective** 。
 
 这时只靠普通解
 
@@ -1145,7 +1145,7 @@ $$
 \Phi(t)=\big[\mathbf{x}_1(t)\ \mathbf{x}_2(t)\ \cdots\ \mathbf{x}_n(t)\big],
 $$
 
-则 $\Phi(t)$ 叫作 **fundamental matrix**。
+则 $\Phi(t)$ 叫作 **fundamental matrix** 。
 
 这时 general solution 可压缩写成
 
@@ -1499,7 +1499,7 @@ $$
 
 ### Undetermined Coefficients
 
-当右端 $\mathbf{f}(t)$ 是多项式、指数、三角函数及它们组合时，可以像第二章一样猜一个同型特解，只不过“待定系数”现在是**向量**。
+当右端 $\mathbf{f}(t)$ 是多项式、指数、三角函数及它们组合时，可以像第二章一样猜一个同型特解，只不过“待定系数”现在是 **向量** 。
 
 
 #### Example

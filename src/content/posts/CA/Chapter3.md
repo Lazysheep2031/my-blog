@@ -16,7 +16,7 @@ draft: false
 - `Load`
 - `Store`
 
-**只要程序在读数据或写数据，它就一定绕不开 memory system（存储系统）**。
+**只要程序在读数据或写数据，它就一定绕不开 memory system（存储系统）** 。
 
 问题在于：
 
@@ -29,7 +29,7 @@ draft: false
 1. 先有寄存器，解决最靠近执行单元的临时数据保存；
 2. 仅靠寄存器仍然不够，因为程序访问的数据规模远大于寄存器容量；
 3. 于是要在处理器和主存之间放一层更快的临时存储；
-4. 如果一层不够，就继续分层，形成 **memory hierarchy（存储层次）**。
+4. 如果一层不够，就继续分层，形成 **memory hierarchy（存储层次）** 。
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202604151631590.png" alt="memory hierarchy overview" style="width: 620px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
@@ -60,7 +60,7 @@ draft: false
 
 ### Locality
 
-cache 不是凭空有效的，它依赖的是 **principle of locality（局部性原理）**。
+cache 不是凭空有效的，它依赖的是 **principle of locality（局部性原理）** 。
 
 两种最基本的 locality 是：
 
@@ -77,8 +77,8 @@ cache 不是凭空有效的，它依赖的是 **principle of locality（局部�
 :::
 
 :::TIP
-- 时间局部性强调**刚访问过的对象还会再来**；
-- 空间局部性强调**附近的数据通常会被一起用到**。
+- 时间局部性强调 **刚访问过的对象还会再来** ；
+- 空间局部性强调 **附近的数据通常会被一起用到** 。
 
 cache 的两个最基本设计动作，正好就对应这两点：
 
@@ -97,7 +97,7 @@ cache 的两个最基本设计动作，正好就对应这两点：
 - Register 可以看成软件和硬件共同管理的最靠近计算的数据缓存；
 - L1 是对 L2 / memory 的 cache；
 - L2、L3 继续往下缓存；
-- 从更大的视角看，memory 甚至还可以看成 disk 上数据的**上层缓存**。
+- 从更大的视角看，memory 甚至还可以看成 disk 上数据的 **上层缓存** 。
 
 #### Cache Hit / Cache Miss
 
@@ -146,7 +146,7 @@ cache 和 memory 之间传输数据时，基本单位不是单个 word，而是�
 
 - CPU 核心的速度提升得很快；
 - 主存并不是完全不提升，但提升速度明显慢得多；
-- 结果就是：**处理器越来越像在等内存**。
+- 结果就是： **处理器越来越像在等内存** 。
 
 既然主存不可能又大又快，那就只能靠多级 hierarchy 来把快和大拆开实现。
 
@@ -228,7 +228,7 @@ miss penalty（失效代价）：
 
 **Compulsory / Capacity / Conflict**
 
-cache miss 常见地分成三类，也就是经典的 **3C model**：
+cache miss 常见地分成三类，也就是经典的 **3C model** ：
 
 1. **Compulsory miss（强制失效）**
    - 第一次访问某个 block；
@@ -288,7 +288,7 @@ L1 一般是 split
    - 保护需求有时没那么强，主存也可能很小，甚至没有 disk。
 
 - cache 设计没有唯一最优；
-- **同样的 hierarchy，在不同系统目标下会选出不同折中**。
+- **同样的 hierarchy，在不同系统目标下会选出不同折中** 。
 
 
 ## Four Questions for Cache Designers
@@ -371,7 +371,7 @@ $$
 :::
 
 :::NOTE
-**why index with the middle bits**。
+**why index with the middle bits** 。
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202604171021895.png" alt="cache address format" style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
@@ -440,7 +440,7 @@ $$
 n \le 4
 $$
 
-即通常采用 **2-way** 或 **4-way set-associative cache**。
+即通常采用 **2-way** 或 **4-way set-associative cache** 。
 
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202604171024913.png" alt="cache 8 block summary" style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
@@ -549,7 +549,7 @@ fully associative 最灵活，也最贵：
 
 #### FSM Control Simple Cache
 
-Cache 的行为是一个**时序过程**。  
+Cache 的行为是一个 **时序过程** 。  
 一次访存请求到来后，控制器可能需要依次完成：
 
 - 接收 CPU 请求
@@ -560,7 +560,7 @@ Cache 的行为是一个**时序过程**。
 - 再从主存读入新块（allocate）
 - 最后通知 CPU Cache 已准备好
 
-Cache Controller 适合建模成一个 **有限状态机**。
+Cache Controller 适合建模成一个 **有限状态机** 。
 
 ##### FSM
 
@@ -591,7 +591,7 @@ Cache Controller 适合建模成一个 **有限状态机**。
 - 则进入 **Compare Tag**
 
 ##### Compare Tag
-比较 Tag，判断当前访问是 **cache hit** 还是 **cache miss**。
+比较 Tag，判断当前访问是 **cache hit** 还是 **cache miss** 。
 
 - 检查对应块是否 **valid**
 - 比较 tag 是否匹配
@@ -660,12 +660,12 @@ $$
 
 其中：
 
-- **Byte offset**：2 bits  
+- **Byte offset** ：2 bits  
   （因为 1 word = 4 bytes）
-- **Block offset**：$m$ bits  
+- **Block offset** ：$m$ bits  
   （因为每块有 $2^m$ words）
-- **Set index**：$\log_2 S$ bits
-- **Tag**：剩余高位
+- **Set index** ：$\log_2 S$ bits
+- **Tag** ：剩余高位
 
 所以：
 
@@ -818,7 +818,7 @@ $$
 
 ##### Example 1
 
-> 一个 **16 KiB data** 的 direct-mapped cache，block size 是 **4 words**，地址长度 **64 bit**。问这个 cache 一共需要多少 bit？
+> 一个 **16 KiB data** 的 direct-mapped cache，block size 是 **4 words** ，地址长度 **64 bit** 。问这个 cache 一共需要多少 bit？
 
 - `16 KiB = 2^14 bytes = 2^12 words`
 - block size = `4 words = 2^2 words`
@@ -878,7 +878,7 @@ $$
 183296 / 8 = 22912 \text{ bytes}
 $$
 
-**cache 的总实现开销并不只是 data 本身，还要把 tag 和控制位一起算进去**。
+**cache 的总实现开销并不只是 data 本身，还要把 tag 和控制位一起算进去** 。
 
 ##### Example 2
 
@@ -960,7 +960,7 @@ $$
 index = `1`，此时假设机器刚上电，cache 全空：对应行 `valid = 0`
 
 - 没有有效数据；
-- 发生 **cache miss（失效）**。
+- 发生 **cache miss（失效）** 。
 
 下一步：
 
@@ -980,7 +980,7 @@ index = `1`这次和上一步一样，还是同一行。此时：
 - `valid = 1`
 - tag 也匹配
 
-这是一次 **cache hit（命中）**。
+这是一次 **cache hit（命中）** 。
 
 然后根据 offset：
 
@@ -1035,7 +1035,7 @@ $$
 而当前请求地址需要的是：tag = `2`
 
 - valid 是 1；
-- 但 tag **不匹配**；
+- 但 tag **不匹配** ；
 - 这不是空，而是这行已经放了“别的 block”。
 
 于是发生：
@@ -1078,7 +1078,7 @@ $$
 
 **6. Read `0x0000001C`**
 第二次访问 `0x0000001C` 时它 hit 过；  
-但第四次访问 `0x00008014` 时，**同一个 index = 1 的那一行已经被替换掉了**。
+但第四次访问 `0x00008014` 时， **同一个 index = 1 的那一行已经被替换掉了** 。
 
 因此现在再来读 `0x0000001C`：
 
@@ -1103,7 +1103,7 @@ Q3 解决的是：
 
 > miss 之后，如果可以放的位置不止一个，或者目标位置已经被占了，到底替换谁？
 
-**direct mapped 也会发生 replacement**，只是它**没有 replacement policy 的选择空间**
+**direct mapped 也会发生 replacement** ，只是它 **没有 replacement policy 的选择空间**
 
 需要选择策略的的，是：
 
@@ -1207,7 +1207,7 @@ hit 次数：
 
 #### Thrashing
 
-如果工作集比 cache 能承受的更大，并且访问序列不断在几组数据之间来回切换，就会出现 **thrashing（抖动）**。
+如果工作集比 cache 能承受的更大，并且访问序列不断在几组数据之间来回切换，就会出现 **thrashing（抖动）** 。
 
 典型序列：
 
@@ -1232,7 +1232,7 @@ thrashing 的本质就是：
 
 > 某些替换算法下，cache block 数量增加，hit rate 反而可能下降。
 
-也就是说，**block 数变多并不自动保证命中率一定提升**。
+也就是说， **block 数变多并不自动保证命中率一定提升** 。
 
 这件事最常见于 FIFO 这类不具备 stack property 的算法。
 
@@ -1262,7 +1262,7 @@ $$
 
 #### Comparison Pair
 
-如果想精确实现 LRU，可以使用 **comparison pair method（成对比较法）**。
+如果想精确实现 LRU，可以使用 **comparison pair method（成对比较法）** 。
 
 基本思想是：
 
@@ -1286,7 +1286,7 @@ $$
 所以：
 
 - **精确 LRU 在 associativity 较高时硬件代价非常大**
-- 这也是为什么实际处理器里经常用 **pseudo-LRU（近似 LRU）**，而不是严格 LRU
+- 这也是为什么实际处理器里经常用 **pseudo-LRU（近似 LRU）** ，而不是严格 LRU
 
 ### Q4：Write Strategy
 
@@ -1341,7 +1341,7 @@ Write-Through vs Write-Back
 - 容易产生 write stall。
 
 
-**real-time systems（实时系统）**、flight control（飞控）这些场景往往更在意：
+**real-time systems（实时系统）** 、flight control（飞控）这些场景往往更在意：
 
 - 数据一致性；
 - 可预测性；
@@ -1378,7 +1378,7 @@ Write-Through vs Write-Back
 - replacement 时如果 block 是 dirty，还得先 write-back；
 - 系统异常掉电时，cache 中尚未写回的数据可能丢失。
 
-**general-purpose processors（通用处理器）**、desktop CPU系统通常更看重 average performance，一般会采用 write-back；
+**general-purpose processors（通用处理器）** 、desktop CPU系统通常更看重 average performance，一般会采用 write-back；
 
 #### Write Miss
 
@@ -1408,7 +1408,7 @@ write miss 时，策略分歧主要在：
 
 ##### No-Write-Allocate
 
-**no-write-allocate（写不分配）**，也常叫 **write around**：
+**no-write-allocate（写不分配）** ，也常叫 **write around** ：
 
 - write miss 时；
 - 直接把数据写到 main memory；
@@ -1416,7 +1416,7 @@ write miss 时，策略分歧主要在：
 
 优点：
 
-- 避免**把一次性写、以后很少再访问**的数据塞进 cache；
+- 避免 **把一次性写、以后很少再访问** 的数据塞进 cache；
 - 防止 cache pollution（cache 污染）。
 
 所以它更适合这类访问：
@@ -1450,7 +1450,7 @@ write-through 的一个直接问题是：
 - 每次写都可能要等 main memory；
 - CPU 很容易被迫停下来。
 
-这就是 **write stall（写停顿）**。
+这就是 **write stall（写停顿）** 。
 
 一种非常常见的优化是：
 
@@ -1669,7 +1669,7 @@ $$
 
 :::TIP
 - `hit time` 不是“整个访存时间”；
-- `miss penalty` 也不是“从头到尾全部时间”，而是 **相对 hit 多出来的那部分代价**。
+- `miss penalty` 也不是“从头到尾全部时间”，而是 **相对 hit 多出来的那部分代价** 。
 :::
 
 ### Example
@@ -1760,8 +1760,8 @@ $$
 :::TIP
 一个很重要的判断原则是：
 
-- **hit path 上付代价**：每次访问都要承担；
-- **miss path 上付代价**：只有 miss 时才承担。
+- **hit path 上付代价** ：每次访问都要承担；
+- **miss path 上付代价** ：只有 miss 时才承担。
 
 很多方法的设计思想，本质上就是在这两种代价之间做折中。
 :::
@@ -1772,7 +1772,7 @@ $$
 
 #### Small and Simple First-Level Caches
 
-L1 cache 几乎每次访存都会经过，所以 **L1 的 hit time 往往比它的 miss rate 更敏感**。
+L1 cache 几乎每次访存都会经过，所以 **L1 的 hit time 往往比它的 miss rate 更敏感** 。
 
 核心思路：
 
@@ -1826,7 +1826,7 @@ L1 cache 几乎每次访存都会经过，所以 **L1 的 hit time 往往比它�
 
 ### Increasing Cache Bandwidth
 
-这一类方法的目标，不是直接减少单次访问延迟，而是让 cache **在单位时间内能接更多请求**。
+这一类方法的目标，不是直接减少单次访问延迟，而是让 cache **在单位时间内能接更多请求** 。
 
 #### Pipelined Caches
 
@@ -1852,14 +1852,14 @@ L1 cache 几乎每次访存都会经过，所以 **L1 的 hit time 往往比它�
 - I-cache pipeline 更深，会放大 branch misprediction 的代价；
 - D-cache pipeline 更深，会增加 load-use latency。
 
-所以 pipelined cache 更像是在用 **更长的访问流水**，换 **更高的频率和吞吐**。
+所以 pipelined cache 更像是在用 **更长的访问流水** ，换 **更高的频率和吞吐** 。
 
 #### Multibanked Caches
 
 把一个 cache 分成多个独立 bank，让不同访问可以并行落到不同 bank：
 
 - 若两个请求去不同 bank，可以同周期并行；
-- 若两个请求撞到同一个 bank，就会出现 **bank conflict**。
+- 若两个请求撞到同一个 bank，就会出现 **bank conflict** 。
 
 优点：
 
@@ -1881,8 +1881,8 @@ L1 cache 几乎每次访存都会经过，所以 **L1 的 hit time 往往比它�
 传统 blocking cache 在 miss 时会卡住后续访问。  
 **nonblocking cache** 则允许：
 
-- **hit under miss**：一个 miss 正在处理时，后续 hit 还能继续；
-- **miss under miss**：甚至允许多个 miss 并行在途。
+- **hit under miss** ：一个 miss 正在处理时，后续 hit 还能继续；
+- **miss under miss** ：甚至允许多个 miss 并行在途。
 
 直观理解：
 
@@ -1918,7 +1918,7 @@ L1 cache 几乎每次访存都会经过，所以 **L1 的 hit time 往往比它�
 作用：
 
 - 把“直接掉到主存”的昂贵 miss，改成“更低一级 cache hit”的相对便宜 miss；
-- 从而降低 **effective miss penalty**。
+- 从而降低 **effective miss penalty** 。
 
 代价：
 
@@ -1934,8 +1934,8 @@ L1 cache 几乎每次访存都会经过，所以 **L1 的 hit time 往往比它�
 
 因此可以：
 
-- **Critical Word First**：先取当前最需要的那个 word；
-- **Early Restart**：只要关键 word 到了，就先让处理器继续执行，剩余部分稍后补齐。
+- **Critical Word First** ：先取当前最需要的那个 word；
+- **Early Restart** ：只要关键 word 到了，就先让处理器继续执行，剩余部分稍后补齐。
 
 作用：
 
@@ -1986,12 +1986,12 @@ L1 cache 几乎每次访存都会经过，所以 **L1 的 hit time 往往比它�
 #### Victim Cache
 
 **victim cache** 是一个很小的、通常是 fully-associative 的缓冲区，  
-专门保存 **刚从主 cache 被替换出去的 block**。
+专门保存 **刚从主 cache 被替换出去的 block** 。
 
 工作方式：
 
 - L1 hit：直接返回；
-- L1 miss 且 victim cache hit：通常执行 **swap**，把 victim cache 中的目标块和 L1 中冲突块交换；
+- L1 miss 且 victim cache hit：通常执行 **swap** ，把 victim cache 中的目标块和 L1 中冲突块交换；
 - L1 miss 且 victim cache miss：再访问下层存储。
 
 它针对的核心问题是：
@@ -2009,7 +2009,7 @@ L1 cache 几乎每次访存都会经过，所以 **L1 的 hit time 往往比它�
 
 - 对 capacity miss 帮助有限；
 - 对长 reuse distance、流式访问帮助也有限；
-- 它不是一个“正常的额外 cache level”，而是一个 **专门接住 victim line 的小旁路结构**。
+- 它不是一个“正常的额外 cache level”，而是一个 **专门接住 victim line 的小旁路结构** 。
 
 
 ### Reducing the Miss Rate
@@ -2177,7 +2177,7 @@ cache 更大时，能留下更多 block，因此：
 
 - 作为高带宽近内存；
 - 作为比 DDR 更快但更贵的一层；
-- 有时也可视作 **L4 / near-memory cache**。
+- 有时也可视作 **L4 / near-memory cache** 。
 
 它解决的主要矛盾是：
 
@@ -2215,7 +2215,7 @@ cache 更大时，能留下更多 block，因此：
 
 #### Using UnifiedBus to Extend the Memory Hierarchy
 
-这里把 **UnifiedBus** 理解为近年来“**统一互连 / memory-semantic fabric / 资源池化总线**”这一类方案。
+这里把 **UnifiedBus** 理解为近年来“ **统一互连 / memory-semantic fabric / 资源池化总线** ”这一类方案。
 
 它的目标通常是：
 
@@ -2292,7 +2292,7 @@ cache 更大时，能留下更多 block，因此：
 
 ### Cache Coloring
 
-**cache coloring** 更多是 OS / allocator 级别的方法，也常叫 **page coloring**。
+**cache coloring** 更多是 OS / allocator 级别的方法，也常叫 **page coloring** 。
 
 核心想法：
 
@@ -2387,8 +2387,8 @@ GPU 常见的 memory hierarchy 可以粗略理解为：
 
 和 CPU 相比，GPU 的几个特点是：
 
-- 更强调 **高带宽**；
-- 更依赖 **大量线程隐藏延迟**；
+- 更强调 **高带宽** ；
+- 更依赖 **大量线程隐藏延迟** ；
 - cache 往往没有 CPU 那么“全能”，shared memory 反而很关键；
 - 访存模式是否能 **coalescing（合并访存）** 非常重要。
 
@@ -2482,14 +2482,14 @@ GPU 的 **unified memory** 指的是：
 
 Virtual memory 放在 memory hierarchy 的最后一层来理解。它看起来像是在扩容 memory，实际更关键的是：
 
-1. **给每个进程提供连续、独立的虚拟地址空间**；
-2. **把虚拟地址映射到不连续的物理内存，必要时再映射到 secondary storage**；
-3. **通过 page table 做进程隔离、共享和权限保护**。
+1. **给每个进程提供连续、独立的虚拟地址空间** ；
+2. **把虚拟地址映射到不连续的物理内存，必要时再映射到 secondary storage** ；
+3. **通过 page table 做进程隔离、共享和权限保护** 。
 
 
 ### OS、MMU 与 Virtual Memory
 
-从系统角度看，CPU 设计的最终目标是支持软件运行。离硬件最近的软件层就是 **OS（operating system）**。
+从系统角度看，CPU 设计的最终目标是支持软件运行。离硬件最近的软件层就是 **OS（operating system）** 。
 
 OS 负责管理：
 
@@ -2506,7 +2506,7 @@ Virtual memory 是 OS memory management 中最重要的机制之一。它让用�
 - 物理内存是否连续；
 - 其他进程的地址空间在哪里。
 
-程序看到的是一套由 OS 提供的**虚拟地址空间**。硬件中的 **MMU（Memory Management Unit）** 负责把虚拟地址翻译成物理地址，并配合权限位检查访问是否合法。
+程序看到的是一套由 OS 提供的 **虚拟地址空间** 。硬件中的 **MMU（Memory Management Unit）** 负责把虚拟地址翻译成物理地址，并配合权限位检查访问是否合法。
 
 :::TIP
 可以把 virtual memory 看成 OS 做的一层“抽象”：
@@ -2523,8 +2523,8 @@ Virtual memory 是 OS memory management 中最重要的机制之一。它让用�
 
 Virtual memory 的核心现象是：
 
-- **Program thinks**：自己拥有一段连续、很大的地址空间；
-- **Program uses**：底层可能使用不连续的物理内存，甚至一部分数据暂时在 secondary storage 上。
+- **Program thinks** ：自己拥有一段连续、很大的地址空间；
+- **Program uses** ：底层可能使用不连续的物理内存，甚至一部分数据暂时在 secondary storage 上。
 
 也就是说，虚拟地址空间可以是连续的：
 
@@ -2593,7 +2593,7 @@ Virtual Memory = Main Memory + Secondary Storage
 
 #### 隔离与保护：每个进程有自己的地址空间
 
-Virtual memory 的另一个关键作用是 **process isolation**。
+Virtual memory 的另一个关键作用是 **process isolation** 。
 
 每个进程都有自己的 page table：
 
@@ -2671,7 +2671,7 @@ page address = page number || page offset
 
 缺点：
 
-- 会产生 **internal fragmentation（内部碎片）**；
+- 会产生 **internal fragmentation（内部碎片）** ；
 - 如果程序只用了一个 page 的一部分，剩余空间仍然被这个 page 占用。
 
 #### Segmented Virtual Memory
@@ -2693,7 +2693,7 @@ segment address = segment number + offset
 
 - segment 大小不固定；
 - 替换、分配、压缩更复杂；
-- 容易产生 **external fragmentation（外部碎片）**。
+- 容易产生 **external fragmentation（外部碎片）** 。
 
 #### Paging vs Segmentation
 
@@ -2710,7 +2710,7 @@ segment address = segment number + offset
 
 #### Q1：Where can a block be placed in main memory?
 
-**fully associative strategy**。
+**fully associative strategy** 。
 
 在 virtual memory 层级中，一个 virtual page 可以放到 main memory 中几乎任意一个可用 physical frame。
 
@@ -2727,7 +2727,7 @@ segment address = segment number + offset
 
 #### Q2：How is a block found if it is in main memory?
 
-通过 **page table**。
+通过 **page table** 。
 
 Virtual address 可以拆成：
 
@@ -2762,7 +2762,7 @@ Page table 记录的是 page-level 的映射，所以它只需要翻译页号部
 
 #### Q3：Which block should be replaced on a virtual memory miss?
 
-通常希望替换 **least recently used page**，实际 OS 会用近似算法。
+通常希望替换 **least recently used page** ，实际 OS 会用近似算法。
 
 LRU 在 virtual memory 中通常通过 **use bit / reference bit** 近似实现：
 
@@ -2775,7 +2775,7 @@ LRU 在 virtual memory 中通常通过 **use bit / reference bit** 近似实现�
 
 #### Q4：What happens on a write?
 
-采用 **write-back strategy**。
+采用 **write-back strategy** 。
 
 原因：
 
@@ -2783,7 +2783,7 @@ LRU 在 virtual memory 中通常通过 **use bit / reference bit** 近似实现�
 - 每次写都同步写回 secondary storage 成本太高；
 - 只有 page 被替换且内容被修改过时，才需要写回。
 
-这需要 **dirty bit**：
+这需要 **dirty bit** ：
 
 - dirty = 0：page 内容没有被修改，替换时可以直接丢弃；
 - dirty = 1：page 内容已经修改，替换前必须写回 secondary storage。
@@ -2896,7 +2896,7 @@ TLB miss 时：
 3. 把新的翻译结果填入 TLB；
 4. 再次访问时即可 TLB hit。
 
-如果 page table 中没有有效映射，或者权限不满足，就会触发 **page fault**。
+如果 page table 中没有有效映射，或者权限不满足，就会触发 **page fault** 。
 
 #### TLB Access Steps
 
@@ -3163,7 +3163,7 @@ Process state 包括：
 
 Time-sharing 让多个用户或多个程序共享 CPU 和 memory，并给每个程序一种“自己独占机器”的假象。
 
-当 OS 从一个 process 切换到另一个 process 时，需要进行 **context switch**：
+当 OS 从一个 process 切换到另一个 process 时，需要进行 **context switch** ：
 
 - 保存旧进程的处理器状态；
 - 加载新进程的处理器状态；

@@ -61,7 +61,7 @@ Phenomenon → Modeling → ODE + conditions → Analysis → Solve / Approximat
 
 $$\frac{dy}{dx}=H(x,y)=g(x)h(y), \quad y(x_0)=y_0$$
 
-**Case 1**：$h(y)\neq 0$
+**Case 1** ：$h(y)\neq 0$
 可以把变量分开：
 
 $$
@@ -76,7 +76,7 @@ $$
 
 最后再代入初值确定常数。
 
-**Case 2**：$h(y_0)=0$
+**Case 2** ：$h(y_0)=0$
 这时常数函数
 
 $$
@@ -85,7 +85,7 @@ $$
 
 往往本身就是一个解。
 
-这个解有时会包含在通解里，有时**不会**，所以一定要单独检查。
+这个解有时会包含在通解里，有时 **不会** ，所以一定要单独检查。
 
 > [!TIP]
 > **分离变量时如果除掉了某个可能为 0 的因子，可能会漏掉解。**
@@ -149,7 +149,7 @@ $$
 #### Singular Solution
 奇异解是：
 
-> 是原方程的解，但**不能**通过通解中取某个常数得到。
+> 是原方程的解，但 **不能** 通过通解中取某个常数得到。
 
 :::warning
 奇异解会在分离变量中被漏掉
@@ -210,7 +210,7 @@ $$
 
 对所有 $x$ 成立。
 
-所以 $y\equiv 1$ 是一个 **奇异解**。
+所以 $y\equiv 1$ 是一个 **奇异解** 。
 
 
 在分离变量时你实际上做了
@@ -382,9 +382,9 @@ $$
 \frac{dy}{dx}=g\!\left(\frac{y}{x}\right)
 $$
 
-这种方程右边只依赖于比值 $y/x$，叫 **equidimensional equation**（也常被称作 homogeneous type）。
+这种方程右边只依赖于比值 $y/x$，叫 **equidimensional equation** （也常被称作 homogeneous type）。
 
-**标准换元**:
+**标准换元** :
 
 令
 
@@ -490,7 +490,7 @@ $$
 
 目标：把它转化为更容易的方程，通常是 equidimensional，再进一步化成 separable。
 
-**Case 1**：$c_1=c_2=0$
+**Case 1** ：$c_1=c_2=0$
 
 则
 
@@ -503,7 +503,7 @@ $$
 
 这是关于 $x,y$ 同次的比值，可直接看成 equidimensional 型，再令 $u=y/x$。
 
-**Case 2**：常数项不全为 0，且两条直线有唯一交点
+**Case 2** ：常数项不全为 0，且两条直线有唯一交点
 
 解方程组
 
@@ -528,7 +528,7 @@ $$
 
 从而化成 equidimensional 方程，再继续令 $w=v/u$。
 
-**Case 3**：分子分母中的线性部分成比例
+**Case 3** ：分子分母中的线性部分成比例
 
 若
 
@@ -577,9 +577,9 @@ $$
 
 ## Linear First-Order Equations
 
-**一阶线性微分方程**：
+**一阶线性微分方程** ：
 
-**标准形式**：
+**标准形式** ：
 
 $$\boxed{y'+P(x)y=Q(x)}$$
 
@@ -660,7 +660,7 @@ y=\frac{1}{\rho(x)}\left(\int \rho(x)Q(x)\,dx+C\right)
 }
 $$
 
-**核心**：
+**核心** ：
 
 $$
 \boxed{(\rho(x)y)'=\rho(x)Q(x)}
@@ -845,7 +845,7 @@ $$
 因此根据存在唯一性定理，解在整个$(0,\infty)$ 上唯一存在。
 
 **$x=0$ is not a singular solution.**
-$x=0$ 不是一条解曲线，而是方程的 **奇点（singular point）**。  
+$x=0$ 不是一条解曲线，而是方程的 **奇点（singular point）** 。  
 它和前面讨论的 **奇异解 singular solution** 不是一回事。
 
 </details>
@@ -935,7 +935,7 @@ $$
 \boxed{y=Y+y^*}
 $$
 
-这是 **Principle of Linear Superposition（线性叠加原理）**。
+这是 **Principle of Linear Superposition（线性叠加原理）** 。
 
 ### Bernoulli Equation
 
@@ -1076,7 +1076,7 @@ $$
 y=\frac{v-ax-c}{b}
 $$
 
-（若 $b\neq 0$），对 $x$ 求导后可把原方程化成关于 $v$ 的 **separable equation**。
+（若 $b\neq 0$），对 $x$ 求导后可把原方程化成关于 $v$ 的 **separable equation** 。
 
 #### Standard substitution
 
@@ -1166,7 +1166,7 @@ $$
 \frac{dy}{dx}=F\!\left(\frac{y}{x}\right),
 $$
 
-则称其为 **homogeneous first-order equation**。
+则称其为 **homogeneous first-order equation** 。
 
 这类方程右边只依赖于比值 $y/x$。
 
@@ -1197,7 +1197,7 @@ $$
 x\frac{dv}{dx}=F(v)-v.
 $$
 
-这就是一个 **separable equation**。
+这就是一个 **separable equation** 。
 
 #### How to recognize it
 
@@ -1404,7 +1404,7 @@ $$
 \boxed{y=x,\qquad y=-x}
 $$
 
-本身也是解，称为 **singular solution curves**。
+本身也是解，称为 **singular solution curves** 。
 
 </details>
 
@@ -1428,7 +1428,7 @@ $$
 F_x=M,\qquad F_y=N,
 $$
 
-则该方程称为 **exact equation**。
+则该方程称为 **exact equation** 。
 
 这时通解直接写成
 
@@ -1550,7 +1550,7 @@ $$
 
 变成 exact。
 
-这个 $\mu$ 叫做 **integrating factor**。
+这个 $\mu$ 叫做 **integrating factor** 。
 
 #### Exactness condition after multiplying by $\mu$
 
@@ -1609,7 +1609,7 @@ $$
 F(x,y,y',y'')=0.
 $$
 
-若其中 **缺少 $y$** 或 **缺少 $x$**，则常可通过代换降为一阶方程。
+若其中 **缺少 $y$** 或 **缺少 $x$** ，则常可通过代换降为一阶方程。
 
 ### Dependent variable $y$ missing
 
@@ -1762,7 +1762,7 @@ x(y)=\int \frac{1}{p(y,C_1)}\,dy + C_2
 }
 $$
 
-通常最后得到的是 **隐式解**。
+通常最后得到的是 **隐式解** 。
 
 #### Classic example
 
@@ -1868,7 +1868,7 @@ $$
 
 这时不一定容易直接把 $y'$ 解出来。
 
-**一种新的视角**：
+**一种新的视角** ：
 
 - 把 $p=y'$ 当作新变量；
 - 将方程看成三维空间 $(x,y,p)$ 中的曲面
@@ -1884,7 +1884,7 @@ $$
   的曲线。
 - 再把这条空间曲线投影回 $(x,y)$-平面，得到原微分方程的解曲线。
 
-这就是 **Parametrization with 3D Embedding**。
+这就是 **Parametrization with 3D Embedding** 。
 
 ### Basic geometric idea
 
@@ -2010,7 +2010,7 @@ $$
 5. 得到关于 $p$ 和 $x$ 的一阶方程；
 6. 解出后，再代回得到 $x,y$ 的参数形式。
 
-这就是 **Direct substitution**。
+这就是 **Direct substitution** 。
 
 ### Examples
 
@@ -2219,7 +2219,7 @@ $$
 因此 $y=x$ **不是** 原方程的解，更不是 singular solution。  
 这题正好说明：
 
-- p-discriminant 给出的是 **candidate curve**，不是自动成立的奇异解；
+- p-discriminant 给出的是 **candidate curve** ，不是自动成立的奇异解；
 - 找到 candidate 以后，必须再检查它是否真的是原方程的解。
 
 </details>
@@ -2295,7 +2295,7 @@ y=Cx+\frac{C^2}{2}
 }
 $$
 
-这是一族直线，称为 **general solution family**。
+这是一族直线，称为 **general solution family** 。
 
 ##### Branch 2: $x+p=0$
 
@@ -2703,7 +2703,7 @@ y=1
 $$
 is a solution.
 
-This is a **singular solution**.
+This is a **singular solution** .
 
 ##### Branch 2: $p\neq 0$
 
@@ -2774,7 +2774,7 @@ $$
 $$
 is touched by the family of parametric solution curves, and it is the envelope of the general family.
 
-Therefore $y=1$ is a **singular solution**.
+Therefore $y=1$ is a **singular solution** .
 
 </details>
 
@@ -2790,7 +2790,7 @@ Therefore $y=1$ is a **singular solution**.
 - 满足原方程；
 - 但不能通过一般解族中某个固定常数值代入得到；
 
-则称其为 **singular solution**。
+则称其为 **singular solution** 。
 
 $$
 \boxed{
@@ -2820,9 +2820,9 @@ $$
 
 #### General solution vs singular solution
 
-- **General solution**: 通常是一族由参数 $C$ 描述的解曲线。
-- **Singular solution**: 不是这族曲线中的某一个固定成员，而是额外出现的一条特殊解曲线。
-- 几何上，singular solution 往往是一般解族的 **envelope**，也就是包络线。
+- **General solution** : 通常是一族由参数 $C$ 描述的解曲线。
+- **Singular solution** : 不是这族曲线中的某一个固定成员，而是额外出现的一条特殊解曲线。
+- 几何上，singular solution 往往是一般解族的 **envelope** ，也就是包络线。
 - 因此它常常和一般解族中的某些成员相切，而不是横穿过去。
 
 例如 Example 2 中，
@@ -2924,7 +2924,7 @@ $$
 y=\phi(x),
 $$
 
-则这条曲线称为该方程的 **p-discriminant**。
+则这条曲线称为该方程的 **p-discriminant** 。
 
 #### Why does it matter?
 
@@ -3018,8 +3018,8 @@ $$
 
 这题分成两步看最清楚：
 
-- **Step 1**: 用 $p=y'$ 把方程化成参数形式，得到一般解族；
-- **Step 2**: 再用 p-discriminant 检查有没有额外的 singular solution。
+- **Step 1** : 用 $p=y'$ 把方程化成参数形式，得到一般解族；
+- **Step 2** : 再用 p-discriminant 检查有没有额外的 singular solution。
 
 #### Key steps
 

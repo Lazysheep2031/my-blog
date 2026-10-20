@@ -14,16 +14,16 @@ draft: false
 这正是流水线最核心的直觉：
 
 - 不是把一条指令“瞬间做完”；
-- 而是把多条指令在不同阶段**同时推进**。
+- 而是把多条指令在不同阶段 **同时推进** 。
 
 
 ### 从顺序执行到重叠执行
 
 为了说明流水线是怎么来的，slides 先把一条指令粗略分成 3 个阶段：
 
-1. **IF（Instruction Fetch）**：取指
-2. **ID（Instruction Decode）**：译码
-3. **EX（Execution）**：执行
+1. **IF（Instruction Fetch）** ：取指
+2. **ID（Instruction Decode）** ：译码
+3. **EX（Execution）** ：执行
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202603301109754.png" alt="流水线执行示意图" style="width: 320px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
@@ -48,7 +48,7 @@ $$
 
 ### Single Overlapping Execution
 
-接下来是 **single overlapping execution（一次重叠执行）**。  
+接下来是 **single overlapping execution（一次重叠执行）** 。  
 它的思想是：当第 $k$ 条指令进入 EX 时，可以同时去取第 $k+1$ 条指令。
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202603301110513.png" alt="单重叠执行示意图" style="width: 320px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
@@ -73,7 +73,7 @@ $$
 
 ### Twice Overlapping Execution
 
-进一步再做一次重叠，就得到 **twice overlapping execution（二次重叠执行）**。
+进一步再做一次重叠，就得到 **twice overlapping execution（二次重叠执行）** 。
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202603301111666.png" alt="二次重叠执行示意图" style="width: 320px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
@@ -152,14 +152,14 @@ $$
 
 这个公式很重要，因为它把流水线执行时间拆成了两部分：
 
-- **建立阶段（fill）**：前 $m\Delta t_0$ 左右，流水线还在逐步填满；
-- **稳态阶段（steady state）**：之后每经过一个 $\Delta t_0$，就能完成一个新任务；
-- **排空阶段（drain）**：最后几条任务还需要走完剩余阶段。
+- **建立阶段（fill）** ：前 $m\Delta t_0$ 左右，流水线还在逐步填满；
+- **稳态阶段（steady state）** ：之后每经过一个 $\Delta t_0$，就能完成一个新任务；
+- **排空阶段（drain）** ：最后几条任务还需要走完剩余阶段。
 
 
 ### 访存冲突与 Instruction Buffer
 
-**memory access conflict（存储器访问冲突）**。
+**memory access conflict（存储器访问冲突）** 。
 
 典型场景是：
 
@@ -193,17 +193,17 @@ slides 后面提到的 **advance control** 本质上也是这个思路：
 
 1. **stage / segment**
 
-流水线中的每一个子过程叫一个 **stage**，也常叫 **segment**。  
+流水线中的每一个子过程叫一个 **stage** ，也常叫 **segment** 。  
 例如 IF、ID、EX、MEM、WB 都可以看成不同的 stage。
 
 2. **depth of pipeline**
 
-流水线的阶段数叫 **depth**。  
+流水线的阶段数叫 **depth** 。  
 例如 5-stage pipeline 的 depth 就是 5。
 
 3. **pipeline register**
 
-相邻阶段之间必须有寄存器或锁存器把数据隔开，这就是 **pipeline register**。
+相邻阶段之间必须有寄存器或锁存器把数据隔开，这就是 **pipeline register** 。
 
 它的作用有两个：
 
@@ -212,10 +212,10 @@ slides 后面提到的 **advance control** 本质上也是这个思路：
 
 4. **pass time / empty time**
 
-- **pass time**：第一个任务从进入流水线到第一次输出结果所需时间；
-- **empty time**：停止送入新任务后，最后一个任务从进入到完全流出所需时间。
+- **pass time** ：第一个任务从进入流水线到第一次输出结果所需时间；
+- **empty time** ：停止送入新任务后，最后一个任务从进入到完全流出所需时间。
 
-它们反映的就是流水线的**建立**和**排空**开销。
+它们反映的就是流水线的 **建立** 和 **排空** 开销。
 
 
 ### 流水线的一般特征
@@ -225,7 +225,7 @@ slides 后面提到的 **advance control** 本质上也是这个思路：
 - 一个复杂过程被拆成多个子过程；
 - 每个子过程由专门的功能部件负责；
 - 各阶段时间应尽量平衡；
-- 最长阶段会成为 **bottleneck（瓶颈段）**；
+- 最长阶段会成为 **bottleneck（瓶颈段）** ；
 - 只有输入端持续有任务时，流水线效率才能充分发挥。
 
 这也解释了为什么流水线特别适合：
@@ -277,7 +277,7 @@ slides 里举的是浮点运算相关例子：同一组 segment 可以按不同�
 
 1. **Static pipelining**
 
-在同一时刻，各阶段只能按照**同一种功能连接方式**工作。  
+在同一时刻，各阶段只能按照 **同一种功能连接方式** 工作。  
 也就是说，如果当前流水线在按“加法模式”连接，那么此时就不能同时再按“乘法模式”服务另一批任务。
 
 特点：
@@ -288,7 +288,7 @@ slides 里举的是浮点运算相关例子：同一组 segment 可以按不同�
 
 2. **Dynamic pipelining**
 
-在同一时刻，各阶段可以按**不同连接方式**服务不同功能。  
+在同一时刻，各阶段可以按 **不同连接方式** 服务不同功能。  
 这意味着同一条多功能流水线能同时支持多类任务穿行。
 
 特点：
@@ -336,7 +336,7 @@ slides 里举的是浮点运算相关例子：同一组 segment 可以按不同�
 2. **Nonlinear pipelining**
 
 非线性流水线中除了串联，还存在反馈路径。  
-因此同一个任务可能会**再次回到某个已经经过的阶段**。
+因此同一个任务可能会 **再次回到某个已经经过的阶段** 。
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202603301119548.png" alt="Nonlinear Pipeline" style="width: 320px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
@@ -417,7 +417,7 @@ $$
 这说明：
 
 - 单周期处理器被最慢指令“绑死”；
-- 流水线则把一条长路径拆散，让时钟周期向**最慢阶段**靠齐。
+- 流水线则把一条长路径拆散，让时钟周期向 **最慢阶段** 靠齐。
 
 
 ### Throughput
@@ -507,7 +507,7 @@ $$
 T=\sum_{i=1}^{m}\Delta t_i + (n-1)\max(\Delta t_1,\Delta t_2,\dots,\Delta t_m)
 $$
 
-其中最长的那一段就叫 **bottleneck segment（瓶颈段）**。
+其中最长的那一段就叫 **bottleneck segment（瓶颈段）** 。
 
 <img src = "https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202603301121538.png" alt="Bottleneck Segment" style="width: 620px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
@@ -664,7 +664,7 @@ $$
 
 1. **为什么流水线能提速**
 
-本质不是把单条指令做得更“短”，而是把很多条指令**重叠起来**，从而提高吞吐率。
+本质不是把单条指令做得更“短”，而是把很多条指令 **重叠起来** ，从而提高吞吐率。
 
 2. **理想加速比为什么接近 stage 数**
 
@@ -725,7 +725,7 @@ $$
 2. **Hazard（冒险）**
 
 它描述的是实现层面的困难：  
-由于流水线并行推进，导致下一条指令**不能在下一个周期开始**。
+由于流水线并行推进，导致下一条指令 **不能在下一个周期开始** 。
 
 所以：
 
@@ -828,7 +828,7 @@ if p2 {
 
 ### Structural Hazards
 
-结构冒险的本质是：**两个阶段想用同一个资源，但资源只有一个**。
+结构冒险的本质是： **两个阶段想用同一个资源，但资源只有一个** 。
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202603301140637.png" alt="Structural Hazard" style="width: 520px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
@@ -841,7 +841,7 @@ if p2 {
 结果就是：
 
 - 取指必须停一下；
-- 流水线中间会插入一个 **bubble（气泡）**。
+- 流水线中间会插入一个 **bubble（气泡）** 。
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202603301141387.png" alt="Structural Hazard" style="width: 520px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
@@ -854,7 +854,7 @@ if p2 {
 
 ### Data Hazards
 
-最常见的数据冒险是 **RAW（Read After Write）**。  
+最常见的数据冒险是 **RAW（Read After Write）** 。  
 例如：
 
 ```text
@@ -907,7 +907,7 @@ WAR 和 WAW 更容易在乱序执行、多周期功能部件里变得显著。
 
 ### Forwarding：最常见的数据冒险缓解方法
 
-**forwarding** 也叫 **bypassing**。  
+**forwarding** 也叫 **bypassing** 。  
 它的思想非常直接：
 
 - 结果一算出来就直接旁路给后面的消费者；
@@ -928,7 +928,7 @@ WAR 和 WAW 更容易在乱序执行、多周期功能部件里变得显著。
 
 ### Load-Use Hazard
 
-最典型的 forwarding 也救不了的例子是 **load-use hazard**：
+最典型的 forwarding 也救不了的例子是 **load-use hazard** ：
 
 ```text
 LD    R1, 0(R2)
@@ -947,7 +947,7 @@ XOR   R8, R1, R9
 - 插入 1 个 bubble；
 - 等 `LD` 的数据到位后，再 forward 给后面的 EX。
 
-不过这里有一个 slides 里也单独举出来的**特殊情况**：
+不过这里有一个 slides 里也单独举出来的 **特殊情况** ：
 
 ```text
 LD    R5, 0(R1)
@@ -962,7 +962,7 @@ SD    R5, 12(R1)
 
 ### Code Scheduling：用编译器重排来隐藏 Stall
 
-除了硬件旁路，还有**compiler scheduling / code scheduling**。
+除了硬件旁路，还有 **compiler scheduling / code scheduling** 。
 
 思路很简单：
 
@@ -1035,8 +1035,8 @@ add  $t5, $t1, $t4
 sw   $t5, 16($t0)
 ```
 
-- 重排前：**13 cycles**
-- 重排后：**11 cycles**
+- 重排前： **13 cycles**
+- 重排后： **11 cycles**
 
 重点在于：
 
@@ -1104,7 +1104,7 @@ sw   $15, 100($2)
 
 但仅仅寄存器号相等还不够，slides 还强调了两个额外限制：
 
-1. 这条前面的指令**真的会写寄存器**
+1. 这条前面的指令 **真的会写寄存器**
    - `EX/MEM.RegWrite`
    - `MEM/WB.RegWrite`
 
@@ -1163,7 +1163,7 @@ add  $1, $1, $4
 - EX/MEM 有一个较新的 `$1`
 - MEM/WB 也有一个较旧的 `$1`
 
-也就是说，**两个 hazard 条件会同时出现**。  
+也就是说， **两个 hazard 条件会同时出现** 。  
 此时必须优先选最近产生的那个值，也就是 EX/MEM 中的结果。
 
 所以对 MEM hazard 条件做了修正：
@@ -1172,7 +1172,7 @@ add  $1, $1, $4
 只有在 EX hazard 不成立时，才允许使用 MEM/WB 的结果做 forwarding
 ```
 
-这一步非常关键，因为它体现了 forwarding 并不是“有匹配就转发”，而是要保证拿到的是**最新版本**。
+这一步非常关键，因为它体现了 forwarding 并不是“有匹配就转发”，而是要保证拿到的是 **最新版本** 。
 
 
 ### Load-Use Hazard 的检测条件
@@ -1222,7 +1222,7 @@ stall 的实现：
 - 中间插一个空操作；
 - 后半段继续流动。
 
-**Datapath with Hazard Detection**:
+**Datapath with Hazard Detection** :
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202603301149767.png" alt="Hazard Detection" style="width: 600px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
 
@@ -1243,7 +1243,7 @@ control hazard 的根源是：
 - 寄存器比较
 - 分支目标地址计算
 
-提前到 **ID stage**，这样可以缩短 branch penalty。
+提前到 **ID stage** ，这样可以缩短 branch penalty。
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202603301330390.png" alt="Stall on Branch" style="width: 500px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
 
@@ -1268,7 +1268,7 @@ control hazard 的根源是：
 - branch 结果没出来之前；
 - 暂时不要继续取后续指令。
 
-这就是 **stall on branch**。
+这就是 **stall on branch** 。
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202603301331908.png" alt="Stall on Branch" style="width: 500px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
@@ -1283,7 +1283,7 @@ control hazard 的根源是：
 
 ### Predict Not Taken
 
-比完全等待更积极的办法是 **predict not taken（预测不跳转）**。
+比完全等待更积极的办法是 **predict not taken（预测不跳转）** 。
 
 做法是：
 
@@ -1302,7 +1302,7 @@ control hazard 的根源是：
 
 ### Static Branch Prediction
 
-在真正进入动态预测前，slides 还先提了一种更朴素的思路：**static branch prediction（静态分支预测）**。
+在真正进入动态预测前，slides 还先提了一种更朴素的思路： **static branch prediction（静态分支预测）** 。
 
 它不是根据运行历史来猜，而是根据“这类 branch 通常长什么样”来猜。  
 slides 给出的经验规则是：
@@ -1322,7 +1322,7 @@ slides 给出的经验规则是：
 
 ### Delayed Branch
 
-另一种经典思路是 **delayed branch（延迟分支）**。  
+另一种经典思路是 **delayed branch（延迟分支）** 。  
 其核心语义是：
 
 > 分支后的那一条 delay slot 指令，无论 branch 最终是否跳转，都会执行。
@@ -1341,7 +1341,7 @@ slides 给出的经验规则是：
 - 对深流水线和复杂实现并不友好。
 
 slides 后面借 RISC-V 手册专门提醒：  
-**RISC-V base ISA 不采用 branch delay slot**。
+**RISC-V base ISA 不采用 branch delay slot** 。
 
 :::note
 延迟分支是理解经典 RISC 流水线非常重要的概念，但现代 ISA 未必继续保留它。  
@@ -1374,7 +1374,7 @@ slides 后面借 RISC-V 手册专门提醒：
 ### Dynamic Branch Prediction
 
 随着流水线变深、甚至进入 superscalar 场景，branch penalty 会越来越不能接受。  
-于是就需要 **dynamic branch prediction（动态分支预测）**。
+于是就需要 **dynamic branch prediction（动态分支预测）** 。
 
 它的基本思路是：
 
@@ -1382,7 +1382,7 @@ slides 后面借 RISC-V 手册专门提醒：
 - 下次遇到同一个 branch 时，猜它会延续之前的趋势；
 - 如果猜错，就 flush 并更新历史。
 
-首先给出的是 **BHT（Branch History Table）**，也叫 branch prediction buffer。
+首先给出的是 **BHT（Branch History Table）** ，也叫 branch prediction buffer。
 
 它通常：
 
@@ -1399,7 +1399,7 @@ slides 后面借 RISC-V 手册专门提醒：
 - 这一拍会误判一次；
 - 下一次重新进入内层循环时，它又会在第一次迭代上误判一次。
 
-也就是说，**一个 loop branch 往往会被错两次**。
+也就是说， **一个 loop branch 往往会被错两次** 。
 
 这就是为什么 1-bit predictor 过于敏感：  
 一次偶然变化就会把状态完全翻转。
@@ -1407,7 +1407,7 @@ slides 后面借 RISC-V 手册专门提醒：
 
 ### 2-Bit Predictor
 
-为了解决 1-bit predictor 过于脆弱的问题，常用的是 **2-bit saturating predictor**。
+为了解决 1-bit predictor 过于脆弱的问题，常用的是 **2-bit saturating predictor** 。
 
 它通常有 4 个状态：
 
@@ -1434,7 +1434,7 @@ slides 后面借 RISC-V 手册专门提醒：
 即使预测器猜对了“会跳”，处理器仍然还要计算 branch target。  
 如果这一步还得再花 1 个周期，那么 taken branch 仍然会有额外代价。
 
-这时就需要 **BTB（Branch-Target Buffer）**，也叫 branch-target cache。
+这时就需要 **BTB（Branch-Target Buffer）** ，也叫 branch-target cache。
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202603301339085.png" alt="BTB" style="width: 500px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
@@ -1456,7 +1456,7 @@ slides 后面借 RISC-V 手册专门提醒：
 
 这个表反映出 BTB 的核心收益：
 
-- 猜对且命中时，taken branch 可以做到 **0 额外延迟**；
+- 猜对且命中时，taken branch 可以做到 **0 额外延迟** ；
 - 猜错时仍要付出 flush 代价。
 
 BTB 的进一步好处：
@@ -1482,7 +1482,7 @@ BTB 的进一步好处：
 ## Schedule of Nonlinear Pipelining
 
 前面大部分内容都围绕线性指令流水线展开。  
-这一节讨论的是更抽象也更理论化的内容：**非线性流水线的调度**。
+这一节讨论的是更抽象也更理论化的内容： **非线性流水线的调度** 。
 
 由于非线性流水线存在反馈路径，同一个任务可能重复占用某个 stage。  
 于是问题变成：
@@ -1493,7 +1493,7 @@ BTB 的进一步好处：
 
 ### Reservation Table
 
-分析这类问题最常见的工具是 **reservation table（预约表）**。
+分析这类问题最常见的工具是 **reservation table（预约表）** 。
 
 它的做法是：
 
@@ -1513,7 +1513,7 @@ BTB 的进一步好处：
 
 ### Initial Conflict Vector
 
-从 reservation table 可以推出 **prohibit sets（禁止延迟集合）**。  
+从 reservation table 可以推出 **prohibit sets（禁止延迟集合）** 。  
 slides 给出的样例是：
 
 $$
@@ -1526,7 +1526,7 @@ $$
 - 那么它们一定会在某个 stage 上发生冲突；
 - 因此这些间隔是禁止的。
 
-把它写成二进制向量，就是 **initial conflict vector**：
+把它写成二进制向量，就是 **initial conflict vector** ：
 
 $$
 C_0=(10110001)
@@ -1541,7 +1541,7 @@ $$
 ### Current Conflict Vector
 
 在真正调度时，我们关心的是当前状态下哪些启动间隔可行。  
-这就是 **CCV（Current Conflict Vector）**。
+这就是 **CCV（Current Conflict Vector）** 。
 
 标准更新规则可以概括为：
 
@@ -1605,7 +1605,7 @@ $$
 
 ### State Transition Graph
 
-为了系统枚举所有可能的合法调度，slides 又引入了 **state transition graph（状态转移图）**。
+为了系统枚举所有可能的合法调度，slides 又引入了 **state transition graph（状态转移图）** 。
 
 图中的：
 

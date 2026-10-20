@@ -134,7 +134,7 @@ int main()
 这里和 C 风格最本质的区别是：
 
 - `move` 不再是“一个普通函数 + 一个 `Point*` 参数”
-- 它变成了“**属于 Point 的操作**”
+- 它变成了“ **属于 Point 的操作** ”
 - 调用方式从 `move(&p, 2, 2)` 变成了 `p.move(2, 2)`
 
 这正是面向对象里“对象接收消息并作出响应”的最基础直觉。
@@ -163,18 +163,18 @@ private:
 
 也就是：
 
-- **Attributes / Data**：对象当前的属性、状态
-- **Services / Operations**：对象对外提供的功能
+- **Attributes / Data** ：对象当前的属性、状态
+- **Services / Operations** ：对象对外提供的功能
 
 ### 对象和类分别是什么
 
-**Object（对象）**：
+**Object（对象）** ：
 
 - 表示现实中的某个具体事物、事件或概念
 - 在运行时存在
 - 能接收“消息”并作出响应
 
-**Class（类）**：
+**Class（类）** ：
 
 - 是对象的抽象描述、蓝图、模板
 - 规定某类对象应该有哪些数据、哪些方法
@@ -192,7 +192,7 @@ private:
 
 > 程序是很多对象彼此发送消息。
 
-在 C++ 里，这种“消息”通常就体现为 **成员函数调用**：
+在 C++ 里，这种“消息”通常就体现为 **成员函数调用** ：
 
 ```cpp
 p.move(2, 3);
@@ -300,8 +300,8 @@ private:
 
 类设计的套路：
 
-1. 先找出对象的**状态**
-2. 再找出对象能做的**行为**
+1. 先找出对象的 **状态**
+2. 再找出对象能做的 **行为**
 3. 决定哪些内容对外公开，哪些内容应该隐藏
 
 
@@ -416,8 +416,8 @@ void S::f() {
 }
 ```
 
-- `::f()` 表示调用**全局作用域**里的 `f`
-- `S::f()` 表示调用 **S 类作用域**里的 `f`
+- `::f()` 表示调用 **全局作用域** 里的 `f`
+- `S::f()` 表示调用 **S 类作用域** 里的 `f`
 
 所以 `::` 的本质就是：
 
@@ -443,7 +443,7 @@ void S::f() {
 
 > `#include <point.h>` 本质上是在编译单元前面加入这个头文件的代码。
 
-更准确地说，`#include` 是**预处理阶段的文本替换**。
+更准确地说，`#include` 是 **预处理阶段的文本替换** 。
 
 比如：
 
@@ -492,7 +492,7 @@ public:
 
 因为 `line_segment.h` 已经包含了 `point.h`，这样就可能导致 `point.h` 被展开两次，从而报重复定义错误。
 
-解决方法就是 **include guard**。
+解决方法就是 **include guard** 。
 
 `point.h`
 
@@ -538,7 +538,7 @@ public:
 
 > PImpl technique: debatable, hides private members and removes compilation dependency.
 
-这是一种更进阶的类实现方式，Further Reading 给的是 **Opaque Pointer / PImpl idiom**。
+这是一种更进阶的类实现方式，Further Reading 给的是 **Opaque Pointer / PImpl idiom** 。
 
 它的核心思想是：
 
@@ -608,7 +608,7 @@ make
 
 - **CMake 不是编译器**
 - 它也不是最终的 build system 本体
-- 它的作用是：**生成别的构建系统需要的文件**，比如 Makefile
+- 它的作用是： **生成别的构建系统需要的文件** ，比如 Makefile
 
 
 ## ClockDisplay：类可以由别的对象组成
@@ -815,7 +815,7 @@ int foo(int a) {
 
 ### RAII
 
-RAII = **Resource Acquisition Is Initialization**。
+RAII = **Resource Acquisition Is Initialization** 。
 > **把资源的获取和对象的生命周期绑定起来。**
 
 原则是：
@@ -953,7 +953,7 @@ Y y3[7];
 Y y4;
 ```
 
-都会出问题，因为这需要默认构造函数，但类里已经定义了别的构造函数，编译器就**不会再自动帮你生成默认构造函数**。
+都会出问题，因为这需要默认构造函数，但类里已经定义了别的构造函数，编译器就 **不会再自动帮你生成默认构造函数** 。
 
 > If (and only if) there are no constructors defined for a class, the compiler will automatically create a default constructor.
 
@@ -1011,7 +1011,7 @@ Point(float xa, float ya) {
 
 对于 `const` 字段，这甚至根本不合法。
 
-#### 真正的初始化顺序由**字段声明顺序**决定
+#### 真正的初始化顺序由 **字段声明顺序** 决定
 
 不是看初始化列表里谁写在前面，而是看类里字段谁先声明。
 
@@ -1218,7 +1218,7 @@ const Currency the_raise(42, 38);
 - 这个对象怎么保证不被修改？
 - 它还能调用哪些成员函数？
 
-这就引出了 **`const` 成员函数**。
+这就引出了 **`const` 成员函数** 。
 
 例如：
 
@@ -1245,7 +1245,7 @@ int Date::get_day() const {
 const Date birthday(12,25,1994);
 ```
 
-那么它只能调用 **`const` 成员函数**。
+那么它只能调用 **`const` 成员函数** 。
 
 例如：
 
@@ -1408,7 +1408,7 @@ class HasArray {
 
 为什么错？
 
-因为这里需要一个**编译期常量**，而普通 `const int size;` 是对象级别的字段，不是编译期已知常量。
+因为这里需要一个 **编译期常量** ，而普通 `const int size;` 是对象级别的字段，不是编译期已知常量。
 
 正确思路是：
 
@@ -1462,7 +1462,7 @@ struct X {
 
 ### 函数调用开销
 
-先要知道为什么会有 `inline`：因为**普通函数调用有额外开销**。
+先要知道为什么会有 `inline`：因为 **普通函数调用有额外开销** 。
 
 大致包括：
 

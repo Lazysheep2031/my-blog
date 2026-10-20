@@ -11,15 +11,15 @@ draft: false
 
 ### 脉络
 
-- **pipelining**：通过重叠不同指令的执行过程提高吞吐率；
-- **pipeline hazards**：结构冲突、数据相关与控制相关如何限制流水；
-- **memory hierarchy**：存储系统对整体性能的影响；
-- **ILP**：通过动态调度、乱序执行等手段挖掘指令级并行。
+- **pipelining** ：通过重叠不同指令的执行过程提高吞吐率；
+- **pipeline hazards** ：结构冲突、数据相关与控制相关如何限制流水；
+- **memory hierarchy** ：存储系统对整体性能的影响；
+- **ILP** ：通过动态调度、乱序执行等手段挖掘指令级并行。
 
 这些技术主要仍然围绕单个处理器内部的执行效率展开。而并行层次：
 
-1. **DLP（Data-Level Parallelism）**：对大量数据元素执行相同或相似的运算；
-2. **TLP（Thread-Level Parallelism）**：让多个线程或任务并行执行。
+1. **DLP（Data-Level Parallelism）** ：对大量数据元素执行相同或相似的运算；
+2. **TLP（Thread-Level Parallelism）** ：让多个线程或任务并行执行。
 
 ### DLP 与 TLP
 
@@ -86,7 +86,7 @@ C[N-1] = A[N-1] + B[N-1]
 
 ### 为什么向量特别适合流水线
 
-向量运算的重要特点是：**同一向量运算中的不同元素之间通常没有数据相关性**。
+向量运算的重要特点是： **同一向量运算中的不同元素之间通常没有数据相关性** 。
 
 例如：
 
@@ -113,7 +113,7 @@ $$
 - 频繁的功能切换；
 - 向量寄存器或功能部件冲突。
 
-因此，向量处理机设计的核心问题是：**怎样组织向量运算，使流水线真正保持高吞吐率**。
+因此，向量处理机设计的核心问题是： **怎样组织向量运算，使流水线真正保持高吞吐率** 。
 
 
 ## Vector Processing Methods
@@ -132,7 +132,7 @@ $$
 
 ### Horizontal Processing Method
 
-**Horizontal processing（横向处理）**按元素从左到右完成整个表达式：
+**Horizontal processing（横向处理）** 按元素从左到右完成整个表达式：
 
 ```text
 D1 = A1 × (B1 + C1)
@@ -166,11 +166,11 @@ $$
 2. 若使用静态多功能流水线，每处理一个元素都要在加法与乘法功能之间切换，甚至需要先排空已有流水；
 3. 流水线不断被相关和切换打断，吞吐率很低，性能可能接近顺序执行。
 
-因此：**横向处理不适合向量处理机**。
+因此： **横向处理不适合向量处理机** 。
 
 ### Vertical Processing Method
 
-**Vertical processing（纵向处理）**先对整个向量执行一种运算，再切换到下一种运算：
+**Vertical processing（纵向处理）** 先对整个向量执行一种运算，再切换到下一种运算：
 
 $$
 K \leftarrow B + C
@@ -207,7 +207,7 @@ DN = AN × KN
 - 做 $A\times K$ 时，乘法流水线持续工作；
 - 功能切换从每个元素都发生，下降到每个向量运算阶段才发生。
 
-但它要求保存完整的中间向量 $K$。早期纵向处理常使用 **memory-memory structure**：
+但它要求保存完整的中间向量 $K$。早期纵向处理常使用 **memory-memory structure** ：
 
 - 源向量和目标向量都存放在 memory 中；
 - 中间结果 $K$ 也需要写回 memory；
@@ -222,7 +222,7 @@ DN = AN × KN
 
 ### Vertical and Horizontal Processing Method
 
-如果向量长度 $N$ 很大，硬件无法一次容纳整个向量，就需要使用 **vertical and horizontal processing（纵横处理 / 分组处理）**。
+如果向量长度 $N$ 很大，硬件无法一次容纳整个向量，就需要使用 **vertical and horizontal processing（纵横处理 / 分组处理）** 。
 
 设：
 
@@ -241,8 +241,8 @@ $$
 
 处理原则是：
 
-- **组内纵向处理**：一组内部先完成 $B+C$，再完成 $A\times K$；
-- **组间横向推进**：第一组处理完后，再处理第二组，直到最后一组。
+- **组内纵向处理** ：一组内部先完成 $B+C$，再完成 $A\times K$；
+- **组间横向推进** ：第一组处理完后，再处理第二组，直到最后一组。
 
 在 $r>0$ 的情况下：
 
@@ -251,7 +251,7 @@ $$
 | 数据相关 | $S+1$ 次 |
 | 功能切换 | $2(S+1)$ 次 |
 
-这种方式对应于 **register-register structure**：
+这种方式对应于 **register-register structure** ：
 
 - 设置可以快速访问的向量寄存器；
 - 源向量、目标向量和中间结果尽可能保存在向量寄存器中；
@@ -366,7 +366,7 @@ CRAY-1 中的主要向量操作分为四类：
 
 1. 设置多个能够并行工作的功能部件；
 2. 使用 **vector chaining** 加速存在依赖关系的向量指令串；
-3. 当向量长度超过硬件可容纳长度时，使用 **segmented vector**；
+3. 当向量长度超过硬件可容纳长度时，使用 **segmented vector** ；
 4. 引入多个向量处理器，构成多处理器系统。
 
 ### Multiple Functional Units
@@ -389,13 +389,13 @@ CRAY-1 中的主要向量操作分为四类：
 
 就可以同时占用不同的功能部件，提高吞吐率。
 
-这种方法本质上是：**通过叠加硬件并行度换取更高性能**。
+这种方法本质上是： **通过叠加硬件并行度换取更高性能** 。
 
 ### Vector Chaining
 
 #### 基本思想
 
-**Vector chaining（向量链接）**用于处理存在 RAW 相关、但可以由不同功能部件完成的向量指令。
+**Vector chaining（向量链接）** 用于处理存在 RAW 相关、但可以由不同功能部件完成的向量指令。
 
 普通纵向执行需要等待前一条向量指令把全部 $N$ 个元素算完，后一条指令才开始。链接技术则允许：
 
@@ -518,7 +518,7 @@ $$
 - 每个 segment 内仍然采用向量指令和流水执行；
 - 系统由硬件与软件共同控制这一过程，对程序员尽可能透明。
 
-这一点与前面纵横处理方法一致：**硬件资源有限时，必须通过分段让长向量继续享受向量执行优势**。
+这一点与前面纵横处理方法一致： **硬件资源有限时，必须通过分段让长向量继续享受向量执行优势** 。
 
 ### Multi-Processor System
 
@@ -531,7 +531,7 @@ slides 给出的例子包括：
 | CRAY-2 | 4 个 vector processors | 浮点计算速度最高可达 1800 MFLOPS |
 | CRAY Y-MP / C90 | 最多 16 个 vector processors | 进一步提升并行向量吞吐率 |
 
-这种方法的本质仍然是：**通过更多硬件执行资源提高整体并行能力**。
+这种方法的本质仍然是： **通过更多硬件执行资源提高整体并行能力** 。
 
 
 ## Modern Vector Architecture: RV64V
@@ -591,8 +591,8 @@ vdisable                 # Disable vector regs
 
 在示例设定下：
 
-- 标量实现需要执行 loop，动态执行约 **258 条指令**；
-- 向量实现只需 **8 条指令**。
+- 标量实现需要执行 loop，动态执行约 **258 条指令** ；
+- 向量实现只需 **8 条指令** 。
 
 但这种大幅压缩指令数并不是无条件成立的。能否向量化取决于：
 
@@ -602,7 +602,7 @@ vdisable                 # Disable vector regs
 
 ### Multiple Lanes: One Cycle 处理多个元素
 
-单条向量指令本身已经表达了多个元素的并行任务；硬件还可以进一步增加多个 **lane**，使同一个 clock cycle 内处理多个元素。
+单条向量指令本身已经表达了多个元素的并行任务；硬件还可以进一步增加多个 **lane** ，使同一个 clock cycle 内处理多个元素。
 
 RV64V 类型向量指令具有一个非常重要的规律：
 
@@ -613,7 +613,7 @@ RV64V 类型向量指令具有一个非常重要的规律：
 
 - 单 lane：每拍完成 1 个元素运算；
 - 4 lanes：每拍完成 4 个元素运算；
-- 多条 lane 同时生成的一组结果称为 **element group**。
+- 多条 lane 同时生成的一组结果称为 **element group** 。
 
 这种固定的逐元素对应关系显著简化了高度并行向量单元的设计。
 
@@ -660,7 +660,7 @@ vdisable                 # Disable vector registers
 
 ### 阵列处理机的基本概念
 
-SIMD 的另一种实现方式是 **array processor（阵列处理机）**。
+SIMD 的另一种实现方式是 **array processor（阵列处理机）** 。
 
 阵列处理机由多个 processing element 构成：
 
@@ -676,7 +676,7 @@ $$
 - 因此它也属于 SIMD；
 - 阵列处理机有时也称为 parallel processor。
 
-典型历史机器是 **ILLIAC IV**。
+典型历史机器是 **ILLIAC IV** 。
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260526202913.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
@@ -699,8 +699,8 @@ $$
 
 按照系统中 memory 的组织方式，阵列处理机可以分为两类基本结构：
 
-1. **Distributed memory（分布式存储器）**；
-2. **Centralized shared memory（集中共享存储器）**。
+1. **Distributed memory（分布式存储器）** ；
+2. **Centralized shared memory（集中共享存储器）** 。
 
 ### Distributed Memory
 
@@ -721,7 +721,7 @@ PEN-1 ↔ Local Memory N-1
        \ connected by ICN /
 ```
 
-slides 说明：**distributed memory configuration 是 SIMD array processor 的主流组织形式**。
+slides 说明： **distributed memory configuration 是 SIMD array processor 的主流组织形式** 。
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260526202957.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
@@ -800,11 +800,11 @@ $$
 
 Interconnection network 一般由五类部分构成：
 
-1. **CPU / PE**：发起计算与通信请求的处理单元；
-2. **memory**：被访问的数据存储单元，可以是 PE 的 local memory，也可以是 shared memory module；
-3. **interface**：从 CPU 或 memory 获取信息，并把信息发送到其他 CPU 或 memory 的接口设备，典型形式是 network interface card；
-4. **link**：传输 bit 的物理通道，可以是线缆、双绞线或光纤，也可以是串行或并行通路；
-5. **switch node**：互联网络中的交换与控制节点，具有多个输入端口和多个输出端口，可以进行数据缓冲与路径选择。
+1. **CPU / PE** ：发起计算与通信请求的处理单元；
+2. **memory** ：被访问的数据存储单元，可以是 PE 的 local memory，也可以是 shared memory module；
+3. **interface** ：从 CPU 或 memory 获取信息，并把信息发送到其他 CPU 或 memory 的接口设备，典型形式是 network interface card；
+4. **link** ：传输 bit 的物理通道，可以是线缆、双绞线或光纤，也可以是串行或并行通路；
+5. **switch node** ：互联网络中的交换与控制节点，具有多个输入端口和多个输出端口，可以进行数据缓冲与路径选择。
 
 设计 ICN 时需要同时考虑四类问题：
 
@@ -837,7 +837,7 @@ Interconnection network 一般由五类部分构成：
 
 > 用有限数量的连接方式，使任意两个 PE 能够在一步或少数几步内完成信息传输，从而支持并行算法执行。
 
-如果只使用一个层次的连接来完成任意两个处理单元之间的传输，称为 **single-stage interconnection network**；如果把多个单级网络串联起来，称为 **multi-stage interconnection network**。
+如果只使用一个层次的连接来完成任意两个处理单元之间的传输，称为 **single-stage interconnection network** ；如果把多个单级网络串联起来，称为 **multi-stage interconnection network** 。
 
 ### Interconnection Function
 
@@ -847,7 +847,7 @@ $$
 0,1,\ldots,j,\ldots,N-1
 $$
 
-如果输入端 $j$ 与输出端 $f(j)$ 存在对应关系，那么 $f$ 就描述了该互联网络的连接规律，称为 **interconnection function（互联函数）**。
+如果输入端 $j$ 与输出端 $f(j)$ 存在对应关系，那么 $f$ 就描述了该互联网络的连接规律，称为 **interconnection function（互联函数）** 。
 
 通常把输入编号和输出编号都写成二进制。根据二进制位之间的变化规律，就可以写出对应的互联函数。
 
@@ -917,7 +917,7 @@ $$
 
 ### PM2I Single-Stage Interconnection Network
 
-PM2I 的含义是 **Plus Minus $2^i$**。它包括加 $2^i$ 与减 $2^i$ 两类连接。
+PM2I 的含义是 **Plus Minus $2^i$** 。它包括加 $2^i$ 与减 $2^i$ 两类连接。
 
 对于 $N$ 个节点：
 
@@ -964,8 +964,8 @@ ILLIAC IV 的阵列互联使用了 $PM2_{\pm0}$ 和 $PM2_{\pm n/2}$，从而在�
 
 Shuffle exchange network 由两部分构成：
 
-1. **shuffle**：混洗函数；
-2. **exchange**：交换函数。
+1. **shuffle** ：混洗函数；
+2. **exchange** ：交换函数。
 
 对于 $N$ 个节点，设：
 
@@ -1063,12 +1063,12 @@ $$
 
 除了 cube、PM2I、shuffle exchange 这些互联函数，slides 还总结了常见的静态拓扑。它们可以从以下几个指标比较：
 
-- **scale**：节点规模；
-- **degree**：节点度数，即一个节点直接连接多少条边；
-- **diameter**：网络直径，即任意两点之间最短路径长度的最大值；
-- **width / bisection width**：把网络大致分成两半时需要切断的连接数量；
-- **symmetry**：不同节点在拓扑中的地位是否等价；
-- **link**：总连接数。
+- **scale** ：节点规模；
+- **degree** ：节点度数，即一个节点直接连接多少条边；
+- **diameter** ：网络直径，即任意两点之间最短路径长度的最大值；
+- **width / bisection width** ：把网络大致分成两半时需要切断的连接数量；
+- **symmetry** ：不同节点在拓扑中的地位是否等价；
+- **link** ：总连接数。
 
 ### Linear Array
 
@@ -1127,7 +1127,7 @@ $$
 - 对分宽度：1；
 - 对称性差。
 
-树结构容易形成根部或高层节点瓶颈，因此可以扩展为 **fat tree** 或 **tree with loop**。
+树结构容易形成根部或高层节点瓶颈，因此可以扩展为 **fat tree** 或 **tree with loop** 。
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260601195018.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
@@ -1288,14 +1288,14 @@ $$
 
 因此：
 
-- **two-function switch**：只支持 straight 和 exchange；
+- **two-function switch** ：只支持 straight 和 exchange；
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260601200222.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
-- **four-function switch**：支持 straight、exchange、upper broadcast、lower broadcast；
+- **four-function switch** ：支持 straight、exchange、upper broadcast、lower broadcast；
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260601200232.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
-- **multi-end switch**：进一步加入 broadcast 和 multicast 模块。
+- **multi-end switch** ：进一步加入 broadcast 和 multicast 模块。
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260601200244.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
@@ -1336,7 +1336,7 @@ input -> Cube0 -> Cube1 -> Cube2 -> output
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260601200337.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
-如果采用 **stage control**，同一级内所有 switch 共享同一个控制信号。设 stage 控制信号为：
+如果采用 **stage control** ，同一级内所有 switch 共享同一个控制信号。设 stage 控制信号为：
 
 $$
 K_2K_1K_0
@@ -1368,11 +1368,11 @@ multi-stage cube 还可以分为：
 - mobile number network；
 - indirect binary n-cube network。
 
-其中采用 stage control 的 multi-stage cube 网络称为 **switching network / flip network**，主要实现成组元素的对称交换。
+其中采用 stage control 的 multi-stage cube 网络称为 **switching network / flip network** ，主要实现成组元素的对称交换。
 
 ### Multi-Stage Shuffle Exchange Network / Omega Network
 
-multi-stage shuffle exchange network 又称为 **Omega network**。
+multi-stage shuffle exchange network 又称为 **Omega network** 。
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260601201123.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
@@ -1472,13 +1472,13 @@ GPU 的硬件特征是：
 - 适合大规模并行；
 - 典型应用包括 graphics 和 deep learning。
 
-从体系结构脉络看，GPU 可以理解为从 SIMD 进一步扩展到 **SIMT（Single Instruction Multiple Thread）**。在 vector processor 中，最小并行单元可以看成向量元素；在 GPU 编程模型中，最小执行抽象是 thread。thread 除了数据元素，还包含寄存器、上下文等执行状态。
+从体系结构脉络看，GPU 可以理解为从 SIMD 进一步扩展到 **SIMT（Single Instruction Multiple Thread）** 。在 vector processor 中，最小并行单元可以看成向量元素；在 GPU 编程模型中，最小执行抽象是 thread。thread 除了数据元素，还包含寄存器、上下文等执行状态。
 
 ### CUDA 与 SIMT
 
-CUDA 的全称是 **Compute Unified Device Architecture**。
+CUDA 的全称是 **Compute Unified Device Architecture** 。
 
-NVIDIA 使用 **CUDA thread** 统一表达 GPU 中的多种并行形式。执行一个 thread block 的硬件可以看成 **multithreaded SIMD processor**。
+NVIDIA 使用 **CUDA thread** 统一表达 GPU 中的多种并行形式。执行一个 thread block 的硬件可以看成 **multithreaded SIMD processor** 。
 
 SIMT 的关键直觉是：
 
@@ -1628,9 +1628,9 @@ GPU 同样需要 memory hierarchy。
 
 常见结构是 two-level cache：
 
-- **L1 cache**：位于 SM 内，靠近执行单元；
-- **L2 cache**：多个 SM 共享，位于 GPU 更全局的位置；
-- **shared memory**：通常与 L1 位置相近，受程序员显式控制。
+- **L1 cache** ：位于 SM 内，靠近执行单元；
+- **L2 cache** ：多个 SM 共享，位于 GPU 更全局的位置；
+- **shared memory** ：通常与 L1 位置相近，受程序员显式控制。
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260601202702.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
@@ -1693,7 +1693,7 @@ Loop-level parallelism 的核心问题是：
 
 > 后面迭代中的数据访问，是否依赖前面迭代产生的数据值？
 
-如果存在这种依赖，就称为 **loop-carried dependence（循环携带相关）**。
+如果存在这种依赖，就称为 **loop-carried dependence（循环携带相关）** 。
 
 需要区分两类相关：
 
@@ -1826,15 +1826,15 @@ B[100] = C[99] + D[99];
 
 ## MIMD: Thread-Level Parallelism
 
-前面 SIMD 讨论的是 **一个指令流控制多个数据流**，适合向量、阵列处理器和 GPU 中大量同构数据运算。本节开始进入 **MIMD（Multiple Instruction streams, Multiple Data streams）**，也就是多个处理器或多个核各自执行自己的指令流，并处理自己的数据流。
+前面 SIMD 讨论的是 **一个指令流控制多个数据流** ，适合向量、阵列处理器和 GPU 中大量同构数据运算。本节开始进入 **MIMD（Multiple Instruction streams, Multiple Data streams）** ，也就是多个处理器或多个核各自执行自己的指令流，并处理自己的数据流。
 
-这一节解决的问题是：**当单核 ILP 和 SIMD/DLP 的收益受限后，怎样通过多个线程、多个处理器、多个节点继续提高系统吞吐量**。
+这一节解决的问题是： **当单核 ILP 和 SIMD/DLP 的收益受限后，怎样通过多个线程、多个处理器、多个节点继续提高系统吞吐量** 。
 
 MIMD 不是简单地“堆很多 CPU”。只要多个执行实体之间需要共享数据、同步状态或通信，就一定会引入额外开销，其中最核心的问题就是：
 
 - 程序本身的并行性有限；
 - 处理器之间的通信、同步和数据一致性维护有成本；
-- 共享内存系统必须解决 **cache coherence** 与 **memory consistency**。
+- 共享内存系统必须解决 **cache coherence** 与 **memory consistency** 。
 
 ### 从 TLP 到 MIMD
 
@@ -1842,9 +1842,9 @@ MIMD 不是简单地“堆很多 CPU”。只要多个执行实体之间需要�
 
 TLP 与前面 ILP/DLP 的区别在于：
 
-- **ILP**：同一个指令流内部挖掘指令间并行性，主要由硬件和编译器隐式完成；
-- **DLP / SIMD**：一个控制流对多个数据元素做相同操作；
-- **TLP / MIMD**：多个线程拥有不同的控制流，因此系统中需要多个 PC。
+- **ILP** ：同一个指令流内部挖掘指令间并行性，主要由硬件和编译器隐式完成；
+- **DLP / SIMD** ：一个控制流对多个数据元素做相同操作；
+- **TLP / MIMD** ：多个线程拥有不同的控制流，因此系统中需要多个 PC。
 
 如果程序希望多个线程并行执行，底层就需要多个执行上下文、多个 PC，最终自然发展到多核或多处理器结构。
 
@@ -2036,7 +2036,7 @@ $$
 s\approx 0.25\%
 $$
 
-结论：要用 100 个处理器达到 80 倍加速，串行部分只能约为 **0.25%**。这个比例极小，说明大规模并行对程序并行性的要求非常苛刻。
+结论：要用 100 个处理器达到 80 倍加速，串行部分只能约为 **0.25%** 。这个比例极小，说明大规模并行对程序并行性的要求非常苛刻。
 
 ##### 例子：100 处理器中部分时间只能用 50 个处理器
 
@@ -2118,9 +2118,9 @@ $$
 
 ## Cache Coherence
 
-共享内存多处理器中，每个处理器通常都有自己的 private cache。这样可以降低访存延迟，但也带来了核心问题：**同一个内存块可能在多个 cache 中存在多个副本**。
+共享内存多处理器中，每个处理器通常都有自己的 private cache。这样可以降低访存延迟，但也带来了核心问题： **同一个内存块可能在多个 cache 中存在多个副本** 。
 
-如果其中一个处理器修改了自己的副本，其他处理器的副本就可能变成旧值。这个问题称为 **cache coherence problem（缓存一致性问题）**。
+如果其中一个处理器修改了自己的副本，其他处理器的副本就可能变成旧值。这个问题称为 **cache coherence problem（缓存一致性问题）** 。
 
 ### 为什么共享内存多处理器会出现一致性问题
 
@@ -2172,14 +2172,14 @@ Memory Consistency 规定不同地址读写的全局可见顺序。
 
 一个共享内存系统通常需要同时定义：
 
-- **Cache coherence protocol**：维护同一 cache block 的副本一致；
-- **Memory consistency model**：规定不同地址访问的可见顺序。
+- **Cache coherence protocol** ：维护同一 cache block 的副本一致；
+- **Memory consistency model** ：规定不同地址访问的可见顺序。
 
 ### Snoopy Coherence Protocols
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260608232047.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
-对于 UMA / SMP 系统，由于多个处理器通常连接在同一条共享总线或共享互联结构上，可以使用 **snoopy coherence protocol（监听一致性协议）**。
+对于 UMA / SMP 系统，由于多个处理器通常连接在同一条共享总线或共享互联结构上，可以使用 **snoopy coherence protocol（监听一致性协议）** 。
 
 基本思想：
 
@@ -2191,7 +2191,7 @@ Memory Consistency 规定不同地址读写的全局可见顺序。
 
 #### Write Invalidate Protocol
 
-写无效协议的思想是：**一个处理器写某个块时，让其他 cache 中该块的副本失效**。
+写无效协议的思想是： **一个处理器写某个块时，让其他 cache 中该块的副本失效** 。
 
 这样写入者获得该块的独占修改权，后续其他处理器若要读这个块，就会 miss，并通过一致性协议获得新值。
 
@@ -2205,7 +2205,7 @@ Memory Consistency 规定不同地址读写的全局可见顺序。
 
 #### Write Update / Write Broadcast Protocol
 
-写更新协议的思想是：**一个处理器写某个块时，把新值广播给所有持有该块副本的 cache**。
+写更新协议的思想是： **一个处理器写某个块时，把新值广播给所有持有该块副本的 cache** 。
 
 优点：其他处理器的副本可以保持有效。
 
@@ -2439,7 +2439,7 @@ MOESI 可以减少某些共享读场景下的写回开销，但状态机更复�
 
 Snoopy protocol 适合 UMA / SMP，因为所有处理器都能监听共享总线。但在 NUMA / distributed shared memory 中，节点数更多、互联网络更复杂，不可能让所有请求都广播到所有节点。
 
-因此 NUMA 通常使用 **directory protocol（目录协议）**。
+因此 NUMA 通常使用 **directory protocol（目录协议）** 。
 
 基本思想：
 
@@ -2466,19 +2466,19 @@ Snoopy protocol 适合 UMA / SMP，因为所有处理器都能监听共享总线
 
 ##### Uncached block
 
-- **Read miss**：把数据发给请求节点，请求节点成为唯一 sharer，block 变为 Shared。
-- **Write miss**：把数据发给请求节点，请求节点成为 owner，block 变为 Exclusive/Modified。
+- **Read miss** ：把数据发给请求节点，请求节点成为唯一 sharer，block 变为 Shared。
+- **Write miss** ：把数据发给请求节点，请求节点成为 owner，block 变为 Exclusive/Modified。
 
 ##### Shared block
 
-- **Read miss**：从内存把数据发给请求节点，并把请求节点加入 sharing set。
-- **Write miss**：把数据发给请求节点，同时向所有 sharers 发送 invalidation，sharing set 只保留请求节点，block 变为 Exclusive/Modified。
+- **Read miss** ：从内存把数据发给请求节点，并把请求节点加入 sharing set。
+- **Write miss** ：把数据发给请求节点，同时向所有 sharers 发送 invalidation，sharing set 只保留请求节点，block 变为 Exclusive/Modified。
 
 ##### Exclusive / Modified block
 
-- **Read miss**：directory 向 owner 发送 data fetch，owner 提供数据；block 变为 Shared，旧 owner 和请求者都在 sharer set 中，必要时数据写回内存。
-- **Data write back**：owner 写回后，block 变为 Uncached，sharer set 清空。
-- **Write miss**：directory 通知旧 owner invalidate 并把数据交给 directory；请求者成为新 owner，block 保持 Exclusive/Modified。
+- **Read miss** ：directory 向 owner 发送 data fetch，owner 提供数据；block 变为 Shared，旧 owner 和请求者都在 sharer set 中，必要时数据写回内存。
+- **Data write back** ：owner 写回后，block 变为 Uncached，sharer set 清空。
+- **Write miss** ：directory 通知旧 owner invalidate 并把数据交给 directory；请求者成为新 owner，block 保持 Exclusive/Modified。
 
 Directory protocol 的核心收益是可扩展性更好，代价是：
 
@@ -2583,7 +2583,7 @@ if (B == 0) ...       if (A == 0) ...
 
 ### Relaxed Consistency Models
 
-放松一致性模型的核心思想是：**允许普通读写乱序完成，但用同步操作显式建立顺序约束**。
+放松一致性模型的核心思想是： **允许普通读写乱序完成，但用同步操作显式建立顺序约束** 。
 
 记号：
 
@@ -2666,7 +2666,7 @@ COW 相比 MPP 更松耦合，硬件专用性较低，但成本优势明显。
 
 ## Domain-Specific Architectures
 
-**DSA（Domain-Specific Architecture，领域专用架构）**。
+**DSA（Domain-Specific Architecture，领域专用架构）** 。
 
 DSA 的背景是：Moore’s Law 和 Dennard Scaling 放缓后，通用处理器很难继续依靠单核频率和复杂微结构获得高性能。因此，体系结构开始更多转向特定领域专用加速。
 

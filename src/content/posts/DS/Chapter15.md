@@ -17,8 +17,8 @@ draft: false
 
 具体做两件事：
 
-- **parse**：检查 SQL 语法是否正确；
-- **verify**：检查查询中引用的 relation、attribute 是否存在。
+- **parse** ：检查 SQL 语法是否正确；
+- **verify** ：检查查询中引用的 relation、attribute 是否存在。
 
 之后，系统会把查询翻译成关系代数表达式。
 
@@ -53,8 +53,8 @@ $$
 
 优化包括两层：
 
-1. **逻辑优化**：改变关系代数表达式结构，例如 selection pushdown。
-2. **物理优化**：为每个操作选择具体算法，例如 index scan、hash join、merge join。
+1. **逻辑优化** ：改变关系代数表达式结构，例如 selection pushdown。
+2. **物理优化** ：为每个操作选择具体算法，例如 index scan、hash join、merge join。
 
 :::EXAMPLE
 上面的查询可以从初始表达式树变成更好的表达式树：
@@ -226,9 +226,9 @@ selection 的核心问题是：
 :::TIP
 理解 selection 算法时，先区分三件事：
 
-1. **能不能用 index**：条件是否作用在 index search key 上；
-2. **结果有几条**：条件属性是不是 key；
-3. **结果在磁盘上是否连续**：index 是 clustering 还是 secondary。
+1. **能不能用 index** ：条件是否作用在 index search key 上；
+2. **结果有几条** ：条件属性是不是 key；
+3. **结果在磁盘上是否连续** ：index 是 clustering 还是 secondary。
 
 很多代价公式的差别，都来自这三点。
 :::
@@ -307,7 +307,7 @@ index scan 使用索引来定位 tuple。
 
 > selection condition 必须作用在 index 的 search key 上。
 
-**clustering index**：
+**clustering index** ：
 
 - clustering index：数据文件本身按 index search key 的顺序存放，或者至少相近值尽量放在一起；
 - secondary index：index leaf 按 search key 排序，但数据文件本身不按这个 search key 排序。
@@ -922,7 +922,7 @@ bitmap:  0 1 0 1 0 0 1 0
 
 如果 relation 能放进内存，可以使用 quicksort 等内存排序算法。
 
-如果 relation 放不进内存，则需要 **external sorting**。
+如果 relation 放不进内存，则需要 **external sorting** 。
 
 直接通过 index 读出有序数据也可行，但如果 index 是 secondary index，可能导致每条 tuple 一次随机 I/O，代价很高。
 
@@ -2574,10 +2574,10 @@ Cindy 无匹配            -> 不输出
 
 更好的实现方式：
 
-- **block nested-loop semijoin**：扫描 $s$，只要发现某个 $r$ tuple 有匹配就输出该 $r$ tuple，并可停止继续找该 tuple 的其他匹配；
-- **indexed nested-loop semijoin**：对每个 $r$ tuple 在 $s$ 的 index 中查是否存在匹配，存在就输出 $r$ tuple；
-- **merge semijoin**：两个输入按 join key 排序，扫描时只输出左侧匹配 tuple；
-- **hash semijoin**：对 $s$ 建 hash table，对 $r$ probe，只要有匹配就输出 $r$ tuple。
+- **block nested-loop semijoin** ：扫描 $s$，只要发现某个 $r$ tuple 有匹配就输出该 $r$ tuple，并可停止继续找该 tuple 的其他匹配；
+- **indexed nested-loop semijoin** ：对每个 $r$ tuple 在 $s$ 的 index 中查是否存在匹配，存在就输出 $r$ tuple；
+- **merge semijoin** ：两个输入按 join key 排序，扫描时只输出左侧匹配 tuple；
+- **hash semijoin** ：对 $s$ 建 hash table，对 $r$ probe，只要有匹配就输出 $r$ tuple。
 
 :::NOTE
 semijoin 和 join 的区别在输出。
@@ -2832,7 +2832,7 @@ right outer join 和 full outer join 可以类似处理。
 
 ### Keyword Queries
 
-关键词查询常用 **inverted index**。
+关键词查询常用 **inverted index** 。
 
 形式：
 

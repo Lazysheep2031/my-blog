@@ -29,7 +29,7 @@ $$
 \boxed{y''+p(x)y'+q(x)y=f(x).}
 $$
 
-这里称它是 **linear**，是因为 $y,y',y''$ 都只以一次幂出现，并且彼此之间不相乘。
+这里称它是 **linear** ，是因为 $y,y',y''$ 都只以一次幂出现，并且彼此之间不相乘。
 
 例子：
 
@@ -50,7 +50,7 @@ $$
 \boxed{y''+p(x)y'+q(x)y=0}
 $$
 
-则称为 **homogeneous equation**。
+则称为 **homogeneous equation** 。
 
 若右端不为零，
 
@@ -58,10 +58,10 @@ $$
 \boxed{y''+p(x)y'+q(x)y=f(x)}
 $$
 
-则称为 **nonhomogeneous equation**。
+则称为 **nonhomogeneous equation** 。
 
 > [!TIP]
-> 对 linear equations 来说，所谓 homogeneous，最直接的判断标准就是：**right-hand side 是否等于 0**。
+> 对 linear equations 来说，所谓 homogeneous，最直接的判断标准就是： **right-hand side 是否等于 0** 。
 
 ### Initial Conditions
 
@@ -126,7 +126,7 @@ $$
 
 ### Linear Independence and the Wronskian
 
-若两个函数 $y_1,y_2$ 互不是彼此的常数倍，就称它们在区间 $I$ 上 **linearly independent**。
+若两个函数 $y_1,y_2$ 互不是彼此的常数倍，就称它们在区间 $I$ 上 **linearly independent** 。
 
 对于两个可微函数，它们的 **Wronskian** 定义为
 
@@ -172,7 +172,7 @@ $$
 \boxed{y=c_1y_1+c_2y_2.}
 $$
 
-这说明：**二阶 homogeneous linear equation 的解集是一个二维线性空间。**
+这说明： **二阶 homogeneous linear equation 的解集是一个二维线性空间。**
 
 例如，对
 
@@ -238,7 +238,7 @@ $$
 $$
 
 
-> **总解 = complementary solution + particular solution**。
+> **总解 = complementary solution + particular solution** 。
 
 ## Homogeneous Equations with Constant Coefficients
 
@@ -463,7 +463,7 @@ $$
 
 ### Standard Form
 
-**Euler equation**（也叫 equidimensional equation）的一般形式是
+**Euler equation** （也叫 equidimensional equation）的一般形式是
 
 $$
 a_0x^n y^{(n)}+a_1x^{n-1}y^{(n-1)}+\cdots+a_{n-1}xy'+a_n y=f(x).
@@ -578,7 +578,7 @@ $$
 \boxed{y_2=v(x)y_1(x).}
 $$
 
-这就叫 **reduction of order**。
+这就叫 **reduction of order** 。
 
 直观上，它表示第二个解和第一个解“形状相近”，但相差一个非常数因子。
 
@@ -630,21 +630,21 @@ $$
 
 本节主要有两种思路：
 
-- **Method of Undetermined Coefficients**；
-- **Variation of Parameters**。
+- **Method of Undetermined Coefficients** ；
+- **Variation of Parameters** 。
 
 前者适用于 **constant-coefficient linear ODE** 且右端 $f(x)$ 属于某些“封闭”的特殊类型；后者更理论。
 
 ### Method of Undetermined Coefficients
 
-这一方法只适用于 **constant-coefficient nonhomogeneous linear ODE**，并且右端必须是有限组合的“好函数”：
+这一方法只适用于 **constant-coefficient nonhomogeneous linear ODE** ，并且右端必须是有限组合的“好函数”：
 
 - polynomial $P_m(x)$；
 - exponential $e^{rx}$；
 - trigonometric terms $\sin kx,\cos kx$；
 - 以及它们的乘积。
 
-**trial solution 选成与右端“同类型”**，然后代回方程解待定系数。
+**trial solution 选成与右端“同类型”** ，然后代回方程解待定系数。
 
 最常见的 trial 形式：
 
@@ -671,7 +671,7 @@ $$
 
 ### Duplication and Multiplication by $x^s$
 
-判断 **trial solution 是否与 $y_c$ 重合**。
+判断 **trial solution 是否与 $y_c$ 重合** 。
 
 若按常规规则得到的 $y_p^{(0)}$ 与 complementary solution $y_c$ 中已有项重复，则必须整体乘上最小的幂次 $x^s$，直到重合消失：
 
@@ -708,7 +708,7 @@ $$
 (Ae^x)+(B+Cx+Dx^2).
 $$
 
-其中 $Ae^x$ 与 $y_c$ **不重合**；但 polynomial 部分中的 $1,x$ 已经出现在 $y_c$ 里，因为 $r=0$ 是 **double root**，所以这一整块要乘 $x^2$：
+其中 $Ae^x$ 与 $y_c$ **不重合** ；但 polynomial 部分中的 $1,x$ 已经出现在 $y_c$ 里，因为 $r=0$ 是 **double root** ，所以这一整块要乘 $x^2$：
 
 $$
 y_p=Ae^x+Bx^2+Cx^3+Dx^4.
@@ -776,7 +776,7 @@ $$
 y''+y=\tan x
 $$
 
-中，$\tan x$ 的导数会不断产生新组合，无法用有限项试解处理，所以 **method of undetermined coefficients** 失效。这时就要用 **variation of parameters**。
+中，$\tan x$ 的导数会不断产生新组合，无法用有限项试解处理，所以 **method of undetermined coefficients** 失效。这时就要用 **variation of parameters** 。
 
 设已知 homogeneous equation
 
@@ -851,7 +851,7 @@ y_p(x)=
 }
 $$
 
-这就是二阶情形的 **variation of parameters formula**。
+这就是二阶情形的 **variation of parameters formula** 。
 
 > [!TIP]
 > 求 $u_1,u_2$ 时通常不写积分常数，因为这些常数最终只会回到 $C_1y_1+C_2y_2$，本质上属于齐次解部分。
@@ -998,7 +998,7 @@ $$
 <details>
 <summary>展开解答</summary>
 
-这是一道 **Euler equation 的非齐次版本**。先化成标准形式：
+这是一道 **Euler equation 的非齐次版本** 。先化成标准形式：
 
 $$
 y''-\frac{3}{x}y'+\frac{4}{x^2}y=\ln x.
@@ -1255,8 +1255,8 @@ $$
 
 这道题的结构非常值得记住：
 
-- **已知一个 homogeneous solution** $\Rightarrow$ 用 **reduction of order**；
-- **已有两组基本解，要求 nonhomogeneous particular solution** $\Rightarrow$ 用 **variation of parameters**。
+- **已知一个 homogeneous solution** $\Rightarrow$ 用 **reduction of order** ；
+- **已有两组基本解，要求 nonhomogeneous particular solution** $\Rightarrow$ 用 **variation of parameters** 。
 
 </details>
 
@@ -1279,14 +1279,14 @@ y''+p(x)y'+q(x)y=0,
 \qquad y(b)=0,
 $$
 
-那么问题就变成 **endpoint problem** 或 **boundary value problem (BVP)**。这时情形和 IVP 非常不同：它可能没有非平凡解，也可能有无穷多个非平凡解。
+那么问题就变成 **endpoint problem** 或 **boundary value problem (BVP)** 。这时情形和 IVP 非常不同：它可能没有非平凡解，也可能有无穷多个非平凡解。
 
 ### IVP and BVP
 
 可以这样对比记忆：
 
-- **IVP**：附加条件都放在同一个点，例如 $y(0),y'(0)$；
-- **BVP**：附加条件放在不同的边界点，例如 $y(0),y(L)$ 或 $y(0),y'(L)$。
+- **IVP** ：附加条件都放在同一个点，例如 $y(0),y'(0)$；
+- **BVP** ：附加条件放在不同的边界点，例如 $y(0),y(L)$ 或 $y(0),y'(L)$。
 
 ### Example
 **Example 1: No Nontrivial Solution**
@@ -1384,9 +1384,9 @@ y''+p(x)y'+\lambda q(x)y=0,
 \qquad y(b)=0,
 $$
 
-其中 $\lambda$ 是参数。我们关心的是：**哪些 $\lambda$ 会让这个 BVP 有非平凡解？**
+其中 $\lambda$ 是参数。我们关心的是： **哪些 $\lambda$ 会让这个 BVP 有非平凡解？**
 
-若某个 $\lambda=\lambda_*$ 使问题存在非零解，则称 $\lambda_*$ 为一个 **eigenvalue**；对应的非零解称为 **eigenfunction**。
+若某个 $\lambda=\lambda_*$ 使问题存在非零解，则称 $\lambda_*$ 为一个 **eigenvalue** ；对应的非零解称为 **eigenfunction** 。
 
 > [!IMPORTANT]
 > 对同一个 eigenvalue，eigenfunction 的任意非零常数倍仍然是 eigenfunction，所以真正重要的是它的“形状”，而不是倍数。
@@ -1508,7 +1508,7 @@ $$
 \boxed{y_n(x)=\sin\frac{n\pi x}{L},\qquad n=1,2,3,\dots}
 $$
 
-这说明一个典型现象：**eigenvalues 通常不是连续的一段，而是一串离散的数列。**
+这说明一个典型现象： **eigenvalues 通常不是连续的一段，而是一串离散的数列。**
 
 </details>
 
@@ -1566,7 +1566,7 @@ $$
 \boxed{y_n(x)=\sin\frac{(2n-1)\pi x}{2L},\qquad n=1,2,3,\dots}
 $$
 
-这说明：**边界条件一变，允许的模态和对应的 spectrum 也会跟着改变。**
+这说明： **边界条件一变，允许的模态和对应的 spectrum 也会跟着改变。**
 
 </details>
 
@@ -1769,7 +1769,7 @@ $$
 
 ### Two Integrals by the Feynman Method
 
-> **在积分号下对参数求导（differentiate under the integral sign）**。
+> **在积分号下对参数求导（differentiate under the integral sign）** 。
 
 
 1. 先引入一个参数，把原积分嵌入一个更一般的积分族；
@@ -2129,7 +2129,7 @@ $$
 \boxed{\frac{dA}{dt}=\text{constant}.}
 $$
 
-这正是 **Kepler's Second Law**：
+这正是 **Kepler's Second Law** ：
 
 > **行星在相等时间内扫过相等面积。**
 
@@ -2219,14 +2219,14 @@ $$
 \boxed{r=\frac{p}{1+A\cos(\theta+\varphi)}.}
 $$
 
-这正是一个 **conic section**（圆锥曲线）在焦点为原点时的极坐标方程。
+这正是一个 **conic section** （圆锥曲线）在焦点为原点时的极坐标方程。
 
 - 当 $A=0$ 时，是圆；
 - 当 $0<A<1$ 时，是椭圆；
 - 当 $A=1$ 时，是抛物线；
 - 当 $A>1$ 时，是双曲线。
 
-对行星这种有界轨道，实际对应的是椭圆，因此得到 **Kepler's First Law**：
+对行星这种有界轨道，实际对应的是椭圆，因此得到 **Kepler's First Law** ：
 
 > **行星绕太阳运动的轨道是椭圆，太阳位于椭圆的一个焦点。**
 

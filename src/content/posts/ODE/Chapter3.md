@@ -31,14 +31,14 @@ $$
 \boxed{y(x)=x^r\sum_{n=0}^{\infty}c_nx^n.}
 $$
 
-然后把它代回原方程，逐项比较同次幂的系数，得到 **recurrence relation**，再由此一步步推出整个级数。
+然后把它代回原方程，逐项比较同次幂的系数，得到 **recurrence relation** ，再由此一步步推出整个级数。
 
 ### Review of Power Series
 $$
 \sum_{n=0}^{\infty}c_n(x-a)^n.
 $$
 
-大多取展开中心为 $a=0$，即 **Maclaurin series**：
+大多取展开中心为 $a=0$，即 **Maclaurin series** ：
 
 $$
 \sum_{n=0}^{\infty}c_nx^n.
@@ -99,8 +99,8 @@ $$
    \qquad
    y''=\sum_{n=2}^{\infty}n(n-1)c_nx^{n-2};
    $$
-2. **平移指标（index shift）**，把不同求和式统一成同一个 $x^n$；
-3. **比较同次幂系数**，利用 identity principle 得到递推式。
+2. **平移指标（index shift）** ，把不同求和式统一成同一个 $x^n$；
+3. **比较同次幂系数** ，利用 identity principle 得到递推式。
 
 ## Standard Form and Point Classification
 
@@ -122,9 +122,9 @@ $$
 
 然后在某一点 $x=a$ 对这个点分类：
 
-- **ordinary point**：$P,Q$ 在 $x=a$ 解析；
-- **regular singular point**：$(x-a)P(x)$ 与 $(x-a)^2Q(x)$ 在 $x=a$ 解析；
-- **irregular singular point**：既不是 ordinary，也不是 regular singular。
+- **ordinary point** ：$P,Q$ 在 $x=a$ 解析；
+- **regular singular point** ：$(x-a)P(x)$ 与 $(x-a)^2Q(x)$ 在 $x=a$ 解析；
+- **irregular singular point** ：既不是 ordinary，也不是 regular singular。
 
 :::NOTE
 **What does “analytic at $x=a$” mean?**
@@ -164,12 +164,12 @@ $$
 
 在 $x=a$ 附近分类时：
 
-* 若 $P,Q$ 都在 $x=a$ 解析，则 $x=a$ 是 **ordinary point**；
+* 若 $P,Q$ 都在 $x=a$ 解析，则 $x=a$ 是 **ordinary point** ；
 * 若
   $$
   (x-a)P(x),\qquad (x-a)^2Q(x)
   $$
-  在 $x=a$ 解析，则 $x=a$ 是 **regular singular point**。
+  在 $x=a$ 解析，则 $x=a$ 是 **regular singular point** 。
 
 这个条件正好来自导数的“降阶”：
 
@@ -217,7 +217,7 @@ $$
 
 ## Series Solutions near Ordinary Points
 
-若 $x=a$ 是 **ordinary point**，那么在 $a$ 附近解可以展开成普通幂级数。
+若 $x=a$ 是 **ordinary point** ，那么在 $a$ 附近解可以展开成普通幂级数。
 
 不妨把中心平移到 $a=0$，则有
 
@@ -227,18 +227,18 @@ $$
 
 关键是：
 
-- **ordinary point 附近，普通幂级数就够了**；
+- **ordinary point 附近，普通幂级数就够了** ；
 - 收敛半径和 $P,Q$ 在复平面中的最近奇点有关。
 
 直观上就是：
 
-> 只要系数函数在这个点附近**够好**，解也会**长得够好**，可以用 ordinary power series 表示。
+> 只要系数函数在这个点附近 **够好** ，解也会 **长得够好** ，可以用 ordinary power series 表示。
 
 **General Workflow**
 
 在 ordinary point 附近做级数解，标准流程可以固定记忆为：
 
-1. 先把方程写成标准形式，检查展开点是不是 **ordinary point**；
+1. 先把方程写成标准形式，检查展开点是不是 **ordinary point** ；
 2. 设
    $$
    y=\sum_{n=0}^{\infty}c_nx^n;
@@ -246,7 +246,7 @@ $$
 3. 求出 $y',y''$；
 4. 代回原方程；
 5. 把所有项整理成关于 $x^n$ 的单一求和式；
-6. 比较系数，得到 **recurrence relation**；
+6. 比较系数，得到 **recurrence relation** ；
 7. 由 $c_0,c_1$ 两个自由参数生成两组 linearly independent solutions；
 8. 写出通解
    $$
@@ -254,7 +254,7 @@ $$
    $$
 
 > [!IMPORTANT]
-> 二阶线性齐次方程最后通常会留下 **两个自由参数**。在级数语言里，它们往往就是 $c_0,c_1$。
+> 二阶线性齐次方程最后通常会留下 **两个自由参数** 。在级数语言里，它们往往就是 $c_0,c_1$。
 
 ### Example
 #### Example 1
@@ -279,7 +279,7 @@ P(x)=\frac{3x}{x^2-4},
 Q(x)=\frac{1}{x^2-4}
 $$
 
-在 $x=0$ 都解析，所以 $x=0$ 是 **ordinary point**。
+在 $x=0$ 都解析，所以 $x=0$ 是 **ordinary point** 。
 
 于是设
 
@@ -329,8 +329,8 @@ $$
 \boxed{y=c_0y_0(x)+c_1y_1(x).}
 $$
 
-- 递推式隔两个下标连一次，所以自然分成 **偶数链** 和 **奇数链**；
-- 因此两个基本解常常就是**只含偶次幂**和**只含奇次幂**的两组级数。
+- 递推式隔两个下标连一次，所以自然分成 **偶数链** 和 **奇数链** ；
+- 因此两个基本解常常就是 **只含偶次幂** 和 **只含奇次幂** 的两组级数。
 
 </details>
 
@@ -352,7 +352,7 @@ P(x)=-x,
 Q(x)=-x^2,
 $$
 
-都在 $x=0$ 解析，所以 $x=0$ 仍然是 **ordinary point**。
+都在 $x=0$ 解析，所以 $x=0$ 仍然是 **ordinary point** 。
 
 设
 
@@ -391,7 +391,7 @@ $$
 \boxed{y=c_0y_0(x)+c_1y_1(x).}
 $$
 
-- 递推关系变成了 **three-term recurrence**；
+- 递推关系变成了 **three-term recurrence** ；
 
 </details>
 
@@ -432,7 +432,7 @@ $$
 
 ### Legendre Equation and Legendre Polynomials
 
-一个非常经典的 ordinary-point 例子是 **Legendre equation**：
+一个非常经典的 ordinary-point 例子是 **Legendre equation** ：
 
 $$
 \boxed{(1-x^2)y''-2xy'+\alpha(\alpha+1)y=0.}
@@ -445,7 +445,7 @@ $$
 1. 在 $x=0$ 附近，$1-x^2\neq 0$，所以这里可以按 ordinary point 来做；
 2. 但在 $x=\pm 1$，系数会出问题，所以这两个点是它的奇点。
 
-当参数 $\alpha=n\in\mathbb N$ 时，会出现特殊的多项式解，称为 **Legendre polynomials**。这就是为什么幂级数方法最后会通向特殊函数。
+当参数 $\alpha=n\in\mathbb N$ 时，会出现特殊的多项式解，称为 **Legendre polynomials** 。这就是为什么幂级数方法最后会通向特殊函数。
 对 Legendre equation
 
 $$
@@ -458,12 +458,12 @@ $$
 \alpha=n\in\mathbb N,
 $$
 
-会出现 **Legendre polynomial**。
+会出现 **Legendre polynomial** 。
 
 更具体地说：
 
-- 若 $n$ 是 **even**，则两组级数中 **偶数幂那一组** 会在某一步终止，从而得到一个 $n$ 次多项式；
-- 若 $n$ 是 **odd**，则两组级数中 **奇数幂那一组** 会终止，从而得到一个 $n$ 次多项式。
+- 若 $n$ 是 **even** ，则两组级数中 **偶数幂那一组** 会在某一步终止，从而得到一个 $n$ 次多项式；
+- 若 $n$ 是 **odd** ，则两组级数中 **奇数幂那一组** 会终止，从而得到一个 $n$ 次多项式。
 
 所以：
 
@@ -552,7 +552,7 @@ $$
 \qquad c_0\neq 0.}
 $$
 
-这叫 **Frobenius series**。
+这叫 **Frobenius series** 。
 
 和普通幂级数相比，它多了一个前导因子 $x^r$。这个 $r$ 不是先给定的，而是要由方程自己决定。
 
@@ -573,9 +573,9 @@ $$
 \boxed{r(r-1)+p_0r+q_0=0.}
 $$
 
-这就是 **indicial equation**。
+这就是 **indicial equation** 。
 
-它的根 $r_1,r_2$ 称为 **exponents**。
+它的根 $r_1,r_2$ 称为 **exponents** 。
 
 1. 先由 indicial equation 决定主导幂 $x^r$；
 2. 再由 recurrence relation 决定后续系数 $c_n$。
@@ -584,15 +584,15 @@ $$
 
 设 indicial equation 的两个实根满足 $r_1\ge r_2$。那么按 $r_1-r_2$ 是否为整数，通常分成三类：
 
-1. **$r_1-r_2\notin\mathbb Z$**：最理想，通常能得到两组 Frobenius fundamental solutions；
-2. **$r_1-r_2\in\mathbb N$**：有时仍能得到两组 Frobenius 级数解；
-3. **$r_1-r_2\in\mathbb N$** 且发生特殊退化：只得到一组 Frobenius 级数，另一组解可能带 **logarithm**。
+1. **$r_1-r_2\notin\mathbb Z$** ：最理想，通常能得到两组 Frobenius fundamental solutions；
+2. **$r_1-r_2\in\mathbb N$** ：有时仍能得到两组 Frobenius 级数解；
+3. **$r_1-r_2\in\mathbb N$** 且发生特殊退化：只得到一组 Frobenius 级数，另一组解可能带 **logarithm** 。
 
 > **regular singular point 处通常还能做级数，只是要先解一个 indicial equation；真正麻烦的，是两个 exponent 差整数时的 exceptional cases。**
 
 **General Workflow**
 
-1. 检查 $x=0$ 是否为 **regular singular point**；
+1. 检查 $x=0$ 是否为 **regular singular point** ；
 2. 改写为
    $$
    y''+\frac{p(x)}{x}y'+\frac{q(x)}{x^2}y=0;
@@ -602,15 +602,15 @@ $$
    y=x^r\sum_{n=0}^{\infty}c_nx^n;
    $$
 4. 计算 $y',y''$ 并代回；
-5. 先取最低次幂，求出 **indicial equation**；
+5. 先取最低次幂，求出 **indicial equation** ；
 6. 对每个 exponent $r$ 分别求递推关系；
 7. 判断能否得到两组 linearly independent solutions。
 
 > [!TIP]
 > Frobenius 题里最关键的两行通常是：
 > 
-> - **indicial equation**；
-> - **recurrence relation**。
+> - **indicial equation** ；
+> - **recurrence relation** 。
 
 
 ### Example
@@ -758,7 +758,7 @@ $$
 \quad\Rightarrow\quad
 0\cdot c_1=0,
 $$
-所以 **$c_1$ 不再被限制**，它也可以自由取值。
+所以 **$c_1$ 不再被限制** ，它也可以自由取值。
 
 于是会分成两条链：
 
@@ -811,7 +811,7 @@ What is the exceptional point here?
 - 由 $r=0$ 得到的解是$\frac{\sin x}{x};$
 - 由 $r=-1$ 的奇数链又得到一次$\frac{\sin x}{x}$
 
-也就是说，**较小根 $r=-1$ 产生的一部分级数与较大根 $r=0$ 的解“撞项”了**。  
+也就是说， **较小根 $r=-1$ 产生的一部分级数与较大根 $r=0$ 的解“撞项”了** 。  
 这正是 difference-by-integer 时的典型现象：两个根并不自动对应两组新的独立 Frobenius 级数。
 
 最终可取的一组基本解是
@@ -977,7 +977,7 @@ $$
   $$
   0=0,
   $$
-  **没有给出新的限制**，因此 $c_5$ 是自由的。
+  **没有给出新的限制** ，因此 $c_5$ 是自由的。
 
 先从 $c_0$ 链开始：
 
@@ -1008,7 +1008,7 @@ y_2(x)=x^{-5}\left(1-x+\frac{x^2}{2}-\frac{x^3}{6}+\frac{x^4}{24}\right).
 }
 $$
 
-这个解实际上是一个 **finite Frobenius series**。
+这个解实际上是一个 **finite Frobenius series** 。
 
 
 :::TIP
@@ -1030,7 +1030,7 @@ $$
 
 这恰好就是前面 $r=0$ 得到的那组解 $y_1(x)$。
 
-所以这里 又一次 出现了 **撞项**：
+所以这里 又一次 出现了 **撞项** ：
 
 - $r=0$ 给出一组级数解；
 - $r=-5$ 本来可能给出更多内容，但其中一部分其实与 $r=0$ 的解重合；
@@ -1086,7 +1086,7 @@ $$
 
 时，情况最理想：方程有两组 linearly independent 的 Frobenius series solutions。
 
-真正麻烦的是 **exceptional cases**，也就是两根满足
+真正麻烦的是 **exceptional cases** ，也就是两根满足
 
 $$
 r_1-r_2\in\mathbb N\cup\{0\}.
@@ -1134,7 +1134,7 @@ $$
 - 第一部分是 $y_1\ln x$；
 - 第二部分是一个更高一阶起始的 power series correction。
 
-这里的 logarithmic term **一定出现**。
+这里的 logarithmic term **一定出现** 。
 
 
 
@@ -1159,7 +1159,7 @@ $$
 - 若 $C=0$，则没有 log 项，第二组解仍然是 Frobenius 型；
 - 若 $C\ne 0$，则 log 项真正出现。
 
-所以 **difference-by-integer** 时，logarithmic term **可能出现，也可能不出现**。
+所以 **difference-by-integer** 时，logarithmic term **可能出现，也可能不出现** 。
 
 可以采用代回或者Reduction of order 来解第二组解
 
@@ -1385,7 +1385,7 @@ $$
 (2n)^2b_{2n}+b_{2n-2}=-\frac{2(-1)^n(2n)}{2^{2n}(n!)^2}.
 $$
 
-这是一个 **nonhomogeneous recurrence relation**。
+这是一个 **nonhomogeneous recurrence relation** 。
 
 引入代换
 
@@ -1652,7 +1652,7 @@ $$
 
 ### General Form
 
-经典方程：**Bessel equation**
+经典方程： **Bessel equation**
 
 $$
 \boxed{x^2y''+xy'+(x^2-p^2)y=0.}

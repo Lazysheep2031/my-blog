@@ -16,11 +16,11 @@ draft: false
 - **分解后还能正确拼回去**
 - **重要约束最好能在单表上检查，而不是每次都 join**
 
-这一章里最核心的**坏设计**有三个：
+这一章里最核心的 **坏设计** 有三个：
 
-1. **Information repetition**：同一信息在很多元组里重复出现。  
-2. **Insertion anomalies**：想录入一个事实，却被迫顺带录入别的事实。  
-3. **Update difficulty / update anomalies**：修改一个事实时，要改很多地方，一旦漏改就不一致。
+1. **Information repetition** ：同一信息在很多元组里重复出现。  
+2. **Insertion anomalies** ：想录入一个事实，却被迫顺带录入别的事实。  
+3. **Update difficulty / update anomalies** ：修改一个事实时，要改很多地方，一旦漏改就不一致。
 
 ### 坏设计的核心
 
@@ -69,9 +69,9 @@ inst_dept(ID, name, salary, dept_name, building, budget)
 
 这会直接导致：
 
-- **信息重复**：同一个系馆和预算在多行里重复
-- **插入异常**：如果新建一个系，但这个系还没有老师，你很难只插入 department 事实
-- **更新困难**：系预算改了，要改所有该系老师所在行
+- **信息重复** ：同一个系馆和预算在多行里重复
+- **插入异常** ：如果新建一个系，但这个系还没有老师，你很难只插入 department 事实
+- **更新困难** ：系预算改了，要改所有该系老师所在行
 
 :::NOTE
 但是有一种合并是合理的
@@ -84,7 +84,7 @@ inst_dept(ID, name, salary, dept_name, building, budget)
 student(id, name, tot_cred, dept_name)
 ```
 
-这里通常**不会产生额外重复**。
+这里通常 **不会产生额外重复** 。
 
 原因是：
 
@@ -152,7 +152,7 @@ employee2(name, street, city, salary)
 这正是拆解之后key没有能够决定其他属性的现象。
 
 > 分解之后 join 回来，比原表多了额外元组。  
-> 这类分解叫 **lossy decomposition**。
+> 这类分解叫 **lossy decomposition** 。
 
 ### Lossless Join Decomposition
 
@@ -162,7 +162,7 @@ $$
 \Pi_{R_1}(r) \bowtie \Pi_{R_2}(r) = r
 $$
 
-那么这个分解就是 **lossless decomposition**。
+那么这个分解就是 **lossless decomposition** 。
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202604141339324.png" alt="Lossless Join Decomposition" style="width: 520px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
@@ -172,7 +172,7 @@ $$
 r \subset \Pi_{R_1}(r) \bowtie \Pi_{R_2}(r)
 $$
 
-那就是 **lossy decomposition**。
+那就是 **lossy decomposition** 。
 
 > join 回来“元组变多”，代表信息反而变少了。  因为数据库不知道哪些组合是真的，只能把所有可能组合都算进去，不确定性增加了。
 
@@ -214,9 +214,9 @@ $$
 
 ### Atomic domain
 
-一个域是 **atomic**，意思是：
+一个域是 **atomic** ，意思是：
 
-> 它的值在当前数据库语义下，被当作**不可再分的基本单位**。
+> 它的值在当前数据库语义下，被当作 **不可再分的基本单位** 。
 
 即：语义上不应该靠拆字符串来编码额外信息。
 
@@ -256,13 +256,13 @@ Example：
 > 3NF / BCNF / 4NF 处理的是“依赖与冗余”问题。  
 
 
-可以把各个范式理解成一层层加强的“**消冗余规则**”：
+可以把各个范式理解成一层层加强的“ **消冗余规则** ”：
 
-- **1NF**：每个属性值都必须是**原子的**
-- **2NF**：在 1NF 基础上，**非主属性不能只依赖复合主键的一部分**
-- **3NF**：在 2NF 基础上，**非主属性不能传递依赖于主键**
-- **BCNF**：进一步加强，**任何决定因素都必须是超键**
-- **4NF**：再进一步，处理**多值依赖**造成的冗余
+- **1NF** ：每个属性值都必须是 **原子的**
+- **2NF** ：在 1NF 基础上， **非主属性不能只依赖复合主键的一部分**
+- **3NF** ：在 2NF 基础上， **非主属性不能传递依赖于主键**
+- **BCNF** ：进一步加强， **任何决定因素都必须是超键**
+- **4NF** ：再进一步，处理 **多值依赖** 造成的冗余
 
 一个常见的包含关系是：
 
@@ -307,7 +307,7 @@ $$
 
 `α → β` 的意思是：在这个业务世界里，α 的值一旦固定，β 的值就不能乱变。
 
-**Example**:
+**Example** :
 
 $$
 dept\_name \to building
@@ -327,7 +327,7 @@ $$
 K \to R
 $$
 
-那么 $K$ 是 $R$ 的 **superkey**。
+那么 $K$ 是 $R$ 的 **superkey** 。
 
 也就是：
 
@@ -335,7 +335,7 @@ $$
 
 #### Candidate Key
 
-如果 $K$ 是 superkey，并且任何真子集都不是 superkey，那么 $K$ 是 **candidate key**。
+如果 $K$ 是 superkey，并且任何真子集都不是 superkey，那么 $K$ 是 **candidate key** 。
 
 $$
 K \to R \quad \text{且} \quad \text{for no } \alpha \subset K, \alpha \to R 
@@ -346,7 +346,7 @@ $$
 - 既能唯一标识
 - 又是最小的
 
-**关键关系**:
+**关键关系** :
 
 - 键是一种特殊的函数依赖
 - 函数依赖比键表达力更强
@@ -385,7 +385,7 @@ $$
 \alpha \to \beta
 $$
 
-一定成立，这叫 **trivial functional dependency**。也就是右侧的属性，左侧全有了，那必然就是决定性。
+一定成立，这叫 **trivial functional dependency** 。也就是右侧的属性，左侧全有了，那必然就是决定性。
 
 例如：
 
@@ -416,7 +416,7 @@ $$
 
 ### Closure of F
 
-给定函数依赖集 $F$，从 $F$ 可以逻辑推出的所有函数依赖构成 **closure of F**，记为：
+给定函数依赖集 $F$，从 $F$ 可以逻辑推出的所有函数依赖构成 **closure of F** ，记为：
 
 $$
 F^+
@@ -484,8 +484,8 @@ $$
 
 这三条规则是：
 
-- **sound**：不会推出假的 FD
-- **complete**：能推出所有真的 FD
+- **sound** ：不会推出假的 FD
+- **complete** ：能推出所有真的 FD
 
 #### Example
 
@@ -562,7 +562,7 @@ $$
 \alpha\gamma \to \beta\gamma,\quad \beta\gamma \to \delta \Rightarrow \alpha\gamma \to \delta
 $$
 
-**Exercise 1**:
+**Exercise 1** :
 
 在关系模式 $R(\alpha, \beta, \gamma)$ 上，若函数依赖$\alpha\gamma \to \beta\gamma$成立，证明它与$\alpha\gamma \to \beta$等价。也就是说，函数依赖右侧的重复属性可以去掉。
 
@@ -716,10 +716,10 @@ $$
 
 ## Canonical Cover
 
-- **依赖本身冗余**：某条 FD 能由其他 FD 推出。  
+- **依赖本身冗余** ：某条 FD 能由其他 FD 推出。  
   例如在 $\{A \to B,\; B \to C,\; A \to C\}$ 中，`A \to C` 是冗余依赖，因为它可由 `A \to B` 与 `B \to C` 传递推出。
 
-- **依赖内部属性冗余**：某条 FD 的左侧或右侧有多余属性。  
+- **依赖内部属性冗余** ：某条 FD 的左侧或右侧有多余属性。  
   - 例如在 $\{A \to B,\; B \to C,\; A \to CD\}$ 中，右侧的 `C` 可删，得到等价集合 $\{A \to B,\; B \to C,\; A \to D\}$；  
   因为 $A \to B,\; B \to C \Rightarrow A \to C$，再与 $A \to D$ 用 union 可得 $A \to CD$。
 
@@ -730,11 +730,11 @@ $$
 
 ### Extraneous Attribute
 
-如果一个函数依赖中的某个属性删掉以后，整个依赖系统表达的约束不变，那么这个属性就是 **extraneous**。
+如果一个函数依赖中的某个属性删掉以后，整个依赖系统表达的约束不变，那么这个属性就是 **extraneous** 。
 
 分两种情况。
 
-**1. 左边多余**：
+**1. 左边多余** ：
 
 在 $\alpha \to \beta$ 中，若 $A \in \alpha$，并且：
 
@@ -752,7 +752,7 @@ $$
 
 这里 `AB → C` 里的 `B` 是多余的，因为 `A → C` 已经够了。
 
-**2. 右边多余**：
+**2. 右边多余** ：
 
 在 $\alpha \to \beta$ 中，若 $A \in \beta$，删掉它以后其余 FD 仍能推出原来的全部依赖，
 
@@ -772,7 +772,7 @@ $$
 
 ### Canonical Cover 的定义
 
-函数依赖集 $F$ 的 **canonical cover**，记作 $F_c$，满足：
+函数依赖集 $F$ 的 **canonical cover** ，记作 $F_c$，满足：
 
 - $F$ 与 $F_c$ 逻辑等价
 - $F_c$ 中没有 extraneous attributes
@@ -780,7 +780,7 @@ $$
 
 > canonical cover 就是与原依赖集等价、但尽量精简的版本。
 
-**计算思路**:
+**计算思路** :
 
 1. 先用 union 把左边相同的 FD 合并。  
 2. 检查左右两边是否有多余属性。  
@@ -850,7 +850,7 @@ $$
 
 ### BCNF 定义
 
-关系模式 $R$ 关于函数依赖集 $F$ 属于 **Boyce–Codd Normal Form (BCNF)**，如果对所有属于 $F^+$ 的函数依赖：
+关系模式 $R$ 关于函数依赖集 $F$ 属于 **Boyce–Codd Normal Form (BCNF)** ，如果对所有属于 $F^+$ 的函数依赖：
 
 $$
 \alpha \to \beta
@@ -918,7 +918,7 @@ while not done:
 要点：
 
 - 每一步分解都保证 **lossless join**
-- 但**不保证 dependency preserving**
+- 但 **不保证 dependency preserving**
 
 ### Example
 
@@ -928,12 +928,12 @@ $$
 R(A,B,C,D),\quad F = \{A \to B,\; B \to CD\}
 $$
 
-**候选键**：
+**候选键** ：
 
 - `A+ = ABCD`
 - 所以候选键是 `A`
 
-**分解**：
+**分解** ：
 
 因为：
 
@@ -971,7 +971,7 @@ $$
 (F_1 \cup F_2 \cup ... \cup F_n)^+ = F^+
 $$
 
-则这个分解是 **dependency preserving**。
+则这个分解是 **dependency preserving** 。
 
 意思是：
 
@@ -1015,7 +1015,7 @@ $$
 - lossless
 - 两表都在 BCNF
 
-但它**不 dependency preserving**，因为 `B → C` 无法只从子表依赖推出。
+但它 **不 dependency preserving** ，因为 `B → C` 无法只从子表依赖推出。
 
 **Example 2：存在保持依赖的 BCNF 分解，但标准 BCNF 分解算法未必得到**
 
@@ -1054,7 +1054,7 @@ $$
 - lossless-join
 - 每个子关系都在 BCNF
 
-但它**不是 dependency preserving**，因为：
+但它 **不是 dependency preserving** ，因为：
 
 $$
 E \to D
@@ -1109,7 +1109,7 @@ $$
 > 标准 BCNF decomposition algorithm 通常只能保证  
 > - 分解后各子关系属于 BCNF  
 > - 分解是 lossless-join  
-> 但**不能保证**得到 dependency-preserving 的那个版本。
+> 但 **不能保证** 得到 dependency-preserving 的那个版本。
 
 所以：
 
@@ -1158,7 +1158,7 @@ BCNF 很干净，但有时太严格。
 - 更新时能不能高效检查依赖
 - 能不能保证分解后依赖保持
 
-于是定义一个稍微放松一点的范式：**3NF**。
+于是定义一个稍微放松一点的范式： **3NF** 。
 
 它允许少量冗余，换来：
 
@@ -1180,13 +1180,13 @@ $$
 
 第三条就是对 BCNF 的最小放松。
 
-**关系**：
+**关系** ：
 
 - BCNF 一定属于 3NF
 - 3NF 不一定属于 BCNF
 
 ### Example
-**Example 1:**`dept_advisor`
+**Example 1:** `dept_advisor`
 
 关系：
 
@@ -1205,7 +1205,7 @@ $$
 - `(s_ID, dept_name)`
 - `(i_ID, s_ID)`
 
-**为什么它在 3NF**:
+**为什么它在 3NF** :
 
 - $s\_ID, dept\_name \to i\_ID$：左边是 superkey
 - $i\_ID \to dept\_name$：右边的 `dept_name` 属于候选键 `(s_ID, dept_name)`
@@ -1230,7 +1230,7 @@ $$
 > 3NF 是折中，不是彻底消除冗余。
 ### 3NF Synthesis Algorithm
 
-3NF 的构造法依赖 **canonical cover**。直接根据函数依赖去“合成”一组关系模式。
+3NF 的构造法依赖 **canonical cover** 。直接根据函数依赖去“合成”一组关系模式。
 
 - 让每条重要依赖都能落在某一个关系里
 - 从而尽量保证 **dependency preserving**
@@ -1240,7 +1240,7 @@ $$
 
 1. 先求 $F_c$
    
-   也就是先求函数依赖集 $F$ 的 **canonical cover**。  
+   也就是先求函数依赖集 $F$ 的 **canonical cover** 。  
    这一步的作用是先把依赖集整理成一个“精简但等价”的版本，避免后面因为冗余依赖而生成重复或不必要的关系模式。
 
 2. 对 $F_c$ 中每个依赖 $\alpha \to \beta$，建立一个关系模式 $R_i = \alpha \cup \beta$
@@ -1262,7 +1262,7 @@ $$
    - 是否已经有某个关系包含原关系的 candidate key
    - 如果没有，就专门加入一个“候选键关系”
 
-   这样做是为了保证整个分解是 **lossless join**。
+   这样做是为了保证整个分解是 **lossless join** 。
 
 4. 可选地删掉被其他关系完全包含的冗余关系
    
@@ -1373,7 +1373,7 @@ inst_info(ID, child_name, phone)
 
 > 仅靠 FD 还抓不住“多个独立多值事实被乘起来”的冗余。
 
-于是需要 **multivalued dependency (MVD)**。
+于是需要 **multivalued dependency (MVD)** 。
 ### MVD
 
 如果给定某个 `ID`：
@@ -1445,7 +1445,7 @@ $$
 ### 4NF
 #### 4NF的定义
 
-关系模式 $R$ 关于依赖集 $D$（其中既可有 FD 也可有 MVD）属于 **Fourth Normal Form (4NF)**，如果对所有属于 $D^+$ 的多值依赖：
+关系模式 $R$ 关于依赖集 $D$（其中既可有 FD 也可有 MVD）属于 **Fourth Normal Form (4NF)** ，如果对所有属于 $D^+$ 的多值依赖：
 
 $$
 \alpha \twoheadrightarrow \beta
@@ -1655,7 +1655,7 @@ $$
 
 - `department` 其实本来就应该是一个独立实体
 
-也就是说，很多规范化问题，追根到底是 **E-R 建模阶段没有把对象边界识别对**。
+也就是说，很多规范化问题，追根到底是 **E-R 建模阶段没有把对象边界识别对** 。
 
 ### 什么时候会故意不规范化
 
@@ -1734,7 +1734,7 @@ company_year(company_id, earnings_2012, earnings_2013, earnings_2014)
 - 这种设计在形式上也可能满足 BCNF
 - 跨年份计算也别扭
 - 每多一年都要加新列
-- 这其实是 **crosstab（交叉表）**：把某个属性的取值变成列名
+- 这其实是 **crosstab（交叉表）** ：把某个属性的取值变成列名
 - crosstab 常见于电子表格与数据分析工具，但不一定适合作为核心事务表结构
 
 > 规范化理论只处理“依赖导致的冗余”。  
@@ -1755,7 +1755,7 @@ company_year(company_id, earnings_2012, earnings_2013, earnings_2014)
 - 某个老师过去在哪个系
 - 某条规则在什么时间段有效
 
-这就需要 **temporal data**。
+这就需要 **temporal data** 。
 
 也就是：
 
@@ -1764,9 +1764,9 @@ company_year(company_id, earnings_2012, earnings_2013, earnings_2014)
 
 ### Snapshot 与 Temporal FD
 
-某一时刻的数据状态叫 **snapshot**。
+某一时刻的数据状态叫 **snapshot** 。
 
-如果一个函数依赖是在每个时间点的 snapshot 上都成立，那么它是 **temporal functional dependency**。
+如果一个函数依赖是在每个时间点的 snapshot 上都成立，那么它是 **temporal functional dependency** 。
 
 记号上可以写成一种“带时间语义的 FD”，其意思是：
 
@@ -1787,7 +1787,7 @@ company_year(company_id, earnings_2012, earnings_2013, earnings_2014)
 在 temporal relation 中，原主键通常不再足够。
 
 例如课程历史表中，同一个 `course_id` 可以在不同时段对应多条记录。  
-但也不能简单地把 `(course_id, start, end)` 当主键就结束，因为这样**无法阻止时间区间重叠**。
+但也不能简单地把 `(course_id, start, end)` 当主键就结束，因为这样 **无法阻止时间区间重叠** 。
 
 真正需要的是：
 

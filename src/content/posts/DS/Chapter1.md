@@ -55,7 +55,7 @@ Characteristics of Databases:
 
 **DBMS（Database Management System）：** 管理数据库的软件系统，目标是：
 
-> Provide a way to store and retrieve data **conveniently** and **efficiently**.
+> Provide a way to store and retrieve data **conveniently** and **efficiently** .
 
 DBMS 负责：存储与检索、权限控制、并发处理、崩溃恢复
 
@@ -115,7 +115,7 @@ create table student (
 > Provide users with an **abstract view** of the data.
 > 隐藏数据如何存储和维护的细节。
 
-为此，数据库采用 **Three-level abstraction（三层抽象结构）**。
+为此，数据库采用 **Three-level abstraction（三层抽象结构）** 。
 
 
 ### Three-Level Abstraction of Databases
@@ -343,17 +343,17 @@ DDL 编译器会生成一组表模板，存储在 **数据字典（Data Dictiona
 
 #### Data Dictionary（数据字典）
 
-数据字典保存 **元数据（Metadata，即关于数据的数据）**，包括：
+数据字典保存 **元数据（Metadata，即关于数据的数据）** ，包括：
 
 - **Database schema（数据库模式）**
 - **Integrity constraints（完整性约束）**
-  - **Primary key**：唯一标识一条记录
+  - **Primary key** ：唯一标识一条记录
     - 例：`ID` 唯一标识每位 instructor
-  - **Referential integrity（参照完整性）**：外键引用必须在目标表中存在
+  - **Referential integrity（参照完整性）** ：外键引用必须在目标表中存在
     - 例：instructor 中的 `dept_name` 必须出现在 department 表中
-  - **Check 约束**：字段值满足指定条件
+  - **Check 约束** ：字段值满足指定条件
     - 例：`salary >= 60000`
-- **Authorization（权限）**：哪些用户可以访问哪些数据
+- **Authorization（权限）** ：哪些用户可以访问哪些数据
 
 
 ### Data Manipulation Language (DML)
@@ -361,17 +361,17 @@ DDL 编译器会生成一组表模板，存储在 **数据字典（Data Dictiona
 数据控制语言用于查询和修改数据库中的数据，例如：
 
 主要分为两类：
-1. **Procedural DML（过程式 DML）**：用户指定如何获取结果，例如：使用游标（cursor）逐行处理数据。
+1. **Procedural DML（过程式 DML）** ：用户指定如何获取结果，例如：使用游标（cursor）逐行处理数据。
     - 过程式语言是类似C语言要将怎么查找，用什么查找写出来的。
-2. **Nonprocedural DML（非过程式 DML）**：用户只指定想要什么结果，数据库系统负责如何获取，例如：SQL 查询语言。
+2. **Nonprocedural DML（非过程式 DML）** ：用户只指定想要什么结果，数据库系统负责如何获取，例如：SQL 查询语言。
     - 非过程式语言是类似SQL语言只要写出想要什么结果，数据库系统会自己决定怎么查找。数据库系统会自行优化。
 
 #### SQL Query Language
 
 SQL 是最流行的非过程式 DML，具有以下特点：
-- **Declarative（声明式）**：用户只描述想要的结果，不关心实现细节。
-- **Set-oriented（面向集合）**：操作整个数据集，而不是逐行处理。
-- **High-level（高级）**：比过程式语言更抽象，易于使用。
+- **Declarative（声明式）** ：用户只描述想要的结果，不关心实现细节。
+- **Set-oriented（面向集合）** ：操作整个数据集，而不是逐行处理。
+- **High-level（高级）** ：比过程式语言更抽象，易于使用。
 
 ```sql
 select name from instructor where dept_name = 'Comp. Sci.';
@@ -505,7 +505,7 @@ cursor.execute("SELECT * FROM instructor")
 
 ### Entity-Relationship Model（实体-联系模型）
 
-- 将企业建模为一组数据**实体（entities）**和**联系（relationships）**
+- 将企业建模为一组数据 **实体（entities）** 和 **联系（relationships）**
 - 用 **E-R 图（entity-relationship diagram）** 直观表示
 
 例如，`instructor` 与 `department` 之间通过 `member` 联系：
@@ -527,7 +527,7 @@ cursor.execute("SELECT * FROM instructor")
 
 ### Normalization Theory（规范化理论）
 
-规范化理论用于**形式化地判断哪些数据库设计是"坏"的**，并提供检验方法。
+规范化理论用于 **形式化地判断哪些数据库设计是"坏"的** ，并提供检验方法。
 
 考虑下面这张将 instructor 与 department 合并的表：
 
@@ -548,27 +548,27 @@ cursor.execute("SELECT * FROM instructor")
 
 **❓ 这个设计有什么问题？**
 
-- **数据冗余（Redundancy）**：`dept_name`、`building`、`budget` 在每个属于同一系的教师行中重复存储
-- **更新异常（Update Anomaly）**：若某系搬楼，需修改多行，容易遗漏导致不一致
-- **插入异常（Insertion Anomaly）**：若一个系还没有教师，该系的信息无法被记录
-- **删除异常（Deletion Anomaly）**：若删掉某系最后一个教师，该系的所有信息也随之丢失
+- **数据冗余（Redundancy）** ：`dept_name`、`building`、`budget` 在每个属于同一系的教师行中重复存储
+- **更新异常（Update Anomaly）** ：若某系搬楼，需修改多行，容易遗漏导致不一致
+- **插入异常（Insertion Anomaly）** ：若一个系还没有教师，该系的信息无法被记录
+- **删除异常（Deletion Anomaly）** ：若删掉某系最后一个教师，该系的所有信息也随之丢失
 
 👉 规范化理论将在 **Part Two（Chapter 6, 7）** 详细讨论。
 
 ## Database Engine
 
-数据库系统（**database engine**）被划分为若干模块，每个模块负责整体系统的一部分功能。
+数据库系统（ **database engine** ）被划分为若干模块，每个模块负责整体系统的一部分功能。
 
 数据库系统的功能组件可分为三大类：
 
-- **Storage Manager**（存储管理器）
-- **Query Processor**（查询处理器）
-- **Transaction Management**（事务管理组件）
+- **Storage Manager** （存储管理器）
+- **Query Processor** （查询处理器）
+- **Transaction Management** （事务管理组件）
 
 
 ### Storage Manager
 
-Storage Manager 是一个**程序模块**，提供底层数据库数据与应用程序/查询之间的接口。
+Storage Manager 是一个 **程序模块** ，提供底层数据库数据与应用程序/查询之间的接口。
 
 **负责的任务：**
 - 与 OS 文件管理器交互
@@ -585,10 +585,10 @@ Storage Manager 是一个**程序模块**，提供底层数据库数据与应用
 
 **Storage Manager 实现的数据结构：**
 
-- **Data files**：存储数据库本身
-- **Data dictionary**：存储数据库结构的元数据，特别是数据库的 schema
-- **Indices**：提供对数据项的快速访问；数据库索引存储指向持有特定值的数据项的指针
-- **Statistical data**：存储关于数据的统计信息，供查询优化器使用
+- **Data files** ：存储数据库本身
+- **Data dictionary** ：存储数据库结构的元数据，特别是数据库的 schema
+- **Indices** ：提供对数据项的快速访问；数据库索引存储指向持有特定值的数据项的指针
+- **Statistical data** ：存储关于数据的统计信息，供查询优化器使用
 
 👉 将在 **Part Five（Chapters 12, 13, 14）** 详细介绍。
 
@@ -597,10 +597,10 @@ Storage Manager 是一个**程序模块**，提供底层数据库数据与应用
 
 **Query Processor 的组成组件：**
 
-- **DDL interpreter**：解释 DDL 语句，并将定义记录到数据字典中
-- **DML compiler**：将查询语言中的 DML 语句翻译为由低级指令组成的**evaluation plan**，供查询执行引擎理解
-  - DML compiler 执行**query optimization**：从多种可能的执行计划中选取代价最低的方案
-- **Query evaluation engine**：执行由 DML compiler 生成的低级指令
+- **DDL interpreter** ：解释 DDL 语句，并将定义记录到数据字典中
+- **DML compiler** ：将查询语言中的 DML 语句翻译为由低级指令组成的 **evaluation plan** ，供查询执行引擎理解
+  - DML compiler 执行 **query optimization** ：从多种可能的执行计划中选取代价最低的方案
+- **Query evaluation engine** ：执行由 DML compiler 生成的低级指令
 
 **Query Processing 的步骤：**
 
@@ -635,8 +635,8 @@ query output
 
 **Transaction Management 的两大组件：**
 
-- **Recovery Manager**：确保在**系统故障**和**事务故障**发生时，数据库仍能保持一致的状态
-- **Concurrency-control manager**：控制并发事务之间的交互，确保数据库的**一致性**
+- **Recovery Manager** ：确保在 **系统故障** 和 **事务故障** 发生时，数据库仍能保持一致的状态
+- **Concurrency-control manager** ：控制并发事务之间的交互，确保数据库的 **一致性**
 
 👉 将在 **Part Seven（Chapters 17, 18, 19）** 详细介绍。
 
@@ -672,10 +672,10 @@ query output
 
 | 用户类型 | 描述 | 使用工具 |
 |----------|------|----------|
-| **Naïve users**（普通用户） | 调用已有的应用程序，不直接编写 SQL；典型例子：网页用户、银行柜员、文职人员 | Application interfaces（应用程序界面） |
-| **Application programmers**（应用程序员） | 通过 DML 调用与系统交互，编写应用程序 | Application programs（应用程序） |
-| **Sophisticated users**（高级用户 / 分析师） | 直接使用查询工具提交查询，进行数据分析 | Query tools（查询工具） |
-| **Database administrators**（数据库管理员） | 协调数据库系统的所有活动，深入了解企业信息资源与需求 | Administration tools（管理工具） |
+| **Naïve users** （普通用户） | 调用已有的应用程序，不直接编写 SQL；典型例子：网页用户、银行柜员、文职人员 | Application interfaces（应用程序界面） |
+| **Application programmers** （应用程序员） | 通过 DML 调用与系统交互，编写应用程序 | Application programs（应用程序） |
+| **Sophisticated users** （高级用户 / 分析师） | 直接使用查询工具提交查询，进行数据分析 | Query tools（查询工具） |
+| **Database administrators** （数据库管理员） | 协调数据库系统的所有活动，深入了解企业信息资源与需求 | Administration tools（管理工具） |
 
 
 ### Database Administrator（DBA）
@@ -684,11 +684,11 @@ DBA 负责协调数据库系统的所有活动，对企业的信息资源和需�
 
 **DBA 的职责包括：**
 
-- **Schema definition**：定义数据库模式
-- **Storage structure and access method definition**：定义存储结构和访问方法
-- **Schema and physical organization modification**：修改模式和物理组织结构
-- **Granting user authority**：授予用户访问数据库的权限
-- **Routine maintenance**：
-  - **Performance Tuning**：监控性能，响应需求变化
-  - **Backing up**：定期将数据库备份到远程服务器
-  - **Disk space management**：确保有足够的磁盘空间用于正常运营，并按需扩容
+- **Schema definition** ：定义数据库模式
+- **Storage structure and access method definition** ：定义存储结构和访问方法
+- **Schema and physical organization modification** ：修改模式和物理组织结构
+- **Granting user authority** ：授予用户访问数据库的权限
+- **Routine maintenance** ：
+  - **Performance Tuning** ：监控性能，响应需求变化
+  - **Backing up** ：定期将数据库备份到远程服务器
+  - **Disk space management** ：确保有足够的磁盘空间用于正常运营，并按需扩容

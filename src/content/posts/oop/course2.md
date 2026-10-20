@@ -76,7 +76,7 @@ void selection_sort(T arr[], int n) { ... }
 
 原因：
 
-- 模板不是普通函数，它通常要在**使用点**看到完整定义
+- 模板不是普通函数，它通常要在 **使用点** 看到完整定义
 - 编译器看到 `selection_sort(arr, n)` 时，才会按 `T=int`、`T=Student` 等去实例化
 - 如果只有声明没有定义，很多情况下链接阶段会找不到对应版本
 
@@ -85,7 +85,7 @@ void selection_sort(T arr[], int n) { ... }
 :::TIP
 为什么每个函数都要写 `template<typename T>`？
 
-因为这四个函数是 **四个独立的函数模板**，不是一个模板包着四个函数。
+因为这四个函数是 **四个独立的函数模板** ，不是一个模板包着四个函数。
 
 所以 `T` 的作用域只在“紧随其后的那一个函数”里有效：
 
@@ -126,7 +126,7 @@ bool operator<(const Student& s1, const Student& s2)
 std::ostream& operator<<(std::ostream& out, const Student& s)
 ```
 
-这里的 `&` 不是“取地址”，而是**引用（reference）**。
+这里的 `&` 不是“取地址”，而是 **引用（reference）** 。
 
 先把它记成一句话：
 
@@ -513,7 +513,7 @@ int n = sizeof(arr) / sizeof(arr[0]);
 - 图形都应该能算周长
 - 图形都应该能告诉别人自己叫什么
 
-这就是 `Shape` 的作用：**先定义共同接口，再让不同图形各自实现。**
+这就是 `Shape` 的作用： **先定义共同接口，再让不同图形各自实现。**
 
 这样后面就可以统一写成：
 
@@ -598,7 +598,7 @@ virtual void calc_area() = 0;
 - 不给出具体实现
 - 必须由子类来实现
 
-所以 `Shape` 变成了**抽象类**：
+所以 `Shape` 变成了 **抽象类** ：
 
 - 你不能写 `Shape s;`
 - 你只能把它当成一个统一接口

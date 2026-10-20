@@ -26,10 +26,10 @@ draft: false
 ### Transaction failure
 事务失败分两种：
 
-- **Logical errors**：事务因为自身内部条件不能继续执行
+- **Logical errors** ：事务因为自身内部条件不能继续执行
   - 例如输入错误、数据不存在、溢出、资源限制等
   - 违反完整性约束，例如插入重复主键、违反外键约束
-- **System errors**：数据库系统因为某种错误条件终止一个活跃事务
+- **System errors** ：数据库系统因为某种错误条件终止一个活跃事务
   - 典型例子：deadlock
   - 事务被选为 deadlock victim 时，会被系统强制 rollback
 
@@ -41,7 +41,7 @@ draft: false
 
 系统崩溃指 power failure、hardware failure、software failure 等导致系统停止运行。
 
-采用 **fail-stop assumption**：
+采用 **fail-stop assumption** ：
 
 > 系统崩溃会丢失 volatile storage 中的内容，但不会破坏 nonvolatile storage 中已经写好的内容。
 
@@ -112,9 +112,9 @@ draft: false
 
 一次 block transfer 可能有三种结果：
 
-1. **Successful completion**：写入成功完成
-2. **Partial failure**：写到一半失败，目标块内容错误
-3. **Total failure**：还没真正更新目标块就失败，目标块保持旧值
+1. **Successful completion** ：写入成功完成
+2. **Partial failure** ：写到一半失败，目标块内容错误
+3. **Total failure** ：还没真正更新目标块就失败，目标块保持旧值
 
 假设每个 block 有两个副本，output 操作可以这样执行：
 
@@ -138,8 +138,8 @@ draft: false
 
 两类 block：
 
-- **Physical block**：磁盘上的 block
-- **Buffer block**：主存 buffer 中的 block
+- **Physical block** ：磁盘上的 block
+- **Buffer block** ：主存 buffer 中的 block
 
 磁盘和内存之间的数据移动由两个操作完成：
 
@@ -187,12 +187,12 @@ output(B)  : 把主存中的 buffer block B 写回磁盘
 
 恢复算法分两部分：
 
-1. **正常执行时的动作**：记录足够信息，让未来可以恢复
-2. **失败后的动作**：根据记录恢复数据库内容
+1. **正常执行时的动作** ：记录足够信息，让未来可以恢复
+2. **失败后的动作** ：根据记录恢复数据库内容
 
 本章默认：
 
-- 并发控制使用 **strict 2PL**，所以没有 dirty read
+- 并发控制使用 **strict 2PL** ，所以没有 dirty read
 - 恢复算法应尽量具备 **idempotence（幂等性）**
 - strict 2PL 的意义是避免 dirty read，使一个未提交事务的脏数据不会被其他事务继续依赖
 
@@ -207,7 +207,7 @@ output(B)  : 把主存中的 buffer block B 写回磁盘
 
 ### Log Records
 
-为了保证失败后的原子性，在真正修改数据库前，系统先把修改信息写到 stable storage 中的 **log**。
+为了保证失败后的原子性，在真正修改数据库前，系统先把修改信息写到 stable storage 中的 **log** 。
 
 **Log** 是一串 log records，用来记录数据库的更新活动。
 
@@ -241,13 +241,13 @@ log 例子：
 - `T2` 在正常执行过程中 rollback，产生补偿日志 `<T2, C, 500>`、`<T2, B, 300>`，最后 `<T2 abort>`
 - `T4` 在 recovery 中被 undo，产生 `<T4, A, 100>`，最后 `<T4 abort>`
 
-这体现了 **redo pass repeats history**，然后 **undo pass 撤销未完成事务**。
+这体现了 **redo pass repeats history** ，然后 **undo pass 撤销未完成事务** 。
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260616141914.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 :::
 
 ### WAL
 
-**Write-Ahead Logging（WAL，先写日志原则）**：
+**Write-Ahead Logging（WAL，先写日志原则）** ：
 
 > 在内存中的数据块被写回数据库前，与该数据块有关的 log records 必须先写到 stable storage。
 
@@ -266,8 +266,8 @@ WAL 是 log-based recovery 的核心约束。
 
 WAL 可以分成两个约束理解：
 
-1. **data page 写盘前**：该 page 相关的所有 update log 必须已经写到 stable storage
-2. **commit log 写盘前**：该事务之前的所有 log records 必须已经写到 stable storage
+1. **data page 写盘前** ：该 page 相关的所有 update log 必须已经写到 stable storage
+2. **commit log 写盘前** ：该事务之前的所有 log records 必须已经写到 stable storage
 
 因此，事务是否已经提交的唯一可靠标志是：`<Ti commit>` 已经进入 stable storage。commit log 只停在 log buffer 里时，系统 crash 后只能把它当成未提交事务处理。
 
@@ -398,8 +398,8 @@ Log                         Write              Output
 
 定义：
 
-- **undo**：把 `X` 恢复为 old value `V1`
-- **redo**：把 `X` 设置为 new value `V2`
+- **undo** ：把 `X` 恢复为 old value `V1`
+- **redo** ：把 `X` 设置为 new value `V2`
 
 #### undo(Ti)
 
@@ -435,7 +435,7 @@ redo 不需要写新的 log。
 
 系统崩溃后，根据 log 判断事务状态。
 
-事务 `Ti` 需要 **undo**：
+事务 `Ti` 需要 **undo** ：
 
 ```text
 log 中有 <Ti start>
@@ -443,7 +443,7 @@ log 中有 <Ti start>
 也没有 <Ti abort>
 ```
 
-事务 `Ti` 需要 **redo**：
+事务 `Ti` 需要 **redo** ：
 
 ```text
 log 中有 <Ti start>
@@ -515,7 +515,7 @@ log 中有 <Ti start>
 1. 系统运行时间越长，log 越长
 2. 很多早已写入磁盘的事务被重复 redo，浪费时间
 
-所以系统周期性执行 **checkpoint**。
+所以系统周期性执行 **checkpoint** 。
 
 一个基本 checkpoint 操作：
 
@@ -630,8 +630,8 @@ T4 在 checkpoint 后开始，失败时仍未完成
 
 系统崩溃后的 recovery 分两个阶段：
 
-1. **Redo phase**：重复历史
-2. **Undo phase**：撤销未完成事务
+1. **Redo phase** ：重复历史
+2. **Undo phase** ：撤销未完成事务
 
 #### Redo phase
 
@@ -730,7 +730,7 @@ undo phase: 撤销 T2，并写 <T2 abort>
 - log records 先放在内存中的 log buffer
 - 当 log buffer 满，或执行 log force 时，再写到 stable storage
 
-**Log force**：强制把 log buffer 中必要的 log records 写到 stable storage。
+**Log force** ：强制把 log buffer 中必要的 log records 写到 stable storage。
 
 事务 commit 时必须执行 log force：
 
@@ -769,14 +769,14 @@ undo phase: 撤销 T2，并写 <T2 abort>
 
 #### Force / No-force
 
-**Force policy**：事务 commit 时，必须把它修改过的所有 data blocks 写回磁盘。
+**Force policy** ：事务 commit 时，必须把它修改过的所有 data blocks 写回磁盘。
 
 缺点：
 
 - commit 很慢
 - 频繁写热页，I/O 成本高
 
-**No-force policy**：事务 commit 时，不要求立即写回 data blocks。
+**No-force policy** ：事务 commit 时，不要求立即写回 data blocks。
 
 优点：
 
@@ -787,20 +787,20 @@ undo phase: 撤销 T2，并写 <T2 abort>
 
 - 崩溃后需要 redo 已提交但未落盘的更新
 
-现代数据库通常使用 **no-force**。
+现代数据库通常使用 **no-force** 。
 
 如果 commit 时已经把数据页全部刷盘，当然不需要 redo；但这样 commit 代价太高。实际数据库通常选择 no-force，只要求 commit log 落盘，数据页之后由 buffer manager 自己调度写出。
 
 #### Steal / No-steal
 
-**No-steal policy**：未提交事务修改过的 block 不能写到磁盘。
+**No-steal policy** ：未提交事务修改过的 block 不能写到磁盘。
 
 问题：
 
 - 大事务可能占满 buffer
 - 脏页不能淘汰，系统难以继续运行
 
-**Steal policy**：允许包含未提交更新的 block 被写到磁盘。
+**Steal policy** ：允许包含未提交更新的 block 被写到磁盘。
 
 优点：
 
@@ -1000,7 +1000,7 @@ primary site failure 和 communication link failure 要区分
 
 ### Hot-Spare
 
-为了减少 takeover delay，可以使用 **Hot-Spare（热备份）**。
+为了减少 takeover delay，可以使用 **Hot-Spare（热备份）** 。
 
 特点：
 
@@ -1080,7 +1080,7 @@ commit log 同时写到 primary 和 backup 后，事务才 commit
 
 > 一旦底层锁提前释放，其他事务可能已经修改同一数据结构。此时不能简单恢复 old value，否则会覆盖其他事务的正确更新。
 
-因此需要 **logical undo**。
+因此需要 **logical undo** 。
 
 #### Physical undo
 
@@ -1105,7 +1105,7 @@ commit log 同时写到 primary 和 backup 后，事务才 commit
 - undo delete：执行 insert
 - undo deposit：执行 subtract
 
-这类操作被称为 **logical operations**。
+这类操作被称为 **logical operations** 。
 
 B+-tree：如果插入或删除时一直持有树上底层节点的锁直到事务结束，并发度会很差。early lock release 允许提前释放这些热点结构上的锁，但代价是恢复时不能简单把 page 或 record 恢复成 old value。
 
@@ -1231,8 +1231,8 @@ rollback 完成
 
 整体仍然是两阶段：
 
-1. **Redo phase**：从最后一个 checkpoint 后开始，物理重做所有更新，重复历史
-2. **Undo phase**：对 undo-list 中未完成事务执行 rollback
+1. **Redo phase** ：从最后一个 checkpoint 后开始，物理重做所有更新，重复历史
+2. **Undo phase** ：对 undo-list 中未完成事务执行 rollback
 
 区别在于 undo phase 处理 log 时，要按 logical undo 的规则：
 
@@ -1296,10 +1296,10 @@ ARIES 可以理解为前面基本恢复算法的工程化增强版。
 相比前面的简化算法，ARIES 的主要改进包括：
 
 1. 使用 **LSN（Log Sequence Number）** 标识每条 log record
-2. 在 page 中保存 **PageLSN**，判断哪些更新已经反映到该 page
+2. 在 page 中保存 **PageLSN** ，判断哪些更新已经反映到该 page
 3. 支持 **physiological redo**
 4. 使用 **Dirty Page Table** 避免不必要的 redo
-5. 使用低开销 **fuzzy checkpointing**，checkpoint 时不强制写出所有 dirty pages
+5. 使用低开销 **fuzzy checkpointing** ，checkpoint 时不强制写出所有 dirty pages
 
 
 ### Physiological Redo
@@ -1345,7 +1345,7 @@ ARIES 可以理解为前面基本恢复算法的工程化增强版。
 
 #### PageLSN
 
-每个 page 保存一个 **PageLSN**：
+每个 page 保存一个 **PageLSN** ：
 
 > 该 page 已经反映的最后一条 log record 的 LSN。
 
@@ -1593,7 +1593,7 @@ ARIES 支持 page-level recovery independence：
 
 #### Savepoints
 
-事务可以设置 **savepoint**，之后 rollback 到某个 savepoint。
+事务可以设置 **savepoint** ，之后 rollback 到某个 savepoint。
 
 用途：
 
@@ -1681,7 +1681,7 @@ ARIES 支持细粒度锁，例如 index 上的 tuple-level locking。
 
 ## Shadow Copying 与 Shadow Paging
 
-另一类恢复思想：**shadow copying**。
+另一类恢复思想： **shadow copying** 。
 
 基本思想：
 

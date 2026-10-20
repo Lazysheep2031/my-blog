@@ -251,7 +251,7 @@ create domain student_id varchar(10) not null;
 要注意的是：
 
 - 共用同一个 domain 表示“取值规则一致”
-- 但**不代表自动形成外键关系**
+- 但 **不代表自动形成外键关系**
 
 外键仍然要单独写。
 
@@ -585,7 +585,7 @@ check <predicate>;
 - 带子查询的 `check` 通常不支持
 - `assertion` 也通常不支持
 
-现实中常见替代方案就是 **trigger（触发器）**。
+现实中常见替代方案就是 **trigger（触发器）** 。
 
 trigger 可以理解成：
 
@@ -984,7 +984,7 @@ where total_salary > (
 
 那么物化视图中的结果就可能变旧。
 
-因此需要做 **materialized view maintenance**。
+因此需要做 **materialized view maintenance** 。
 
 维护方式可能包括：
 
@@ -1031,7 +1031,7 @@ from S1 natural join S2;
 - 底层逻辑结构已经变了
 - 但外层程序仍然可以像以前一样使用 `S`
 
-这就体现了 **logical data independence（逻辑数据独立性）**：
+这就体现了 **logical data independence（逻辑数据独立性）** ：
 
 > 修改逻辑模式时，尽量不影响用户看到的外部接口。
 
@@ -1196,7 +1196,7 @@ COMMIT;
 
 ### ACID
 
-事务的四个经典性质是 **ACID**。
+事务的四个经典性质是 **ACID** 。
 
 #### 1. Atomicity（原子性）
 

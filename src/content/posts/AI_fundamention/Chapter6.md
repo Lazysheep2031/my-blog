@@ -9,14 +9,14 @@ draft: true
 
 ## 概述
 
-这一讲讨论的是 **图像生成模型（Image Generative Models）**。
+这一讲讨论的是 **图像生成模型（Image Generative Models）** 。
 
 这一章的逻辑主线：
 
 - 先从 **生成模型（generative model）** 的基本思想出发，理解“学习数据分布、再从分布中采样”的核心逻辑；
-- 再介绍传统统计生成模型：**高斯混合模型（Gaussian Mixture Model, GMM）**；
-- 接着进入深度生成模型的重要突破：**生成对抗网络（Generative Adversarial Network, GAN）**；
-- 最后重点理解当前图像生成的主流技术之一：**扩散模型（Diffusion Model, DM）**；
+- 再介绍传统统计生成模型： **高斯混合模型（Gaussian Mixture Model, GMM）** ；
+- 接着进入深度生成模型的重要突破： **生成对抗网络（Generative Adversarial Network, GAN）** ；
+- 最后重点理解当前图像生成的主流技术之一： **扩散模型（Diffusion Model, DM）** ；
 - 最后比较 GMM、GAN、DM 的区别，并总结生成式人工智能在艺术创作、设计、广告、游戏、虚拟人物等领域的应用与伦理问题。
 
 > **生成模型 = 学习真实数据的分布结构，再从这个分布中生成新的样本。**
@@ -131,7 +131,7 @@ $$
 
 ### 高斯分布
 
-**高斯分布（Gaussian distribution）** 也叫 **正态分布（normal distribution）**，是统计学中最重要的概率分布之一。
+**高斯分布（Gaussian distribution）** 也叫 **正态分布（normal distribution）** ，是统计学中最重要的概率分布之一。
 
 一维高斯分布的概率密度函数为：
 
@@ -511,7 +511,7 @@ GAN 最经典的应用是生成逼真图像。
 
 ### 图像到图像的转换
 
-GAN 可以完成 **image-to-image translation**。
+GAN 可以完成 **image-to-image translation** 。
 
 典型任务：
 
@@ -523,8 +523,8 @@ GAN 可以完成 **image-to-image translation**。
 
 代表模型：
 
-- **Pix2Pix**：使用成对样本训练，例如“边缘图 → 真实图”；
-- **CycleGAN**：可以在没有成对样本的情况下学习两个图像域之间的转换。
+- **Pix2Pix** ：使用成对样本训练，例如“边缘图 → 真实图”；
+- **CycleGAN** ：可以在没有成对样本的情况下学习两个图像域之间的转换。
 
 ### 数据增强
 

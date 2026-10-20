@@ -278,7 +278,7 @@ Shape::render()
 - `render()` 不是 `virtual`；
 - 编译器按声明类型绑定，所以调用 `Shape::render()`。
 
-这就是 **static binding**。
+这就是 **static binding** 。
 
 ### 加入 `virtual` 后：动态绑定
 
@@ -333,7 +333,7 @@ Ellipse::render()
 Circle::render()
 ```
 
-这就是 **polymorphism**：
+这就是 **polymorphism** ：
 
 > 虽然接口都是 `Shape*` 的 `render()`，但真正调用哪个函数由对象的真实类型决定。
 
@@ -632,7 +632,7 @@ Base object
 └── padding   // 4 bytes, for alignment
 ```
 
-`vptr` 是隐藏指针，指向这个类对应的 **virtual table（vtable，虚函数表）**。
+`vptr` 是隐藏指针，指向这个类对应的 **virtual table（vtable，虚函数表）** 。
 
 ### 同一类对象共享同一张 vtable
 
@@ -884,7 +884,7 @@ Circle circ(60.0f);
 elly = circ;
 ```
 
-此时发生 **object slicing（对象切片）**：
+此时发生 **object slicing（对象切片）** ：
 
 ```text
 Circle object
@@ -1122,7 +1122,7 @@ public:
 
 ## Return type relaxation
 
-C++ 允许一种特殊的返回类型放宽，称为 **covariant return type（协变返回类型）**。
+C++ 允许一种特殊的返回类型放宽，称为 **covariant return type（协变返回类型）** 。
 
 课件中的规则：
 

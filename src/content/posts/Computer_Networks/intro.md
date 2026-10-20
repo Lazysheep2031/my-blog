@@ -9,7 +9,7 @@ draft: false
 
 ## 课程内容
 
-**分数占比**：Homework 15% + quiz 10% + experiment 25% + final exam 50%（闭卷）
+**分数占比** ：Homework 15% + quiz 10% + experiment 25% + final exam 50%（闭卷）
 
 
 

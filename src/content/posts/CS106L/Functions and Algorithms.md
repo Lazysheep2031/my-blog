@@ -263,7 +263,7 @@ auto multBound = [=](int x) { return mult(x, 2); };
 
 ## Algorithms
 
-STL algorithms 的核心接口：**操作的是 iterator range** `[first, last)`，而不是具体容器。  
+STL algorithms 的核心接口： **操作的是 iterator range** `[first, last)`，而不是具体容器。  
 因此同一个算法可以复用到 `vector/list/string/...`（取决于 iterator 类型要求）。
 
 ---
@@ -303,7 +303,7 @@ std::sort(courses.begin(), courses.end(), compareRating);
 
 > [!NOTE]  
 > `comp(a,b)` 的语义是：a 是否应排在 b 前面（返回 bool）。  
-> `std::sort` 需要 **Random Access Iterator**（vector/deque/array 可以，list 不行）。
+> `std::sort` 需要 **Random Access Iterator** （vector/deque/array 可以，list 不行）。
 
 ---
 
@@ -314,7 +314,7 @@ std::copy(courses.begin(), courses.end(),
           std::ostream_iterator<Course>(std::cout, "\n"));
 ```
 
-`ostream_iterator<T>` 是一种 **iterator adaptor**：把 `std::cout` 伪装成 Output Iterator。  
+`ostream_iterator<T>` 是一种 **iterator adaptor** ：把 `std::cout` 伪装成 Output Iterator。  
 隐式要求：`T` 支持 `operator<<`。
 
 ---
@@ -383,15 +383,15 @@ v.erase(std::remove_if(v.begin(), v.end(), pred), v.end());
 
 ## Callable
 
-在 STL algorithms 里，predicate/comparator 通常是一个 **callable**：
+在 STL algorithms 里，predicate/comparator 通常是一个 **callable** ：
 
 - function pointer：`bool (*)(T)`
 - lambda（本质是 functor）：`[](T x){...}`
 - functor：重载 `operator()` 的对象
-- `std::function<R(Args...)>`：**类型擦除**的可调用封装（更灵活但有开销）
+- `std::function<R(Args...)>`： **类型擦除** 的可调用封装（更灵活但有开销）
 
 > [!TIP]
-> 优先用 **模板参数接 callable（lambda/functor）**：零额外开销、可内联。
+> 优先用 **模板参数接 callable（lambda/functor）** ：零额外开销、可内联。
 > 只有当你“必须把不同类型的 callable 放进同一个变量/容器/接口”时，再用 `std::function`。
 
 ---
@@ -435,7 +435,7 @@ f(3); // ❌ 悬空引用（UB）
 
 很多算法的签名是 `(..., OutputIt out, ...)`：
 
-- **out 不是容器**，而是“写入位置”的抽象
+- **out 不是容器** ，而是“写入位置”的抽象
 - 这就是为什么 `copy_if(..., csCourses, pred)` 会错：容器不是 iterator
 
 常用 adaptor：

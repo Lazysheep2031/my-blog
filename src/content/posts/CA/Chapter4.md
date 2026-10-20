@@ -56,7 +56,7 @@ RAW 是真实数据相关，不能靠简单改寄存器名字消除。常见解�
 
 它分成两类。
 
-第一类是 **anti-dependence（反相关）**，对应 **WAR（Write After Read）**：
+第一类是 **anti-dependence（反相关）** ，对应 **WAR（Write After Read）** ：
 
 ```asm
 FDIV.D  F2, F6, F4
@@ -65,7 +65,7 @@ FADD.D  F6, F0, F12
 
 第一条指令要读 `F6`，第二条指令要写 `F6`。如果第二条在第一条读走 `F6` 前先写了 `F6`，第一条会读到错误值。
 
-第二类是 **output-dependence（输出相关）**，对应 **WAW（Write After Write）**：
+第二类是 **output-dependence（输出相关）** ，对应 **WAW（Write After Write）** ：
 
 ```asm
 FDIV.D  F2, F0, F4
@@ -97,7 +97,7 @@ if (p2) {
 }
 ```
 
-某些语句是否执行，取决于前面的分支条件。流水线中对应的问题是 **branch hazard / control hazard**。
+某些语句是否执行，取决于前面的分支条件。流水线中对应的问题是 **branch hazard / control hazard** 。
 
 ### 三类主要 hazard
 
@@ -191,9 +191,9 @@ FADD.D  F12, F6, F14
 
 对应实现方式是：
 
-- **in-order issue**：按程序顺序进入调度结构；
-- **out-of-order execution**：进入后，谁先满足执行条件谁先执行；
-- **out-of-order completion**：短指令可能先完成。
+- **in-order issue** ：按程序顺序进入调度结构；
+- **out-of-order execution** ：进入后，谁先满足执行条件谁先执行；
+- **out-of-order completion** ：短指令可能先完成。
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202605111936387.png" alt="Dynamic Scheduling" style="width: 320px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
@@ -205,8 +205,8 @@ FADD.D  F12, F6, F14
 
 但乱序执行后，后面的指令可能先执行、先写回，因此会出现：
 
-- **WAR hazard**：后面的写覆盖了前面尚未读取的值；
-- **WAW hazard**：后面的写先于前面的写完成，破坏最终结果顺序。
+- **WAR hazard** ：后面的写覆盖了前面尚未读取的值；
+- **WAW hazard** ：后面的写先于前面的写完成，破坏最终结果顺序。
 
 例如：
 
@@ -223,8 +223,8 @@ FADD.D  F6,  F8, F14
 
 所以乱序执行必须解决两个问题：
 
-1. **尽可能让独立指令提前执行**；
-2. **保证执行结果仍然和原程序语义一致**。
+1. **尽可能让独立指令提前执行** ；
+2. **保证执行结果仍然和原程序语义一致** 。
 
 Scoreboard 和 Tomasulo 都是在解决这个问题。
 
@@ -256,7 +256,7 @@ FADD.D F6, F8, F2
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202605111937127.png" alt="Scoreboard Structure" style="width: 320px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
-Scoreboard 的目标是：**允许部分指令乱序执行，同时由硬件检测 hazard，保证结果正确**。
+Scoreboard 的目标是： **允许部分指令乱序执行，同时由硬件检测 hazard，保证结果正确** 。
 
 #### 从 ID 拆成 IS 和 RO
 
@@ -285,7 +285,7 @@ Scoreboard 的目标是：**允许部分指令乱序执行，同时由硬件检�
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202605111937370.png" alt="Split ID into IS and RO" style="width: 320px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
 :::TIP
-**IS 阶段仍然是顺序的**。  
+**IS 阶段仍然是顺序的** 。  
 真正允许乱序的是 RO / EX 之后的推进过程。
 :::
 
@@ -633,7 +633,7 @@ FDIV.D  F10, F0, F6
 IS = 13, RO = 14, EX = 15–16, WB = 22
 ```
 
-**Scoreboard 遇到 WAR 时只能等待**。
+**Scoreboard 遇到 WAR 时只能等待** 。
 
 ### Tomasulo's Approach
 
@@ -643,7 +643,7 @@ IS = 13, RO = 14, EX = 15–16, WB = 22
 - 对 name dependence 引起的 WAR / WAW，也只能检测并等待；
 - 它没有真正“消除”这些名字相关带来的冲突。
 
-**Tomasulo 算法**的核心改进是：在硬件中做 **register renaming（寄存器重命名）**。
+**Tomasulo 算法** 的核心改进是：在硬件中做 **register renaming（寄存器重命名）** 。
 
 也就是说，当程序中的两个指令只是碰巧用了同一个寄存器名字，但实际上没有真实数据传递时，硬件自动给它们换一个内部名字。这样就可以保留真正的数据依赖，同时消除 WAR / WAW。
 
@@ -687,14 +687,14 @@ Tomasulo 要解决的问题就是：这件“看代码后手工改名”的事�
 
 #### 硬件结构：Reservation Station 与 CDB
 
-Tomasulo 在 Scoreboard 的基础上改变了硬件组织方式。它减少对单一集中式控制表的依赖，在功能部件前面加入多个 **reservation stations（保留站）**。
+Tomasulo 在 Scoreboard 的基础上改变了硬件组织方式。它减少对单一集中式控制表的依赖，在功能部件前面加入多个 **reservation stations（保留站）** 。
 
 整体结构可以理解为：
 
-- 上方是 **instruction queue**，指令仍然按程序顺序进入；
-- load / store 指令进入 **load buffer / store buffer**；
-- 加法、乘法等浮点运算进入对应的 **reservation station**；
-- 结果通过 **CDB（Common Data Bus，公共数据总线）**广播给所有需要它的位置。
+- 上方是 **instruction queue** ，指令仍然按程序顺序进入；
+- load / store 指令进入 **load buffer / store buffer** ；
+- 加法、乘法等浮点运算进入对应的 **reservation station** ；
+- 结果通过 **CDB（Common Data Bus，公共数据总线）** 广播给所有需要它的位置。
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260518183405.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
@@ -721,7 +721,7 @@ Tomasulo 在 Scoreboard 的基础上改变了硬件组织方式。它减少对�
 
 这里要特别注意：
 
-- **Tomasulo 的 IS 阶段仍然是 in-order issue**；
+- **Tomasulo 的 IS 阶段仍然是 in-order issue** ；
 - 进入保留站之后，谁的操作数 ready、谁的功能部件空闲，谁就可以先执行；
 - 因此执行和写回可以乱序。
 
@@ -1127,7 +1127,7 @@ Tomasulo 能提高功能部件利用率，但它带来一个问题：
 - 执行时乱序，提高硬件利用率；
 - 对外完成时仍然顺序，保证程序语义和精确异常。
 
-这就需要在 Tomasulo 后面再加一个 buffer：**ROB（Reorder Buffer，重排序缓冲区）**。
+这就需要在 Tomasulo 后面再加一个 buffer： **ROB（Reorder Buffer，重排序缓冲区）** 。
 
 ### 为什么需要 ROB
 
@@ -1363,8 +1363,8 @@ Out-of-Order Execution / Writeback.
 
 ## Exploiting ILP Using Multiple Issue and Static Scheduling
 
-前面讨论的动态调度、寄存器重命名和 ROB，重点在于**减少依赖造成的等待**：只要一条指令的操作数已准备好，就允许它越过阻塞指令先执行。  
-接下来进一步提高性能的方法是 **Multiple Issue（多发射 / 多流出）**：让处理器在一个 clock cycle 内发射多条指令，从而直接降低理想 CPI、提高 IPC。
+前面讨论的动态调度、寄存器重命名和 ROB，重点在于 **减少依赖造成的等待** ：只要一条指令的操作数已准备好，就允许它越过阻塞指令先执行。  
+接下来进一步提高性能的方法是 **Multiple Issue（多发射 / 多流出）** ：让处理器在一个 clock cycle 内发射多条指令，从而直接降低理想 CPI、提高 IPC。
 
 理想情况下，若处理器最多每周期发射 $n$ 条指令，则：
 
@@ -1407,7 +1407,7 @@ cycle 3: issue I5, I6
 
 **Superscalar（超标量）** 处理器每周期可发射的指令数目是不固定的：处理器设定一个发射上限，实际能发射几条取决于当前指令是否独立、资源是否可用。
 
-若一个处理器每周期最多发射 $n$ 条指令，则称为 **$n$-issue superscalar**。
+若一个处理器每周期最多发射 $n$ 条指令，则称为 **$n$-issue superscalar** 。
 
 其特点是：
 
@@ -1420,7 +1420,7 @@ Superscalar 是通用处理器中最成功的多发射实现方式。
 
 #### VLIW：Very Long Instruction Word
 
-**VLIW（Very Long Instruction Word，超长指令字）** 把若干个能够并行执行的操作在编译阶段打包成一条很长的指令，通常也称为一个 **instruction packet**。
+**VLIW（Very Long Instruction Word，超长指令字）** 把若干个能够并行执行的操作在编译阶段打包成一条很长的指令，通常也称为一个 **instruction packet** 。
 
 其特点是：
 
@@ -1431,8 +1431,8 @@ Superscalar 是通用处理器中最成功的多发射实现方式。
 - 更适合 DSP、多媒体等执行模式规则、并行性容易被编译器识别的应用。
 
 :::TIP
-Superscalar 的核心是：**硬件在运行时寻找并行性**。  
-VLIW 的核心是：**编译器在编译时把并行性写进指令包**。
+Superscalar 的核心是： **硬件在运行时寻找并行性** 。  
+VLIW 的核心是： **编译器在编译时把并行性写进指令包** 。
 :::
 
 ### 多发射实现方式对比
@@ -1499,7 +1499,7 @@ VLIW 的核心是：**编译器在编译时把并行性写进指令包**。
 
 关键设计原则为：
 
-- 指令仍需**按程序顺序**进入 reservation station，否则可能破坏程序语义；
+- 指令仍需 **按程序顺序** 进入 reservation station，否则可能破坏程序语义；
 - 整数操作与浮点操作可以分别维护表结构，使一条 integer 指令和一条 FP 指令能在同周期进入各自的 reservation station；
 - 已经进入保留站的指令，只要操作数 ready 且功能部件可用，就可以乱序执行。
 
@@ -1536,7 +1536,7 @@ Loop:
 
 #### 不带 ROB：分支之后的指令不能提前执行
 
-首先考虑使用 Tomasulo，但**不加入 ROB，也不进行推测执行**。  
+首先考虑使用 Tomasulo，但 **不加入 ROB，也不进行推测执行** 。  
 此时下一轮循环的 `LD` 虽然可以被取出和 issue，但必须等待上一轮 `BNE` 的执行结果确认之后才能真正开始执行。
 
 前三轮执行时序如下（Without speculation）：
@@ -1562,12 +1562,12 @@ Loop:
 可以看出：
 
 - 三轮共 15 条指令在 19 cycles 内完成，平均 $IPC=\frac{15}{19}\approx 0.79$。
-- 主要瓶颈是**数据相关分支**与**整数 ALU 争用**：地址计算与整数运算挤在同一部件上。
+- 主要瓶颈是 **数据相关分支** 与 **整数 ALU 争用** ：地址计算与整数运算挤在同一部件上。
 - 改进思路是增加一个 adder，把地址计算功能从 ALU 中分离。
 
 #### 带 ROB 与推测执行：跨过分支继续执行
 
-若在双发射 Tomasulo 上进一步加入 ROB 与 branch prediction，则处理器可以在分支尚未最终提交前，对后续循环迭代进行**推测执行**：
+若在双发射 Tomasulo 上进一步加入 ROB 与 branch prediction，则处理器可以在分支尚未最终提交前，对后续循环迭代进行 **推测执行** ：
 
 - 下一轮 `LD` 不需要等上一轮 `BNE` 完成后才执行；
 - 执行结果先写入 ROB，不直接改变架构状态；
@@ -1714,11 +1714,11 @@ $$
 
 VLIW 将调度压力转移给编译器，硬件可以较简单，但也带来明显限制：
 
-- **代码长度增加**：为了暴露更多并行性，编译器往往需要大量 loop unrolling；
-- **操作槽浪费**：程序中并非始终存在足够独立操作，很多 slot 可能为空；
-- **Lockstep 机制**：若某个功能部件因等待而暂停，整个长指令包往往都要暂停；
-- **二进制兼容性较差**：VLIW 代码依赖功能部件数量和执行延迟，不同微结构之间较难直接复用同一份机器代码；
-- **程序本身 ILP 有限**：存在真实数据依赖的操作不能简单打包并行执行。
+- **代码长度增加** ：为了暴露更多并行性，编译器往往需要大量 loop unrolling；
+- **操作槽浪费** ：程序中并非始终存在足够独立操作，很多 slot 可能为空；
+- **Lockstep 机制** ：若某个功能部件因等待而暂停，整个长指令包往往都要暂停；
+- **二进制兼容性较差** ：VLIW 代码依赖功能部件数量和执行延迟，不同微结构之间较难直接复用同一份机器代码；
+- **程序本身 ILP 有限** ：存在真实数据依赖的操作不能简单打包并行执行。
 
 因此，多发射处理器最终都受到三类因素影响：
 
@@ -1789,7 +1789,7 @@ Superpipeline 可以提高流水吞吐率，但不能消除数据依赖。
 EX → DF → DS → TC → WB
 ```
 
-依赖该结果的下一条运算指令，即使已经进入流水线，也必须等待 load 数据真正可用。课件用 `LD R1` 后紧接 `ADD.D R2, R1` 的例子展示了 **two clock cycles for load delay**。
+依赖该结果的下一条运算指令，即使已经进入流水线，也必须等待 load 数据真正可用。课件用 `LD R1` 后紧接 `ADD.D R2, R1` 的例子展示了 **two clock cycles for load delay** 。
 
 :::TIP
 更深的流水线提高的是潜在 throughput；如果依赖关系、分支或 Cache Miss 造成等待，实际 IPC 仍会下降。  

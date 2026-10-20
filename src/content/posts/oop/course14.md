@@ -374,7 +374,7 @@ catch (const VectorIndexError&) {
 
 ### Stack unwinding
 
-异常从抛出点沿调用链反向传播，直到找到第一个匹配的 handler。这个过程称为 **stack unwinding（栈展开 / 退栈）**。
+异常从抛出点沿调用链反向传播，直到找到第一个匹配的 handler。这个过程称为 **stack unwinding（栈展开 / 退栈）** 。
 
 在传播过程中：
 
@@ -638,7 +638,7 @@ Exception propagation 会触发 stack unwinding，栈上已经构造完成的对
 
 > Acquire resources in constructor; release resources in destructor.
 
-这就是 **RAII（Resource Acquisition Is Initialization）**。
+这就是 **RAII（Resource Acquisition Is Initialization）** 。
 
 资源不局限于内存，还包括：
 

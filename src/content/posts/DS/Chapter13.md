@@ -15,7 +15,7 @@ draft: false
 - SSD
 - storage class memory
 
-这些设备通常都是 **block-structured devices**：
+这些设备通常都是 **block-structured devices** ：
 
 > 数据读写的单位是 block，而数据库逻辑上处理的是 record。
 
@@ -68,7 +68,7 @@ disk / SSD
 
 ### Fixed-Length Records
 
-**定长记录**指每条 record 占用相同字节数。
+**定长记录** 指每条 record 占用相同字节数。
 
 假设每条 record 长度为 `n` bytes，那么一个简单存储方式是：
 
@@ -174,7 +174,7 @@ record i, ..., record n-1
 
 ### Variable-Length Records
 
-**变长记录**出现的原因主要有三类：
+**变长记录** 出现的原因主要有三类：
 
 - 一个 file 里存多种 record type
 - record 中有变长字段，例如 `varchar`
@@ -213,7 +213,7 @@ record i, ..., record n-1
 
 ### Slotted Page Structure
 
-变长记录真正放进 block 时，常用 **slotted page（分槽页）**。
+变长记录真正放进 block 时，常用 **slotted page（分槽页）** 。
 
 一个 slotted page 由两部分组成：
 
@@ -270,8 +270,8 @@ header 中保存：
 
 SQL 中常见类型：
 
-- **BLOB**：binary large object
-- **CLOB**：character large object
+- **BLOB** ：binary large object
+- **CLOB** ：character large object
 
 数据库通常采用下面的处理方式：
 
@@ -316,7 +316,7 @@ record 在 file 里可以有多种组织方式：
 
 > 如何不扫描整个 file，就知道哪些 block 有空闲空间？
 
-解决方法是 **free-space map**。
+解决方法是 **free-space map** 。
 
 ### Free-Space Map
 
@@ -452,7 +452,7 @@ from department natural join instructor;
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202604281521758.png" alt="Multitable Clustering" style="width: 520px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
-这里的 `dept_name` 就是 **cluster key**。
+这里的 `dept_name` 就是 **cluster key** 。
 
 优点：
 
@@ -517,7 +517,7 @@ transaction_2019
 
 ## Data-Dictionary Storage
 
-**Data dictionary** 也叫 **system catalog**，保存的是 metadata。
+**Data dictionary** 也叫 **system catalog** ，保存的是 metadata。
 
 metadata 就是：
 
@@ -595,8 +595,8 @@ block 是存储分配和数据传输的单位。
 
 因此会在内存中开辟一块区域：
 
-- **buffer**：main memory 中用于缓存 disk blocks 的区域
-- **buffer manager**：负责分配和管理 buffer space 的子系统
+- **buffer** ：main memory 中用于缓存 disk blocks 的区域
+- **buffer manager** ：负责分配和管理 buffer space 的子系统
 
 基本思想：
 
@@ -654,7 +654,7 @@ buffer 中的版本比 disk 上的版本更新
 - 读写 block 之前执行 **pin**
 - 读写完成后执行 **unpin**
 
-多个进程可能同时 pin 同一个 block，因此系统维护 **pin count**：
+多个进程可能同时 pin 同一个 block，因此系统维护 **pin count** ：
 
 ```text
 pin    => pin_count += 1
@@ -677,8 +677,8 @@ pin 只能保证 block 不被替换出去。
 
 数据库 buffer manager 支持：
 
-- **shared lock**：读锁
-- **exclusive lock**：写锁
+- **shared lock** ：读锁
+- **exclusive lock** ：写锁
 
 规则：
 
@@ -720,9 +720,9 @@ unpin block
 
 buffer 中的 dirty block 可以稍后写回 disk。
 
-这种普通写回称为 **output of blocks**。
+这种普通写回称为 **output of blocks** 。
 
-但有些场景必须强制写回 disk，称为 **forced output**。
+但有些场景必须强制写回 disk，称为 **forced output** 。
 
 原因主要与 recovery 有关：
 
@@ -823,7 +823,7 @@ for each tuple tr of r do
 
 #### Toss-Immediate
 
-**Toss-immediate strategy**：
+**Toss-immediate strategy** ：
 
 > 一个 block 的最后一个 tuple 处理完后，立即释放它占用的 buffer space。
 
@@ -836,7 +836,7 @@ for each tuple tr of r do
 
 #### MRU
 
-**MRU（Most Recently Used）**：
+**MRU（Most Recently Used）** ：
 
 > 替换最近刚刚使用过的 block。
 
@@ -931,7 +931,7 @@ buffer 允许写操作先发生在内存中，稍后再写回 disk。
 
 ### Row Store 与 Column Store
 
-传统数据库通常使用 **row-oriented storage**：
+传统数据库通常使用 **row-oriented storage** ：
 
 ```text
 tuple1: ID, name, dept_name, salary
@@ -941,7 +941,7 @@ tuple3: ID, name, dept_name, salary
 
 也就是一条 tuple 的所有 attributes 放在一起。
 
-**Column-oriented storage** 也叫 **columnar representation**：
+**Column-oriented storage** 也叫 **columnar representation** ：
 
 ```text
 ID column:        10101, 12121, 15151, ...

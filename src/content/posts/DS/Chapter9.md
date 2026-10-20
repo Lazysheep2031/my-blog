@@ -45,10 +45,10 @@ User  →  Application Program  →  Database
 
 应用架构经历了几个阶段：
 
-1. **Mainframe era**：主机时代，用户通过终端连接主机
-2. **Personal computer era**：PC 客户端直接连接数据库或局域网服务
-3. **Web era**：浏览器通过 Internet 访问 Web 应用服务器
-4. **Web and Smartphone era**：浏览器和移动端 App 共同作为主要入口
+1. **Mainframe era** ：主机时代，用户通过终端连接主机
+2. **Personal computer era** ：PC 客户端直接连接数据库或局域网服务
+3. **Web era** ：浏览器通过 Internet 访问 Web 应用服务器
+4. **Web and Smartphone era** ：浏览器和移动端 App 共同作为主要入口
 
 > **插图占位符：** 插入 slides p.4 的 *Application Architecture Evolution* 图。图中对比 Mainframe Era、Personal Computer Era、Web Era 三种架构：终端连接主机、PC 程序连接局域网数据库、浏览器连接 Web Application Server 再访问数据库。
 
@@ -325,7 +325,7 @@ HTTP 是 **connectionless（无连接）** 的协议。
 - 应用需要 session information
 - 例如用户登录后，不应该每点一次页面都重新认证
 
-解决方案：**cookie**。
+解决方案： **cookie** 。
 
 Cookie 是一小段带有识别信息的文本：
 
@@ -610,7 +610,7 @@ JSP 的优势：
 - 动态部分用 Java 代码生成
 - 比纯 servlet 拼字符串更方便
 
-JSP 还支持 **tag library**。
+JSP 还支持 **tag library** 。
 
 Tag library 可以把常用功能封装成类似 HTML tag 的形式，例如：
 
@@ -652,7 +652,7 @@ PHP 也有大量库，包括通过 ODBC 访问数据库的库。
 
 ### Django Framework
 
-教材补充了 **Django**。
+教材补充了 **Django** 。
 
 Django 是 Python Web application framework。
 
@@ -902,7 +902,7 @@ localStorage 的特点：
 - 通常有容量限制，例如每个站点约 5MB
 - 适合小规模本地状态
 
-如果要存储 JSON object 并按多个属性建立索引，可以使用 **IndexedDB**。
+如果要存储 JSON object 并按多个属性建立索引，可以使用 **IndexedDB** 。
 
 IndexedDB 支持：
 
@@ -1037,7 +1037,7 @@ Business logic layer 提供业务实体和业务动作的抽象。
 
 这不是数据库外键能直接表达的规则，需要应用层业务逻辑处理。
 
-Business logic 还包括 **workflow（工作流）**。
+Business logic 还包括 **workflow（工作流）** 。
 
 例子：学生申请大学：
 
@@ -1480,7 +1480,7 @@ slides 示例：
 - 用户常复用密码
 - 电脑可能有 spyware 记录密码
 
-因此关键应用常用 **two-factor authentication（双因素认证）**。
+因此关键应用常用 **two-factor authentication（双因素认证）** 。
 
 两类因素应该相互独立，例如：
 
@@ -1495,7 +1495,7 @@ slides 示例：
 - 服务器生成同样序列并验证
 - 需要设备和服务器时钟大致同步
 
-但双因素认证不能完全防止 **man-in-the-middle attack**。
+但双因素认证不能完全防止 **man-in-the-middle attack** 。
 
 攻击者可以伪装成银行网站：
 
@@ -1603,7 +1603,7 @@ where takes.ID = syscontext.user_id();
 - 攻击面很大
 - 某个接口漏写权限检查就可能泄露数据
 
-更好的方向是 **fine-grained / row-level authorization**。
+更好的方向是 **fine-grained / row-level authorization** 。
 
 例如 Oracle VPD 可以自动给查询添加谓词：
 
@@ -1801,7 +1801,7 @@ HTTPS 就采用类似思想。
 
 ### Dictionary Attack 与 Salt
 
-加密小范围值时可能遭受 **dictionary attack**。
+加密小范围值时可能遭受 **dictionary attack** 。
 
 例子：生日字段。
 
@@ -1957,7 +1957,7 @@ Anyone verifies with sender's public key
 
 第二点叫：
 
-**nonrepudiation（不可否认性）**。
+**nonrepudiation（不可否认性）** 。
 
 直观类比：
 
@@ -1970,7 +1970,7 @@ Anyone verifies with sender's public key
 
 > 浏览器拿到某个网站的 public key，怎么知道这个 public key 真的属于这个网站？
 
-解决方案：**digital certificate（数字证书）**。
+解决方案： **digital certificate（数字证书）** 。
 
 数字证书由 **certification authority（CA）** 签发。
 

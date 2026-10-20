@@ -12,7 +12,7 @@ draft: false
 > 真实数据库应用里，表往往几十张、上百张，几乎不可能拿到需求后直接把所有 schema 一次性写对。
 
 这件事本质上和软件设计、建筑设计很像。  
-真正困难的地方，常常不在最后编码，而在前面的 **需求定义** 和 **设计选择**。
+真正困难的地方，常常不在最后编码，而在前面的 **需求定义** 和 **设计选择** 。
 
 - **Requirement Specification** 是最难的
 - 这一步最依赖对业务领域本身的理解
@@ -33,7 +33,7 @@ draft: false
 - 数据之间有什么真实业务关系
 - 系统要支持什么操作 / 事务
 
-这是**问题定义**。
+这是 **问题定义** 。
 
 #### Conceptual Design
 
@@ -42,7 +42,7 @@ draft: false
 - 用 **Entity-Relationship Model**
 - 画出 **E-R diagram**
 
-这是**蓝图设计**。
+这是 **蓝图设计** 。
 
 #### Logical Design
 
@@ -54,7 +54,7 @@ draft: false
 - 每张表有哪些属性
 - 键和外键怎么放
 
-这是**关系层落地**。
+这是 **关系层落地** 。
 
 #### Physical Design
 
@@ -64,7 +64,7 @@ draft: false
 - 存储布局
 - 索引等物理结构
 
-这是**实现层优化**。
+这是 **实现层优化** 。
 
 ### 设计的陷阱
 
@@ -186,11 +186,11 @@ E-R 图中：
 - `student(ID, name, tot_cred)`
 - `instructor(ID, name, salary)`
 
-> 这里画的不是某一个 student，而是 `student` 这个 **实体集合**。
+> 这里画的不是某一个 student，而是 `student` 这个 **实体集合** 。
 
 ### relationship / relationship set
 
-联系（relationship）是多个实体之间的关联。图中表示为 **菱形 diamond**。
+联系（relationship）是多个实体之间的关联。图中表示为 **菱形 diamond** 。
 
 例如：
 
@@ -217,10 +217,10 @@ E-R 图中：
 所以 relationship set 本质上就是：
 
 - 从多个实体集中各取一个实体
-- 组成一个**关系元组**的集合
+- 组成一个 **关系元组** 的集合
 
 :::WARNING 
-> relationship set（联系集）的元素个数，一般**不等于**参与该联系的各实体集大小的乘积。
+> relationship set（联系集）的元素个数，一般 **不等于** 参与该联系的各实体集大小的乘积。
 
 若一个联系集 `R` 涉及实体集 `E1, E2, ..., En`，那么有：
 
@@ -230,13 +230,13 @@ $$
 
 这里：
 
-- $E_1 \times E_2 \times \cdots \times E_n$ 表示这些实体集的**笛卡尔积（Cartesian product）**
-- 它表示“从每个实体集中各取一个实体所形成的**所有可能组合**”
-- 而真正的联系集 `R`，只是这些可能组合里，**实际满足该联系语义**的那些元组构成的集合
+- $E_1 \times E_2 \times \cdots \times E_n$ 表示这些实体集的 **笛卡尔积（Cartesian product）**
+- 它表示“从每个实体集中各取一个实体所形成的 **所有可能组合** ”
+- 而真正的联系集 `R`，只是这些可能组合里， **实际满足该联系语义** 的那些元组构成的集合
 
 所以，联系集可以理解成：
 
-> 定义在若干实体集上的一个**谓词**所对应的真值集合。
+> 定义在若干实体集上的一个 **谓词** 所对应的真值集合。
 
 也就是：
 
@@ -268,7 +268,7 @@ $$
 这里要注意：
 
 - `student × instructor` 包含所有学生-教师的可能配对
-- 但只有**该学生确实由该教师指导**的配对，才属于 `advisor`
+- 但只有 **该学生确实由该教师指导** 的配对，才属于 `advisor`
 
 所以一般有：
 
@@ -320,7 +320,7 @@ $$
 - 一个角色是当前课程
 - 一个角色是先修课程
 
-这种同一个实体集在联系中的不同身份叫 **role（角色）**。
+这种同一个实体集在联系中的不同身份叫 **role（角色）** 。
 
 所以 `course_id` 和 `prereq_id` 不是两个不同实体集，  
 而是同一个 `course` 实体集在一个联系中的两个 role
@@ -366,7 +366,7 @@ $$
 - `instructor = (ID, name, street, city, salary)`
 - `course = (course_id, title, credits)`
 
-属性的值来自某个 **domain（域）**：
+属性的值来自某个 **domain（域）** ：
 
 - 也就是该属性允许的取值集合
 
@@ -660,7 +660,7 @@ inst_phone= ( ID, phone_number)
 4. One-to-One
 
 任意一侧主键都可以作为联系主键。  
-因为两边都是**最多一个**。
+因为两边都是 **最多一个** 。
 
 > **联系主键跟会重复的一侧走。**  
 > 多对多两边都重复，所以两边都要。
@@ -668,11 +668,11 @@ inst_phone= ( ID, phone_number)
 
 ## Weak Entity Sets
 
-如果一个实体集本身没有足够属性形成主键，它就是 **弱实体集（weak entity set）**。
+如果一个实体集本身没有足够属性形成主键，它就是 **弱实体集（weak entity set）** 。
 
-反过来，能自己形成主键的实体集叫 **强实体集（strong entity set）**。
+反过来，能自己形成主键的实体集叫 **强实体集（strong entity set）** 。
 
-弱实体的核心语义不等同于**属性少**：
+弱实体的核心语义不等同于 **属性少** ：
 
 > 它的存在依赖于别的实体。  
 > 它必须靠 别人 + 自己的局部区分信息 才能被唯一标识。
@@ -693,7 +693,7 @@ inst_phone= ( ID, phone_number)
 3. **discriminator / partial key**
 
 分辨符、部分键，虚下划线标出。  
-它只能在**已知所属强实体**的前提下，区分该弱实体。
+它只能在 **已知所属强实体** 的前提下，区分该弱实体。
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202604081912034.png" alt="Weak Entity Set" style="width: 320px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
@@ -785,7 +785,7 @@ inst_phone= ( ID, phone_number)
 但在 E-R 向关系模式规约时：
 
 - 如果 `stud_dept` 是 many-to-one / one-to-many 且满足条件
-- 我们可能会把**系的主键**并回到 `student` 表里
+- 我们可能会把 **系的主键** 并回到 `student` 表里
 
 于是表结构里又出现了：
 
@@ -795,8 +795,8 @@ inst_phone= ( ID, phone_number)
 
 关键区别是：
 
-- **概念层面**：不应重复表达同一个语义
-- **关系实现层面**：可以通过外键并入来更紧凑地表示联系
+- **概念层面** ：不应重复表达同一个语义
+- **关系实现层面** ：可以通过外键并入来更紧凑地表示联系
 
 也就是：
 
@@ -880,7 +880,7 @@ advisor(s_id, i_id, date)
 - many-to-one
 - one-to-many
 
-如果 many 一侧是 **total participation**，  
+如果 many 一侧是 **total participation** ，  
 则不一定要为联系单独建表，  
 可以把 one 侧主键作为额外属性，塞进 many 侧的实体表中。
 
@@ -1002,7 +1002,7 @@ time_slot(time_slot_id, day, start_time, end_time)
 ```
 
 因此，`section` 中通过 `sec_time_slot` 得到的 `time_slot_id`  
-**不能再直接作为外键引用这张优化后的 `time_slot` 表**，因为它引用的不是一个唯一键。
+**不能再直接作为外键引用这张优化后的 `time_slot` 表** ，因为它引用的不是一个唯一键。
 
 
 ## Design Issues
@@ -1105,7 +1105,7 @@ relationship 的属性应该挂在哪里?
 
 **strong entity vs weak entity**
 
-有些对象到底应该表示成 **strong entity**，还是 **weak entity**？
+有些对象到底应该表示成 **strong entity** ，还是 **weak entity** ？
 
 > 它能不能仅靠自身属性被唯一标识？
 
@@ -1174,7 +1174,7 @@ relationship 的属性应该挂在哪里?
 - 那 `student` 自动继承这些
 - 再额外加自己的 `tot_cred`
 
-这就叫 **attribute inheritance**。
+这就叫 **attribute inheritance** 。
 
 ### Disjoint vs Overlapping
 

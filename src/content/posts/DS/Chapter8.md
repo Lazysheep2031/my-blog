@@ -27,7 +27,7 @@ draft: false
 - 应用代码本身是面向对象写的，数据库却是关系模型
 - 文本检索和地图查询，本身就不是普通等值匹配问题
 
-所以，**严格的原子属性 + 固定 schema** 在这些场景里会显得过于僵硬。
+所以， **严格的原子属性 + 固定 schema** 在这些场景里会显得过于僵硬。
 
 ### 三条典型路线
 
@@ -45,9 +45,9 @@ draft: false
 
 简单理解：
 
-- **OODB**：数据库本身对象化
-- **ORDB**：关系数据库扩展出对象能力
-- **ORM**：数据库不一定变，程序员看到的是对象接口
+- **OODB** ：数据库本身对象化
+- **ORDB** ：关系数据库扩展出对象能力
+- **ORM** ：数据库不一定变，程序员看到的是对象接口
 
 ### 图书例子理解“复杂类型”
 
@@ -111,7 +111,7 @@ flat-books(title, author, pub-name, pub-branch, keyword)
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202604211351360.png" alt="4NF decomposition" style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
-继续假设以下 **multivalued dependencies（MVD）**：
+继续假设以下 **multivalued dependencies（MVD）** ：
 
 - `title ->-> author`
 - `title ->-> keyword`
@@ -202,9 +202,9 @@ create table books of Book;
 
 #### set / multiset / array 的区别
 
-- **set**：无重复、通常无顺序
-- **multiset**：允许重复、通常不强调顺序
-- **array**：有顺序，可按位置访问
+- **set** ：无重复、通常无顺序
+- **multiset** ：允许重复、通常不强调顺序
+- **array** ：有顺序，可按位置访问
 
 选择哪个，取决于业务语义：
 
@@ -373,8 +373,8 @@ from departments;
 
 所以数据库通常提供：
 
-- **BLOB**：Binary Large Object
-- **CLOB**：Character Large Object
+- **BLOB** ：Binary Large Object
+- **CLOB** ：Character Large Object
 
 它们处理的是“大对象存储”问题，不是对象模型问题。
 
@@ -398,8 +398,8 @@ ORM 的能力：
 
 常见框架：
 
-- **Hibernate**（Java）
-- **Django ORM**（Python）
+- **Hibernate** （Java）
+- **Django ORM** （Python）
 
 #### Hibernate Example
 
@@ -553,7 +553,7 @@ schema 仍然是固定的大集合，但每条记录只存其中一部分。
 
 #### array database
 
-有些数据库专门为数组做优化，称为 **array database**。
+有些数据库专门为数组做优化，称为 **array database** 。
 
 适合：
 
@@ -586,7 +586,7 @@ XML（Extensible Markup Language）用 **tag** 来标记数据。
 
 XML 的关键特点：
 
-- **self-documenting**：标签本身就说明语义
+- **self-documenting** ：标签本身就说明语义
 - 可层次化嵌套
 - 适合表达树形结构
 
@@ -874,8 +874,8 @@ JSON 支持：
 
 其中：
 
-- **object**：本质是 key-value map
-- **array**：本质是从 offset 到 value 的映射
+- **object** ：本质是 key-value map
+- **array** ：本质是从 offset 到 value 的映射
 
 
 #### SQL 对 JSON 的支持
@@ -928,7 +928,7 @@ JSON 比较 verbose。
 
 RDF（Resource Description Framework）是知识表示里非常重要的一种形式。
 
-它把事实表示成 **triple（三元组）**：
+它把事实表示成 **triple（三元组）** ：
 
 ```text
 (subject, predicate, object)
@@ -1290,7 +1290,7 @@ Zhang Katz
 - 顶点序列定义边界
 - 围成一个区域
 
-还可以把 polygon 分解成若干三角形，也就是 **triangulation（三角剖分）**。
+还可以把 polygon 分解成若干三角形，也就是 **triangulation（三角剖分）** 。
 
 #### 3D object
 
@@ -1374,7 +1374,7 @@ POLYGON((1 1, 2 3, 4 4, 1 1))
 
 #### wireframe model
 
-三维表面还可用更简单对象集合来表示，称为 **wireframe model**。
+三维表面还可用更简单对象集合来表示，称为 **wireframe model** 。
 
 #### 非空间属性
 
@@ -1395,7 +1395,7 @@ POLYGON((1 1, 2 3, 4 4, 1 1))
 
 这类约束不是普通主键 / 外键能表达的。
 
-它们是 **spatial integrity constraints**。
+它们是 **spatial integrity constraints** 。
 
 ### Raster Data vs Vector Data
 
@@ -1432,8 +1432,8 @@ POLYGON((1 1, 2 3, 4 4, 1 1))
 
 简单区分：
 
-- **Raster**：像“很多格子”
-- **Vector**：像“几何对象集合”
+- **Raster** ：像“很多格子”
+- **Vector** ：像“几何对象集合”
 
 ### 常见空间查询
 

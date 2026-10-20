@@ -11,7 +11,7 @@ draft: false
 
 ### 事务的定义
 
-事务是数据库应用中的一个**逻辑工作单元**。
+事务是数据库应用中的一个 **逻辑工作单元** 。
 
 形式上：
 
@@ -24,7 +24,7 @@ draft: false
 - 执行多个 SQL 语句
 - 最后以 `commit` 或 `rollback` 结束
 
-事务的关键不取决于语句数量，关键在于**业务语义上的完整性**。
+事务的关键不取决于语句数量，关键在于 **业务语义上的完整性** 。
 
 例如：
 
@@ -184,7 +184,7 @@ A + B 的总和不变
 - 但每个事务看到的效果应像其他事务要么已经执行完，要么还没有开始
 - 事务的中间结果应该被隐藏
 
-最简单的隔离方式是**串行执行**：
+最简单的隔离方式是 **串行执行** ：
 
 ```text
 T1 完全执行完
@@ -272,18 +272,18 @@ write(X)
 
 事务恢复相关的三类存储。
 
-**Volatile storage（易失存储）**：
+**Volatile storage（易失存储）** ：
 
 - 断电或系统崩溃后内容丢失
 - 例如 CPU cache、main memory
 
-**Non-volatile storage（非易失存储）**：
+**Non-volatile storage（非易失存储）** ：
 
 - 系统崩溃后通常保留
 - 设备自身仍可能故障
 - 例如 disk、SSD
 
-**Stable storage（稳定存储）**：
+**Stable storage（稳定存储）** ：
 
 - 理想模型：数据永不丢失
 - 现实中用冗余技术近似实现
@@ -325,8 +325,8 @@ Partially committed
 
 事务失败后有两种处理方式：
 
-- **restart transaction**：重新执行事务
-- **kill transaction**：终止事务，不再重试
+- **restart transaction** ：重新执行事务
+- **kill transaction** ：终止事务，不再重试
 
 这一部分对应事务的核心原则：
 
@@ -769,8 +769,8 @@ A = 50, B = 110, A + B = 160
 
 可以把两者的核心要求概括为：
 
-- 冲突可串行化：**所有冲突操作对的相对顺序保持一致**。
-- 视图可串行化：**对应读操作读到的值一致**，且**每个数据项的最终写入者一致**。
+- 冲突可串行化： **所有冲突操作对的相对顺序保持一致** 。
+- 视图可串行化： **对应读操作读到的值一致** ，且 **每个数据项的最终写入者一致** 。
 
 以 Schedule 1 和 Schedule 3 为例：
 
@@ -814,7 +814,7 @@ A = 50, B = 110, A + B = 160
 
 ### Conflict Equivalent
 
-如果一个 schedule `S` 可以通过一系列**非冲突相邻操作交换**变成另一个 schedule `S'`，则：
+如果一个 schedule `S` 可以通过一系列 **非冲突相邻操作交换** 变成另一个 schedule `S'`，则：
 
 ```text
 S 和 S' conflict equivalent
@@ -1216,20 +1216,20 @@ preferably cascadeless
 
 只给出协议类型的概览，具体机制在后续并发控制章节展开。
 
-**Lock-Based Protocols（基于锁的协议）**：
+**Lock-Based Protocols（基于锁的协议）** ：
 
 - 访问数据前先申请锁
 - 锁粒度可以很粗，也可以很细，例如 whole database lock 或 data item lock
 - 读通常申请 shared lock，写通常申请 exclusive lock
 - 核心问题是：锁什么时候申请，持有多久，什么时候释放
 
-**Timestamp-Based Protocols（基于时间戳的协议）**：
+**Timestamp-Based Protocols（基于时间戳的协议）** ：
 
 - 事务开始时分配时间戳
 - 数据项维护读时间戳和写时间戳
 - 系统用时间戳判断访问是否违反事务的逻辑先后顺序
 
-**Validation-Based Protocols（基于验证的协议）**：
+**Validation-Based Protocols（基于验证的协议）** ：
 
 - 属于 optimistic concurrency control
 - 适合冲突率较低的场景

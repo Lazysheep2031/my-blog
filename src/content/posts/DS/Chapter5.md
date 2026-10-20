@@ -15,7 +15,7 @@ draft: false
 - 它没有通用语言那样完整的表达能力
 - 像 打印报表、和用户交互、把结果发给 GUI、走网络请求 这些操作，SQL 本身做不了
 
-所以数据库程序员必须把 **SQL** 和 **宿主语言**（Java、C、C++、Python 等）结合起来。
+所以数据库程序员必须把 **SQL** 和 **宿主语言** （Java、C、C++、Python 等）结合起来。
 
 - **SQL 擅长描述要什么数据**
 - **通用语言擅长控制流程、组织交互、处理外部资源**
@@ -47,8 +47,8 @@ draft: false
 - 编译时先由预处理器把嵌入式 SQL 翻译成函数调用
 - 运行时再通过底层 API 连库并执行
 
-- **API**：你自己显式写 调用数据库接口 的代码
-- **Embedded SQL**：你把 SQL 写在程序里，编译器/预处理器帮你翻译
+- **API** ：你自己显式写 调用数据库接口 的代码
+- **Embedded SQL** ：你把 SQL 写在程序里，编译器/预处理器帮你翻译
 
 
 ### JDBC
@@ -117,7 +117,7 @@ while (rset.next()) {
 
 - `executeQuery()` 用于返回结果表的查询
 - `rset.next()` 把游标推进到下一行
-- 取列值可以按 **列名**，也可以按 **列号**
+- 取列值可以按 **列名** ，也可以按 **列号**
 
 例如：
 
@@ -179,7 +179,7 @@ select * from instructor where name = 'X' or 'Y' = 'Y'
 X'; update instructor set salary = salary + 10000;(这太爽了)
 ```
 
-这就是 **SQL injection（SQL 注入）**。
+这就是 **SQL injection（SQL 注入）** 。
 :::
 
 所以经验规则非常简单：
@@ -194,7 +194,7 @@ X'; update instructor set salary = salary + 10000;(这太爽了)
 
 JDBC 不只是 查数据 ，它还能 查数据库自己的结构信息 。
 
-这类信息叫 **metadata（元数据）**，也就是 关于数据的数据 。
+这类信息叫 **metadata（元数据）** ，也就是 关于数据的数据 。
 
 **1. `ResultSetMetaData`**
 
@@ -233,7 +233,7 @@ ResultSet rs = dbmd.getColumns(null, "univdb", "department", "%");
 
 #### JDBC 中的事务控制
 
-默认情况下，JDBC **每执行一条 SQL 就自动提交一次**。
+默认情况下，JDBC **每执行一条 SQL 就自动提交一次** 。
 
 这叫 `auto commit`。
 
@@ -302,7 +302,7 @@ slides 提到：JDBC 很灵活，但 太动态 了。
 - 很多 SQL 错误只有运行时才能发现
 - 编译器很难提前帮你检查
 
-于是出现了 **SQLJ**，可以把 SQL 更紧密地嵌入 Java：
+于是出现了 **SQLJ** ，可以把 SQL 更紧密地嵌入 Java：
 
 ```java
 #sql iterator deptInfoIter (String dept_name, int avgSal);
@@ -426,10 +426,10 @@ while (SQLFetch(stmt) == SQL_SUCCESS) {
 
 ODBC 程序通常会维护多层句柄：
 
-- **环境句柄**：整个 ODBC 运行环境
-- **连接句柄**：某个具体数据源连接
-- **语句句柄**：某条 SQL 语句的执行上下文
-- **描述符句柄**：参数/结果集元数据描述
+- **环境句柄** ：整个 ODBC 运行环境
+- **连接句柄** ：某个具体数据源连接
+- **语句句柄** ：某条 SQL 语句的执行上下文
+- **描述符句柄** ：参数/结果集元数据描述
 
 它们是分层的：
 
@@ -568,7 +568,7 @@ slides 也专门用 ODBC 再次强调了 SQL injection 的风险，所以要记�
 
 ### Embedded SQL
 
-Embedded SQL 是另一条非常经典的路线：**不是在程序里手工调用一堆 API，而是把 SQL 直接嵌入宿主语言源码中。**
+Embedded SQL 是另一条非常经典的路线： **不是在程序里手工调用一堆 API，而是把 SQL 直接嵌入宿主语言源码中。**
 
 - **SQL 是 computation incomplete（计算不完备）**
 - **SQL 是 resource incomplete（资源不完备）**
@@ -600,7 +600,7 @@ EXEC SQL <embedded SQL statement>;
 - Java
 - Cobol
 
-这些语言就叫 **host language（宿主语言）**。
+这些语言就叫 **host language（宿主语言）** 。
 
 不同语言的标记方式略有差异：
 
@@ -641,7 +641,7 @@ where tot_cred > :credit_amount
 
 **1. SQLCA**
 
-`SQLCA` 可以理解为 **SQL Communication Area**，它保存最近一次 SQL 执行后的状态信息。
+`SQLCA` 可以理解为 **SQL Communication Area** ，它保存最近一次 SQL 执行后的状态信息。
 
 最常见的是看：
 
@@ -666,7 +666,7 @@ else printf("Success!\n");
 
 **2. SQLDA**
 
-`SQLDA` 可以理解为 **SQL Descriptor Area**。
+`SQLDA` 可以理解为 **SQL Descriptor Area** 。
 
 它更偏 描述信息 ，主要用于管理：
 
@@ -749,7 +749,7 @@ where account_number = :account_no;
 
 **null 怎么传到宿主语言里？**
 
-因为像 C 里的 `int balance;` 本身没有 SQL null 这个概念，所以通常要再配一个 **indicator variable**：
+因为像 C 里的 `int balance;` 本身没有 SQL null 这个概念，所以通常要再配一个 **indicator variable** ：
 
 ```c
 int balance;
@@ -774,7 +774,7 @@ where account_number = :account_no;
 
 如果查询结果可能有多行，就不能只靠简单的 `select ... into` 一次装完。
 
-这时要用 **cursor（游标）**。
+这时要用 **cursor（游标）** 。
 
 你可以把它理解成：
 
@@ -825,7 +825,7 @@ EXEC SQL close c;
 
 临时结果被释放。
 
-当结果取完时，SQLCA 中的 `SQLSTATE` 会变成 `'02000'`，表示 **no more data**。
+当结果取完时，SQLCA 中的 `SQLSTATE` 会变成 `'02000'`，表示 **no more data** 。
 
 完整流程：
 
@@ -846,7 +846,7 @@ EXEC SQL close account_cursor;
 
 这个例子比抽象语法更直观：
 
-- `declare cursor` 只是**定义查询模板**
+- `declare cursor` 只是 **定义查询模板**
 - `open` 才真正执行
 - 每次 `fetch` 只拿一行
 - 用循环不断取，直到 `sqlcode` 表示无更多数据
@@ -984,7 +984,7 @@ EXEC SQL execute dynprog using :account;
 
 ### 函数 `function`
 
-最简单的例子是一个**标量函数**：给定院系名，返回该院系教师人数。
+最简单的例子是一个 **标量函数** ：给定院系名，返回该院系教师人数。
 
 ```sql
 create function dept_count(dept_name varchar(20))
@@ -1076,15 +1076,15 @@ call dept_count_proc('Physics', d_count);
 
 函数和过程的直观区别可以这样理解：
 
-- **function**：更像 表达式 ，常常直接写进查询里
-- **procedure**：更像 执行一个动作 
+- **function** ：更像 表达式 ，常常直接写进查询里
+- **procedure** ：更像 执行一个动作 
 
 当然不同 DBMS 的具体限制不完全一样，但这个直觉通常成立。
 
 
 ### 过程化控制结构
 
-slides 这里讲的是 SQL 的**procedural extension**。
+slides 这里讲的是 SQL 的 **procedural extension** 。
 
 也就是说，SQL 不只是查表语言，它还加入了：
 
@@ -1128,8 +1128,8 @@ END;         -- 必选
 
 此外，PL/SQL 里还有两类 block：
 
-- **anonymous block**：匿名块，没有名字，写完立即执行
-- **named block**：有名字的块，例如 procedure、function
+- **anonymous block** ：匿名块，没有名字，写完立即执行
+- **named block** ：有名字的块，例如 procedure、function
 
 所以从课程视角看：
 
@@ -1271,7 +1271,7 @@ end repeat;
 
 #### `for`
 
-SQL 的 `for` 很常见的一种用法是：**遍历查询结果**。
+SQL 的 `for` 很常见的一种用法是： **遍历查询结果** 。
 
 ```sql
 declare n integer default 0;
@@ -1343,7 +1343,7 @@ end;
 
 这里的含义是：
 
-- 查询必须返回**恰好一行**
+- 查询必须返回 **恰好一行**
 - `INTO` 子句是必需的
 - 返回列值直接放入变量
 
@@ -1378,7 +1378,7 @@ end;
 
 它和前面 Embedded SQL 的 `open / fetch / close` 逻辑完全一致，只不过这里变量直接是数据库内部变量。
 
-此外，PL/SQL 还给了若干 **显式游标属性**：
+此外，PL/SQL 还给了若干 **显式游标属性** ：
 
 - `c%ISOPEN`：游标是否打开
 - `c%FOUND`：最近一次 `fetch` 是否成功返回一行
@@ -1392,7 +1392,7 @@ end;
 
 #### 隐式 SQL 游标属性：看最近一条 SQL 影响了几行
 
-除了显式 cursor，PL/SQL 还有一个经常出现在工程代码里的东西：**隐式 SQL cursor 属性**。
+除了显式 cursor，PL/SQL 还有一个经常出现在工程代码里的东西： **隐式 SQL cursor 属性** 。
 
 每次执行完一条 SQL 语句后，系统其实都自动维护了一个隐式游标，可以通过下面这些属性查看：
 
@@ -1576,11 +1576,11 @@ trigger 是：
 
 ### ECA 规则
 
-trigger 常被概括成 **ECA**：
+trigger 常被概括成 **ECA** ：
 
-- **E = Event**：什么事件触发？`insert / delete / update`
-- **C = Condition**：满足什么条件才执行？
-- **A = Action**：满足条件后做什么？
+- **E = Event** ：什么事件触发？`insert / delete / update`
+- **C = Condition** ：满足什么条件才执行？
+- **A = Action** ：满足条件后做什么？
 
 所以一个 trigger 设计，本质上要回答三件事：
 
@@ -1732,7 +1732,7 @@ end;
 - `takes.grade` 改了
 - `student.tot_cred` 自动跟着更新
 
-也就是：**把派生数据维护自动化**。
+也就是： **把派生数据维护自动化** 。
 
 
 ### `for each row` vs `for each statement`
@@ -1768,7 +1768,7 @@ begin
 end;
 ```
 
-这里 `new_table` 是 **transition table**，保存这条语句影响到的所有新行。
+这里 `new_table` 是 **transition table** ，保存这条语句影响到的所有新行。
 
 这个 trigger 的意思是：
 
@@ -1810,7 +1810,7 @@ trigger 里只要有 bug，就可能让本来重要的更新失败。
 
 所以经验上：
 
-- trigger 很适合**小而清晰的自动反应逻辑**
+- trigger 很适合 **小而清晰的自动反应逻辑**
 - 不适合堆太复杂、太隐蔽的业务流程
 
 
@@ -1879,7 +1879,7 @@ where rec_prereq.prereq_id = prereq.course_id
 
 不断重复，直到不再产生新元组为止。
 
-这个结果就叫 **transitive closure（传递闭包）**。
+这个结果就叫 **transitive closure（传递闭包）** 。
 
 
 ### 为什么非递归 SQL 做不好这类问题
@@ -1890,7 +1890,7 @@ where rec_prereq.prereq_id = prereq.course_id
 - 连两次 `prereq`
 - 连三次 `prereq`
 
-也就是说，**连接层数是写死的**。
+也就是说， **连接层数是写死的** 。
 
 但真实数据库里：
 
@@ -1990,7 +1990,7 @@ order by s_rank;
 
 `rank()` 的特点是：
 
-- 并列名次会**跳号**
+- 并列名次会 **跳号**
 
 例如前两名并列第一，那么下一名是第三。
 
@@ -2082,7 +2082,7 @@ from student_grades;
 
 窗口函数不只做排名，也能做 滑动聚合 。
 
-经典例子是**移动平均**。
+经典例子是 **移动平均** 。
 
 给定：
 
@@ -2164,14 +2164,14 @@ order by account_number, date_time;
 - 在该账户内部按时间排序
 - 从第一笔到当前笔全部累加
 
-这就是 **running total（累计和）**。
+这就是 **running total（累计和）** 。
 
 
 ### OLAP
 
 ### 什么是 OLAP
 
-OLAP = **Online Analytical Processing**。
+OLAP = **Online Analytical Processing** 。
 
 核心不是事务处理，而是：
 
@@ -2305,7 +2305,7 @@ sales(item_name, color, clothes_size, quantity)
 
 ### `cube`
 
-`cube` 会对指定属性的**每个子集**都做分组聚合。
+`cube` 会对指定属性的 **每个子集** 都做分组聚合。
 
 例如：
 
@@ -2372,7 +2372,7 @@ group by rollup(item_name, color);
 
 ### `rollup`
 
-`rollup` 和 `cube` 类似，但只对**前缀分组**做聚合。
+`rollup` 和 `cube` 类似，但只对 **前缀分组** 做聚合。
 
 例如：
 
@@ -2508,14 +2508,14 @@ OLAP 系统实现上也分路线：
 - `(item_name, color)` 的汇总
 - 可以从 `(item_name, color, size)` 的汇总再聚出来
 
-这对像 `sum/count` 这样的**可分解聚合**尤其适用。
+这对像 `sum/count` 这样的 **可分解聚合** 尤其适用。
 
 而像 `median` 这种 非可分解聚合 ，就没这么方便。
 
 
 ## `merge`
 
-它适合做**批量更新合并**。
+它适合做 **批量更新合并** 。
 
 例如有一张：
 

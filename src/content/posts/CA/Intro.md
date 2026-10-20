@@ -11,8 +11,8 @@ draft: false
 
 ### 总体分配
 
-- **期末考试（Final Examination）**: 40%，40 分
-- **过程考核（Process Assessment）**: 60%，60 分
+- **期末考试（Final Examination）** : 40%，40 分
+- **过程考核（Process Assessment）** : 60%，60 分
 
 ### 过程考核细分
 

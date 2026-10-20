@@ -129,13 +129,13 @@ for (auto it = v.begin(); it != v.end(); ++it)
 
 ## Map Iterators
 
-`std::map<K, V>` 的 iterator **解引用不是 value**，而是一个键值对：
+`std::map<K, V>` 的 iterator **解引用不是 value** ，而是一个键值对：
 
 > `std::pair<const K, V>`
 
 也就是说：
 
-- `key` 是 **const**（不能改）
+- `key` 是 **const** （不能改）
 - `value` 可以改
 
 > [!NOTE]
@@ -205,7 +205,7 @@ if (it == m.end()) {
 
 ## Further Iterator Usages：`lower_bound` / `upper_bound` 与区间遍历
 
-在 **有序关联容器**（`set/map/multiset/multimap`）里，我们可以用 `lower_bound` 和 `upper_bound` 拿到一个 **iterator 区间**，再像遍历 `[begin, end)` 一样遍历这个区间。
+在 **有序关联容器** （`set/map/multiset/multimap`）里，我们可以用 `lower_bound` 和 `upper_bound` 拿到一个 **iterator 区间** ，再像遍历 `[begin, end)` 一样遍历这个区间。
 
 ---
 
@@ -217,7 +217,7 @@ if (it == m.end()) {
 如果不存在对应元素，返回 `end()`（past-the-end）。
 
 > [!NOTE]
-> 它们返回的都是 **iterator**，因此可以直接用来构造一个半开区间：
+> 它们返回的都是 **iterator** ，因此可以直接用来构造一个半开区间：
 > `[lower_bound(k1), upper_bound(k2))`
 
 ```cpp
@@ -232,7 +232,7 @@ while (iter != end) {
 }
 ```
 
-这个例子体现了：**iterator 不仅能遍历整个容器，也能遍历容器中的“一个子区间”。**
+这个例子体现了： **iterator 不仅能遍历整个容器，也能遍历容器中的“一个子区间”。**
 
 > [!TIP]  
 > 记住一句话：  
@@ -243,7 +243,7 @@ while (iter != end) {
 
 ## Iterator Types
 
-STL 的核心思想之一：**算法不依赖容器本身，而依赖 iterator 的“能力”**。  
+STL 的核心思想之一： **算法不依赖容器本身，而依赖 iterator 的“能力”** 。  
 因此不同容器的 iterator 类型不同，会直接决定你能用哪些算法（例如：`std::sort`）。
 
 > [!NOTE]
@@ -294,7 +294,7 @@ algo(begin, end, ...);
 - Bidirectional / Forward：可能需要一步步走 → O(n)
 
 > [!NOTE]  
-> 所以写泛型代码时，**iterator 类型会影响性能**，不仅影响“能不能编译”。
+> 所以写泛型代码时， **iterator 类型会影响性能** ，不仅影响“能不能编译”。
 
 ---
 
@@ -317,7 +317,7 @@ algo(begin, end, ...);
 
 ## The Result：Iterator 带来的抽象收益
 
-> Iterator 让我们可以用**同一套遍历代码**完成某个“逻辑动作”，而**不需要关心底层容器是什么数据结构**。
+> Iterator 让我们可以用 **同一套遍历代码** 完成某个“逻辑动作”，而 **不需要关心底层容器是什么数据结构** 。
 
 只要容器支持：
 
@@ -342,7 +342,7 @@ int numOccurrences(set<int>& cont, int elemToCount) {
 
 > [!TIP]  
 > 这体现了 STL 的核心思想：  
-> **容器提供 iterator，算法/逻辑只依赖 iterator 工作**，从而做到“代码与底层数据结构解耦”。
+> **容器提供 iterator，算法/逻辑只依赖 iterator 工作** ，从而做到“代码与底层数据结构解耦”。
 
 ---
 
@@ -461,7 +461,7 @@ for (auto it = begin; it != end; ++it)
 
 ## Iterator + Algorithms：用 `[begin, end)` 描述范围
 
-STL 算法通常不直接接收 “容器”，而是接收一个 **iterator 范围**：
+STL 算法通常不直接接收 “容器”，而是接收一个 **iterator 范围** ：
 
 > `[begin, end)`（左闭右开区间）
 
@@ -476,7 +476,7 @@ std::sort(vec.begin(), vec.end());
 ```
 
 - `vec.begin()`：指向第一个元素
-- `vec.end()`：**指向最后一个元素的后一个位置（past-the-end）**  
+- `vec.end()`： **指向最后一个元素的后一个位置（past-the-end）**  
    不是元素本身，因此 **不能解引用** `*vec.end()`。
 
 > [!NOTE]  
@@ -497,18 +497,18 @@ if (it == vec.end()) {
 ```
 
 - 找到：返回指向目标元素的 iterator
-- **没找到：返回 `end()`**（也就是“末尾后一个位置”）
+- **没找到：返回 `end()`** （也就是“末尾后一个位置”）
 
 > [!WARNING]  
 > “没找到”并不是返回最后一个元素，也不是返回某个空值，  
-> 而是返回 `end()` —— 这是一个合法 iterator，但**不可解引用**。
+> 而是返回 `end()` —— 这是一个合法 iterator，但 **不可解引用** 。
 
 > [!TIP]  
 > 判断 find 是否成功的标准写法就是：  
 > `if (it == cont.end())` → 没找到  
 > `else` → 找到了，可以安全使用 `*it` 或 `it->...`
 
-- **`std::find` 是线性查找 O(n)**，而 `map/set` 应该用成员函数 `find`（对有序关联容器是 `O(log n)`）。
+- **`std::find` 是线性查找 O(n)** ，而 `map/set` 应该用成员函数 `find`（对有序关联容器是 `O(log n)`）。
 
 ---
 

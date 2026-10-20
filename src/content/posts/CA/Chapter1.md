@@ -232,8 +232,8 @@ $$\frac{Performance_A}{Performance_B}=\frac{15}{10}=1.5$$
 - 其他程序占用 CPU 的时间
 
 通常又可以分为：
-- **User CPU time**：程序本身使用 CPU 的时间
-- **System CPU time**：操作系统为该程序服务所花的 CPU 时间
+- **User CPU time** ：程序本身使用 CPU 的时间
+- **System CPU time** ：操作系统为该程序服务所花的 CPU 时间
 
 
 ## Quantitative Approaches
@@ -251,10 +251,10 @@ $$\frac{Performance_A}{Performance_B}=\frac{15}{10}=1.5$$
 
 1. 数据大小的基本单位
 
-- **bit**：二进制位
-- **nibble**：4 bits
-- **byte**：8 bits
-- **word**：字长  
+- **bit** ：二进制位
+- **nibble** ：4 bits
+- **byte** ：8 bits
+- **word** ：字长  
   - 在很多嵌入式/移动处理器中常为 4 bytes（32 bits）
   - 在很多桌面机/服务器中常为 8 bytes（64 bits）
 
@@ -286,9 +286,9 @@ $$
 
 其中：
 
-- **CPU Clock Cycles**：程序执行所需总时钟周期数
-- **Clock Cycle Time**：时钟周期长度
-- **Clock Rate**：时钟频率，满足
+- **CPU Clock Cycles** ：程序执行所需总时钟周期数
+- **Clock Cycle Time** ：时钟周期长度
+- **Clock Rate** ：时钟频率，满足
 
 $$
 Clock\ Rate = \frac{1}{Clock\ Cycle\ Time}
@@ -335,7 +335,7 @@ $$
 可知，提升性能（即减少 CPU Time）的方法有两种：
 
 - **减少 Clock Cycles**
-- **减小 Clock Cycle Time**（等价于提高 Clock Rate）
+- **减小 Clock Cycle Time** （等价于提高 Clock Rate）
 
 :::TIP
 硬件设计中常常存在 trade-off：
@@ -439,7 +439,7 @@ CPU 执行时间由三个因素共同决定：
 
 1. **Instruction Count**
 2. **CPI**
-3. **Clock Cycle Time**（或 Clock Rate）
+3. **Clock Cycle Time** （或 Clock Rate）
 
 即：
 
@@ -447,9 +447,9 @@ $$
 CPU\ Time = IC \times CPI \times Clock\ Cycle\ Time
 $$
 
-- **IC**：程序需要多少条指令
-- **CPI**：每条指令平均花多少周期
-- **Clock Cycle Time**：每个周期有多长
+- **IC** ：程序需要多少条指令
+- **CPI** ：每条指令平均花多少周期
+- **Clock Cycle Time** ：每个周期有多长
 
 分析 CPU 性能时，不能只看单一指标，比如：
 - 时钟频率高，不一定更快
@@ -473,7 +473,7 @@ $$
 \frac{Instruction\ Count_i}{Instruction\ Count}
 $$
 
-表示第 $i$ 类指令在程序中的**相对频率**。
+表示第 $i$ 类指令在程序中的 **相对频率** 。
 
 
 ### Amdahl’s Law
@@ -543,7 +543,7 @@ $$
 
 这说明：
 - 能优化的部分再快也不是无限提升
-- 真正卡上限的是**不能优化的那部分**
+- 真正卡上限的是 **不能优化的那部分**
 
 2. **应优先优化占时间最多的部分**
 若某部分只占总时间 5%，即使把它加速 100 倍，整体收益也很有限。  
@@ -631,7 +631,7 @@ $$
 
 ## ISA
 
-ISA = **Instruction Set Architecture**，即**指令集体系结构**。  
+ISA = **Instruction Set Architecture** ，即 **指令集体系结构** 。  
 它规定了程序员可见的机器接口，因此常被称为：
 
 > **hardware / software interface**
@@ -704,15 +704,15 @@ $$
 - 2 地址
 - 3 地址
 
-这里的“地址”可以理解为：**一条指令里，显式写出来的操作数个数**（通常是寄存器号/内存地址，不含隐式操作数）。
+这里的“地址”可以理解为： **一条指令里，显式写出来的操作数个数** （通常是寄存器号/内存地址，不含隐式操作数）。
 
-- **0 地址指令**：不写操作数，操作数默认在栈顶（隐式）。
+- **0 地址指令** ：不写操作数，操作数默认在栈顶（隐式）。
   - 例：`add`（默认取栈顶两个数相加）
-- **1 地址指令**：写 1 个显式操作数，另一个操作数通常是隐式累加器 `ACC`。
+- **1 地址指令** ：写 1 个显式操作数，另一个操作数通常是隐式累加器 `ACC`。
   - 例：`ADD X`，语义常为 `ACC = ACC + M[X]`
-- **2 地址指令**：写 2 个显式操作数，常见语义是“第一个既是源也是目的”。
+- **2 地址指令** ：写 2 个显式操作数，常见语义是“第一个既是源也是目的”。
   - 例：`ADD R1, R2`，语义常为 `R1 = R1 + R2`
-- **3 地址指令**：写 3 个显式操作数，两个源 + 一个目的。
+- **3 地址指令** ：写 3 个显式操作数，两个源 + 一个目的。
   - 例：`ADD R3, R1, R2`，语义为 `R3 = R1 + R2`
 
 一般来说，地址数越多，单条指令表达能力越强，但指令编码与硬件实现也会更复杂。
@@ -784,7 +784,7 @@ $$
 
 其中：
 
-- Stack 和 Accumulator 都有**隐式操作数**
+- Stack 和 Accumulator 都有 **隐式操作数**
 - Register-memory 和 Load-store 都属于 **GPR（通用寄存器）** 思路
 - 区别在于 ALU 指令能不能直接访问内存
 
@@ -798,7 +798,7 @@ $$
 
 补充：
 
-- **Memory-memory architecture**，属于扩展知识点
+- **Memory-memory architecture** ，属于扩展知识点
   - 它把操作数直接放在内存里计算，但现代通用处理器中并不主流
 
 
@@ -901,7 +901,7 @@ $$
 2. 再算 `A + C * B`
 3. 最后做减法
 
-不同 ISA 的区别，主要体现在**中间结果存放位置**。
+不同 ISA 的区别，主要体现在 **中间结果存放位置** 。
 
 1. Stack
 

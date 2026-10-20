@@ -327,7 +327,7 @@ T max_value(T a, T b) {
 
 模板本身是一个“板子”，不是最终运行的函数代码。只有当具体类型被用到时，编译器才会根据模板生成真实函数。
 
-这个过程叫 **template instantiation（模板实例化）**。
+这个过程叫 **template instantiation（模板实例化）** 。
 
 例如：
 
@@ -685,7 +685,7 @@ Vector<Func> funcs;
 
 ### Non-type template parameters
 
-模板参数除了类型，也可以是编译期常量值。这叫 **non-type template parameter**。
+模板参数除了类型，也可以是编译期常量值。这叫 **non-type template parameter** 。
 
 常见用途：把数组长度作为模板参数。
 
@@ -1364,7 +1364,7 @@ double newton_solve(const Problem<Derived>& p, double x0, ...)
 
 ### CRTP 的特点
 
-CRTP 可以看成一种 **static polymorphism（静态多态）**。
+CRTP 可以看成一种 **static polymorphism（静态多态）** 。
 
 | 方式 | 调用机制 | 接口形式 | 开销 | 适合场景 |
 |---|---|---|---|---|

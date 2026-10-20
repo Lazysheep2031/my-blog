@@ -23,9 +23,9 @@ draft: false
 
 通常从三个方面评价存储介质：
 
-1. **Speed**：访问数据有多快
-2. **Cost per unit of data**：单位容量成本有多高
-3. **Reliability**：数据在断电、系统崩溃、设备损坏时是否可靠
+1. **Speed** ：访问数据有多快
+2. **Cost per unit of data** ：单位容量成本有多高
+3. **Reliability** ：数据在断电、系统崩溃、设备损坏时是否可靠
 
 更快的设备通常更贵，容量也更小。更便宜的设备通常更慢，但能存更多数据。
 
@@ -223,11 +223,11 @@ magnetic tape
 
 一个磁盘通常由以下部分组成：
 
-- **platter（盘片）**：圆形盘片，表面覆盖磁性材料
-- **spindle（主轴）**：带动盘片高速旋转
-- **read-write head（读写磁头）**：靠近盘片表面，读写磁性编码信息
-- **disk arm（磁臂）**：带动磁头移动到不同磁道
-- **arm assembly（磁臂组件）**：多个磁头共用的机械组件
+- **platter（盘片）** ：圆形盘片，表面覆盖磁性材料
+- **spindle（主轴）** ：带动盘片高速旋转
+- **read-write head（读写磁头）** ：靠近盘片表面，读写磁性编码信息
+- **disk arm（磁臂）** ：带动磁头移动到不同磁道
+- **arm assembly（磁臂组件）** ：多个磁头共用的机械组件
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202604281345508.png" alt="Magnetic Hard Disk Mechanism" style="width: 520px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
@@ -392,7 +392,7 @@ block size 有权衡：
 
 #### Sequential Access
 
-**Sequential access pattern（顺序访问模式）**：
+**Sequential access pattern（顺序访问模式）** ：
 
 - 连续请求相邻 disk blocks
 - 第一个 block 可能需要 seek
@@ -408,7 +408,7 @@ block size 有权衡：
 
 #### Random Access
 
-**Random access pattern（随机访问模式）**：
+**Random access pattern（随机访问模式）** ：
 
 - 每次请求的位置可能在磁盘任意地方
 - 每次访问都可能需要 seek
@@ -479,7 +479,7 @@ Flash memory 主要有两类：
 - NOR flash
 - NAND flash
 
-数据库存储和 SSD 中主要使用 **NAND flash**。
+数据库存储和 SSD 中主要使用 **NAND flash** 。
 
 NAND flash 的特点：
 
@@ -821,13 +821,13 @@ rebuild 时间越长，系统处于降级状态的时间越长，风险越高。
 
 #### Software RAID vs Hardware RAID
 
-**Software RAID**：
+**Software RAID** ：
 
 - 由操作系统 / 软件管理 RAID
 - 成本低
 - 故障恢复和一致性检查可能更慢
 
-**Hardware RAID**：
+**Hardware RAID** ：
 
 - 专用 RAID controller 管理
 - 常有 non-volatile RAM 记录未完成写入
@@ -900,7 +900,7 @@ rebuild 时间越长，系统处于降级状态的时间越长，风险越高。
 
 **Disk-arm scheduling** 的目标是重排多个磁盘请求，让磁臂移动距离更小。
 
-典型算法：**elevator algorithm（电梯算法）**。
+典型算法： **elevator algorithm（电梯算法）** 。
 
 思路类似电梯：
 

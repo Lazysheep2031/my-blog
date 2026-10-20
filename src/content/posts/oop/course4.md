@@ -11,10 +11,10 @@ draft: false
 
 一个 C++ 程序运行时，通常可以粗略分成下面几块区域：
 
-1. **代码区（text/code segment）**：放函数机器指令，以及一部分只读数据。
-2. **全局/静态区（data segment / bss segment）**：放全局变量、静态变量。
-3. **栈（stack）**：放函数调用过程中产生的局部变量、参数等。
-4. **堆（heap）**：放运行时动态申请出来的对象，也就是 `new` / `malloc` 得到的内存。
+1. **代码区（text/code segment）** ：放函数机器指令，以及一部分只读数据。
+2. **全局/静态区（data segment / bss segment）** ：放全局变量、静态变量。
+3. **栈（stack）** ：放函数调用过程中产生的局部变量、参数等。
+4. **堆（heap）** ：放运行时动态申请出来的对象，也就是 `new` / `malloc` 得到的内存。
 
 
 ### 不同变量通常放在哪里
@@ -33,12 +33,12 @@ void f(int x)   // function params.
 
 可以对应成：
 
-- `i`：全局变量，通常在**全局/静态区**
-- `j`：静态全局变量，也在**全局/静态区**
-- `x`：函数参数，通常在**栈**
-- `k`：局部变量，通常在**栈**
-- `l`：静态局部变量，在**全局/静态区**
-- `p`：指针变量本身通常在**栈**，但 `malloc` 出来的那块匿名内存在**堆**
+- `i`：全局变量，通常在 **全局/静态区**
+- `j`：静态全局变量，也在 **全局/静态区**
+- `x`：函数参数，通常在 **栈**
+- `k`：局部变量，通常在 **栈**
+- `l`：静态局部变量，在 **全局/静态区**
+- `p`：指针变量本身通常在 **栈** ，但 `malloc` 出来的那块匿名内存在 **堆**
 
 > **指针变量本身放在哪，和它所指向的对象放在哪，是两回事。**
 
@@ -105,7 +105,7 @@ int main() {
 
 ### 局部变量
 
-局部变量最核心的性质是 **automatic storage duration（自动存储期）**。
+局部变量最核心的性质是 **automatic storage duration（自动存储期）** 。
 
 ```cpp
 int foo(int x) {
@@ -136,7 +136,7 @@ int foo(int x) {
 
 ### 编译单元
 
-一个 `.cpp` 文件连同它 `#include` 展开的头文件内容，构成一个 **translation unit（编译单元）**。
+一个 `.cpp` 文件连同它 `#include` 展开的头文件内容，构成一个 **translation unit（编译单元）** 。
 
 所以如果工程里有：
 
@@ -167,8 +167,8 @@ int global_f(int) {    // function definition
 
 这里：
 
-- `int global_x = 3;` 是**定义**
-- `int global_f(int) { ... }` 是**定义**
+- `int global_x = 3;` 是 **定义**
+- `int global_f(int) { ... }` 是 **定义**
 
 > 真正创建了这个实体。
 
@@ -180,7 +180,7 @@ extern int global_x;   // variable declaration
 int global_f(int);     // function declaration
 ```
 
-它们是**声明（declaration）**。
+它们是 **声明（declaration）** 。
 
 声明的作用是：
 
@@ -338,15 +338,15 @@ private:
 
 这个写法体现了单例模式的几个核心点：
 
-1. **构造函数私有**：外部不能随便构造对象
-2. **拷贝/赋值删除**：防止复制出第二个实例
+1. **构造函数私有** ：外部不能随便构造对象
+2. **拷贝/赋值删除** ：防止复制出第二个实例
 3. **通过 `instance()` 提供访问入口**
 4. **函数内 `static` 局部对象保证只初始化一次**
 
 它相比直接写全局变量有两个常见优点：
 
-- **does not pollute the global namespace**：不会把名字直接扔进全局命名空间
-- **permits lazy initialization**：第一次真正用到时才创建对象
+- **does not pollute the global namespace** ：不会把名字直接扔进全局命名空间
+- **permits lazy initialization** ：第一次真正用到时才创建对象
 
 所以单例模式可以理解成：
 
@@ -367,7 +367,7 @@ private:
 - 对象需要跨越当前函数继续存在
 - 需要构造数量不固定的节点、树、图等结构
 
-这时就会用到 **dynamic storage duration（动态存储期）**。
+这时就会用到 **dynamic storage duration（动态存储期）** 。
 
 ### `new/delete` 与 `malloc/free` 的区别
 
@@ -448,7 +448,7 @@ size_t *pc = (size_t*) pa;
 
 很多实现为了让 `delete[]` 知道要析构多少个对象，会在返回给用户的数组首地址前面偷偷存一点“隐藏信息”。
 
-比如元素个数，也就是常说的 **array cookie**。
+比如元素个数，也就是常说的 **array cookie** 。
 如果查看 `pc - 1`，本质上是在“往前看一格，看看前面是不是藏了 size”。
 
 是很多实现中的常见做法
@@ -668,7 +668,7 @@ func(i * 3);  // Error
 也就是说，非常量左值引用必须绑定到一个真正“有名字、可持续存在”的对象上。
 
 2. **No reference to reference**
-3. **No pointer to reference**，但可以有 **reference to pointer**
+3. **No pointer to reference** ，但可以有 **reference to pointer**
 
 ```cpp
 int&* p;        // illegal
@@ -828,7 +828,7 @@ char* s = "Hello, world!";
 char a[] = "Hello, world!";
 ```
 
-1. 字符串字面量通常放在**代码/只读数据区**
+1. 字符串字面量通常放在 **代码/只读数据区**
 2. 所以 `s` 更合理的类型应该是：
 
 ```cpp
@@ -856,7 +856,7 @@ void print(const std::string& s);
 
 它同时满足三件事：
 
-1. **不拷贝大对象**，避免额外开销
-2. **只读访问**，防止函数内部误改参数
-3. **语义清晰**，调用者一看就知道这是“只读借用”
+1. **不拷贝大对象** ，避免额外开销
+2. **只读访问** ，防止函数内部误改参数
+3. **语义清晰** ，调用者一看就知道这是“只读借用”
 

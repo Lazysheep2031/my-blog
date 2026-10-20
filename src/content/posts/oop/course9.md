@@ -80,7 +80,7 @@ hr
 
 所以应该构造两次、析构两次，最后 `object_count` 回到 0。
 
-但实际如果没有自己写 copy constructor，只有 `h` 的默认构造函数会执行一次。`hr = h` 对应的是 **copy construction**，由编译器自动生成的 copy constructor 完成。这个自动生成版本不会执行我们写在默认构造函数里的 `++object_count`。
+但实际如果没有自己写 copy constructor，只有 `h` 的默认构造函数会执行一次。`hr = h` 对应的是 **copy construction** ，由编译器自动生成的 copy constructor 完成。这个自动生成版本不会执行我们写在默认构造函数里的 `++object_count`。
 
 于是可能看到类似现象：
 
@@ -204,7 +204,7 @@ HowMany(const HowMany& other);
 
 如果你没有定义 copy constructor，C++ 会自动生成一个。
 
-自动生成的版本做的是 **member-wise copy**：
+自动生成的版本做的是 **member-wise copy** ：
 
 ```text
 逐个成员复制
@@ -447,9 +447,9 @@ p2.name ----/
 1. `p1` 和 `p2` 共享同一块 heap 内存；
 2. 两个对象析构时都会执行 `delete[] name`。
 
-最终会发生 **double delete**，程序可能崩溃。
+最终会发生 **double delete** ，程序可能崩溃。
 
-这类默认行为称为 **shallow copy（浅拷贝）**。
+这类默认行为称为 **shallow copy（浅拷贝）** 。
 
 ### 深拷贝的 copy constructor
 
@@ -463,7 +463,7 @@ p2.name ----> "chang"
 
 两个对象内容相同，但管理不同内存。
 
-这叫 **deep copy（深拷贝）**。
+这叫 **deep copy（深拷贝）** 。
 
 ```cpp
 #include <cstring>
@@ -537,7 +537,7 @@ a = b;         // assignment：a 已经存在，修改 a 的内容
 MyType a = b;
 ```
 
-虽然有等号，但它是 **初始化**，调用 copy constructor。
+虽然有等号，但它是 **初始化** ，调用 copy constructor。
 
 第二行：
 
@@ -545,7 +545,7 @@ MyType a = b;
 a = b;
 ```
 
-是 **赋值**，调用 copy assignment operator，也就是：
+是 **赋值** ，调用 copy assignment operator，也就是：
 
 ```cpp
 a.operator=(b);
@@ -615,7 +615,7 @@ p2.name ----/
 原来的 p2.name ----> "wang"  // 没有人再保存这个地址
 ```
 
-这就是 **memory leak（内存泄漏）**。
+这就是 **memory leak（内存泄漏）** 。
 
 所以 raw pointer 下，赋值比拷贝构造更复杂：赋值前，左侧对象已经管理着一份资源，必须先处理旧资源。
 
@@ -800,7 +800,7 @@ Person& operator=(const Person&);
 - `std::string` 已经把资源管理封装好了；
 - 编译器自动生成的 member-wise copy / assignment 会调用 `std::string` 自己的正确逻辑。
 
-这就是 **Rule of Zero**：
+这就是 **Rule of Zero** ：
 
 > 大多数情况下，不要自己写 destructor、copy constructor、copy assignment operator。让成员对象自己管理资源，让编译器生成默认行为。
 
@@ -833,7 +833,7 @@ this->p = other.p;
 
 > 如果你需要自己写 destructor 来释放资源，通常也需要自己写 copy constructor 和 copy assignment operator。
 
-这就是 **Rule of Three**。
+这就是 **Rule of Three** 。
 
 典型资源包括：
 

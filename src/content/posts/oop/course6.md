@@ -17,7 +17,7 @@ draft: false
 
 它表达的是：
 
-> **has-a**，即“有一个”。
+> **has-a** ，即“有一个”。
 
 典型例子：
 
@@ -30,8 +30,8 @@ draft: false
 
 Effective C++ Item 38 的观点：
 
-- 在应用领域里，composition 常表示 **has-a**；
-- 在实现领域里，composition 也可以表示 **is-implemented-in-terms-of**。
+- 在应用领域里，composition 常表示 **has-a** ；
+- 在实现领域里，composition 也可以表示 **is-implemented-in-terms-of** 。
 
 所以，很多时候如果只是想复用某个类的内部实现，更适合用组合，而不是公有继承。
 
@@ -208,7 +208,7 @@ void SavingsAccount::print()
 
 它表达的是：
 
-> **is-a**，即“是一个”。
+> **is-a** ，即“是一个”。
 
 典型例子：
 
@@ -316,7 +316,7 @@ void print(ostream& out) const;
 void print(ostream& out, const string& msg) const;
 ```
 
-后面会看到，派生类中重新定义同名 `print` 时，会触发 **name hiding**。
+后面会看到，派生类中重新定义同名 `print` 时，会触发 **name hiding** 。
 
 #### 声明派生类 `Manager`
 
@@ -469,7 +469,7 @@ int main () {
 
 - `bill.get_name()` 合法，因为 `Manager` 继承了 `Employee::get_name()`；
 - `bob.get_title()` 不合法，因为 `Employee` 不是 `Manager`，没有 `get_title()`；
-- `bill.print(cout, "Employee:")` 不合法，原因是 **name hiding**，后面单独讲。
+- `bill.print(cout, "Employee:")` 不合法，原因是 **name hiding** ，后面单独讲。
 
 
 ## Access protection：成员访问控制
@@ -1007,7 +1007,7 @@ int main() {
 > Public inheritance should imply substitution.
 > 如果 `B is-an A`，那么任何需要 `A` 的地方都应该可以使用 `B`。
 
-这就是 **Liskov Substitution Principle（LSP，里氏替换原则）**。
+这就是 **Liskov Substitution Principle（LSP，里氏替换原则）** 。
 
 如果：
 
@@ -1110,7 +1110,7 @@ Employee& er = pete;
 Employee e = pete;
 ```
 
-这不是上转型引用，而是创建了一个新的 `Employee` 对象副本。此时会发生 **object slicing（对象切片）**：
+这不是上转型引用，而是创建了一个新的 `Employee` 对象副本。此时会发生 **object slicing（对象切片）** ：
 
 - `Manager` 中属于 `Employee` 的基类部分被拷贝出来；
 - `Manager` 自己新增的 `m_title` 等字段被切掉；

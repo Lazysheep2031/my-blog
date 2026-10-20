@@ -17,7 +17,7 @@ $$
 \frac{dx}{dt}=f(x).
 $$
 
-这叫做 **autonomous first-order differential equation**，因为右端不显含 $t$。
+这叫做 **autonomous first-order differential equation** ，因为右端不显含 $t$。
 
 这类方程的优势是：  
 **只看 $f(x)$ 的符号，就能读出解的方向与长期行为。**
@@ -38,8 +38,8 @@ $$
 
 满足方程，因此：
 
-- $c$ 叫做 **critical point**；
-- $x(t)\equiv c$ 叫做 **equilibrium solution**。
+- $c$ 叫做 **critical point** ；
+- $x(t)\equiv c$ 叫做 **equilibrium solution** 。
 
 所以一维自治方程的第一步永远是：
 
@@ -53,7 +53,7 @@ $$
 
 设 $x=c$ 是一个 critical point。
 
-- $x=c$ **stable**，如果对任意 $\varepsilon>0$，都存在 $\delta>0$，使得
+- $x=c$ **stable** ，如果对任意 $\varepsilon>0$，都存在 $\delta>0$，使得
   $$
   |x_0-c|<\delta
   $$
@@ -62,7 +62,7 @@ $$
   |x(t)-c|<\varepsilon,\qquad \forall t>0.
   $$
 
-- 若不满足这个条件，则称为 **unstable**。
+- 若不满足这个条件，则称为 **unstable** 。
 
 几何上：
 
@@ -74,7 +74,7 @@ $$
 x(t)\to c\qquad (t\to+\infty),
 $$
 
-则它叫做 **asymptotically stable**。
+则它叫做 **asymptotically stable** 。
 
 ### One-dimensional phase line
 
@@ -97,7 +97,7 @@ $$
 
 - 两侧箭头都指向 critical point $\Rightarrow$ stable，通常还是 asymptotically stable；
 - 两侧箭头都远离 critical point $\Rightarrow$ unstable；
-- 一侧靠近、一侧远离 $\Rightarrow$ **semistable**。
+- 一侧靠近、一侧远离 $\Rightarrow$ **semistable** 。
 
 ### Logistic equation
 
@@ -137,8 +137,8 @@ $$
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202604161213017.png" alt="phase line" style="width: 320px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
-- $x=0$ 是 **unstable**；
-- $x=M$ 是 **stable**，实际上还是 **asymptotically stable**。
+- $x=0$ 是 **unstable** ；
+- $x=M$ 是 **stable** ，实际上还是 **asymptotically stable** 。
 
 #### Explicit solution and long-time behavior
 
@@ -188,8 +188,8 @@ $$
 
 于是：
 
-- $x=0$ 是 **stable**；
-- $x=M$ 是 **unstable**。
+- $x=0$ 是 **stable** ；
+- $x=M$ 是 **unstable** 。
 
 若用显式解
 
@@ -263,10 +263,10 @@ $$
 
 因此：
 
-- $x=H$ 是 **unstable**；
-- $x=N$ 是 **stable**。
+- $x=H$ 是 **unstable** ；
+- $x=N$ 是 **stable** 。
 
-这里 $x(t)\equiv H$ 很重要，它叫做 **threshold solution**：
+这里 $x(t)\equiv H$ 很重要，它叫做 **threshold solution** ：
 
 - 若 $x_0>H$，则解最终趋于 $N$；
 - 若 $x_0<H$，则种群会被捕捞拖向灭绝。
@@ -304,7 +304,7 @@ $$
 \leftarrow\quad \frac M2\quad \leftarrow
 $$
 
-因此 $x=\frac M2$ 是 **semistable**：
+因此 $x=\frac M2$ 是 **semistable** ：
 
 - 从右边看，解靠近它；
 - 从左边看，解远离它。
@@ -365,7 +365,7 @@ $$
 - $h=4$：只有一个 semistable critical point；
 - $h>4$：没有 critical points。
 
-这种参数连续变化，而系统的 qualitative behaviour 突然改变的现象，叫做 **bifurcation**。
+这种参数连续变化，而系统的 qualitative behaviour 突然改变的现象，叫做 **bifurcation** 。
 
 在方程
 
@@ -387,7 +387,7 @@ $$
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202604161217253.png" alt="bifurcation diagram" style="width: 320px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
-这是一条抛物线，给出了所有“参数 $h$ 与对应 equilibrium $c$”的关系，这张图就叫 **bifurcation diagram**。
+这是一条抛物线，给出了所有“参数 $h$ 与对应 equilibrium $c$”的关系，这张图就叫 **bifurcation diagram** 。
 
 > **critical points 的位置、数目与稳定性都可能依赖于参数；当参数穿过某个临界值时，系统结构会突然改变。**
 
@@ -422,7 +422,7 @@ $$
 F(x^*,y^*)=0,\qquad G(x^*,y^*)=0,
 $$
 
-则 $(x^*,y^*)$ 是系统的 **critical point / equilibrium point**。
+则 $(x^*,y^*)$ 是系统的 **critical point / equilibrium point** 。
 
 求 critical points 的办法仍然非常朴素：
 
@@ -438,22 +438,22 @@ $$
 
 几何上：
 
-- **stable**：从 nearby point 出发的轨道始终 stay close；
-- **asymptotically stable**：不仅 stay close，而且随着 $t\to\infty$ 真正靠近 critical point；
-- **unstable**：从 nearby point 出发会被甩开。
+- **stable** ：从 nearby point 出发的轨道始终 stay close；
+- **asymptotically stable** ：不仅 stay close，而且随着 $t\to\infty$ 真正靠近 critical point；
+- **unstable** ：从 nearby point 出发会被甩开。
 
 这里要特别注意：
 
-> 在二维系统里，**stable 不一定 asymptotically stable**。
+> 在二维系统里， **stable 不一定 asymptotically stable** 。
 
 因为轨道可能只是绕着 critical point 转圈，不会跑远，但也不会收敛进去。  
-典型例子就是 **center**。
+典型例子就是 **center** 。
 
 ### Typical local behaviors
 
 #### Saddle point
 - 某些方向靠近，某些方向远离；
-- 一般是 **unstable**。
+- 一般是 **unstable** 。
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202604241612191.png" alt="saddle point" style="width: 320px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
@@ -470,7 +470,7 @@ $$
 
 #### Center
 - 附近轨道是闭曲线，围着 critical point 打转；
-- **stable but not asymptotically stable**。
+- **stable but not asymptotically stable** 。
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202604241615774.png" alt="center" style="width: 320px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
@@ -490,7 +490,7 @@ $$
 
 **a simple frictionless pendulum**
 
-课上额外讲了 **simple pendulum**：
+课上额外讲了 **simple pendulum** ：
 
 $$
 \theta''+a^2\sin\theta=0.
@@ -523,9 +523,9 @@ $$
 
 **相图的三类典型轨道**
 
-1. **小振幅闭轨道**：对应来回摆动；
-2. **外侧开轨道**：对应连续转圈；
-3. **经过 saddle 的 separatrix**：分隔“摆动”和“转圈”两类行为。
+1. **小振幅闭轨道** ：对应来回摆动；
+2. **外侧开轨道** ：对应连续转圈；
+3. **经过 saddle 的 separatrix** ：分隔“摆动”和“转圈”两类行为。
 
 因此 simple pendulum 是理解 phase portrait 的极好例子：  
 **同一个系统里，closed orbit、saddle、separatrix 都会同时出现。**
@@ -605,7 +605,7 @@ $$
 $$
 
 对应重特征值但只有一个 eigenvector 的 Jordan block。  
-典型轨道会表现为 **improper node**。
+典型轨道会表现为 **improper node** 。
 
 **Case III**
 $$
@@ -654,14 +654,14 @@ $$
 $$
 \lambda_1\lambda_2<0
 $$
-则是 **saddle point**，一定 unstable。
+则是 **saddle point** ，一定 unstable。
 
 2. 两个实特征值，同号
 - 都负：stable node；
 - 都正：unstable node。
 
-distinct same-sign real eigenvalues 常表现为 **improper node**；  
-若 repeated eigenvalue 且有两条独立特征方向，则常表现为 **proper node / star**。
+distinct same-sign real eigenvalues 常表现为 **improper node** ；  
+若 repeated eigenvalue 且有两条独立特征方向，则常表现为 **proper node / star** 。
 
 3. 一对复共轭特征值
 $$
@@ -687,7 +687,7 @@ $$
 \lambda^2-\tau\lambda+\Delta=0.
 $$
 
-这给出著名的 **trace-determinant diagram**：
+这给出著名的 **trace-determinant diagram** ：
 
 - $\Delta<0$：一定是 saddle；
 - $\Delta>0,\ \tau^2-4\Delta>0$：两个实根，node；
@@ -732,7 +732,7 @@ $$
 \lambda_1=3,\qquad \lambda_2=-5.
 $$
 
-两特征值异号，因此原点是 **saddle point**，而且是 **unstable**。
+两特征值异号，因此原点是 **saddle point** ，而且是 **unstable** 。
 
 这个例子很适合记住：
 
@@ -751,21 +751,21 @@ $$
 \mathbf r(\mathbf u)=o(|\mathbf u|).
 $$
 
-这种情形叫做 **almost linear system**。
+这种情形叫做 **almost linear system** 。
 
 思想上就是：
 
 - 线性部分 $A\mathbf u$ 决定主要局部结构；
 - nonlinear remainder 只是在足够靠近 critical point 时做“小修正”。
 
-因此，**多数情况下**，nonlinear system 与 linearization 具有相同的局部 type 和 stability。
+因此， **多数情况下** ，nonlinear system 与 linearization 具有相同的局部 type 和 stability。
 
 #### Two tricky scenarios
 
 线性化并不是在所有情况下都完全决定局部行为。真正麻烦的是两类：
 
-1. **equal real eigenvalues**；
-2. **pure imaginary eigenvalues**。
+1. **equal real eigenvalues** ；
+2. **pure imaginary eigenvalues** 。
 
 在这两种边界情形下，small perturbation 可能把类型改变：
 
@@ -801,9 +801,9 @@ $$
 
 根据参数符号不同，它可以描述：
 
-- **predation**；
-- **competition**；
-- **cooperation**；
+- **predation** ；
+- **competition** ；
+- **cooperation** ；
 - exponential / logistic growth 或 extinction。
 
 ### Lotka-Volterra predator-prey model
@@ -841,10 +841,10 @@ $$
 - $(0,0)$：两种 species 同时灭绝；
 - $(1,1)$：非零共存 equilibrium。
 
-对 $(0,0)$ 的 Jacobian 线性化会得到一正一负两个特征值，所以它是 **saddle**。
+对 $(0,0)$ 的 Jacobian 线性化会得到一正一负两个特征值，所以它是 **saddle** 。
 
-对 $(1,1)$ 的 Jacobian 线性化会得到纯虚特征值，所以线性化提示它像 **center**。  
-而对标准 Lotka-Volterra model，实际上第一象限中的 trajectories 是包围 $(1,1)$ 的 **closed orbits**，对应周期振荡。
+对 $(1,1)$ 的 Jacobian 线性化会得到纯虚特征值，所以线性化提示它像 **center** 。  
+而对标准 Lotka-Volterra model，实际上第一象限中的 trajectories 是包围 $(1,1)$ 的 **closed orbits** ，对应周期振荡。
 
 #### Oscillating populations
 
@@ -880,7 +880,7 @@ c_1>0,\qquad c_2>0,
 $$
 
 则两边的 $xy$ 项都在降低增长率。  
-也就是说，两种 species 都被彼此“hurt”，这是 **competition**。
+也就是说，两种 species 都被彼此“hurt”，这是 **competition** 。
 
 #### Cooperation
 若
@@ -890,7 +890,7 @@ c_1<0,\qquad c_2<0,
 $$
 
 则 interaction 提高了两边的增长率。  
-两种 species 互相帮助，这是 **cooperation**。
+两种 species 互相帮助，这是 **cooperation** 。
 
 #### Predation
 若 $c_1,c_2$ 异号，则一方受害、一方受益。  
@@ -931,7 +931,7 @@ $$
 于是 phase portrait 的关键结构是：
 
 - 第一象限内部的 saddle $(12,8)$；
-- 经过 saddle 的两条特殊轨道形成 **separatrix**；
+- 经过 saddle 的两条特殊轨道形成 **separatrix** ；
 - separatrix 把第一象限分成两个区域。
 
 因此：
@@ -1050,7 +1050,7 @@ J(0,0)=
 \end{pmatrix}
 $$
 
-两个负特征值，所以是 **stable node**。
+两个负特征值，所以是 **stable node** 。
 
 2. 在 $(0,4)$
 $$
@@ -1061,7 +1061,7 @@ J(0,4)=
 \end{pmatrix}
 $$
 
-特征值异号，所以是 **saddle**。
+特征值异号，所以是 **saddle** 。
 
 3. 在 $(2,0)$
 $$
@@ -1072,7 +1072,7 @@ J(2,0)=
 \end{pmatrix}
 $$
 
-特征值异号，所以也是 **saddle**。
+特征值异号，所以也是 **saddle** 。
 
 4. 在 $(3,1)$
 $$
@@ -1095,7 +1095,7 @@ $$
 \lambda=2\pm i\sqrt2.
 $$
 
-实部为正，所以是 **unstable spiral**。
+实部为正，所以是 **unstable spiral** 。
 
 #### Qualitative picture
 

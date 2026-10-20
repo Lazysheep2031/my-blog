@@ -638,7 +638,7 @@ v[10] = 45;
 
 `operator()` 叫 function call operator。
 
-重载了 `operator()` 的对象叫 **functor（函数对象 / 仿函数）**。
+重载了 `operator()` 的对象叫 **functor（函数对象 / 仿函数）** 。
 
 ```cpp
 #include <iostream>

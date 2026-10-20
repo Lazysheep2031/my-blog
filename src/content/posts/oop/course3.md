@@ -21,11 +21,11 @@ draft: false
 
 核心原因：
 
-- **Reduced development time**：很多常用结构和算法已经写好，不必自己从零实现
-- **Code readability**：看到 `vector`、`map`、`sort`，代码意图往往比手写数组和循环更清楚
-- **Robustness**：标准库组件被大量使用和测试，可靠性通常高于临时手写版本
-- **Portable code**：它是标准库的一部分，跨平台、跨编译器时更稳定
-- **Maintainable code**：后续自己或别人回来读代码时，更容易理解和修改
+- **Reduced development time** ：很多常用结构和算法已经写好，不必自己从零实现
+- **Code readability** ：看到 `vector`、`map`、`sort`，代码意图往往比手写数组和循环更清楚
+- **Robustness** ：标准库组件被大量使用和测试，可靠性通常高于临时手写版本
+- **Portable code** ：它是标准库的一部分，跨平台、跨编译器时更稳定
+- **Maintainable code** ：后续自己或别人回来读代码时，更容易理解和修改
 
 
 ## STL 的三大部分
@@ -34,7 +34,7 @@ STL 可以先拆成三块来看:
 
 ### Containers
 
-容器负责 **存数据**。
+容器负责 **存数据** 。
 
 例如：
 
@@ -47,7 +47,7 @@ STL 可以先拆成三块来看:
 
 ### Algorithms
 
-算法负责 **处理数据区间**。
+算法负责 **处理数据区间** 。
 
 例如：
 
@@ -60,7 +60,7 @@ STL 可以先拆成三块来看:
 
 ### Iterators
 
-迭代器负责 **把容器和算法接起来**。
+迭代器负责 **把容器和算法接起来** 。
 
 它像“广义指针（generalized pointer）”，让算法可以用统一方式访问不同容器中的元素。
 
@@ -259,7 +259,7 @@ int main() {
 
 ## map：键值对容器
 
-`map` 是很重要的一类关联容器，用来存 **key-value pair**。
+`map` 是很重要的一类关联容器，用来存 **key-value pair** 。
 
 可以先把它类比成电话簿：
 
@@ -324,7 +324,7 @@ map 的重点
 
 你可以把它理解成“只能从一端放入和拿出元素”的容器接口。
 
-`stack` 是一种 **container adaptor**。
+`stack` 是一种 **container adaptor** 。
 - 底层可以基于别的容器
 - 对外只暴露符合 stack 抽象的那部分操作
 
@@ -382,7 +382,7 @@ $$
 
 ## Iterators：连接容器与算法
 
-iterator 可以理解成 **generalized pointer**。
+iterator 可以理解成 **generalized pointer** 。
 也就是说，它和普通指针很像，但服务对象不只是一块裸数组，而是各种 STL 容器。
 
 它的核心作用是：
@@ -527,7 +527,7 @@ if (foo["bob"] == 1) {
 - 你看起来只是想检查 `"bob"` 是否存在
 - 但 `foo["bob"]` 可能会悄悄创建一个新条目
 
-这就叫 **silent insertion**。
+这就叫 **silent insertion** 。
 
 推荐写法：
 

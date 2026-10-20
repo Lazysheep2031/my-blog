@@ -572,7 +572,7 @@ Associative containers：不按顺序存储元素，而是通过 key 访问元�
 ### Multimaps
 
 - **定义与用途**
-  - `std::multimap<K, V>`：允许**多个元素拥有相同 key**
+  - `std::multimap<K, V>`：允许 **多个元素拥有相同 key**
   - 适用场景：一对多映射（例如 `course -> many students`，`word -> all positions`
 - **和 `map` 的关键区别**
   - `map`：一个 key 最多一条记录（插入重复 key 会失败或覆盖取决于接口）

@@ -11,9 +11,9 @@ draft: false
 
 ### 关系模型的基本表示
 关系模型用 **表（table）** 来组织数据：
-- **relation（关系）**：一张表
-- **attribute（属性）**：表中的列
-- **tuple（元组）**：表中的行
+- **relation（关系）** ：一张表
+- **attribute（属性）** ：表中的列
+- **tuple（元组）** ：表中的行
 
 例如 `instructor` 表中：
 - `ID, name, dept_name, salary` 是属性
@@ -36,7 +36,7 @@ $$
 也就是说，一个关系本质上是若干个 **n 元组** 组成的集合，每个元组的第 $i$ 个分量取自集合 $D_i$。slides 中用 `name × dept_name × salary` 的例子说明了这一点。
 
 ### relation schema 与 relation instance
-- **Relation schema（关系模式）**：描述表的结构  
+- **Relation schema（关系模式）** ：描述表的结构  
   记作：
 
 $$
@@ -49,7 +49,7 @@ $$
 instructor = (ID, name, dept\_name, salary)
 $$
 
-- **Relation instance（关系实例）**：某一时刻表中的实际数据内容
+- **Relation instance（关系实例）** ：某一时刻表中的实际数据内容
 - 表中的每一行是一个 **tuple（元组）**
 
 - **schema** = 表长什么样
@@ -57,17 +57,17 @@ $$
 
 
 ### 属性与域（domain）
-每个属性都有自己的 **domain（域）**，也就是该属性允许取值的集合。
+每个属性都有自己的 **domain（域）** ，也就是该属性允许取值的集合。
 
 例如：
 - `dept_name` 的域：所有合法院系名
 - `salary` 的域：所有合法工资值
 
-可以把“域”简单理解成：**这一列允许放什么值**。
+可以把“域”简单理解成： **这一列允许放什么值** 。
 
 
 ### 原子性（atomic）
-关系模型通常要求属性值是 **atomic（原子的）**，即 **不可再分**。
+关系模型通常要求属性值是 **atomic（原子的）** ，即 **不可再分** 。
 
 例如：
 - `"Physics"` 是原子的
@@ -82,21 +82,21 @@ $$
 - 值不存在
 - 值暂时缺失
 
-**null 会使很多运算的定义变复杂**。因此在数据库理论和 SQL 中，null 是一个非常特殊的值。
+**null 会使很多运算的定义变复杂** 。因此在数据库理论和 SQL 中，null 是一个非常特殊的值。
 
 
 ### 关系是无序的
-关系中的元组顺序 **没有意义**：
+关系中的元组顺序 **没有意义** ：
 - 哪一行排前面，哪一行排后面，不影响关系本身
 - 数据库内部可以按任意顺序存储元组
 
-这点很重要，因为关系从理论上看是一个**集合**，集合本身就是无序的。
+这点很重要，因为关系从理论上看是一个 **集合** ，集合本身就是无序的。
 
 
 ## Database Schema
 
 ### Database schema 的含义
-**Database schema（数据库模式）** 是数据库的 **逻辑结构**。  
+**Database schema（数据库模式）** 是数据库的 **逻辑结构** 。  
 也就是：数据库里有哪些表、每张表有哪些属性、属性之间有哪些约束。
 
 ```text
@@ -112,8 +112,8 @@ instructor(ID, name, dept_name, salary)
 
 因此：
 
-* **schema**：相对稳定，描述结构
-* **instance**：经常变化，描述当前数据
+* **schema** ：相对稳定，描述结构
+* **instance** ：经常变化，描述当前数据
 
 可以类比为：
 
@@ -164,7 +164,7 @@ instructor(ID, name, dept_name, salary)
 
 ### Why key ?
 
-在一张表中，我们需要某种机制来 **唯一标识一条记录**。
+在一张表中，我们需要某种机制来 **唯一标识一条记录** 。
 否则：
 
 * 无法准确区分两行
@@ -176,7 +176,7 @@ instructor(ID, name, dept_name, salary)
 
 ### Superkey（超键）
 
-设 $K \subseteq R$，如果属性集 $K$ 的取值足以唯一标识关系 $R$ 中的一个元组，那么 $K$ 就是一个 **superkey**。slides 中直接给出了这个定义。
+设 $K \subseteq R$，如果属性集 $K$ 的取值足以唯一标识关系 $R$ 中的一个元组，那么 $K$ 就是一个 **superkey** 。slides 中直接给出了这个定义。
 
 例如在 `instructor(ID, name, dept_name, salary)` 中：
 
@@ -194,7 +194,7 @@ instructor(ID, name, dept_name, salary)
 
 ### Candidate key（候选键）
 
-如果一个超键还是 **minimal（最小的）**，也就是去掉其中任何一个属性后都不再能唯一标识元组，那么它就是 **candidate key**。 
+如果一个超键还是 **minimal（最小的）** ，也就是去掉其中任何一个属性后都不再能唯一标识元组，那么它就是 **candidate key** 。 
 
 例如：
 
@@ -212,7 +212,7 @@ instructor(ID, name, dept_name, salary)
 
 ### Primary key（主键）
 
-从若干候选键中，选定一个作为主要标识，就得到 **primary key（主键）**。 
+从若干候选键中，选定一个作为主要标识，就得到 **primary key（主键）** 。 
 
 例如：
 
@@ -253,8 +253,8 @@ instructor(ID, name, dept_name, salary)
 
 和外键关联的两个表称为：
 
-* **Referencing relation**：引用别人的那个表
-* **Referenced relation**：被引用的那个表
+* **Referencing relation** ：引用别人的那个表
+* **Referenced relation** ：被引用的那个表
 
 例如：
 
@@ -332,8 +332,8 @@ instructor(ID, name, dept_name, salary)
 ## Relational Query Languages
 
 **查询语言的两种风格**
-- **Procedural（过程式）**：既说明要什么数据，也说明怎么得到这些数据
-- **Declarative / non-procedural（陈述式 / 非过程式）**：只说明要什么数据，不说明具体执行步骤
+- **Procedural（过程式）** ：既说明要什么数据，也说明怎么得到这些数据
+- **Declarative / non-procedural（陈述式 / 非过程式）** ：只说明要什么数据，不说明具体执行步骤
 
 ### 三种“pure”关系查询语言
 - **Relational algebra（关系代数）**
@@ -347,36 +347,36 @@ instructor(ID, name, dept_name, salary)
 - 属于功能性/操作型查询语言
 - 输入是一个或多个 relation
 - 输出仍然是 relation
-- 不是通用编程语言，**not Turing-machine equivalent**
+- 不是通用编程语言， **not Turing-machine equivalent**
 
 
 ## The Relational Algebra
 
-关系代数（Relational Algebra）是一种 **procedural query language（过程式查询语言）**。  
-它由一组运算组成，这些运算把 **一个或两个 relation 作为输入**，并产生 **一个新的 relation 作为输出**。
+关系代数（Relational Algebra）是一种 **procedural query language（过程式查询语言）** 。  
+它由一组运算组成，这些运算把 **一个或两个 relation 作为输入** ，并产生 **一个新的 relation 作为输出** 。
 
 - 输入是表（relation）
 - 运算结果仍然是表
 - 因此可以把多个运算不断组合，构成更复杂的查询表达式
 
-这点非常重要，因为它说明关系代数具有**封闭性**：
+这点非常重要，因为它说明关系代数具有 **封闭性** ：
 > relation 运算 relation，结果还是 relation
 
 
 ### 关系代数的 6 个基本操作
 slides 列出的 6 个基本操作是：
 
-1. **Select（选择）**：$\sigma$
-2. **Project（投影）**：$\Pi$
-3. **Union（并）**：$\cup$
-4. **Set Difference（差）**：$-$
-5. **Cartesian Product（笛卡尔积）**：$\times$
-6. **Rename（重命名）**：$\rho$
+1. **Select（选择）** ：$\sigma$
+2. **Project（投影）** ：$\Pi$
+3. **Union（并）** ：$\cup$
+4. **Set Difference（差）** ：$-$
+5. **Cartesian Product（笛卡尔积）** ：$\times$
+6. **Rename（重命名）** ：$\rho$
 
 
 #### Select（选择）$\sigma$
 
-选择操作用于从一个关系中取出 **满足给定条件的元组（行）**。
+选择操作用于从一个关系中取出 **满足给定条件的元组（行）** 。
 
 $\sigma_p(r)$
 
@@ -427,7 +427,7 @@ WHERE 条件
 
 #### Project（投影）$\Pi$
 
-投影操作用于从一个关系中保留 **指定属性（列）**，把其他列删去。
+投影操作用于从一个关系中保留 **指定属性（列）** ，把其他列删去。
 
 $\Pi_{A_1, A_2, \dots, A_k}(r)$
 
@@ -435,7 +435,7 @@ $\Pi_{A_1, A_2, \dots, A_k}(r)$
 
 结果是一个只包含这些属性列的新关系。
 
-**投影后要去重**，因为关系是集合。
+**投影后要去重** ，因为关系是集合。
 也就是说，若两行在保留下来的列上完全相同，则只保留一行。
 
 **例子**
@@ -471,7 +471,7 @@ $$
 
 要使 $r \cup s$ 合法，必须满足：
 
-1. $r$ 和 $s$ 有相同的 **arity（元数）**，即列数相同
+1. $r$ 和 $s$ 有相同的 **arity（元数）** ，即列数相同
 2. 对应列的域必须兼容（compatible）
 
 **例子**
@@ -532,7 +532,7 @@ $$
 
 :::warning
 * $r(R)$ 和 $s(S)$ 的属性集合不相交，即 $R \cap S = \varnothing$
-如果属性名有重复，就需要先做 **rename（重命名）**。
+如果属性名有重复，就需要先做 **rename（重命名）** 。
 :::
 
 **直观理解**
@@ -685,7 +685,7 @@ $$
 
 ### 常见扩展操作
 
-**additional operations**：它们**不增加表达能力**，但能让常见查询写得更简洁。
+**additional operations** ：它们 **不增加表达能力** ，但能让常见查询写得更简洁。
 
 包括：
 
@@ -738,8 +738,8 @@ $$
 
 **性质**
 
-* **结合律**：$(r \bowtie s) \bowtie t = r \bowtie (s \bowtie t)$
-* **交换律**：$r \bowtie s = s \bowtie r$ 
+* **结合律** ：$(r \bowtie s) \bowtie t = r \bowtie (s \bowtie t)$
+* **交换律** ：$r \bowtie s = s \bowtie r$ 
 
 **Example**
 
@@ -768,15 +768,15 @@ $$
 #### Outer Join（外连接）
 
 普通连接只保留“匹配成功”的元组，可能丢信息。
-外连接是为了 **避免信息丢失**。
+外连接是为了 **避免信息丢失** 。
 
 先做连接，再把没匹配上的元组补回来，缺失部分用 `null` 填充。
 
 **类型**
 
-1. **Left Outer Join**：保留左边所有元组
-2. **Right Outer Join**：保留右边所有元组
-3. **Full Outer Join**：两边都全保留 
+1. **Left Outer Join** ：保留左边所有元组
+2. **Right Outer Join** ：保留右边所有元组
+3. **Full Outer Join** ：两边都全保留 
 
 **Example**
 
@@ -793,19 +793,19 @@ $$
 
 **用基本操作表示外连接**
 
-**Left Outer Join**（$r$ ⟕ $s$）：
+**Left Outer Join** （$r$ ⟕ $s$）：
 
 $$
 (r \bowtie s) \cup (r - \Pi_R(r \bowtie s)) \times \{(null, \ldots, null)\}
 $$
 
-**Right Outer Join**（$r$ ⟖ $s$）：
+**Right Outer Join** （$r$ ⟖ $s$）：
 
 $$
 (r \bowtie s) \cup \{(null, \ldots, null)\} \times (s - \Pi_S(r \bowtie s))
 $$
 
-**Full Outer Join**（$r$ ⟗ $s$）：
+**Full Outer Join** （$r$ ⟗ $s$）：
 
 $$
 (r \bowtie s) \cup (r - \Pi_R(r \bowtie s)) \times \{(null, \ldots, null)\} \cup \{(null, \ldots, null)\} \times (s - \Pi_S(r \bowtie s))
@@ -868,7 +868,7 @@ temp ← 某个关系代数表达式
 
 **含义**
 
-除法用于表达“**对所有**”这类查询。
+除法用于表达“ **对所有** ”这类查询。
 
 **定义**
 
@@ -1008,8 +1008,8 @@ $$
 
 #### 纯关系代数 vs 多重集关系代数
 
-* **Pure relational algebra**：去重，因为 relation 是集合
-* **Multiset relational algebra**：保留重复，更接近 SQL 语义。
+* **Pure relational algebra** ：去重，因为 relation 是集合
+* **Multiset relational algebra** ：保留重复，更接近 SQL 语义。
 
 **为什么 SQL 更像 multiset**
 

@@ -154,7 +154,7 @@ secondary index 的问题是：
 
 ### Index-Sequential File
 
-**Index-sequential file（索引顺序文件）**是：
+**Index-sequential file（索引顺序文件）** 是：
 
 > 带有 primary index 的顺序文件。
 
@@ -169,7 +169,7 @@ secondary index 的问题是：
 
 ### Dense Index
 
-**Dense index（稠密索引）**中，每个 search-key value 都有一个 index record。
+**Dense index（稠密索引）** 中，每个 search-key value 都有一个 index record。
 
 如果 search key 是唯一的：
 
@@ -201,7 +201,7 @@ secondary index 的问题是：
 
 ### Sparse Index
 
-**Sparse index（稀疏索引）**只为部分 search-key values 建立 index records。
+**Sparse index（稀疏索引）** 只为部分 search-key values 建立 index records。
 
 它适用的前提是：
 
@@ -252,12 +252,12 @@ Sparse index：
 
 于是形成两层：
 
-- **Inner index**：原来的 primary index file
-- **Outer index**：建立在 inner index 上的 sparse index
+- **Inner index** ：原来的 primary index file
+- **Outer index** ：建立在 inner index 上的 sparse index
 
 如果 outer index 仍然太大，还可以继续往上加层。
 
-这就是 **multilevel index（多级索引）**。
+这就是 **multilevel index（多级索引）** 。
 
 :::WARNING
 多级索引提高查询效率，但更新更复杂。
@@ -521,7 +521,7 @@ Leaf node split 的规则：
 6. 如果父节点也满，则继续向上分裂
 7. 最坏情况下 root 分裂，树高加 1
 
-**伪代码**：
+**伪代码** ：
 ```pseudo
 function insert(pr, v)
     // pr: pointer to the record
@@ -636,7 +636,7 @@ function split_internal(P, k, N2)
 - 唯一 child 成为新的 root
 - 树高减 1
 
-**伪代码**：
+**伪代码** ：
 ```pseudo
 function delete(pr, v)
     // pr: pointer to the record
@@ -1247,7 +1247,7 @@ age = 20 -> (CS, record-id)
 
 ### Prefix Compression
 
-对字符串索引，可以使用 **prefix compression（前缀压缩）**。
+对字符串索引，可以使用 **prefix compression（前缀压缩）** 。
 
 Internal node 中不一定要保存完整 key，只要保存足够区分相邻子树的前缀即可。
 
@@ -1476,7 +1476,7 @@ ai = v
 
 ### Bottom-Up B+-Tree Construction
 
-第二种优化方式是 **bottom-up build**。
+第二种优化方式是 **bottom-up build** 。
 
 步骤：
 
