@@ -4,7 +4,7 @@ published: 2026-09-20
 description: Linux 内核的组织与源码目录、内核开发特点、配置与重新编译、/proc 接口，以及 BIOS、MBR、GRUB、init 和 IA-32 启动流程
 tags: [操作系统]
 category: 笔记
-draft: false
+draft: true
 ---
 
 ```text
