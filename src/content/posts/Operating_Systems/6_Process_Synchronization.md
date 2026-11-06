@@ -1,7 +1,6 @@
 ---
 title: Process Synchronization
 published: 2026-10-13
-updated: 2026-10-15
 description: 竞争条件与同步工具、管程及其实现、经典同步问题，以及事务、恢复、并发控制和一致性模型
 tags: [操作系统]
 category: 笔记

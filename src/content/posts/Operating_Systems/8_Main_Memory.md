@@ -4,7 +4,7 @@ published: 2026-10-29
 description: 地址绑定与重定位、交换、连续内存分配、分页与 TLB、多级和反向页表、分段，以及 Pentium 和 Linux 的内存管理
 tags: [操作系统]
 category: 笔记
-draft: true
+draft: false
 ---
 
 ## Background
@@ -22,7 +22,7 @@ CPU 寄存器 → Cache → 主存 → 磁盘
 
 主存中同时存在操作系统和多个进程，需要硬件检查每次访问的合法性；不必让操作系统逐条执行软件检查。
 
-> 截图占位：`ch8.pdf` 第 14 页，截取 Memory Hierarchy 表格，保留 L1、L2、Main memory 三列。表中的容量和周期作为存储层次示例理解。
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261106211501.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
 内存计算统一按字节编址，使用二进制容量：$1\text{ KiB}=2^{10}\text{ B}$，$1\text{ MiB}=2^{20}\text{ B}$，$1\text{ GiB}=2^{30}\text{ B}$。
 
@@ -36,13 +36,10 @@ $$
 4096\times32\text{ bit}=131072\text{ bit}=16\text{ KiB}.
 $$
 
-1956 年，王安把磁芯存储相关专利以 50 万美元卖给 IBM，是这一时期的技术案例。
+**半导体存储器** 包括 ROM、EPROM、RAM 等。EPROM 芯片、U 盘中的存储芯片和 DRAM 内存条，属于不同用途的存储器。
 
-**半导体存储器** 包括 ROM、EPROM、RAM 等。EPROM 芯片、U 盘中的存储芯片和 DRAM 内存条，属于不同用途的存储器，不能只根据“都是芯片”把它们看成同一类。
+**相变存储器（Phase-Change Memory）与 3D XPoint** 是探索速度、容量和非易失性之间取舍的例子。
 
-**相变存储器（Phase-Change Memory）与 3D XPoint** 是探索速度、容量和非易失性之间取舍的例子。历史示例包括 2010 年的 Omneo／PRAM 产品和 2011 年的多位相变存储实验。
-
-> 截图占位：`ch8.pdf` 第 7–8 页，存储装置与容量铭牌；第 10 页，EPROM、U 盘内部和 DRAM 的对比；第 13 页，Memory History 时间线。历史图片可选放一组，不必逐张重复。
 
 ### Base and Limit Registers
 
@@ -58,7 +55,7 @@ $$
 
 **Limit 表示长度，结束边界是 Base + Limit。** 修改这些寄存器属于特权操作，由操作系统完成。
 
-> 截图占位：`ch8.pdf` 第 15 页，截取进程内存布局及右侧 base、limit 寄存器，保留 300040、120900、420940 三个数。
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261106211611.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
 #### Example
 
@@ -108,7 +105,7 @@ $$
 
 **链接解决模块之间如何连接，装入解决程序如何进入执行环境。** 动态链接还允许将部分链接工作留到运行阶段。
 
-> 截图占位：`ch8.pdf` 第 17 页，截取左侧 Multistep Processing 流程，保留 compiler、linkage editor、loader 及动态库支路。
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261106211648.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
 ### Logical vs. Physical Address Space
 
@@ -144,7 +141,7 @@ $$
                  地址异常
 ```
 
-> 截图占位：`ch8.pdf` 第 20 页，截取 CPU → MMU → memory 的完整示意图。
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261106211728.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
 #### Example
 
@@ -167,9 +164,7 @@ $$
 
 **动态装载（Dynamic Loading）**：子程序被调用时才装入内存，未使用的子程序不占用主存。
 
-适合包含大量低频功能的程序，例如异常处理代码。程序可以通过自身设计实现动态装载，不要求专门的操作系统机制；系统库可以提供帮助。
-
-游戏资源也可以采用类似的按需装入思路：进入某张地图时才读取相应资源，无需启动时把整个游戏的数据都放入内存。
+适合包含大量低频功能的程序，例如异常处理代码。
 
 ### Dynamic Linking
 
@@ -183,21 +178,6 @@ $$
 
 多个进程可以共享同一份库代码，减少可执行文件和内存中的重复副本。兼容的库更新也可以避免重新链接所有应用。
 
-动态链接和共享库通常需要操作系统支持，以建立合法映射并允许受控共享。
-
-#### Example
-
-**一个很小的程序，最后才调用一个很大的打印库。**
-
-<details>
-<summary>为什么不必在一开始装入全部功能？</summary>
-
-程序前半部分只进行计算，打印库直到最后输出时才使用。可以把库的装入或解析延后，减少前半段执行时不必要的内存占用。
-
-动态装载关心 **何时把代码放入内存**；动态链接关心 **何时建立调用与目标函数之间的联系**。两者可以配合使用。
-
-</details>
-
 ## Swapping
 
 ### Swap Out and Swap In
@@ -209,7 +189,7 @@ $$
 
 后备存储需要容纳内存映像，并支持直接访问这些映像。系统还要保留进程状态和恢复所需的信息。
 
-> 截图占位：`ch8.pdf` 第 24 页，截取主存与 backing store 之间 $P_1$ 换出、$P_2$ 换入的两条箭头。
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261106211911.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
 图中的过程是：$P_1$ 换出，腾出主存；$P_2$ 换入，获得执行机会。**换出不会终止进程**，它只是暂时失去驻留在主存中的条件。
 
@@ -262,7 +242,7 @@ $$
 B\le PA<B+L.
 $$
 
-> 截图占位：`ch8.pdf` 第 26 页，截取两个比较器以及非法访问陷入操作系统的支路；注意图中比较的是 base 与 base + limit。
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261106212007.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
 ### Multiple-Partition Allocation
 
@@ -274,7 +254,7 @@ $$
 
 **进程 8 退出后，空闲空间如何变化？**
 
-> 截图占位：`ch8.pdf` 第 27 页，完整截取四幅内存布局图，保留进程 5、8、2、9、10 及中间箭头。
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261106212027.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
 <details>
 <summary>分配与释放过程</summary>
@@ -299,20 +279,20 @@ $$
 
 **最坏适应（Worst-Fit）**：选择最大的空洞，希望剩余部分仍足够大，可以继续使用；同样需要找到全局最大值。
 
-最佳适应可能留下许多很小的空洞；最坏适应可能提前消耗大块空间。首次适应和最佳适应通常比最坏适应有更好的速度或空间利用表现，但名称中的“最佳”不代表对所有请求序列都最优。
+最佳适应可能留下许多很小的空洞；最坏适应可能提前消耗大块空间。
 
 <details>
 <summary>First-Fit 的平均搜索次数一定是空洞数的一半吗？</summary>
 
 不一定。平均搜索长度取决于空洞大小、排列顺序和请求大小的分布。
 
-设有 $H$ 个空洞，使用普通线性列表时，三种算法的最坏搜索时间都是 $O(H)$。首次适应可以提前停止；这不等于平均一定搜索 $H/2$ 项。
+设有 $H$ 个空洞，使用普通线性列表时，三种算法的最坏搜索时间都是 $O(H)$。
 
 </details>
 
 #### Example
 
-**补充练习：连续申请多个内存块。**
+**连续申请多个内存块。**
 
 空闲块按地址顺序为：
 
@@ -341,8 +321,6 @@ $$
 
 例如最坏适应先从 750 中分配 115，剩 635；再从 635 中分配 500，剩 135。最后虽然空闲总量仍足够，却没有一个空洞能容纳 375。
 
-每次都要用 **更新后的空闲块大小** 继续判断，不能反复使用初始大小。
-
 </details>
 
 ### Fragmentation
@@ -351,7 +329,7 @@ $$
 
 **内部碎片（Internal Fragmentation）**：已经分配给进程的空间大于实际需求，多出来的部分位于分配块内部，不能直接再分配给其他进程。
 
-区别在于空间的位置：**尚未分配的零散空洞属于外部碎片；已分配块内部的空余属于内部碎片。**
+**尚未分配的零散空洞属于外部碎片；已分配块内部的空余属于内部碎片。**
 
 ### Compaction
 
@@ -377,8 +355,6 @@ I/O 是另一个限制：如果设备正在向某个物理位置写入，不能�
 一个逻辑页可以放到任意空闲页框中，进程的各页不必在物理内存中连续。
 
 基本分页模型中，运行一个 $n$ 页的程序，需要找到 $n$ 个空闲页框，并建立对应的页表。页大小通常取 2 的幂，便于按位拆分地址。
-
-**分页把“找一整块大空间”变成“找足够数量的空闲页框”。** 按固定页框分配时没有外部碎片，但最后一页可能有内部碎片。
 
 ### Address Translation Scheme
 
@@ -410,11 +386,11 @@ $$
 
 **转换改变页号，页内偏移保持不变。** 页框号与页框起始地址也要区分：后者等于 $fS$。
 
-> 截图占位：`ch8.pdf` 第 31–32 页，选择页号／偏移位数图和 Paging Hardware 图，保留 $p$ 查表、$d$ 直接传到物理地址的两条路径。
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261106212214.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
 ### Example
 
-**四个逻辑页分散到不同物理页框。**
+1. **四个逻辑页分散到不同物理页框。**
 
 页表映射为：
 
@@ -425,11 +401,9 @@ $$
 
 逻辑页 0、1、2、3 连续编号，分别放在物理页框 1、4、3、7。程序仍按自己的逻辑地址访问，物理布局由页表隐藏。
 
-> 截图占位：`ch8.pdf` 第 33 页，截取逻辑内存、页表和物理内存三列。
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261106212232.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
-### Example
-
-**16 字节逻辑空间、32 字节物理内存，页面大小为 4 字节。**
+2. **16 字节逻辑空间、32 字节物理内存，页面大小为 4 字节。**
 
 逻辑地址 0～15 依次保存 `a`～`p`，页表为：
 
@@ -442,7 +416,7 @@ $$
 
 计算逻辑地址 0、3、4、13 对应的物理地址。
 
-> 截图占位：`ch8.pdf` 第 34 页，截取 `a`～`p`、页表 `[5,6,1,2]` 及右侧物理布局。
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261106212252.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
 <details>
 <summary>页号、偏移和物理地址</summary>
@@ -482,7 +456,7 @@ page 3 → frame 20
 
 </details>
 
-> 截图占位：`ch8.pdf` 第 35 页，完整截取分配前后两幅图，保留 free-frame list 和新进程页表。
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261106212316.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
 ### Internal Fragmentation and Page Size
 
@@ -551,7 +525,7 @@ TLB 保存地址转换信息，数据 Cache 保存指令或数据内容，二者
 
 **未命中**：查主存中的页表，取得映射后通常填入 TLB，再访问目标数据；TLB 满时需要替换表项。
 
-> 截图占位：`ch8.pdf` 第 38 页，截取 Paging Hardware With TLB 全图，保留 TLB hit、TLB miss 及页表两条支路。
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261106212404.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
 <details>
 <summary>TLB Miss 是否意味着页面不在内存中？</summary>
@@ -595,7 +569,7 @@ $$
 
 #### Example
 
-**补充计算：$m=200\text{ ns}$，$t=20\text{ ns}$，命中率为 95%。**
+**$m=200\text{ ns}$，$t=20\text{ ns}$，命中率为 95%。**
 
 <details>
 <summary>按命中与未命中分别计算</summary>
@@ -641,7 +615,7 @@ $$
 
 页表中 0～5 页为有效页，对应页框 `[2, 3, 4, 7, 8, 9]`；6、7 页无效。
 
-> 截图占位：`ch8.pdf` 第 41 页，截取有效位示例全图，保留 10468、12287 两个边界和页表中的 v/i。
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261106212441.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
 <details>
 <summary>为什么页级保护不能精确限制到最后一个字节？</summary>
@@ -656,15 +630,13 @@ $$
 
 第 6、7 页对应 12288～16383，访问时会因无效页表项而被拒绝。
 
-**页级检查的粒度是一页，不能直接等同于对象或数组的字节级边界检查。**
-
 </details>
 
 ### Shared Pages
 
 多个进程的页表项可以指向同一物理页框，实现共享。
 
-只读的可重入代码在执行中不修改自身，可以共享一份副本；每个进程仍保留自己的数据和运行状态。本节采用共享代码位于各进程相同逻辑位置的组织方式，私有页则分别映射。
+只读的可重入代码在执行中不修改自身，可以共享一份副本；每个进程仍保留自己的数据和运行状态。
 
 #### Example
 
@@ -677,7 +649,7 @@ P2 页表：     3    4    6    7
 P3 页表：     3    4    6    2
 ```
 
-> 截图占位：`ch8.pdf` 第 43 页，截取三个进程的页表和中间物理内存，保留 ed1、ed2、ed3 及三份 data。
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261106212513.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
 <details>
 <summary>哪些内容共享？能节省多少页框？</summary>
@@ -716,7 +688,7 @@ p1 → 外层页表 → 内层页表基址
 
 **外层表项指向下一级页表，最内层表项才指向数据页框。** 下级页表之间不必连续存放。
 
-> 截图占位：`ch8.pdf` 第 46 页，截取 outer page table、page table、memory 三列；第 48 页，截取 $p_1,p_2,d$ 依次查表的转换路径。
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261106212531.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
 设外层页表基址为 $B_1$，两级表项大小分别为 $E_1,E_2$：
 
@@ -740,9 +712,9 @@ $$
 
 #### Example
 
-**32-bit 逻辑地址，页大小为 1 KiB，采用 $12:10:10$ 的二级地址划分。**
+1. **32-bit 逻辑地址，页大小为 1 KiB，采用 $12:10:10$ 的二级地址划分。**
 
-> 截图占位：`ch8.pdf` 第 47 页，截取下方 $p_1,p_2,d$ 位数图，保留 12、10、10。
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261106212546.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
 <details>
 <summary>页号拆分，以及哪些条件可以直接推出</summary>
@@ -771,15 +743,11 @@ $$
 
 </details>
 
-#### Example
-
-**按 $4:4:12$ 划分地址，转换 `0x01ABC` 和 `0xFEED0`。**
+2. **按 $4:4:12$ 划分地址，转换 `0x01ABC` 和 `0xFEED0`。**
 
 外层第 `0` 项指向页框 `0x3` 中的页表，该表第 `1` 项指向数据页框 `0x23`。
 
 外层第 `F` 项指向页框 `0x92` 中的页表，该表第 `E` 项指向数据页框 `0x55`。
-
-> 截图占位：`ch8.pdf` 第 49 页，截取页目录、两张页表和地址转换箭头。中央黄色说明遮挡了部分表项，保留可见的两条转换路径即可。
 
 <details>
 <summary>十六进制地址转换</summary>
@@ -860,7 +828,7 @@ $$
 
 最外层仍需要 $2^{32}\times4=2^{34}\text{ B}=16\text{ GiB}$。因此地址空间继续增大时，还需要更深的层次或其他组织方式。
 
-> 截图占位：`ch8.pdf` 第 50 页，截取 $42:10:12$ 与 $32:10:10:12$ 两种划分的对比图。
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261106212646.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
 ### Access Cost of Multilevel Paging
 
@@ -902,7 +870,7 @@ $$
 
 **哈希值相同，只表示进入同一个桶，仍需要比较实际页号。** 链越长，查询开销越大。
 
-> 截图占位：`ch8.pdf` 第 53 页，截取 hash function、hash table 及冲突链；保留不匹配记录 $(q,s)$ 和匹配记录 $(p,r)$。
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261106212704.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
 图中先遇到虚拟页 $q$，与目标 $p$ 不同，继续沿链查找；找到 $(p,r)$ 后，用页框号 $r$ 与偏移 $d$ 形成物理地址。
 
@@ -927,13 +895,11 @@ $$
 h(s)=\sum_{i=0}^{n-1}s[i]\cdot31^{n-1-i}.
 $$
 
-它按字符值和位置组合出哈希值。上面的输出示意与这个表达式没有给出一一对应的计算条件，无需用它反算三组输出。
+它按字符值和位置组合出哈希值。
 
 在页表中，哈希的输入换成虚拟页号；多个进程共用哈希结构时，还要区分地址空间。
 
 </details>
-
-> 截图占位：`ch8.pdf` 第 52 页，截取三组字符串输入与下方哈希公式。
 
 ### Inverted Page Tables
 
@@ -985,8 +951,6 @@ $$
 
 这里借用的是组织数据的思路，倒排索引与反向页表各自保存的内容不同。
 
-> 截图占位：`ch8.pdf` 第 57 页，截取三份文档、停用词表和右侧倒排索引。
-
 ### Hashing an Inverted Page Table
 
 反向页表按物理页框组织，CPU 却只知道进程标识和虚拟页号。直接遍历整张表可能很慢，因此再用哈希表缩小搜索范围，并用 TLB 缓存成功的转换结果。
@@ -1001,7 +965,7 @@ $$
 
 哈希页表和反向页表可以结合：前者描述查找方式，后者规定主要映射表按物理页框组织。
 
-> 截图占位：`ch8.pdf` 第 58 页，截取 CPU、反向页表和物理地址的关系；第 59 页，截取带 PID、VPN、Next 的哈希查找实例。
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261106212822.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
 #### Example
 
@@ -1052,13 +1016,13 @@ $$
 
 反向页表的页框 0 空闲；页框 1 属于 $P_2$、可读写；页框 2、4 属于 $P_1$、可读写；页框 3 属于 $P_1$、只读。
 
-图中 $(P_1,3)$ 放在槽 5，而直接哈希值为 $1+3=4$；具体冲突处理方式未给出。保留这一布局，下面三问仍按给定哈希函数计算，不涉及该行的查找。
+图中 $(P_1,3)$ 放在槽 5，而直接哈希值为 $1+3=4$。
 
-> 截图占位：`ch8.pdf` 第 61 页，完整截取左侧哈希表和右侧反向页表，保留页框 0 的空闲状态与 R/RW 权限。
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261106212856.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
 #### Example
 
-**分别计算请求 `P1:30`、`P2:22` 的哈希值。冒号后表示逻辑地址。**
+1. **分别计算请求 `P1:30`、`P2:22` 的哈希值。冒号后表示逻辑地址。**
 
 <details>
 <summary>先求逻辑页号，再计算哈希</summary>
@@ -1079,9 +1043,7 @@ $$
 
 </details>
 
-#### Example
-
-**请求 `P1:86`，求物理地址。**
+2. **请求 `P1:86`，求物理地址。**
 
 <details>
 <summary>完整地址转换</summary>
@@ -1102,9 +1064,7 @@ $$
 
 </details>
 
-#### Example
-
-**$P_2$ 尝试读取逻辑地址 7，会发生什么？数据结构如何变化？**
+3. **$P_2$ 尝试读取逻辑地址 7，会发生什么？数据结构如何变化？**
 
 <details>
 <summary>缺页处理与恢复执行</summary>
@@ -1134,7 +1094,7 @@ $$
 
 #### Example
 
-**32-bit 虚拟地址，4 KiB 页面，每个 PTE 为 4 字节。进程只使用 1024 个虚拟页，完整单级页表占多少空间？**
+1. **32-bit 虚拟地址，4 KiB 页面，每个 PTE 为 4 字节。进程只使用 1024 个虚拟页，完整单级页表占多少空间？**
 
 <details>
 <summary>单级页表按虚拟页号范围计数</summary>
@@ -1151,9 +1111,7 @@ $$
 
 </details>
 
-#### Example
-
-**沿用上题，改用二级页表，一级页表大小是每张二级页表的 4 倍。能否确定总开销？求可能的最小值和最大值。**
+2. **沿用上题，改用二级页表，一级页表大小是每张二级页表的 4 倍。能否确定总开销？求可能的最小值和最大值。**
 
 <details>
 <summary>确定两级规模，再根据页面分布求上下界</summary>
@@ -1206,9 +1164,7 @@ $$
 
 </details>
 
-#### Example
-
-**物理内存为 8 GiB，页大小为 8 KiB，PTE 为 4 字节。每张页表放在一页中，映射 46-bit 虚拟地址至少需要几级？**
+3. **物理内存为 8 GiB，页大小为 8 KiB，PTE 为 4 字节。每张页表放在一页中，映射 46-bit 虚拟地址至少需要几级？**
 
 <details>
 <summary>按每一级提供的索引位数计算</summary>
@@ -1263,8 +1219,6 @@ $$
 \boxed{M=AE_1+kBE_2}.
 $$
 
-计算时先看题目要求 **表项字节数** 还是 **实际分配的整页空间**。若每张表都要独占若干整页，则对每张表分别向页大小取整，不能只对总字节数取整一次。
-
 ## Segmentation
 
 ### User's View of a Program
@@ -1283,7 +1237,10 @@ $$
 
 在纯分段模型中，**进程的不同段可以分散存放，但每个段内部占据连续物理内存**。因此仍然存在外部碎片和动态空闲块分配问题。
 
-> 截图占位：`ch8.pdf` 第 70–71 页，选择 User's View of a Program 和 Logical View of Segmentation 两图，展示逻辑模块与物理布局的区别。
+<div style="display: flex; justify-content: center; align-items: flex-start; gap: 16px; max-width: 856px; margin: 0 auto;">
+  <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261106213004.png" style="width: calc((100% - 16px) / 2); min-width: 0; height: auto; display: block; margin: 0;" />
+  <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261106213016.png" style="width: calc((100% - 16px) / 2); min-width: 0; height: auto; display: block; margin: 0;" />
+</div>
 
 ### Segmentation Architecture
 
@@ -1326,7 +1283,7 @@ $$
                                    地址异常
 ```
 
-> 截图占位：`ch8.pdf` 第 74 页，截取 Segmentation Hardware，保留 limit 比较器、base 加法器、保护信息和异常支路。
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261106213144.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
 ### Protection and Sharing
 
@@ -1348,7 +1305,7 @@ $$
 
 各段在物理内存中的位置并不按段号排列。
 
-> 截图占位：`ch8.pdf` 第 75 页，完整截取逻辑段、段表和物理内存三部分。
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261106213156.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
 <details>
 <summary>各段的物理地址范围</summary>
@@ -1415,7 +1372,7 @@ $$
 
 **32-bit 逻辑地址采用 $10:12:10$ 的“段号、页号、偏移”划分。**
 
-> 截图占位：`ch8.pdf` 第 78 页，截取 32-bit logical address、段表、页表及最终物理地址的完整转换图。
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261106213215.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
 <details>
 <summary>地址空间大小与转换过程</summary>
@@ -1446,7 +1403,7 @@ $$
 
 </details>
 
-## Example: The Intel Pentium
+## The Intel Pentium
 
 ### Logical, Linear, and Physical Addresses
 
@@ -1460,7 +1417,7 @@ Pentium 支持纯分段，也支持分段后继续分页。
 
 这一过程中的分段单元和分页单元共同完成内存管理单元的地址转换工作。
 
-> 截图占位：`ch8.pdf` 第 80 页，截取上方 logical → linear → physical 转换路径和下方 selector 位数图。
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261106213252.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
 ### Segment Selector and Descriptor Tables
 
@@ -1490,7 +1447,7 @@ selector → 选择 GDT／LDT → 找到段描述符
 
 段描述符可以缓存在处理器中，不必每次访存都重新从主存读取。
 
-> 截图占位：`ch8.pdf` 第 82 页，截取 INDEX／TI／RPL、描述符中的 ACCESS RIGHTS／LIMIT／BASE ADDRESS，以及相加生成 LINEAR ADDRESS 的路径。第 81 页为同一过程的简图，可二选一。
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261106213305.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
 ### Pentium Paging Architecture
 
@@ -1517,7 +1474,7 @@ $$
 
 高 10 位索引页目录，低 22 位为 4 MiB 页内偏移。
 
-> 截图占位：`ch8.pdf` 第 83 页，截取 4 KiB 与 4 MiB 两条分页路径，保留 CR3 和 page-size 标志的说明。
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261106213324.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
 ### Linear Address in Linux
 
@@ -1535,7 +1492,7 @@ $$
 
 这展示了通过多级目录逐步缩小范围的方式；实际层级由相应体系结构决定。
 
-> 截图占位：`ch8.pdf` 第 85 页，截取 Three-level Paging in Linux 全图，保留 CR3、三级索引及末尾 page frame。第 84 页的字段划分可放在同一组图片上方。
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261106213334.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
 ### Segments in Linux
 
@@ -1547,302 +1504,3 @@ $$
 - `Default_LDT`：默认局部描述符表。
 
 多个用户进程可以使用相同的用户段定义，仍通过各自的页表维持地址空间隔离。**共享段定义，不等于所有进程的数据都映射到相同物理页框。**
-
-## Supplementary Exercises
-
-以下保留 PDF 第 88–98 页的跨章复习题，与主存正文分开。同步题使用伪代码，`wait`、`signal` 为原子信号量操作。
-
-### CPU Scheduling
-
-五个进程按 $P_1,P_2,P_3,P_4,P_5$ 的顺序进入队列，均在时刻 0 到达，CPU 执行时间单位为毫秒。
-
-| 进程 | CPU Burst | 优先级 |
-| --- | --- | --- |
-| $P_1$ | 10 | 3 |
-| $P_2$ | 1 | 1 |
-| $P_3$ | 2 | 3 |
-| $P_4$ | 1 | 4 |
-| $P_5$ | 5 | 2 |
-
-分别使用 FCFS、SJF、非抢占式优先级调度和 RR（时间片为 1）。优先级数值越小，优先级越高；相同条件按给定到达顺序处理。
-
-**问题：** 画出四种调度的甘特图；计算每个进程的周转时间和等待时间；判断哪种算法的平均等待时间最小。
-
-<details>
-<summary>调度顺序与甘特图</summary>
-
-```text
-FCFS：
-0 --P1-- 10 --P2-- 11 --P3-- 13 --P4-- 14 --P5-- 19
-
-SJF：
-0 --P2-- 1 --P4-- 2 --P3-- 4 --P5-- 9 --P1-- 19
-
-Priority：
-0 --P2-- 1 --P5-- 6 --P1-- 16 --P3-- 18 --P4-- 19
-```
-
-RR 的各时间段为：
-
-```text
-[0,1) P1    [1,2) P2    [2,3) P3    [3,4) P4    [4,5) P5
-[5,6) P1    [6,7) P3    [7,8) P5    [8,9) P1    [9,10) P5
-[10,11) P1  [11,12) P5  [12,13) P1  [13,14) P5  [14,19) P1
-```
-
-最后只剩 $P_1$，连续获得后续时间片，合并画成 14～19。
-
-</details>
-
-<details>
-<summary>周转时间、等待时间和平均值</summary>
-
-所有进程均在 0 到达，因此：
-
-$$
-T_i=C_i,\qquad W_i=T_i-B_i.
-$$
-
-**周转时间：**
-
-| 算法 | $P_1$ | $P_2$ | $P_3$ | $P_4$ | $P_5$ |
-| --- | --- | --- | --- | --- | --- |
-| FCFS | 10 | 11 | 13 | 14 | 19 |
-| SJF | 19 | 1 | 4 | 2 | 9 |
-| Priority | 16 | 1 | 18 | 19 | 6 |
-| RR | 19 | 2 | 7 | 4 | 14 |
-
-**等待时间：**
-
-| 算法 | $P_1$ | $P_2$ | $P_3$ | $P_4$ | $P_5$ | 平均 |
-| --- | --- | --- | --- | --- | --- | --- |
-| FCFS | 0 | 10 | 11 | 13 | 14 | 9.6 |
-| SJF | 9 | 0 | 2 | 1 | 4 | 3.2 |
-| Priority | 6 | 0 | 16 | 18 | 1 | 8.2 |
-| RR | 9 | 1 | 5 | 3 | 9 | 5.4 |
-
-本题 **SJF 的平均等待时间最小，为 3.2 ms**。
-
-</details>
-
-### Sleeping-Barber Problem
-
-理发店有一个理发师、一把理发椅，等待区有 $n$ 把椅子。
-
-没有顾客时，理发师睡觉；顾客到达时，如果等待区已满就离开，否则等待服务；理发师睡觉时，顾客唤醒他。
-
-**问题：** 使用信号量协调理发师与顾客。示例取 $n=5$。
-
-<details>
-<summary>信号量含义、初始化与同步代码</summary>
-
-`mutex` 保护等待人数，`customers` 表示等待顾客的通知，`barber` 表示理发师已准备接待一位顾客。
-
-原示例把 `barbers` 初始化为 1，后续使用名称 `barber`。按“就绪通知”的语义，初值应为 **0**：理发师尚未接待任何顾客，不能预先发出通知。下面统一命名并采用这个初值。
-
-```c
-const int n = 5;
-semaphore mutex = 1;
-semaphore customers = 0;
-semaphore barber = 0;
-int waiting = 0;
-
-void barber_thread() {
-    while (true) {
-        wait(customers);       // 无顾客时睡眠
-        wait(mutex);
-        waiting--;
-        signal(mutex);
-
-        signal(barber);        // 通知一位顾客接受服务
-        cut_hair();
-    }
-}
-
-void customer_thread() {
-    wait(mutex);
-    if (waiting < n) {
-        waiting++;
-        signal(mutex);
-
-        signal(customers);     // 通知有顾客等待
-        wait(barber);          // 等待理发师接待
-        get_haircut();
-    } else {
-        signal(mutex);         // 等待区已满，离开
-    }
-}
-```
-
-`cut_hair()` 和 `get_haircut()` 表示同一次服务的两侧动作。等待顾客或理发师通知时，都不能继续持有 `mutex`，否则另一方无法更新等待状态。
-
-</details>
-
-### Banker's Algorithm
-
-系统有四类资源 A、B、C、D，当前状态为：
-
-| 进程 | Allocation | Max |
-| --- | --- | --- |
-| $P_0$ | (0,0,1,2) | (0,0,1,2) |
-| $P_1$ | (1,0,0,0) | (1,7,5,0) |
-| $P_2$ | (1,3,5,4) | (2,3,5,6) |
-| $P_3$ | (0,6,3,2) | (0,6,5,2) |
-| $P_4$ | (0,0,1,4) | (0,6,5,6) |
-
-$$
-Available=(1,5,2,0).
-$$
-
-**问题：** 求 Need 矩阵；判断系统是否安全；若 $P_1$ 请求 $(0,4,2,0)$，能否立即批准？
-
-<details>
-<summary>Need 矩阵</summary>
-
-逐项相减：
-
-$$
-Need=Max-Allocation.
-$$
-
-```text
-        A B C D
-P0      0 0 0 0
-P1      0 7 5 0
-P2      1 0 0 2
-P3      0 0 2 0
-P4      0 6 4 2
-```
-
-</details>
-
-<details>
-<summary>初始状态的安全性</summary>
-
-存在安全序列：
-
-$$
-\boxed{\langle P_0,P_3,P_2,P_1,P_4\rangle}.
-$$
-
-令 $Work=Available$，每个进程满足 $Need_i\le Work$ 后，假设其完成并释放当前分配资源：
-
-```text
-初始： (1, 5, 2, 0)
-P0 后：(1, 5, 3, 2)
-P3 后：(1,11, 6, 4)
-P2 后：(2,14,11, 8)
-P1 后：(3,14,11, 8)
-P4 后：(3,14,12,12)
-```
-
-所有进程都能依次完成，因此系统安全。
-
-</details>
-
-<details>
-<summary>批准 P1 的请求后是否仍然安全？</summary>
-
-请求 $R=(0,4,2,0)$ 满足：
-
-$$
-R\le Need_1=(0,7,5,0),\qquad R\le Available=(1,5,2,0).
-$$
-
-试分配后：
-
-$$
-Available'=(1,1,0,0),
-$$
-
-$$
-Allocation_1'=(1,4,2,0),\qquad Need_1'=(0,3,3,0).
-$$
-
-可以找到安全序列：
-
-$$
-\boxed{\langle P_0,P_2,P_3,P_1,P_4\rangle}.
-$$
-
-```text
-初始： (1, 1, 0, 0)
-P0 后：(1, 1, 1, 2)
-P2 后：(2, 4, 6, 6)
-P3 后：(2,10, 9, 8)
-P1 后：(3,14,11, 8)
-P4 后：(3,14,12,12)
-```
-
-因此可以立即批准。资源向量按分量比较，不能把四个数字拼成一个整数比较。
-
-</details>
-
-### Typed Producer-Consumer Problem
-
-四个进程共享缓冲区 B：
-
-`R1` 从键盘读取数字并写入 B，只能由 `W1` 取走并显示；`R2` 从鼠标读取字符并写入 B，只能由 `W2` 取走并打印。
-
-**问题：** 编写四个进程的同步代码，避免竞争，并保证两类数据由正确的消费者处理。
-
-<details>
-<summary>按 B 每次保存一项数据实现</summary>
-
-题目没有给出 B 的容量，下面采用单槽缓冲区。使用一个空位信号量和两个分类通知信号量：
-
-```c
-semaphore empty = 1;
-semaphore number_ready = 0;
-semaphore character_ready = 0;
-
-void R1() {
-    while (true) {
-        number x = read_keyboard();
-        wait(empty);
-        B = x;
-        signal(number_ready);
-    }
-}
-
-void W1() {
-    while (true) {
-        wait(number_ready);
-        print_screen(B);
-        signal(empty);
-    }
-}
-
-void R2() {
-    while (true) {
-        character x = read_mouse();
-        wait(empty);
-        B = x;
-        signal(character_ready);
-    }
-}
-
-void W2() {
-    while (true) {
-        wait(character_ready);
-        print_printer(B);
-        signal(empty);
-    }
-}
-```
-
-`empty` 保证同一时刻只有一个生产者能够占用空槽，并阻止消费者读取期间被覆盖。
-
-两个 `ready` 信号量分别通知正确的消费者，避免数字被 `W2` 取走或字符被 `W1` 取走。消费者完成后才归还空槽。
-
-在这个单槽协议中，信号量已经限制了对 B 的访问顺序，不需要再单独给 B 增加互斥锁。
-
-</details>
-
-<!--
-参考资料：
-- ch8.pdf／本次上传的 ch8(1).pdf：正文第 1–87 页；补充练习第 88–98 页。
-- Abraham Silberschatz, Peter Baer Galvin, Greg Gagne (2018). Operating System Concepts, 10th ed., Wiley. Chapter 9, §§9.1–9.6；补充分配练习采用 Practice Exercise 9.6。
-- 20261027.docx：约 01:00–01:38 的主存部分。
-- 排版参照 2_Operation_Stystem_Structure(9).md。
--->
