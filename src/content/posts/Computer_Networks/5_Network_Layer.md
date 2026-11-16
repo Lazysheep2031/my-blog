@@ -1,7 +1,7 @@
 ---
 title: The Network Layer
 published: 2026-11-09
-description: 网络层概述、链路状态与距离向量路由、层次路由、广播／多播／任播，以及 IPv4 首部基础；
+description: 网络层基础：路由算法、广播与多播、IPv4/IPv6、子网划分与 CIDR、NAT、DHCP，以及 ICMP 网络诊断与数据包转发机制。
 tags: [计算机网络]
 category: 笔记
 draft: false
@@ -1307,3 +1307,1434 @@ $$
 **Source Address、Destination Address** 分别保存源、目的 IPv4 地址，各占 **32 bit**。
 
 读一段 IPv4 首部时，重点是把字段解释连起来：从 Version 判断版本，从 IHL 找到数据开始的位置，从 Total Length 算出数据大小，从 Protocol 判断承载的协议，再结合 TTL 和校验和理解沿途路由器的处理。
+
+#### Header Limits and Service Marking
+
+IHL 的最大值为 $2^4-1=15$，因此首部最长为 $15\times4=60$ B，可选部分最多为 $60-20=40$ B。
+
+Total Length 占 16 bit，以 **字节** 为单位，最大值为：
+
+$$
+2^{16}-1=65535\ \mathrm{B}.
+$$
+
+使用 20 B 首部时，最大数据部分为：
+
+$$
+65535-20=65515\ \mathrm{B}.
+$$
+
+**IP 数据报总长度、IP 数据部分长度、链路 MTU 要分开计算。** 以太网常见 MTU 为 1500 B，承载的是整个 IP 数据报，因而通常还要从中扣除 IP 首部。
+
+区分服务字段共 8 bit：高 6 位标记服务类别，低 2 位用于 **显式拥塞通知（ECN）**。实时语音关心较低时延，文件传输更关心完整交付，可以采用不同的服务处理。
+
+#### Computing the Header Checksum
+
+首部校验和占 16 bit，只检查 IPv4 首部。计算时，将校验和字段暂置为 0，把首部按 16 bit 分组，使用反码加法求和，再按位取反。
+
+```text
+校验和字段置 0
+    ↓
+每 16 bit 作为一个数相加；最高位进位回加到最低位
+    ↓
+对最终 16-bit 和取反，填入校验和字段
+```
+
+接收方可以重新计算并与报文携带值比较，也可以把校验和字段一起相加：无误时，反码和为 `0xFFFF`，再取反为 `0x0000`。
+
+**“校验结果为 0”与“首部中的校验和字段为 0”是两件事。** 转发时 TTL 改变，需要更新校验和；可选字段发生变化时也一样。
+
+#### Options
+
+可选部分放在固定首部之后，并填充到 4 B 的整数倍。几种典型选项的用途为：
+
+| 选项 | 含义 |
+| --- | --- |
+| Security | 标记信息的保密级别 |
+| Strict Source Routing | 指定需要严格遵循的完整路径 |
+| Loose Source Routing | 指定必须依次经过的节点，其间可以经过其他路由器 |
+| Record Route | 让沿途路由器记录自己的 IP 地址 |
+| Timestamp | 记录沿途地址及时间戳 |
+
+可选部分结束后，就是 IPv4 的数据部分；没有可选部分时，数据紧接在 20 B 固定首部之后。
+
+### Packet Fragmentation
+
+不同链路允许承载的最大分组长度不同。**最大传输单元（Maximum Transmission Unit，MTU）** 限制一个网络层分组在该链路上能有多大。
+
+以太网常见 MTU 为 1500 B；802.11 的例子给出加密前帧体上限 2304 B。IPv4 自身允许的数据报可以大得多，因此分组可能无法直接通过下一条链路。
+
+有两种处理思路：**源端先获知路径允许的大小，发送合适长度的分组；或在必要时将分组拆成多个分片。** 每个分片都携带自己的 IP 首部，独立进行转发。
+
+#### Transparent and Nontransparent Fragmentation
+
+**透明分片（Transparent Fragmentation）**：分组进入某个网络时被分片，离开该网络前重新组装。下一段网络需要时，再重新分片。
+
+```text
+大分组 → 入口 G₁ 分片 → 网络 1 → 出口 G₂ 重组
+      → 入口 G₃ 再分片 → 网络 2 → 出口 G₄ 再重组
+```
+
+出口必须等到属于同一分组的全部分片，才能重组；所有分片也必须经过同一个出口。重复分片和重组增加处理及等待开销。
+
+**非透明分片（Nontransparent Fragmentation）**：中间路由器不重组，分片一直传到目的主机，最后统一重组。IPv4 采用这种方式，减轻中间路由器的负担。
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261116154136.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261116154233.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+#### Identification, Flags, and Offset
+
+**Identification** 占 16 bit。同一原始数据报产生的分片使用相同标识，帮助接收方把分片归组。
+
+3 位 Flags 包含一个保留位，以及两个分片标志：
+
+- **DF（Don't Fragment）**：1 表示禁止分片。
+- **MF（More Fragments）**：1 表示后面还有分片；0 表示没有后续分片。
+
+**Fragment Offset** 占 13 bit，表示该片数据在 **原始数据部分** 中的起始位置，单位为 **8 B**：
+
+$$
+\boxed{\text{字节偏移}=8\times\text{Fragment Offset}}.
+$$
+
+偏移不计算每片新增的 IP 首部。除最后一片外，各片的数据长度必须为 8 B 的整数倍，才能让下一片的起点用这个字段表示。最后一片的数据长度可以不是 8 的倍数。
+
+13 位偏移可表示 $0\sim8191$，共 8192 个偏移单位位置。实际分片数量还受原始数据长度与分片大小约束。
+
+#### Fragment Size Calculation
+
+设下一条链路的 MTU 为 $M$，每片首部长度为 $H$，原始数据报总长为 $T$。原始数据长度为：
+
+$$
+P=T-H.
+$$
+
+按尽可能装满的方式分片时，非末片最多承载：
+
+$$
+\boxed{L=8\left\lfloor\frac{M-H}{8}\right\rfloor\ \mathrm{B}}.
+$$
+
+先减首部，再向下取到 8 的倍数。第 $i$ 片的偏移为它前面所有 **数据字节数之和除以 8**；每片总长度则是本片数据长度加本片首部。
+
+#### Example
+
+**Fragmenting a 4000-Byte Datagram**
+
+**一个 IPv4 数据报总长 4000 B，首部 20 B，标识为 777，要经过 MTU = 1500 B 的链路。求分片数量，以及每片的数据长度、总长度、偏移和 MF。**
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261116154407.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+<details>
+<summary>展开解答</summary>
+
+原始数据部分为：
+
+$$
+P=4000-20=3980\ \mathrm{B}.
+$$
+
+每个非末片最多承载：
+
+$$
+L=8\left\lfloor\frac{1500-20}{8}\right\rfloor
+=8\times185=1480\ \mathrm{B}.
+$$
+
+分成三片：
+
+$$
+3980=1480+1480+1020.
+$$
+
+| 分片 | 数据在原始数据中的范围 | 数据长度 | IP 总长度 | Offset | MF |
+| --- | --- | ---: | ---: | ---: | ---: |
+| 1 | 第 0–1479 字节 | 1480 B | 1500 B | 0 | 1 |
+| 2 | 第 1480–2959 字节 | 1480 B | 1500 B | 185 | 1 |
+| 3 | 第 2960–3979 字节 | 1020 B | 1040 B | 370 | 0 |
+
+偏移分别为：
+
+$$
+0,\qquad \frac{1480}{8}=185,\qquad
+\frac{1480+1480}{8}=370.
+$$
+
+三个分片的 Identification 都是 **777**；允许这次分片时 DF 为 0。第三片的 1020 B 数据无须再凑成 8 的倍数。
+
+**每片都新增自己的首部。** 三片合计发送的 IP 字节数为：
+
+$$
+1500+1500+1040=4040\ \mathrm{B},
+$$
+
+比原来的 4000 B 多出两个 20 B 首部。原始数据本身仍然只有 3980 B。
+
+目的主机按标识归组、按偏移摆放数据，并由末片位置与长度确定原始数据的末端。收到 MF = 0 的分片后，仍需等其余位置的数据齐全，才能重组。
+
+</details>
+
+#### Path MTU Discovery
+
+**路径 MTU（Path MTU）** 是整条路径上各链路 MTU 的最小值，决定一个分组在该路径上不分片时的最大长度。
+
+IPv4 路径 MTU 发现利用 DF：源端发送禁止分片的数据报；某台路由器发现它超过输出链路的 MTU，就丢弃并返回 ICMP 差错，源端再调整发送大小。
+
+#### Example
+
+**From 1400 Bytes to 900 Bytes**
+
+**源端先发送 1400 B 的分组，沿途先遇到只能通过 1200 B 的链路，再遇到只能通过 900 B 的链路。发送大小如何调整？**
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261116154452.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+<details>
+<summary>展开解答</summary>
+
+第一次发送 1400 B，在第一处瓶颈被拒绝，收到“尝试 1200 B”的反馈。
+
+第二次发送 1200 B，可以通过第一处瓶颈，但在下一处被拒绝，收到“尝试 900 B”的反馈。
+
+第三次发送 900 B，可以通过这两条链路：
+
+$$
+1400\longrightarrow1200\longrightarrow900.
+$$
+
+该例最终发现的路径 MTU 为 900 B。源端随后直接发送合适大小的分组，减少中间分片及目的端重组的需要。
+
+代价是启动阶段可能经历多次往返探测。路由或链路 MTU 改变后，可能需要重新调整。
+
+</details>
+
+### IPv4 Addressing
+
+IPv4 地址长 **32 bit**，用于标识网络接口。一个路由器连接多个子网，其相应接口需要配置各自的地址。
+
+IP 地址具有层次结构：高位是 **网络前缀**，低位是 **主机部分**。MAC 地址本身不提供这种网络位置层次。
+
+#### Dotted Decimal and Hexadecimal Notation
+
+点分十进制把 32 bit 分成四个 8-bit 组，每组写成 $0\sim255$ 的十进制数。十六进制则用两个数字表示一个字节。
+
+#### Example
+
+**Converting 128.208.2.151**
+
+**把 `128.208.2.151` 写成十六进制字节序列。**
+
+<details>
+<summary>展开解答</summary>
+
+逐字节转换：
+
+$$
+128=\texttt{0x80},\quad208=\texttt{0xD0},\quad
+2=\texttt{0x02},\quad151=\texttt{0x97}.
+$$
+
+所以：
+
+```text
+128.208.2.151 → 80 D0 02 97 → 0x80D00297
+```
+
+每个字节占两个十六进制数字，因此 `2` 要写成 `02`。读取抓包的原始字节时，可以用这四个字节定位 IP 地址，再结合首部格式识别前面的长度、TTL 和 Protocol。
+
+</details>
+
+#### Prefixes and Subnet Masks
+
+长度为 $L$ 的前缀包含所有高 $L$ 位相同的地址，其余 $32-L$ 位可以变化：
+
+$$
+\boxed{\text{地址数}=2^{32-L}}.
+$$
+
+前缀记法为 `网络地址/L`。网络地址取块内最低地址，即主机部分全为 0；地址块起点必须按块大小对齐。
+
+**子网掩码（Subnet Mask）** 的高 $L$ 位为 1，其余位为 0。它用于提取地址中的网络部分：
+
+$$
+\boxed{\text{网络地址}=\text{IP 地址}\mathbin{\&}\text{子网掩码}}.
+$$
+
+例如，`/24` 的掩码为 `255.255.255.0`。前缀越长，地址块越小，表示的范围越具体；前缀越短，覆盖的地址越多。
+
+#### Example
+
+**The Prefix 128.13.0.0/16**
+
+**求地址范围、地址总数和普通子网中的可用主机地址数。**
+
+<details>
+<summary>展开解答</summary>
+
+前 16 位固定，后 16 位变化，因此：
+
+```text
+网络地址：    128.13.0.0
+子网掩码：    255.255.0.0
+整个地址范围：128.13.0.0 – 128.13.255.255
+广播地址：    128.13.255.255
+主机地址范围：128.13.0.1 – 128.13.255.254
+```
+
+总地址数为 $2^{16}=65536$。普通广播型子网保留主机部分全 0 的网络地址和全 1 的广播地址，因此常规可用主机地址数为：
+
+$$
+\boxed{2^{16}-2=65534}.
+$$
+
+同理，普通 `/24` 子网包含 256 个地址，常规可用主机地址有 254 个。
+
+`/32` 则表示一个确定的地址，常用于单主机路由或路由器的逻辑回环接口；这里直接按一个地址理解。
+
+**网络地址与未指定地址要分开。** `128.13.0.0/16` 标识这个网络；尚未取得 IPv4 地址的 DHCP 客户端使用 `0.0.0.0` 作为源地址。
+
+</details>
+
+### Subnets and Subnetting
+
+**子网（Subnet）** 是主机和路由器接口所在的一个网络范围。识别拓扑中的子网时，可以把路由器各接口从路由器本体上拆开，看形成多少个相互隔离的“岛”。
+
+同一个岛上的接口共享相应的网络前缀。路由器连接这些不同的岛，并在它们之间转发分组。
+
+#### Example
+
+**Counting Six Subnets**
+
+**三个路由器 R1、R2、R3 两两相连，每个路由器还连接一个主机局域网。各网段按 `/24` 理解，图中有多少个子网？三个局域网的默认网关分别是什么？**
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261116200208.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+<details>
+<summary>展开：子网数量与接口配置</summary>
+
+三个主机局域网分别为：
+
+```text
+R1 所连局域网：223.1.1.0/24
+R2 所连局域网：223.1.2.0/24
+R3 所连局域网：223.1.3.0/24
+```
+
+三条路由器间链路又各自形成一个子网：
+
+```text
+R1 — R2：223.1.9.0/24
+R1 — R3：223.1.7.0/24
+R2 — R3：223.1.8.0/24
+```
+
+因此共：
+
+$$
+\boxed{3+3=6\text{ 个子网}}.
+$$
+
+路由器之间的链路同样要配置地址，不能只数连接了 PC 的局域网。
+
+图中三个局域网的默认网关分别为：
+
+```text
+223.1.1.0/24 内的主机 → 223.1.1.3
+223.1.2.0/24 内的主机 → 223.1.2.6
+223.1.3.0/24 内的主机 → 223.1.3.27
+```
+
+**默认网关是本机可以直接到达的路由器接口地址。** 网关不必以 `.1` 结尾，图中的 `.3`、`.6`、`.27` 都承担这个角色。
+
+配置这种拓扑时，同一条路由器间链路的两端属于同一子网；同一路由器连接不同子网的接口，则分别使用对应子网的地址。
+
+</details>
+
+#### Splitting an Address Block
+
+**子网划分（Subnetting）** 把一个较大的地址块分成多个更小的块，供组织内部的不同网络使用；外部仍可以用一个较短前缀表示整个组织。
+
+内部子网不必一样大。每个子网都需要满足地址块大小与边界对齐要求，且分配范围不能重叠。
+
+#### Example
+
+**Three Departments in 128.208.0.0/16**
+
+**把 `128.208.0.0/16` 分给计算机、电气工程和艺术三个院系，分别使用 `/17`、`/18`、`/19`。分析各自的地址范围及剩余空间。**
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261116200243.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+<details>
+<summary>展开解答</summary>
+
+前两个字节固定为 `128.208`，主要看第三个字节的高位：
+
+```text
+计算机：128.208.1xxxxxxx.xxxxxxxx    /17
+电气：  128.208.00xxxxxx.xxxxxxxx   /18
+艺术：  128.208.011xxxxx.xxxxxxxx   /19
+```
+
+这里第三、第四组用二进制表示，`x` 对应可变的主机位。
+
+| 院系 | 前缀 | 子网掩码 | 整个地址范围 | 地址数 |
+| --- | --- | --- | --- | ---: |
+| 计算机 | 128.208.128.0/17 | 255.255.128.0 | 128.208.128.0–128.208.255.255 | 32768 |
+| 电气 | 128.208.0.0/18 | 255.255.192.0 | 128.208.0.0–128.208.63.255 | 16384 |
+| 艺术 | 128.208.96.0/19 | 255.255.224.0 | 128.208.96.0–128.208.127.255 | 8192 |
+
+三个地址块分别占原 `/16` 的 $1/2$、$1/4$、$1/8$。剩余的 $1/8$ 为：
+
+$$
+\boxed{128.208.64.0/19},
+$$
+
+范围是 `128.208.64.0–128.208.95.255`，共有 8192 个地址。
+
+内部路由器根据三个更具体的前缀区分院系；外部只需知道 `128.208.0.0/16` 朝学校方向转发。
+
+</details>
+
+#### Selecting a Subnet with a Mask
+
+路由器收到分组后，对目的地址应用各条路由的掩码，检查结果是否等于对应的网络地址：
+
+$$
+\boxed{(D\mathbin{\&}M_i)=P_i}.
+$$
+
+这里 $D$ 是目的地址，$M_i$ 是掩码，$P_i$ 是该路由的前缀地址。匹配意味着目的地址位于该前缀的覆盖范围内。
+
+<details>
+<summary>例：128.208.2.151 应转发到哪个院系？</summary>
+
+检查计算机院系 `/17`：
+
+```text
+128.208.2.151 AND 255.255.128.0 = 128.208.0.0
+```
+
+结果与 `128.208.128.0` 不同，因此不匹配。
+
+检查电气院系 `/18`：
+
+```text
+128.208.2.151 AND 255.255.192.0 = 128.208.0.0
+```
+
+结果等于该院系的前缀地址，所以应从通向 **电气院系** 的接口发送。
+
+判断时既要做 AND，也要把结果与该条路由的网络地址比较；仅得到一个 AND 结果还没有完成匹配。
+
+</details>
+
+### Classful Addressing and Address Allocation
+
+#### Historical Address Classes
+
+早期分类地址把单播网络的前缀长度限制为 `/8`、`/16`、`/24`。类别由地址的高位确定：
+
+| 类别 | 起始比特 | 网络前缀长度 | 主机位数／用途 |
+| --- | --- | --- | --- |
+| A | `0` | /8 | 24 位主机部分 |
+| B | `10` | /16 | 16 位主机部分 |
+| C | `110` | /24 | 8 位主机部分 |
+| D | `1110` | — | 多播，224.0.0.0–239.255.255.255 |
+| E | `1111` | — | 保留范围 |
+
+A、B、C 的类别标志也属于前缀，因此剩余的网络编号位分别是 7、14、21 位。
+
+固定块大小会造成浪费：C 类容量较小，B 类又可能远超需求。使用可变长度前缀后，可以按所需地址数量选择块大小。
+
+#### Hierarchical Allocation
+
+公网地址按层次分配：全球协调（ICANN）→ 区域互联网注册机构 → ISP／组织 → 网络接口。区域机构的例子包括 ARIN、RIPE NCC、APNIC 和 LACNIC。
+
+组织取得地址块后，再划分内部子网，并为接口分配地址；主机地址还可以由 DHCP 自动配置。**给组织分配一块地址，与给一台主机分配地址，是不同层次的工作。**
+
+### CIDR and Route Aggregation
+
+**无类别域间路由（Classless Inter-Domain Routing，CIDR）** 使用 `地址/前缀长度` 描述网络，不再由 A、B、C 类固定前缀长度。
+
+```text
+子网划分：一个大地址块 → 多个小地址块；前缀变长。
+路由聚合：多个小前缀 → 一个覆盖范围更大的前缀；前缀变短。
+```
+
+**路由聚合（Route Aggregation）** 让远端路由器用一个汇总表项表示多个朝同一方向转发的网络，减少路由表项和通告量。靠近目的地的路由器仍保留区分各子网的详细表项。
+
+#### Example
+
+**Cambridge, Edinburgh, and Oxford**
+
+**从 `192.24.0.0` 开始，有连续 8192 个地址。Cambridge 使用 2048 个，Edinburgh 使用 1024 个，Oxford 使用 4096 个。分析分配结果及对外聚合。**
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261116201213.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+<details>
+<summary>展开：地址分配、对齐与聚合</summary>
+
+整个地址块包含 $8192=2^{13}$ 个地址，所以前缀为：
+
+$$
+192.24.0.0/19.
+$$
+
+分配结果为：
+
+| 网络 | 地址数 | 前缀 | 地址范围 |
+| --- | ---: | --- | --- |
+| Cambridge | 2048 | 192.24.0.0/21 | 192.24.0.0–192.24.7.255 |
+| Edinburgh | 1024 | 192.24.8.0/22 | 192.24.8.0–192.24.11.255 |
+| 尚未分配 | 1024 | 192.24.12.0/22 | 192.24.12.0–192.24.15.255 |
+| Oxford | 4096 | 192.24.16.0/20 | 192.24.16.0–192.24.31.255 |
+
+其中 $2048=2^{11}$，对应 `/21`；$1024=2^{10}$，对应 `/22`；$4096=2^{12}$，对应 `/20`。
+
+Oxford 的 `/20` 需要按 4096 个地址对齐。在前两个字节固定时，第三个字节应从 16 的倍数开始，所以它使用 `192.24.16.0/20`。
+
+London 要区分三个大学，保留三个具体前缀；New York 到这些地址都先发往 London，只需保存：
+
+```text
+192.24.0.0/19 → London
+```
+
+第三个字节范围为 $0\sim31$，其二进制高 3 位相同：
+
+```text
+00000000 … 00011111
+^^^
+公共 3 位
+```
+
+加上前两个字节的 16 位，得到 $16+3=19$ 位共同前缀。聚合范围也包含尚未分配的 `192.24.12.0/22`。
+
+</details>
+
+#### Longest Prefix Matching
+
+路由表中的前缀允许包含关系。目的地址同时匹配多条路由时，选择 **最长匹配前缀（Longest Prefix Match）**，也就是覆盖范围最具体的一条。
+
+检查顺序是：**先确认匹配，再在匹配项中比较长度。** 一个很长但不匹配的前缀不能被选中。
+
+#### Example
+
+**London or San Francisco?**
+
+**New York 原来把 `192.24.0.0/19` 都发往 London。现在其中的 `192.24.12.0/22` 分配给 San Francisco，怎样用两条表项正确转发？**
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261116201244.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+<details>
+<summary>展开解答</summary>
+
+保留原来的汇总路由，再增加一条更具体的路由：
+
+```text
+192.24.0.0/19  → London
+192.24.12.0/22 → San Francisco
+```
+
+`/22` 覆盖 `192.24.12.0–192.24.15.255`，这个范围也在 `/19` 内。两个前缀都匹配时，选择较长的 `/22`，转发到 San Francisco。
+
+例如，目的地址 `192.24.13.1` 同时匹配两条，去 San Francisco；目的地址 `192.24.18.1` 只匹配 `/19`，去 London。
+
+**汇总路由负责大范围，更具体路由负责例外。** 无须为了一个子块迁出，就把所有其他子块逐项拆回路由表。
+
+</details>
+
+#### Example
+
+**Allocating Addresses to Four Organizations**
+
+**从 `172.16.0.0` 开始有大量连续地址。A、B、C、D 按顺序分别申请 2000、4000、4000、8000 个地址，按地址从小到大分配。求各组织的首地址、末地址及前缀。**
+
+<details>
+<summary>展开：先确定块大小，再按边界分配</summary>
+
+**第一步：向上取到 2 的幂。** 设需要 $n$ 个地址，选择最小的 $h$，使 $2^h\ge n$。块大小为 $2^h$，前缀长度为 $32-h$。
+
+```text
+A：2000 → 2048 = 2¹¹ → /21
+B：4000 → 4096 = 2¹² → /20
+C：4000 → 4096 = 2¹² → /20
+D：8000 → 8192 = 2¹³ → /19
+```
+
+**第二步：把起点对齐。** 前两个字节固定时，`/21`、`/20`、`/19` 的第三个字节分别按 8、16、32 对齐。
+
+A 从 0 开始，占第三个字节 $0\sim7$。
+
+B 需要 `/20`，不能直接从 8 开始：12 位主机部分必须从全 0 开始，因此第三个字节要跳到下一个 16 的倍数，即 16，范围为 $16\sim31$。
+
+C 同样使用 `/20`，从 32 开始，范围为 $32\sim47$。
+
+D 需要 `/19`。48 不是 32 的倍数，要从 64 开始，范围为 $64\sim95$。
+
+| 组织 | 首地址 | 末地址 | 前缀 |
+| --- | --- | --- | --- |
+| A | 172.16.0.0 | 172.16.7.255 | 172.16.0.0/21 |
+| B | 172.16.16.0 | 172.16.31.255 | 172.16.16.0/20 |
+| C | 172.16.32.0 | 172.16.47.255 | 172.16.32.0/20 |
+| D | 172.16.64.0 | 172.16.95.255 | 172.16.64.0/19 |
+
+这里列的是 **整个地址块** 的首尾，包括网络地址和末尾地址。题目问可分配给普通主机的范围时，才另行扣除保留地址。
+
+分配过程中留下两个空段：
+
+```text
+172.16.8.0  – 172.16.15.255
+172.16.48.0 – 172.16.63.255
+```
+
+**数量够用与边界正确必须同时满足。** 例如把 B 写成 `172.16.8.0/20`，应用 `/20` 掩码后实际得到 `172.16.0.0/20`，会覆盖 A，不能作为本题的新块起点。
+
+</details>
+
+<details>
+<summary>继续：这四块地址怎样对外汇总？</summary>
+
+需要区分汇总范围：
+
+**按整个 `/16` 地址块统一对外表示**，可以写 `172.16.0.0/16`，覆盖第三个字节 $0\sim255$。
+
+**只求覆盖这四块的最小单一前缀**，则要比较最小地址 `172.16.0.0` 与最大地址 `172.16.95.255`。第三个字节分别为：
+
+```text
+ 0 = 00000000
+95 = 01011111
+     ^
+只有最高 1 位共同固定为 0
+```
+
+加上前两个字节的 16 位，共同前缀长 17 位，所以最小覆盖前缀为：
+
+$$
+\boxed{172.16.0.0/17}.
+$$
+
+它覆盖 `172.16.0.0–172.16.127.255`，也包含上述空段及 `172.16.96.0–172.16.127.255`。
+
+因此 `/16` 是更宽的汇总范围，`/17` 是覆盖四块地址的最小单前缀。**把首地址按位 AND 得到 `172.16.0.0`，只能帮助确定地址部分，不能单凭这个结果确定前缀长度。**
+
+</details>
+
+### Special IPv4 Addresses
+
+几个特殊地址有固定用途：
+
+| 地址 | 含义与用途 |
+| --- | --- |
+| `0.0.0.0` | 未指定地址；主机尚未取得地址时，可以在初始化报文中用作源地址 |
+| `255.255.255.255` | 本地受限广播，发送给当前网络中的主机，不由普通路由器继续转发 |
+| `127.0.0.1` | 本机回环测试；`127.0.0.0/8` 保留用于回环 |
+
+`127.0.0.1` 的通信在本机协议栈内完成。能够 ping 通它，只能说明本机相应处理可用，不能据此判断外部网络是否连通。
+
+`255.255.255.255` 与某个子网的广播地址也要区分。例如 `128.13.255.255` 的含义由 `128.13.0.0/16` 决定，它的 **主机部分** 为全 1。
+
+### Network Address Translation
+
+**网络地址转换（Network Address Translation，NAT）** 在内部网络和外部网络之间修改地址，使许多内部主机共享较少的外部 IPv4 地址。
+
+内部网络可以使用私有地址。三个保留范围为：
+
+```text
+10.0.0.0/8      → 10.0.0.0–10.255.255.255
+172.16.0.0/12   → 172.16.0.0–172.31.255.255
+192.168.0.0/16  → 192.168.0.0–192.168.255.255
+```
+
+这些地址供内部使用，不作为公网直接寻址的地址。不同内部网络可以重复使用相同的私有地址块。
+
+常见共享方式还修改 TCP／UDP 端口号，通过映射表保存：
+
+$$
+(\text{内部 IP},\text{内部端口})
+\longleftrightarrow
+(\text{外部 IP},\text{外部端口}).
+$$
+
+外部服务器把回复送到公网地址和端口，NAT 查表后恢复内部目的端点。NAT 常与防火墙集成；防火墙负责允许或拒绝流量，地址转换负责改写与映射。
+
+#### Example
+
+**A Web Request through NAT**
+
+**内部主机 `10.0.0.1:3345` 访问 `128.119.40.186:80`。NAT 的内部接口为 `10.0.0.4`，外部接口为 `138.76.29.7`，为这次通信分配外部端口 5001。请求与回复经过 NAT 时怎样变化？**
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261116201351.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+<details>
+<summary>展开：四个位置的地址和端口</summary>
+
+NAT 保存：
+
+```text
+内部：10.0.0.1:3345  ↔  外部：138.76.29.7:5001
+```
+
+四个位置的报文为：
+
+| 位置 | 源 IP : 端口 | 目的 IP : 端口 |
+| --- | --- | --- |
+| ① 内部主机发出请求 | 10.0.0.1:3345 | 128.119.40.186:80 |
+| ② NAT 向外转发 | 138.76.29.7:5001 | 128.119.40.186:80 |
+| ③ 服务器返回响应 | 128.119.40.186:80 | 138.76.29.7:5001 |
+| ④ NAT 向内转发 | 128.119.40.186:80 | 10.0.0.1:3345 |
+
+请求出去时，NAT 改写 **源 IP 和源端口**；回复进来时，NAT 改写 **目的 IP 和目的端口**。
+
+`10.0.0.4` 是内部主机将外部流量交出的网关接口。服务器看到的通信端点是 `138.76.29.7:5001`，返回包也先到这里，再由映射表找到 `10.0.0.1:3345`。
+
+端口 80 对应本例的 HTTP 服务。地址和端口被修改后，受影响的校验和也需要相应调整。
+
+</details>
+
+#### Example
+
+**Three Internal Endpoints, One Public Address**
+
+**下列三个内部端点共用一个公网 IP，如何避免两台主机都使用内部端口 1234 时发生混淆？**
+
+```text
+内部端点               外部端点
+10.0.1.2:5544    ↔     128.143.71.21:3344
+10.0.1.3:1234    ↔     128.143.71.21:3345
+10.0.1.4:1234    ↔     128.143.71.21:3346
+```
+
+<details>
+<summary>展开解答</summary>
+
+内部端点由 **IP 地址和端口共同区分**。`10.0.1.3:1234` 与 `10.0.1.4:1234` 虽然端口相同，IP 地址不同，因此属于不同端点。
+
+NAT 为它们选用不同的外部端口 3345、3346。收到发往 `128.143.71.21:3345` 的回复时，交给 `10.0.1.3:1234`；收到发往端口 3346 的回复时，交给 `10.0.1.4:1234`。
+
+端口字段占 16 bit，取值范围为 $0\sim65535$；$0\sim1023$ 属于知名端口范围。**同一台主机可以建立多条端口映射**，不能直接把端口数量当成可连接主机数量。
+
+</details>
+
+#### State and Layering
+
+NAT 节约地址，同时引入几方面的依赖：
+
+**端到端寻址受到影响。** 中间设备会修改通信端点的地址和端口，外部无法直接用内部地址定位相应主机。
+
+**需要理解运输层格式。** 普通 IP 转发主要处理网络层首部；端口转换还要定位并修改 TCP／UDP 字段，使不同协议层之间产生额外耦合。
+
+**依赖映射状态。** NAT 的映射表丢失后，原有通信的返回包可能无法交给正确的内部端点。中间设备因此保存了与通信有关的状态，增加了故障恢复的要求。
+
+### Dynamic Host Configuration Protocol
+
+**动态主机配置协议（Dynamic Host Configuration Protocol，DHCP）** 为主机自动提供 IP 地址、子网掩码、默认网关和 DNS 服务器等配置。
+
+服务器维护可分配的地址池，并通过 **租约（Lease）** 控制地址使用时间。客户端在有效租期内使用地址，继续使用时申请续租；地址被释放或租约失效后可重新分配。
+
+例如 11:45 获得租约、12:45 到期，对应租期为 1 小时。网络配置详情中，可以一起查看地址、掩码、网关、DHCP 服务器、DNS 服务器和租约时间。
+
+#### Discover, Offer, Request, and ACK
+
+新客户端初次获取地址，采用四步交互：
+
+$$
+\boxed{\text{Discover}\rightarrow\text{Offer}\rightarrow
+\text{Request}\rightarrow\text{ACK}}.
+$$
+
+**Discover：寻找服务器。** 客户端还没有 IP 地址，也不知道服务器位置，以 `0.0.0.0` 为源地址，向 `255.255.255.255` 发送发现广播。
+
+**Offer：提供候选配置。** 服务器从地址池中提供地址及租约等参数。存在多个服务器时，客户端可能收到多个 Offer。
+
+**Request：选择一个方案。** 客户端请求使用选中的地址和服务器配置。在本次初始获取流程中，广播请求还能让其他服务器知道其选择。
+
+**ACK：确认租约。** 服务器确认分配结果，客户端完成地址配置，并在租期内使用该地址。
+
+DHCP 使用 UDP：**服务器端口为 67，客户端端口为 68。**
+
+#### Example
+
+**Leasing 223.1.2.4**
+
+**DHCP 服务器为 `223.1.2.5`，给新客户端分配 `223.1.2.4`，租约为 3600 s。分析四个报文的源、目的地址和端口。**
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261116201423.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+<details>
+<summary>展开解答</summary>
+
+| 消息 | 源 IP : UDP 端口 | 目的 IP : UDP 端口 | 主要含义 |
+| --- | --- | --- | --- |
+| Discover | 0.0.0.0:68 | 255.255.255.255:67 | 寻找服务器 |
+| Offer | 223.1.2.5:67 | 255.255.255.255:68 | 提供 223.1.2.4，租期 3600 s |
+| Request | 0.0.0.0:68 | 255.255.255.255:67 | 选择服务器 223.1.2.5 提供的地址 |
+| ACK | 223.1.2.5:67 | 255.255.255.255:68 | 确认地址与租约 |
+
+**本例四个报文的目的 IP 都是广播地址。** 不能把“报文内容里给出的候选地址 `223.1.2.4`”与“外层 IP 首部的目的地址”混在一起。
+
+客户端在 Request 阶段仍未完成本次分配，所以源地址仍为 `0.0.0.0`。收到 ACK 后，完成这次租约获取：
+
+$$
+3600\ \mathrm{s}=1\ \mathrm{h}.
+$$
+
+后续续租属于已有地址状态下的交互，不能由这个初次获取的广播例子推出所有 DHCP 消息都必须广播。
+
+</details>
+
+#### DHCP Relay
+
+本地广播不能直接穿过普通路由器到达另一个子网。DHCP 服务器位于远端时，需要 **DHCP 中继代理（DHCP Relay Agent）**：接收本地请求，携带客户端所属网络的信息转交给服务器，再把服务器的回答送回客户端网络。
+
+#### Example
+
+**A DHCP Server in Another Subnet**
+
+**PC1 位于 `192.168.1.0/24`，该子网没有 DHCP 服务器。服务器位于 `192.168.2.0/24`，地址为 `192.168.2.2`。两个子网通过 R1 连接，PC1 如何取得地址？**
+
+```text
+PC1 ── SW1 ── R1 ── DHCP Server
+              │         192.168.2.2
+              │
+R1 G0/0：192.168.1.254/24，面向 PC1
+R1 G0/1：192.168.2.1/24，面向服务器
+```
+
+<details>
+<summary>展开：为什么需要中继，四步交互如何跨子网？</summary>
+
+PC1 广播 DHCP Discover，但广播只在 `192.168.1.0/24` 内传播。服务器在另一个子网中，无法直接收到它。
+
+在 R1 面向客户端的接口上配置 DHCP Relay，并指定服务器 `192.168.2.2`，交互过程变为：
+
+```text
+PC1  ── Discover 广播 ──→ R1 ── 转交请求 ──→ DHCP Server
+PC1  ←─ Offer          ── R1 ←─ 候选配置 ── DHCP Server
+PC1  ── Request        ─→ R1 ── 转交选择 ─→ DHCP Server
+PC1  ←─ ACK            ── R1 ←─ 确认租约 ── DHCP Server
+```
+
+服务器依据中继提供的客户端网络信息，从 **`192.168.1.0/24` 对应地址池** 中选择地址，再经 R1 返回。服务器本身位于 `192.168.2.0/24`，不意味着要给 PC1 分配 `192.168.2.x`。
+
+**中继转交 DHCP 请求和响应；普通路由转发本身不会自动把本地广播扩散到另一个子网。**
+
+</details>
+
+#### Broadcast Domains
+
+理解 DHCP Relay，需要把 **广播域** 和 **冲突域** 分开：
+
+**二层交换机未划分多个 VLAN 时**，各端口通常位于同一个广播域；不同端口形成独立的冲突域。
+
+**划分 VLAN 后**，每个 VLAN 形成自己的广播域，二层广播不会直接跨越不同 VLAN。
+
+**路由器的不同三层接口** 连接不同广播域，通常隔离本地广播。因此，位于不同子网的 DHCP 客户端与服务器需要中继配合。
+
+NAT 与 DHCP 的分工也不同：**DHCP 配置主机的地址，NAT 改写经过设备的分组地址和端口。** 同一台设备可以同时提供这两种功能。
+
+### IPv6
+
+IPv6 把地址长度从 32 bit 扩展到 **128 bit**，即每个地址 **16 B**。它还简化固定首部，将可选功能放入扩展首部，减少基本转发过程中的处理负担。
+
+IPv4 与 IPv6 的报文格式不同，不能仅修改 Version 字段完成转换。TCP、UDP 等上层通信仍然可以由 IPv6 承载。
+
+#### The Fixed Header
+
+IPv6 固定首部长度为 **40 B**。其中源、目的地址各占 16 B，合计 32 B；其余字段共占 8 B。
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261116201853.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+| 字段 | 位数 | 作用 |
+| --- | ---: | --- |
+| Version | 4 | IPv6 取值为 6 |
+| Traffic Class / Differentiated Services | 8 | 服务类别与拥塞指示 |
+| Flow Label | 20 | 标记数据流，供一致的流处理使用 |
+| Payload Length | 16 | 40 B 固定首部之后的字节数 |
+| Next Header | 8 | 指明紧随其后的首部类型 |
+| Hop Limit | 8 | 限制转发跳数 |
+| Source Address | 128 | 源地址 |
+| Destination Address | 128 | 目的地址 |
+
+**Flow Label** 为相关分组标记流身份，便于按流识别与处理；特殊服务还需要相应的转发策略配合。
+
+**Payload Length 包含扩展首部，但不包含 40 B 固定首部。** 与 IPv4 的 Total Length 对比：
+
+$$
+\begin{aligned}
+\text{IPv4 总长}&=\text{IPv4 首部长}+\text{数据长度},\\
+\text{IPv6 总长}&=40+\text{Payload Length}.
+\end{aligned}
+$$
+
+IPv6 固定首部长度已知，因此无须用 IHL 再描述其长度。
+
+**Next Header** 可以指向扩展首部，也可以直接指向 TCP、UDP。没有扩展首部时，取值 6 表示后接 TCP，17 表示后接 UDP。
+
+**Hop Limit** 与 IPv4 TTL 的逐跳限制作用对应：每经过一台转发路由器减 1，耗尽后丢弃。
+
+#### Address Representation
+
+IPv6 地址通常写成 **8 组、每组 4 个十六进制数字**，组间用冒号分隔：
+
+$$
+8\times4\times4=128\ \mathrm{bit}.
+$$
+
+可使用两种压缩：省略一组内部的 **前导 0**；用 `::` 代替连续的全零组。一个地址最多使用一次 `::`，才能唯一确定需要补回多少组。
+
+#### Example
+
+**Compressing and Expanding an IPv6 Address**
+
+**将 `8000:0000:0000:0000:0123:4567:89AB:CDEF` 压缩，并说明怎样恢复。**
+
+<details>
+<summary>展开解答</summary>
+
+先省略各组前导 0：
+
+```text
+8000:0:0:0:123:4567:89AB:CDEF
+```
+
+再把中间连续三组 0 压缩为 `::`：
+
+```text
+8000::123:4567:89AB:CDEF
+```
+
+恢复时，当前明确写出的组有 5 组，因此 `::` 补成 $8-5=3$ 组 `0000`；`123` 再补成 `0123`。
+
+`8000` 末尾的三个 0 不能省略：`8000` 和 `8` 表示不同数值。可以去掉的是 **组内前导 0**。
+
+</details>
+
+<details>
+<summary>例：::192.31.20.46 表示什么？</summary>
+
+这是一种把地址最低 32 位写成 IPv4 点分十进制的混合记法。四个十进制字节转成十六进制为：
+
+```text
+192.31.20.46 → C0 1F 14 2E → C01F:142E
+```
+
+所以其完整 128-bit 表示为：
+
+```text
+0000:0000:0000:0000:0000:0000:C01F:142E
+```
+
+这一例子说明文本表示方法。用 IPv6 记法写出 IPv4 数值，不会自动把一个 IPv4 报文转换成 IPv6 报文。
+
+</details>
+
+#### Changes from IPv4
+
+**路由器不执行 IPv6 分片。** 分组超过输出链路 MTU 时，路由器丢弃它，返回 ICMPv6 的 Packet Too Big 信息；源端调整发送大小，确需分片时由源端处理，目的端重组。
+
+**没有 IPv6 首部校验和。** 减少逐跳修改 Hop Limit 后的校验和更新工作，其他层继续承担各自的差错检测。
+
+**固定首部中不放可变长 Options。** 可选功能改由扩展首部提供，使基本首部始终保持 40 B。
+
+#### Extension Headers
+
+**扩展首部（Extension Header）** 放在固定首部之后，由 Next Header 串联，最后指向所承载的上层协议：
+
+```text
+IPv6 固定首部 → 扩展首部 1 → 扩展首部 2 → TCP／UDP → 上层数据
+           Next Header    Next Header    Next Header
+```
+
+主要类型包括：
+
+**逐跳选项（Hop-by-Hop Options）**：承载供沿途处理的选项。
+
+**目的选项（Destination Options）**：承载供目的节点处理的信息。
+
+**路由首部（Routing Header）**：携带路由相关信息；格式中可包含下一首部、扩展长度、路由类型、剩余段数（Segments Left）等。
+
+**分片首部（Fragment Header）**：保存源端分片所需的信息。
+
+**认证首部（AH）** 与 **封装安全载荷（ESP）**：分别提供认证、完整性及加密等安全机制。
+
+部分选项采用 **TLV（Type, Length, Value）** 编码：Type 占 1 B，说明选项种类；Length 占 1 B，给出后续 Value 的字节数；Value 保存实际内容。
+
+选项类型中的高 2 位还规定不认识该选项时的动作：跳过；丢弃；丢弃并报告 ICMP 错误；或根据目的地址是否为多播决定是否报告。这样可以在扩展功能时保留明确的处理规则。
+
+### Transition from IPv4 to IPv6
+
+IPv4 与 IPv6 需要逐步共存，主要理解 **双协议栈** 与 **隧道**。
+
+#### Dual Stack
+
+**双协议栈（Dual Stack）** 表示同一设备完整实现 IPv4 和 IPv6，两套协议分别处理相应报文。
+
+```text
+IPv4 报文 → IPv4 协议栈与转发处理
+IPv6 报文 → IPv6 协议栈与转发处理
+```
+
+双栈提供两种处理能力；在 IPv4、IPv6 报文格式之间互相转换，还需要额外的转换机制。
+
+#### Example
+
+**What Happens to the Flow Label?**
+
+**A → B → C → D → E → F 中，中间 C、D 只能处理 IPv4。若在 B 把 IPv6 报文转换为 IPv4，在 E 再转换回来，会出现什么问题？**
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261116201924.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+<details>
+<summary>展开解答</summary>
+
+A 发出的 IPv6 报文包含 Flow Label = X。IPv4 首部没有对应的 Flow Label 字段，因此把报文改成 IPv4 格式时，这项信息可能无法保留。
+
+到 E 再恢复 IPv6 格式时，仅凭中间的 IPv4 报文，无法知道原来的 X，所以图中标为 `Flow: ??`。
+
+这个例子说明 **格式转换可能丢失某一协议特有的字段**。双栈本身只负责让节点能处理两种协议，不会自动完成图示的两次转换。
+
+</details>
+
+#### Tunneling
+
+**隧道（Tunneling）** 把整个 IPv6 数据报放入 IPv4 的数据部分，让中间 IPv4 网络负责承载：
+
+```text
+外层 IPv4 首部 | 内层 IPv6 首部 | 内层数据
+              └──── IPv4 的数据部分 ────┘
+```
+
+入口封装，出口解封装。中间节点按外层地址转发，内层 IPv6 地址与协议特有信息可以保留下来。
+
+#### Example
+
+**An IPv6 Tunnel from B to E**
+
+**仍考虑 A → B → C → D → E → F，以 B、E 为隧道端点。分析隧道内外的源、目的地址。**
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261116201942.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+<details>
+<summary>展开：封装、穿越与解封装</summary>
+
+**A → B：** 发送普通 IPv6 数据报。
+
+```text
+IPv6：源 A，目的 F，Flow Label = X
+```
+
+**B → C → D → E：** B 增加外层 IPv4 首部。
+
+```text
+外层 IPv4：源 B 的 IPv4 地址，目的 E 的 IPv4 地址
+内层 IPv6：源 A 的 IPv6 地址，目的 F 的 IPv6 地址，Flow Label = X
+```
+
+C、D 只需识别外层 IPv4 首部，把分组送到 E，无须理解里面的 IPv6 格式。
+
+**E → F：** E 去掉外层 IPv4 首部，取出原来的 IPv6 数据报，再按目的地址 F 转发。
+
+内层的 A、F、Flow Label = X 保留，避免了逐字段转换造成的信息丢失。代价是增加外层首部，并需要相应的隧道端点处理。
+
+</details>
+
+#### Example
+
+**Paris to London**
+
+**Paris 与 London 的两端网络都使用 IPv6，中间网络使用 IPv4。怎样连接两端？**
+
+<details>
+<summary>展开解答</summary>
+
+在两侧边界路由器之间建立 IPv6-over-IPv4 隧道：
+
+```text
+Paris 主机      隧道入口       IPv4 中间网络       隧道出口      London 主机
+    ── IPv6 ──→  封装  ── IPv4[IPv6 分组] ──→  解封装 ── IPv6 ──→
+```
+
+隧道中的外层目的地是出口，因此封装后的内层分组需要到达出口后才能继续按 IPv6 转发；中间 IPv4 主机无法直接接收这个内层 IPv6 分组。
+
+VPN 也可以利用类似的封装思路，具体安全功能由所采用的 VPN 协议提供。
+
+</details>
+
+### Internet Control Protocols
+
+IP 负责数据传送，配套的控制与辅助协议承担错误报告、地址配置和地址解析。IPv4 中包括 **ICMP、DHCP、ARP**；IPv6 中也有相应的 ICMP、DHCP 机制，并用邻居发现协议 NDP 完成相关链路上的发现与解析。
+
+### ICMP
+
+**互联网控制报文协议（Internet Control Message Protocol，ICMP）** 用于报告 IP 分组处理中的异常，也用于网络诊断。例如，路由器无法找到目的网络，或转发时 TTL 耗尽，就可以向源主机发送相应的 ICMP 报文。
+
+ICMP 直接封装在 IPv4 数据报中，对应 **Protocol = 1**：
+
+```text
+以太网首部 | IPv4 首部（Protocol = 1）| ICMP 报文
+```
+
+ICMP 首部中的 **Type** 指定消息类别，**Code** 进一步说明该类别中的具体情况。它还包含自己的校验和，用于检查 ICMP 报文。
+
+#### Message Types
+
+| Type | Code | 含义 |
+| --- | --- | --- |
+| 0 | 0 | Echo Reply，回显应答 |
+| 3 | 0、1、2、3 | 分别表示目的网络、主机、协议、端口不可达 |
+| 3 | 6、7 | 分别表示目的网络未知、目的主机未知 |
+| 4 | 0 | Source Quench，早期用于通知源端降低发送速率 |
+| 8 | 0 | Echo Request，回显请求 |
+| 9 | 0 | 路由器通告 |
+| 10 | 0 | 路由器发现请求 |
+| 11 | 0 | 转发途中 TTL 耗尽 |
+| 12 | 0 | IP 首部参数有问题 |
+
+重点记住四组：**请求 `(8,0)`、应答 `(0,0)`、TTL 到期 `(11,0)`、端口不可达 `(3,3)`**。Source Quench 属于早期的拥塞通知机制。
+
+#### Quoting the Original Datagram
+
+**差错报告需要指出：哪个原始分组出了什么问题。** 因此，ICMP 差错报文中会带回触发错误的原始 IPv4 首部和数据开头的一部分。经典格式至少包含原始数据部分的前 8 字节，实际抓包中也可能带回更多内容。
+
+```text
+外层 IPv4：把错误报告送回原发送者
+└── ICMP：Type、Code、Checksum 等
+    └── 原始 IPv4 首部
+        └── 原始数据的开头，例如 UDP 首部或 ICMP Echo 首部
+```
+
+外层与内层各自有一套源、目的 IP：**外层说明谁在报告错误、报告发给谁；内层说明哪个原始分组触发了错误。** 读取抓包时应分别展开。
+
+Echo Request／Reply 用于回显测试，其内容包含标识、序号与测试数据，与这里的差错引用格式不同。
+
+### Ping
+
+`ping` 向目标发送 **Echo Request（Type 8，Code 0）**；目标收到后返回 **Echo Reply（Type 0，Code 0）**。
+
+```text
+源主机 ── Echo Request ──→ 目的主机
+源主机 ←── Echo Reply ─── 目的主机
+```
+
+**Identifier** 辅助区分不同组的回显请求；**Sequence Number** 区分同一组中的不同请求。应答保留相应的标识、序号和测试数据，使发送者能够配对请求与响应，并计算往返时延：
+
+$$
+\boxed{RTT=t_{\mathrm{reply}}-t_{\mathrm{request}}}.
+$$
+
+收到正确应答说明这次探测成功往返；没有收到应答，也可能与报文丢失或过滤有关。
+
+#### Example
+
+1. **Matching an Echo Request and Reply**
+
+**本机地址为 `10.192.3.220`，执行 `ping 36.152.44.96`。分析第 16437、16438 号帧，判断它们是否为一对请求与应答。**
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261116202059.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261116202112.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+<details>
+<summary>展开：报文方向、标识匹配与 RTT</summary>
+
+**第 16437 号帧为请求：**
+
+```text
+IPv4：10.192.3.220 → 36.152.44.96
+ICMP：Type = 8，Code = 0
+Identifier (BE) = 1
+Sequence Number (BE) = 42
+Checksum = 0x4d31，校验正确
+Data = 32 bytes
+Response frame = 16438
+```
+
+**第 16438 号帧为应答：**
+
+```text
+IPv4：36.152.44.96 → 10.192.3.220
+ICMP：Type = 0，Code = 0
+Identifier (BE) = 1
+Sequence Number (BE) = 42
+Checksum = 0x5531，校验正确
+Data = 32 bytes
+Request frame = 16437
+Response time = 14.067 ms
+```
+
+源、目的 IP 对调，标识和序号一致，且两个关联帧号相互对应，所以这是一对请求与应答。本次往返时延为 **14.067 ms**。
+
+Type 从 8 改成 0 后，ICMP 报文内容发生变化，校验和也随之改变。应答保留了请求中的 32 字节测试数据。
+
+Wireshark 同时显示 BE、LE 两种解释。例如序号的两个字节是 `00 2a`：按大端解释为 42，按小端解释为 10752。**它们对应同一段字节，不能当作两次请求的序号。**
+
+</details>
+
+2. **Reading the IPv4 Header in Hexadecimal**
+
+**仍看第 16437 号帧。其 IPv4 首部为下列 20 字节，求首部长度、IP 总长度、TTL、承载协议，以及源、目的地址。为什么整个抓包帧显示为 74 字节？**
+
+```text
+45 00 00 3c 19 cb 00 00 80 01 c1 62 0a c0 03 dc 24 98 2c 60
+```
+
+<details>
+<summary>展开：从字段位置读取数值</summary>
+
+首字节 `45` 的高 4 bit 为 4，表示 IPv4；低 4 bit 为 5，表示：
+
+$$
+H=5\times4=20\ \mathrm{B}.
+$$
+
+`00 3c` 是总长度，按大端解释：
+
+$$
+\mathrm{Total\ Length}=\mathrm{0x003c}=60\ \mathrm{B}.
+$$
+
+`80` 是 TTL，即 128；紧随其后的 `01` 是 Protocol，即 ICMP。
+
+两个地址分别是：
+
+```text
+0a c0 03 dc → 10.192.3.220
+24 98 2c 60 → 36.152.44.96
+```
+
+IP 的数据部分长 $60-20=40$ 字节，其中包括 **8 字节 ICMP Echo 首部与 32 字节测试数据**。
+
+在这次抓包的显示口径下：
+
+$$
+\underbrace{14}_{\text{以太网首部}}+
+\underbrace{20}_{\text{IPv4 首部}}+
+\underbrace{8}_{\text{ICMP Echo 首部}}+
+\underbrace{32}_{\text{测试数据}}
+=\boxed{74\ \mathrm{B}}.
+$$
+
+因此，抓包的帧长度、IPv4 总长度和 Ping 测试数据长度分别是 **74、60、32 字节**，统计范围不同。
+
+</details>
+
+### Traceroute and Tracert
+
+**路由追踪** 通过逐步增加探测报文的 TTL，找到沿途返回 ICMP 报告的路由器。
+
+#### Increasing the TTL
+
+假设路径为：
+
+```text
+源主机 → R1 → R2 → R3 → 目的主机
+```
+
+发送 TTL = 1 的探测包，R1 转发前将 TTL 减到 0，丢弃该包，并向源主机返回 **Time Exceeded（11,0）**。源主机从响应的源 IP 得到第一跳地址。
+
+再发送 TTL = 2 的新探测包：它经过 R1 后还剩 1，到 R2 时耗尽，R2 返回相同类型的错误。继续使用 TTL = 3、4……，就能依次探测更远的位置。
+
+```text
+TTL = 1：R1 返回 Time Exceeded
+TTL = 2：R2 返回 Time Exceeded
+TTL = 3：R3 返回 Time Exceeded
+TTL = 4：探测报文到达目的主机
+```
+
+每次探测都以最终主机为目的 IP，只改变起始 TTL。记录发送与响应时刻，可以计算 **源主机到该响应节点再返回的 RTT**；相邻两行 RTT 的差值不能直接当作两台路由器之间的链路时延。
+
+#### Recognizing the Destination
+
+中间路由器通过 `(11,0)` 报告 TTL 到期；到达目的主机时，结束标志取决于探测方式。
+
+**UDP 方式。** 传统 traceroute 向一个预期没有应用监听的 UDP 目的端口发送探测包。目的主机收到后，返回 **Destination Port Unreachable（3,3）**，发送端据此结束追踪。
+
+**ICMP Echo 方式。** Windows `tracert` 发送 Echo Request。到达目标后收到 **Echo Reply（0,0）**，据此结束追踪。
+
+| 探测方式 | 探测报文 | 中间节点的典型响应 | 到达目标的典型响应 |
+| --- | --- | --- | --- |
+| UDP traceroute | UDP 数据报 | ICMP `(11,0)` | ICMP `(3,3)` |
+| Windows tracert | ICMP Echo Request `(8,0)` | ICMP `(11,0)` | ICMP Echo Reply `(0,0)` |
+
+#### Example
+
+1. **Reading a Tracert Result**
+
+**本机地址为 `192.168.1.145`，执行 `tracert 36.152.44.96`。为什么每一跳有三个时延？为什么中间出现 `*`，后面仍能看到目的主机？**
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261116202149.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+<details>
+<summary>展开：跳数、RTT 与超时</summary>
+
+结果中的几行是：
+
+```text
+跳数    RTT 1    RTT 2    RTT 3    响应地址
+ 1       4 ms     4 ms     2 ms    192.168.1.1
+ 2       4 ms     7 ms     4 ms    10.214.161.1
+ 3      10 ms     6 ms     6 ms    10.214.255.3
+ 4         *        *        *    请求超时
+ ...
+12         *        *        *    请求超时
+13      24 ms    10 ms    10 ms    36.152.44.96
+```
+
+**同一个 TTL 发送三次探测**，所以每行有三个独立的 RTT。第一跳 `192.168.1.1` 是此次通信的默认网关。
+
+`*` 表示相应探测在规定时间内没有收到响应。第 4、12 跳没有及时响应，但后续探测仍抵达了更远的节点和目的主机，因此不能仅凭这些星号判定后续路径已经断开。
+
+第 13 跳出现目标地址 `36.152.44.96`，说明这次追踪已经抵达目标。
+
+</details>
+
+2. **Three Probes for Each TTL**
+
+**观察 Wireshark 中连续发送的 Echo Request，解释 TTL = 1、TTL = 2 两组报文。**
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261116202202.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+<details>
+<summary>展开：把请求与错误报告配对</summary>
+
+TTL = 1 的请求分别为第 **126、128、130** 号帧，返回的 Time Exceeded 分别为第 **127、129、131** 号帧，响应源地址都是 `192.168.1.1`。
+
+TTL = 2 的请求分别为第 **144、146、148** 号帧，返回的 Time Exceeded 分别为第 **145、147、149** 号帧，响应源地址都是 `10.214.161.1`。
+
+```text
+TTL = 1：126 → 127，128 → 129，130 → 131
+TTL = 2：144 → 145，146 → 147，148 → 149
+```
+
+请求方向始终为 `192.168.1.145 → 36.152.44.96`；错误报告由 TTL 耗尽处的路由器发回本机。
+
+</details>
+
+3. **Time Exceeded and the Quoted Echo Request**
+
+**展开第 127 号帧。为什么同一个 Wireshark 详情树里出现了两层 IPv4、两层 ICMP？**
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261116202250.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+<details>
+<summary>展开：外层报告错误，内层指出原始探测</summary>
+
+第 126 号帧从本机发向目标，TTL = 1。第一个路由器 `192.168.1.1` 将它丢弃，并生成第 127 号帧：
+
+```text
+外层 IPv4
+    Source      = 192.168.1.1
+    Destination = 192.168.1.145
+    Protocol    = ICMP (1)
+└── 外层 ICMP
+        Type = 11，Code = 0
+        Time to live exceeded in transit
+    └── 被引用的原始 IPv4
+            Source      = 192.168.1.145
+            Destination = 36.152.44.96
+        └── 被引用的原始 ICMP
+                Type = 8，Code = 0
+                Identifier (BE) = 1
+                Sequence Number (BE) = 1
+```
+
+外层的 Type 11 说明“转发途中 TTL 到期”；内层的 Type 8 说明触发错误的是之前发出的回显请求。原始报文的目的 IP 仍是 `36.152.44.96`，错误报告的目的 IP 则是本机。
+
+按抓包时间戳，本次探测的往返时延为：
+
+$$
+128.303652-128.299651
+=0.004001\ \mathrm{s}
+=\boxed{4.001\ \mathrm{ms}}.
+$$
+
+</details>
+
+4. **The Final Hop Uses Echo Reply**
+
+**追踪抵达第 13 跳后，为什么没有看到作为结束标志的 UDP Port Unreachable？**
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261116202310.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+<details>
+<summary>展开解答</summary>
+
+最后三组报文是：
+
+```text
+请求 323 → 应答 324
+请求 325 → 应答 326
+请求 327 → 应答 328
+```
+
+请求由 `192.168.1.145` 发往 `36.152.44.96`，初始 TTL = 13，ICMP Type = 8。目标直接返回 Type = 0 的 Echo Reply，源、目的 IP 对调。
+
+这里运行的是 Windows `tracert`，探测使用 ICMP Echo。它以 **目标的 Echo Reply** 作为结束标志，因此不需要出现 UDP 端口不可达，也没有 TCP／UDP 端口字段。
+
+</details>
+
+5. **Port Unreachable and the Quoted UDP Datagram**
+
+**使用过滤条件 `icmp && udp`，选中第 71 号帧。分析两层 IPv4 和内层 UDP，说明这个端口不可达错误对应什么通信。**
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261116202327.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261116202341.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+<details>
+<summary>展开：为什么 ICMP 报文能同时匹配 UDP？</summary>
+
+先读外层：
+
+```text
+外层 IPv4
+    Source      = 192.168.1.1
+    Destination = 192.168.1.145
+    Header Length = 20 bytes
+    Total Length  = 106 bytes
+    Protocol      = ICMP (1)
+└── ICMP
+        Type = 3：Destination Unreachable
+        Code = 3：Port Unreachable
+```
+
+这表示 `192.168.1.1` 向本机报告“目标端口不可达”。继续展开 ICMP 引用的原始分组：
+
+```text
+原始 IPv4
+    Source      = 192.168.1.145
+    Destination = 192.168.1.1
+    Header Length = 20 bytes
+    Total Length  = 78 bytes
+    Protocol      = UDP (17)
+└── UDP
+        Source Port      = 137
+        Destination Port = 137
+        Length           = 58 bytes
+```
+
+由此可知，触发错误的是：
+
+$$
+\boxed{192.168.1.145:137\longrightarrow192.168.1.1:137}
+$$
+
+这是一条发向网关 UDP 137 端口的通信。**按这张抓包图的目的地址和协议判断，它不对应前面发往 `36.152.44.96` 的 ICMP Echo 探测。** 137 端口在这个例子中与局域网名字查询有关。
+
+过滤器 `icmp && udp` 能匹配，是因为解析树同时包含 **外层 ICMP 与被引用的内层 UDP**：外层 IPv4 的 Protocol 为 1，内层原始 IPv4 的 Protocol 为 17。
+
+长度也能对应起来：
+
+$$
+\begin{aligned}
+\text{原始 IPv4 长度}&=20+58=78\ \mathrm{B},\\
+\text{外层 IPv4 长度}&=20+8+78=106\ \mathrm{B},\\
+\text{抓包帧长度}&=14+106=120\ \mathrm{B}.
+\end{aligned}
+$$
+
+本例带回了完整的 78 字节原始数据报，因而能继续看到内层 UDP 的内容。**“原始首部＋数据开头”说明错误报告所引用的内容，实际引用长度可以更长。**
+
+图中的校验和状态 `Unverified`／`validation disabled` 表示没有执行对应校验，不能直接理解为校验失败；ICMP 自身的校验结果显示为 `correct`。
+
+</details>
