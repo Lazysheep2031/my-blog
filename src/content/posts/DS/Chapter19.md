@@ -28,7 +28,7 @@ draft: false
 
 - **Logical errors** ：事务因为自身内部条件不能继续执行
   - 例如输入错误、数据不存在、溢出、资源限制等
-  - 违反完整性约束，例如插入重复主键、违反外键约束
+  - 违反 **Integrity Constraint（完整性约束）**，例如插入重复 **Primary Key（主键）**、违反 **Foreign Key（外键）** 约束
 - **System errors** ：数据库系统因为某种错误条件终止一个活跃事务
   - 典型例子：deadlock
   - 事务被选为 deadlock victim 时，会被系统强制 rollback
@@ -43,7 +43,7 @@ draft: false
 
 采用 **fail-stop assumption** ：
 
-> 系统崩溃会丢失 volatile storage 中的内容，但不会破坏 nonvolatile storage 中已经写好的内容。
+> 系统崩溃会丢失 **volatile storage（易失存储）** 中的内容，但不会破坏 **nonvolatile storage（非易失存储）** 中已经写好的内容。
 
 这个假设依赖数据库系统和硬件层的大量完整性检查。
 
@@ -55,7 +55,7 @@ draft: false
 
 特点：
 
-- 非易失存储内容也可能丢失
+- **Non-Volatile Storage** 内容也可能丢失
 - 假设破坏是可检测的
 - 磁盘通常用 checksum 检测坏块或不完整写入
 
@@ -68,7 +68,7 @@ draft: false
 
 ### Volatile / Nonvolatile / Stable Storage
 
-#### Volatile storage
+#### **Volatile storage**
 
 **Volatile storage** 在系统崩溃后不能保存内容。
 
@@ -77,7 +77,7 @@ draft: false
 - main memory
 - cache memory
 
-#### Nonvolatile storage
+#### **Nonvolatile storage**
 
 **Nonvolatile storage** 在系统崩溃后通常能保存内容。
 
@@ -88,7 +88,7 @@ draft: false
 - flash memory
 - non-volatile / battery-backed RAM
 
-但 nonvolatile storage 仍然可能因为磁盘损坏、介质损坏等原因丢失数据。
+但 **nonvolatile storage** 仍然可能因为磁盘损坏、介质损坏等原因丢失数据。
 
 #### Stable storage
 
@@ -150,7 +150,7 @@ output(B)  : 把主存中的 buffer block B 写回磁盘
 
 为了简化讨论，本章假设每个 data item 都完整存放在一个 block 内。
 
-注意 `input / output` 是磁盘块和内存 buffer 之间的移动；事务内部的 `read / write` 是 buffer 和事务私有工作区之间的数据移动。恢复系统关心这两个层次的错位：一个事务可能已经 `write(X)` 修改了 buffer，但包含 `X` 的 block 还没有 `output` 到磁盘。
+注意 `input / output` 是 **Disk Block（磁盘块）** 和内存 buffer 之间的移动；事务内部的 `read / write` 是 buffer 和事务私有工作区之间的数据移动。恢复系统关心这两个层次的错位：一个事务可能已经 `write(X)` 修改了 buffer，但包含 `X` 的 block 还没有 `output` 到磁盘。
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260616133522.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
@@ -192,11 +192,11 @@ output(B)  : 把主存中的 buffer block B 写回磁盘
 
 本章默认：
 
-- 并发控制使用 **strict 2PL** ，所以没有 dirty read
+- 并发控制使用 **strict 2PL（严格两阶段封锁）** ，所以没有 dirty read
 - 恢复算法应尽量具备 **idempotence（幂等性）**
-- strict 2PL 的意义是避免 dirty read，使一个未提交事务的脏数据不会被其他事务继续依赖
+- **strict 2PL** 的意义是避免 dirty read，使一个未提交事务的脏数据不会被其他事务继续依赖
 
-幂等性指：
+**Idempotence** 指：
 
 > 一个恢复动作执行多次，结果和执行一次相同。
 
@@ -227,7 +227,7 @@ output(B)  : 把主存中的 buffer block B 写回磁盘
 
 更新日志必须在对应数据库修改前写出。
 
-日志通常是顺序追加的流水账文件。相比在磁盘上到处随机修改 data page，顺序写 log 的 I/O 代价更低，所以数据库愿意先把每次更新记入 log，再择机把脏页刷回磁盘。
+日志通常是顺序追加的流水账文件。相比在磁盘上到处随机修改 data page，顺序写 log 的 I/O 代价更低，所以数据库愿意先把每次更新记入 log，再择机把 **Dirty Page（脏页）** 刷回磁盘。
 
 `Ti` 是事务的唯一标识。实际系统中还会维护每个事务自己的日志链，例如每条日志记录指向同一事务的前一条日志记录，这样 rollback 时不需要从整个 log 末尾逐条搜索该事务的记录。
 
@@ -238,7 +238,7 @@ log 例子：
 解释：
 
 - `T1`、`T3` 已 commit
-- `T2` 在正常执行过程中 rollback，产生补偿日志 `<T2, C, 500>`、`<T2, B, 300>`，最后 `<T2 abort>`
+- `T2` 在正常执行过程中 rollback，产生 **Compensation Log（补偿日志）** `<T2, C, 500>`、`<T2, B, 300>`，最后 `<T2 abort>`
 - `T4` 在 recovery 中被 undo，产生 `<T4, A, 100>`，最后 `<T4 abort>`
 
 这体现了 **redo pass repeats history** ，然后 **undo pass 撤销未完成事务** 。
@@ -296,9 +296,9 @@ T1 aborts
 
 - 对更新的数据项加 exclusive lock
 - 持有到事务结束
-- 也就是 strict 2PL
+- 也就是 **strict 2PL**
 
-后面讲的 **logical undo** 可以放宽这个要求，支持 early lock release。
+后面讲的 **logical undo（逻辑撤销）** 可以放宽这个要求，支持 early lock release。
 
 ### Immediate Modification 与 Deferred Modification
 
@@ -409,7 +409,7 @@ Log                         Write              Output
 <Ti, X, V1, V2>  ->  write X = V1
 ```
 
-每次 undo 后，还要写一条 compensation log：
+每次 undo 后，还要写一条 **compensation log**：
 
 ```text
 <Ti, X, V1>
@@ -462,20 +462,20 @@ log 中有 <Ti start>
 只有 start / update，没有 commit / abort：crash 时未完成，undo
 ```
 
-这也是为什么恢复算法先 redo repeating history，再 undo incomplete transactions。
+这也是为什么恢复算法先 redo **repeating history（重复历史）**，再 undo incomplete transactions。
 
-### Repeating History
+### **Repeating History**
 
 如果一个事务之前已经被 undo，并且 `<Ti abort>` 已经写入 log，之后系统又崩溃，那么 recovery 会 redo 这个事务的所有历史动作。
 
 这包括：
 
 - 原来的更新动作
-- 后来的补偿日志动作
+- 后来的 **Compensation Log** 动作
 
 这种策略叫：
 
-> **Repeating history（重复历史）**
+> **Repeating History**
 
 直觉：
 
@@ -618,7 +618,7 @@ T4 在 checkpoint 后开始，失败时仍未完成
 4. 写 <Ti abort>
 ```
 
-补偿日志是 redo-only 的：
+**Compensation Log** 是 redo-only 的：
 
 - 它表示“撤销动作本身已经做过”
 - 崩溃后 redo 它即可
@@ -630,7 +630,7 @@ T4 在 checkpoint 后开始，失败时仍未完成
 
 系统崩溃后的 recovery 分两个阶段：
 
-1. **Redo phase** ：重复历史
+1. **Redo phase** ： **Repeating History**
 2. **Undo phase** ：撤销未完成事务
 
 #### Redo phase
@@ -798,7 +798,7 @@ undo phase: 撤销 T2，并写 <T2 abort>
 问题：
 
 - 大事务可能占满 buffer
-- 脏页不能淘汰，系统难以继续运行
+- **Dirty Page** 不能淘汰，系统难以继续运行
 
 **Steal policy** ：允许包含未提交更新的 block 被写到磁盘。
 
@@ -841,8 +841,8 @@ steal + no-force
 
 - latch 是短期的内部锁
 - 用来保护内存数据结构或 buffer block
-- 不用于保证事务 serializability
-- 可以很快释放，不遵循 2PL
+- 不用于保证事务 **serializability（可串行化）**
+- 可以很快释放，不遵循 **Two-Phase Locking（两阶段封锁协议，2PL）**
 
 ### OS Buffer 与 Dual Paging
 
@@ -909,17 +909,17 @@ DBMS 先按 WAL 写 log，再把 page 写到 database file
 要点是 `last_checkpoint` 指针：
 
 - 写出 `<checkpoint L>` 并不立刻说明这个 checkpoint 已经“算数”
-- 只有 checkpoint 开始时记录下来的脏页都陆续写出后，系统才能把 `last_checkpoint` 指向它
+- 只有 checkpoint 开始时记录下来的 **Dirty Page** 都陆续写出后，系统才能把 `last_checkpoint` 指向它
 - recovery 从 `last_checkpoint` 指向的 checkpoint 开始，而不一定从 log 中最后出现的 checkpoint 记录开始
 
-因此 fuzzy checkpoint 的“模糊”体现在：checkpoint 记录先出现，脏页在后台慢慢写出，checkpoint 完成状态由额外指针确认。
+因此 fuzzy checkpoint 的“模糊”体现在：checkpoint 记录先出现， **Dirty Page** 在后台慢慢写出，checkpoint 完成状态由额外指针确认。
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260616142954.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
 
-## Failure with Loss of Nonvolatile Storage
+## Failure with Loss of **Nonvolatile Storage**
 
-前面默认 nonvolatile storage 不会丢失。若磁盘损坏，单靠 log 不够，因为 database pages 本身可能没了。
+前面默认 **nonvolatile storage** 不会丢失。若磁盘损坏，单靠 log 不够，因为 database pages 本身可能没了。
 
 处理方法类似 checkpoint，但更重：
 
@@ -1062,9 +1062,9 @@ commit log 同时写到 primary 和 backup 后，事务才 commit
 - 正常情况下避免 one-safe 的 lost transaction 问题
 
 
-## Early Lock Release and Logical Undo
+## Early Lock Release and **Logical Undo**
 
-### 为什么需要 Logical Undo
+### 为什么需要 **Logical Undo**
 
 高并发结构，例如 B+-tree，并发控制通常会提前释放底层锁。
 
@@ -1093,7 +1093,7 @@ commit log 同时写到 primary 和 backup 后，事务才 commit
 - 没有 early lock release
 - 没有其他事务在中间修改该数据项
 
-#### Logical undo
+#### **Logical undo**
 
 ```text
 用一个反向操作撤销原操作
@@ -1110,9 +1110,9 @@ commit log 同时写到 primary 和 backup 后，事务才 commit
 B+-tree：如果插入或删除时一直持有树上底层节点的锁直到事务结束，并发度会很差。early lock release 允许提前释放这些热点结构上的锁，但代价是恢复时不能简单把 page 或 record 恢复成 old value。
 
 
-### Redo 仍然使用 Physical Redo
+### Redo 仍然使用 **Physical Redo（物理重做）**
 
-即使 undo 使用 logical undo，redo 通常仍然使用 physical redo。
+即使 undo 使用 **logical undo**，redo 通常仍然使用 **physical redo**。
 
 原因：
 
@@ -1146,7 +1146,7 @@ B+-tree：如果插入或删除时一直持有树上底层节点的锁直到事�
 其中：
 
 - `Oj` 是操作实例的唯一标识
-- `U` 是逻辑撤销所需的信息
+- `U` 是 **Logical Undo** 所需的信息
 
 :::EXAMPLE
 向索引 `I9` 插入 `(K5, RID7)`：
@@ -1165,11 +1165,11 @@ B+-tree：如果插入或删除时一直持有树上底层节点的锁直到事�
 
 - 中间的 `<T1, X, 10, K5>`、`<T1, Y, 45, RID7>` 是 physical logs
 - 如果操作没完成就 rollback，用 physical undo
-- 如果操作完成后 rollback，用 operation-end 里的 `(delete I9, K5, RID7)` 做 logical undo
+- 如果操作完成后 rollback，用 operation-end 里的 `(delete I9, K5, RID7)` 做 **logical undo**
 :::
 
 
-### Rollback with Logical Undo
+### Rollback with **Logical Undo**
 
 事务 `Ti` rollback 时，逆序扫描 log。
 
@@ -1227,16 +1227,16 @@ rollback 完成
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260616145251.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
 
-### Failure Recovery with Logical Undo
+### Failure Recovery with **Logical Undo**
 
 整体仍然是两阶段：
 
-1. **Redo phase** ：从最后一个 checkpoint 后开始，物理重做所有更新，重复历史
+1. **Redo phase** ：从最后一个 checkpoint 后开始， **Physical Redo** 所有更新， **Repeating History**
 2. **Undo phase** ：对 undo-list 中未完成事务执行 rollback
 
-区别在于 undo phase 处理 log 时，要按 logical undo 的规则：
+区别在于 undo phase 处理 log 时，要按 **logical undo** 的规则：
 
-- 完成的 operation 用 `U` logical undo
+- 完成的 operation 用 `U` **logical undo**
 - 未完成的 operation 用 physical undo
 - 已经有 operation-abort 的 operation 不再重复撤销
 
@@ -1265,7 +1265,7 @@ rollback 完成
 关键点：
 
 - `O2` 没有 operation-end，所以用 physical undo
-- `O1` 已经 operation-end，所以用 logical undo
+- `O1` 已经 operation-end，所以用 **logical undo**
 - 如果刚写完 `<T1, O1, operation-abort>` 就崩溃，恢复时不能重复撤销 `O1`
 :::
 
@@ -1287,7 +1287,7 @@ Repeating history + Undo incomplete transactions
 - 降低正常执行开销
 - 减少 checkpoint 成本
 - 加快 recovery
-- 支持 fine-grained locking 和 partial rollback
+- 支持 fine-grained locking 和 **partial rollback（局部回滚）**
 
 ARIES 可以理解为前面基本恢复算法的工程化增强版。
 
@@ -1299,7 +1299,7 @@ ARIES 可以理解为前面基本恢复算法的工程化增强版。
 2. 在 page 中保存 **PageLSN** ，判断哪些更新已经反映到该 page
 3. 支持 **physiological redo**
 4. 使用 **Dirty Page Table** 避免不必要的 redo
-5. 使用低开销 **fuzzy checkpointing** ，checkpoint 时不强制写出所有 dirty pages
+5. 使用低开销 **fuzzy checkpointing** ，checkpoint 时不强制写出所有 **dirty pages**
 
 
 ### Physiological Redo
@@ -1310,7 +1310,7 @@ ARIES 可以理解为前面基本恢复算法的工程化增强版。
 
 例子：删除 page 中一条 record。
 
-如果用纯 physical redo：
+如果用纯 **physical redo**：
 
 - 删除后可能需要移动很多 records 填补空洞
 - 需要记录 page 中大量字节的 old/new values
@@ -1410,11 +1410,11 @@ LSN, TransID, UndoNextLSN, RedoInfo
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260616145338.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
-### Dirty Page Table
+### **Dirty Page** Table
 
 **DirtyPageTable** 记录 buffer 中已经被更新但磁盘版本未必最新的 pages。
 
-每个 dirty page 记录：
+每个 **dirty page** 记录：
 
 - `PageLSN`
 - `RecLSN`
@@ -1450,18 +1450,18 @@ last completed checkpoint log record 的 LSN
 
 ARIES 的 checkpoint 特点：
 
-> checkpoint 时不强制写出 dirty pages。
+> checkpoint 时不强制写出 **dirty pages**。
 
-dirty pages 在后台持续写出。
+**dirty pages** 在后台持续写出。
 
 因此 ARIES checkpoint 开销很低，可以频繁执行。
 
 这里和基本 checkpoint 的差别必须分清：
 
-- 基本 checkpoint：checkpoint 时强制刷出 dirty pages
-- ARIES checkpoint：只把 DirtyPageTable 和 active transaction list 写进 checkpoint log，dirty pages 后台持续写出
+- 基本 checkpoint：checkpoint 时强制刷出 **dirty pages**
+- ARIES checkpoint：只把 DirtyPageTable 和 active transaction list 写进 checkpoint log， **dirty pages** 后台持续写出
 
-所以 ARIES 中 `RedoLSN` 可能早于 checkpoint log record 的 LSN，因为 checkpoint 时 dirty page 并没有被强制写盘。
+所以 ARIES 中 `RedoLSN` 可能早于 checkpoint log record 的 LSN，因为 checkpoint 时 **dirty page** 并没有被强制写盘。
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260616145417.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
@@ -1597,16 +1597,16 @@ ARIES 支持 page-level recovery independence：
 
 用途：
 
-- 复杂事务的局部回滚
+- 复杂事务的 **Partial Rollback**
 - 死锁时只回滚一部分操作，释放所需锁
 
 #### Fine-grained locking
 
-ARIES 支持细粒度锁，例如 index 上的 tuple-level locking。
+ARIES 支持 **Fine-Grained Lock（细粒度锁）**，例如 index 上的 tuple-level locking。
 
 这通常要求：
 
-- logical undo
+- **logical undo**
 - early lock release
 - 更复杂的恢复逻辑
 
@@ -1620,9 +1620,9 @@ ARIES 支持细粒度锁，例如 index 上的 tuple-level locking。
   - page 到达后再执行对应 redo
 
 
-## Recovery in Main-Memory Databases
+## Recovery in **Main-Memory Databases（主存数据库）**
 
-主存数据库中，查询和更新很快，但 main memory 在系统崩溃或关机后会丢失内容。
+**Main-Memory Database** 中，查询和更新很快，但 main memory 在系统崩溃或关机后会丢失内容。
 
 因此仍然需要：
 
@@ -1630,11 +1630,11 @@ ARIES 支持细粒度锁，例如 index 上的 tuple-level locking。
 - checkpoint 到持久存储
 - recovery 时从 disk 重新加载数据库，并应用 log
 
-主存数据库可以做一些优化。
+**Main-Memory Database** 可以做一些优化。
 
 ### Index redo 可以省略
 
-主存数据库恢复 relation 后，index 往往可以很快重建。
+**Main-Memory Database** 恢复 relation 后，index 往往可以很快重建。
 
 因此很多系统：
 
@@ -1644,7 +1644,7 @@ ARIES 支持细粒度锁，例如 index 上的 tuple-level locking。
 
 ### 只做 redo logging
 
-一些主存数据库通过以下方式减少 logging：
+一些 **Main-Memory Database** 通过以下方式减少 logging：
 
 - 周期性 checkpoint
 - 确保未提交数据不写入 disk
@@ -1660,7 +1660,7 @@ ARIES 支持细粒度锁，例如 index 上的 tuple-level locking。
 
 ### 并行恢复
 
-主存数据库恢复时，整个数据库需要重新载入，恢复速度非常关键。
+**Main-Memory Database** 恢复时，整个数据库需要重新载入，恢复速度非常关键。
 
 优化方式：
 

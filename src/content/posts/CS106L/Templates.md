@@ -7,17 +7,17 @@ category: 笔记
 draft: true
 ---
 
-本文系统讲解 C++ 模板（Templates）的核心概念与实践技巧，涵盖函数模板的定义与使用、隐式接口（Implicit Interface）的工作原理、结构化绑定（Structured Binding）中值/引用/const 引用的区别、变参模板（Variadic Templates）的语法与应用，以及概念提升（Concept Lifting）如何通过显式约束提升模板代码的可读性和错误诊断质量。重点展示了如何用 iterator 风格编写真正泛型的算法，并引入 C++20 Concepts 作为现代模板约束机制。
+本文系统讲解 C++ 模板（Templates）的核心概念与实践技巧，涵盖 **Function Template（函数模板）** 的定义与使用、 **Implicit Interface（隐式接口）** 的工作原理、 **Structured Binding（结构化绑定）** 中值/引用/const 引用的区别、 **Variadic Template（变参模板）** 的语法与应用，以及 **Concept Lifting（概念提升）** 如何通过显式约束提升模板代码的可读性和错误诊断质量。重点展示了如何用 iterator 风格编写真正泛型的算法，并引入 C++20 Concepts 作为现代模板约束机制。
 
 ## 目录
 
 - [目录](#目录)
 - [Template Functions](#template-functions)
   - [Example: `myminmax`](#example-myminmax)
-    - [隐式接口（Implicit Interface）](#隐式接口implicit-interface)
+    - [**Implicit Interface**](#implicit-interface)
     - [Generic I/O helper：打印 min/max 也可以模板化](#generic-io-helper打印-minmax-也可以模板化)
     - [Explicit template arguments](#explicit-template-arguments)
-    - [Structured binding](#structured-binding)
+    - [**Structured binding**](#structured-binding)
   - [拷贝 vs 引用绑定：`auto` / `auto&` / `const auto&`](#拷贝-vs-引用绑定auto--auto--const-auto)
     - [值绑定（拷贝/移动）：`auto [a, b] = expr;`](#值绑定拷贝移动auto-a-b--expr)
     - [引用绑定（可修改原对象）：`auto& [a, b] = obj;`](#引用绑定可修改原对象auto-a-b--obj)
@@ -25,17 +25,17 @@ draft: true
     - [什么时候用哪一种？](#什么时候用哪一种)
   - [Example: 用 iterators 写泛型算法 `mismatch`](#example-用-iterators-写泛型算法-mismatch)
     - [STL 风格范围：`[first, last)`](#stl-风格范围first-last)
-    - [隐式接口（Implicit Interface）](#隐式接口implicit-interface-1)
-- [Variadic Templates](#variadic-templates)
+    - [**Implicit Interface**](#implicit-interface-1)
+- [**Variadic Templates**](#variadic-templates)
   - [1️⃣ 最小例子：接收任意数量参数并打印](#1️⃣-最小例子接收任意数量参数并打印)
   - [2️⃣ Pack expansion](#2️⃣-pack-expansion)
   - [3️⃣ Variadic 最常见用途](#3️⃣-variadic-最常见用途)
-- [Concept Lifting](#concept-lifting)
+- [**Concept Lifting**](#concept-lifting)
   - [1️⃣ 从 `countOccurences` 的坏例子看“隐式要求”](#1️⃣-从-countoccurences-的坏例子看隐式要求)
   - [2️⃣ 改成 iterator 风格：更通用，也更接近 STL](#2️⃣-改成-iterator-风格更通用也更接近-stl)
   - [3️⃣ “类型错位”会导致奇怪报错](#3️⃣-类型错位会导致奇怪报错)
-- [Implicit Interfaces \& Concepts](#implicit-interfaces--concepts)
-  - [1️⃣ Implicit Interface 是什么？](#1️⃣-implicit-interface-是什么)
+- [**Implicit Interfaces** \& Concepts](#implicit-interfaces--concepts)
+  - [1️⃣ **Implicit Interface** 是什么？](#1️⃣-implicit-interface-是什么)
   - [2️⃣ Concepts](#2️⃣-concepts)
   - [3️⃣ 没有 concepts 时怎么做？](#3️⃣-没有-concepts-时怎么做)
 
@@ -43,7 +43,7 @@ draft: true
 
 ### Example: `myminmax`
 
-当多个函数 **逻辑完全相同** ，只是参数/返回值类型不同（如 `int` vs `string`），就适合用函数模板合并：
+当多个函数 **逻辑完全相同** ，只是参数/返回值类型不同（如 `int` vs `string`），就适合用 **Function Template** 合并：
 
 ```cpp
 template <typename T>
@@ -56,13 +56,13 @@ std::pair<T, T> my_minmax(T a, T b) {
 - `T` 是 **编译期类型参数**
 - 编译器会根据调用自动推导 `T` 并生成对应版本（实例化）
 
-#### 隐式接口（Implicit Interface）
+#### **Implicit Interface**
 
 模板能否用于某种类型 `T`，取决于模板内部对 `T` 做了哪些操作：
 
 - 上面的 `my_minmax` 用到了 `a < b`
   - ✅ 要求：`T` 必须支持 `<` 比较
-  - 否则：当模板实例化到该类型时编译报错
+  - 否则：当 **Template Instantiation（模板实例化）** 到该类型时编译报错
 
 #### Generic I/O helper：打印 min/max 也可以模板化
 
@@ -93,7 +93,7 @@ auto [min3, max3] = my_minmax<int>(3, 3);
 
 显式指定 `T` 的常见用途：
 
-- **解决类型推导冲突** ：例如 `my_minmax(2, 2.3)` 推导失败（一个 `int` 一个 `double`），可以写成：
+- **解决Type Deduction（类型推导）冲突** ：例如 `my_minmax(2, 2.3)` 推导失败（一个 `int` 一个 `double`），可以写成：
 
 ```cpp
 auto [min, max] = my_minmax<double>(2, 2.3); // 让 2 提升为 2.0
@@ -102,12 +102,12 @@ auto [min, max] = my_minmax<double>(2, 2.3); // 让 2 提升为 2.0
 - **强制选择你想要的版本** （哪怕参数能转换）
 
 > [!NOTE]  
-> 显式指定 `T` 并不会取消“隐式接口”要求：  
+> 显式指定 `T` 并不会取消“ **Implicit Interface** ”要求：  
 > `my_minmax<T>` 仍然要求 `T` 支持 `<`，否则一样编译报错。
 
 ---
 
-#### Structured binding
+#### **Structured binding**
 
 `auto [min, max] = ...` 到底发生了什么？
 
@@ -131,7 +131,7 @@ auto [minV, maxV] = my_minmax<double>(4.2, -7.9);
 
 ### 拷贝 vs 引用绑定：`auto` / `auto&` / `const auto&`
 
-Structured binding 的三种常见写法会决定：拆出来的是 **“值（拷贝/移动）”** 还是 **“引用（绑定到原对象成员）”** 。
+**Structured binding** 的三种常见写法会决定：拆出来的是 **“值（拷贝/移动）”** 还是 **“引用（绑定到原对象成员）”** 。
 
 #### 值绑定（拷贝/移动）：`auto [a, b] = expr;`
 
@@ -221,7 +221,7 @@ mismatch(InputIt1 first1, InputIt1 last1, InputIt2 first2) {
 - `last` 通常是 `end()`（past-the-end），不可解引用
 - 遍历条件永远写成 `it != last`
 
-#### 隐式接口（Implicit Interface）
+#### **Implicit Interface**
 
 这个模板对 iterator/元素类型的“要求”来自它在代码里用到的操作：
 
@@ -232,9 +232,9 @@ mismatch(InputIt1 first1, InputIt1 last1, InputIt2 first2) {
 
 ---
 
-## Variadic Templates
+## **Variadic Templates**
 
-Variadic templates 的目标： **让模板/函数接受任意数量的类型参数或函数参数** 。  
+**Variadic templates** 的目标： **让模板/函数接受任意数量的类型参数或函数参数** 。  
 常见形式：
 
 - `typename... Ts`：一包类型（type pack）
@@ -253,10 +253,10 @@ void printAll(const Ts&... args) {
 
 - `Ts...` 是一组类型：可能是 `<int, string, double, ...>`
 - `args...` 是一组值：对应每个类型的参数
-- `(std::cout << ... << args)` 是“折叠表达式”：相当于把 `<<` 对 args 逐个应用
+- `(std::cout << ... << args)` 是“ **Fold Expression（折叠表达式）** ”：相当于把 `<<` 对 args 逐个应用
 
 > [!NOTE]  
-> 旧写法（C++11/14）常用递归展开 pack；C++17 之后 fold expression 更简洁。
+> 旧写法（C++11/14）常用递归展开 pack；C++17 之后 **fold expression** 更简洁。
 
 ---
 
@@ -274,18 +274,18 @@ bar(make(args)...);  // 对每个 args 做 make(args)，再把结果展开
 ### 3️⃣ Variadic 最常见用途
 
 - `std::tuple<Ts...>`
-- `std::make_unique<T>(args...)`（构造时完美转发）
+- `std::make_unique<T>(args...)`（构造时 **Perfect Forwarding（完美转发）**）
 - 通用 wrapper / logger（把任意参数转交给内部函数）
-- “concept lifting”/“constraints” 里常见的组合约束（对每个参数做限制）
+- “ **concept lifting** ”/“constraints” 里常见的组合约束（对每个参数做限制）
 
 ---
 
-## Concept Lifting
+## **Concept Lifting**
 
-前面写过 implicit interface：模板里写了 `<`、`==`、`<<`，就意味着类型必须支持这些操作。  
+前面写过 **implicit interface**：模板里写了 `<`、`==`、`<<`，就意味着类型必须支持这些操作。  
 问题是： **这种要求是隐藏的** ，往往直到编译失败才知道。
 
-Concept lifting 的直觉：
+**Concept lifting** 的直觉：
 
 > 把“模板内部偷偷依赖的操作/性质”，变成“函数声明处显式写出来的约束”。
 
@@ -320,7 +320,7 @@ int countOccurences(const Collection<DataType>& list, DataType val) {
 
 > [!TIP]  
 > 这就是 Lecture 7 在强调的：  
-> “写了 template ≠ 真正泛型”，关键看你在模板里调用了哪些成员函数/操作符。
+> “写了 template ≠ 真正泛型”，关键看你在模板里调用了哪些 **Member Function（成员函数）** /操作符。
 
 ---
 
@@ -369,9 +369,9 @@ countOccurences(v1.begin(), v1.end(), v2.begin());
 
 ---
 
-## Implicit Interfaces & Concepts
+## **Implicit Interfaces** & Concepts
 
-### 1️⃣ Implicit Interface 是什么？
+### 1️⃣ **Implicit Interface** 是什么？
 
 模板函数对类型的“要求”，不是写在签名里，而是 **隐藏在模板实现里** 。  
 比如：
@@ -380,7 +380,7 @@ countOccurences(v1.begin(), v1.end(), v2.begin());
 - `printMinAndMax` 用了 `<<` → 要求 `T` 可输出到流
 - `mismatch` 用了 `!=, ++, *, ==` → 要求 iterator 支持这些操作，元素可比较
 
-> 这套“要求集合”就是该模板对 `T` 的 implicit interface。
+> 这套“要求集合”就是该模板对 `T` 的 **implicit interface**。
 
 ---
 

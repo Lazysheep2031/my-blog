@@ -7,7 +7,7 @@ category: 笔记
 draft: true
 ---
 
-本文主要总结了 C++ 中 Stream 的使用，包括 String Stream 的三种类型、流的状态位、标准输入输出流（cin, cout 等）的细节与陷阱，以及 `getline` 的正确用法。此外，还简要回顾了 C++ 中的类型推导 `auto`、别名 `using` 以及结构化绑定等现代 C++ 特性。
+本文主要总结了 C++ 中 Stream 的使用，包括 String Stream 的三种类型、流的 **State Bit（状态位）**、标准 **Input/Output Stream（输入输出流）** （cin, cout 等）的细节与陷阱，以及 `getline` 的正确用法。此外，还简要回顾了 C++ 中的 **Type Deduction（类型推导）** `auto`、别名 `using` 以及 **Structured Binding（结构化绑定）** 等现代 C++ 特性。
 
 ## 目录
 
@@ -16,8 +16,8 @@ draft: true
   - [ostringstream](#ostringstream)
   - [istringstream](#istringstream)
   - [stringstream](#stringstream)
-- [State bits](#state-bits)
-- [Input/output stream](#inputoutput-stream)
+- [**State bits**](#state-bits)
+- [**Input/output stream**](#inputoutput-stream)
   - [错误样例](#错误样例)
   - [getline](#getline)
 - [Types](#types)
@@ -30,7 +30,7 @@ draft: true
     - [引用参数输出多个结果](#引用参数输出多个结果)
     - [返回 `std::pair`](#返回stdpair)
     - [`std::make_pair`](#stdmake_pair)
-    - [Structured Binding](#structured-binding)
+    - [**Structured Binding**](#structured-binding)
 
 ## String Stream
 
@@ -49,15 +49,15 @@ cout << oss.str() << endl; // Ito En Green Tea
 
 1. **底层 string buffer 初始化为**
    `"Ito En Green Tea"`
-2. **写指针（put pointer）在开头**
-   构造函数并没有把写指针放到末尾。
+2. **Put Pointer（写指针）在开头**
+   **Constructor（构造函数）** 并没有把 **Put Pointer** 放到末尾。
 
 ```c++
 oss << 16.9 << " Ounce ";
 cout << oss.str() << endl; // 16.9 Ounce n Tea
 ```
 
-- 写指针 **从开头开始**
+- **Put Pointer** **从开头开始**
 - `"16.9 Ounce "` 覆盖原字符串前面的字符
 
 ```c++
@@ -71,7 +71,7 @@ oss << "(Pack of " << 12 << ")";
 cout << oss.str() << endl; // 16.9 Ounce (Pack of 12)
 ```
 
-> **写指针并没有回到开头，而是停留在上一次写完的位置！**
+> **Put Pointer并没有回到开头，而是停留在上一次写完的位置！**
 
 ```c++
 ostringstream oss("Ito En Green Tea", stringstream::ate); // 就会从末尾位置打开，而不是默认的开头了
@@ -115,9 +115,9 @@ iss >> x >> y >> z;
 - `iss.fail()` → `true`
 - 之后的所有 `>>` 都会 **直接跳过，不干活**
 
-3. stream 有状态位（state bits）
+3. stream 有 **State Bit**
 
-| 状态位   | 含义                           |
+| **State Bit**   | 含义                           |
 | -------- | ------------------------------ |
 | `good()` | 一切正常                       |
 | `fail()` | 上一次操作失败（类型不匹配等） |
@@ -158,19 +158,19 @@ int stringToInteger(const string& str) {
 
 > **一次成功不代表输入是干净的** 💡 
 
-## State bits
+## **State bits**
 
 - Good bit : ready for read/write
 - Fail bit : previous operation failed , future operations fail.
 - EOF bit : reached end of buffer content , future operations fail.
 - Bad bit : external error , future operations fail.
 
-## Input/output stream
+## **Input/output stream**
 
 **Four standard iostreams**
 
-- cin : Standard input stream
-- cout : Standard output stream (buffered)
+- cin : Standard **input stream（输入流）**
+- cout : Standard **output stream（输出流）** (buffered)
 - cerr : Standard error stream (unbuffered)
 - clog : Standard error stream (buffered)
 
@@ -237,12 +237,12 @@ What is your name? Avery Wang What is your age? Where are you from? Hello Avery(
 `Avery Wang\n`
 结果是：
 `name = "Avery"`
-输入缓冲区中 **还剩下** ：
+**Input Buffer（输入缓冲区）** 中 **还剩下** ：
 `"Wang\n"`
 
 ---
 
-2. 输入缓冲区的问题 读取 int 时，遇到非数字 → failbit 被置位
+2. **Input Buffer** 的问题 读取 int 时，遇到非数字 → failbit 被置位
    `cin >> age;`
    此时缓冲区的下一个字符是： `W`
 
@@ -255,7 +255,7 @@ What is your name? Avery Wang What is your age? Where are you from? Hello Avery(
 结果：
 
 - `cin.fail() == true`
-- **输入流进入失败状态**
+- **Input Stream进入失败状态**
 - 后续所有 `>>` 操作都会立刻失败
 
 :::WARNING[注意：]
@@ -263,7 +263,7 @@ What is your name? Avery Wang What is your age? Where are you from? Hello Avery(
 
 如果读取失败：
 - `age` **不会被赋值**
-- 它的值是 **未定义行为（UB）**
+- 它的值是 **Undefined Behavior（未定义行为，UB）**
 - 看到的 `0` 只是“碰巧”
 :::
 
@@ -281,7 +281,7 @@ What is your name? Avery Wang What is your age? Where are you from? Hello Avery(
 
 原因：
 
-- `cout` 是 **缓冲输出流**
+- `cout` 是 **Buffered Output Stream（缓冲输出流）**
 - 没有 `\n` / `endl` / `flush`
 - 多条输出可能在一次刷新中一起显示
 
@@ -330,7 +330,7 @@ int getInteger(const string& prompt, const string& reprompt) {
 
 ## Types
 
-STL 的类型有时很长 → 用 type alias/auto 让代码更可读、更不易错 → C++ 里返回多个值有更自然的方式（pair/struct）而不是一堆引用参数。
+STL 的类型有时很长 → 用 **type alias（类型别名）** /auto 让代码更可读、更不易错 → C++ 里返回多个值有更自然的方式（pair/struct）而不是一堆引用参数。
 
 ---
 
@@ -361,7 +361,7 @@ std::unordered_map<std::forward_list<Student>, std::unordered_set<...>>::iterato
 
 ### `using`
 
-**用 Type Alias（类型别名）解决** ：`using`
+**用 Type Alias解决** ：`using`
 
 ```cpp
 using map_iterator = std::unordered_map< std::forward_list<Student>, std::unordered_set<...> >::iterator;
@@ -431,7 +431,7 @@ auto& refMult = multiplier;    // 引用：double&
 auto func = [](auto i){ return i*2; }; // lambda 的闭包类型（很长，auto 很有用）
 ```
 
-**一个重要坑** ：字符串字面量
+**一个重要坑** ： **String Literal（字符串字面量）**
 
 - `auto name = "Avery";` 推导成 **const char\***（C 风格字符串）
 - 如果你想要 `std::string`，写：
@@ -449,7 +449,7 @@ auto name = std::string{"Avery"};
 **Correctness**
 
 - 避免 **未初始化变量** （尤其是你本来想写某个复杂类型，但写错导致没赋上）
-- 避免 **隐式转换的坑** （比如把某个复杂 iterator 类型写错）
+- 避免 **Implicit Conversion（隐式转换）的坑** （比如把某个复杂 iterator 类型写错）
 - 避免 `iterator` vs `const_iterator` 搞混
 
 **Flexibility**
@@ -498,7 +498,7 @@ int main() {
 }
 ```
 
-- 函数签名里混合了输入参数 dist 和输出参数 min/max
+- **Function Signature（函数签名）** 里混合了输入参数 dist 和输出参数 min/max
 - 调用者需要先声明 `min, max`（而且可能忘记初始化、或者顺序写错）
 - 从接口上看不够自然：你在找一个范围，结果却是 void + 改外部变量
 
@@ -533,7 +533,7 @@ return std::make_pair(min, max);
 
 - （现代 C++ 里也可以直接 `return {min, max};`
 
-#### Structured Binding
+#### **Structured Binding**
 
 ```cpp
 auto [mn, mx] = findPriceRange(dist);

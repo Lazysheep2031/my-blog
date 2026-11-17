@@ -7,9 +7,9 @@ category: 笔记
 draft: false
 ---
 
-## Runtime error 与错误处理
+## **Runtime error（运行时错误）** 与错误处理
 
-### Compile-time error 与 run-time error
+### Compile-time error 与 **run-time error**
 
 C++ 的 static typing 与 compile-time checks 能发现大量结构性错误，例如：
 
@@ -31,7 +31,7 @@ C++ 的 static typing 与 compile-time checks 能发现大量结构性错误，�
 
 这些情况可能与程序逻辑本身无关，却必须由程序正确处理。
 
-### 读取文件中的运行时错误
+### 读取文件中的 **Run-Time Error**
 
 读取一个文件通常包含五步：
 
@@ -286,7 +286,7 @@ T& Vector<T>::operator[](int idx) {
 
 如何提示用户、是否重试、是否终止当前业务，应由更高层代码决定。
 
-### 异常传播链
+### **Exception Propagation（异常传播）** 链
 
 课程中的调用链为：
 
@@ -372,15 +372,15 @@ catch (const VectorIndexError&) {
 - `throw;`：re-raise 当前 handler 正在处理的异常，只能写在异常处理路径中；
 - 重新抛出时用 `throw;` 可以保留动态类型，避免重新构造或 slicing。
 
-### Stack unwinding
+### **Stack unwinding（栈展开）**
 
-异常从抛出点沿调用链反向传播，直到找到第一个匹配的 handler。这个过程称为 **stack unwinding（栈展开 / 退栈）** 。
+异常从抛出点沿调用链反向传播，直到找到第一个匹配的 handler。这个过程称为 **Stack Unwinding** 。
 
 在传播过程中：
 
 - 当前函数在 `throw` 后的正常语句不再执行；
 - 函数调用栈逐层退出；
-- 已经完整构造的 stack objects 会自动执行析构函数；
+- 已经完整构造的 stack objects 会自动执行 **Destructor（析构函数）**；
 - 因此 RAII 对异常安全至关重要。
 
 
@@ -406,7 +406,7 @@ try {
 
 1. handlers 按出现顺序检查；
 2. 精确类型优先于后续 handler；
-3. 派生类异常可以被基类 handler 捕获；
+3. **Derived Class（派生类）** 异常可以被 **Base Class（基类）** handler 捕获；
 4. `catch (...)` 能捕获任意异常，必须放在最后；
 5. 实际代码优先使用 reference，通常写为 `const T&`。
 
@@ -489,7 +489,7 @@ catch (...) {
 
 ### Standard library exceptions
 
-标准异常体系以 `std::exception` 为公共基类。常见类型包括：
+标准异常体系以 `std::exception` 为公共 **Base Class**。常见类型包括：
 
 ```text
 std::exception
@@ -555,7 +555,7 @@ if (p == nullptr) {
 
 ### `noexcept` specifier
 
-函数后加 `noexcept`，表示该函数承诺不会让异常传播到调用者：
+函数后加 `noexcept`，表示该函数承诺不会让 **Exception Propagation** 到调用者：
 
 ```cpp
 void abc(int a) noexcept {
@@ -567,7 +567,7 @@ void abc(int a) noexcept {
 
 - 向编译器和调用者表达 non-throwing contract；
 - 允许编译器或标准库采用更积极的优化策略；
-- 对 move constructor、swap、destructor 等操作尤其重要。
+- 对 **move constructor（移动构造函数）**、swap、 **destructor** 等操作尤其重要。
 
 若异常逃离 `noexcept` 函数边界：
 
@@ -632,11 +632,11 @@ int main() {
 
 ## Exception 与 RAII
 
-### 依赖析构函数释放资源
+### 依赖 **Destructor** 释放资源
 
-Exception propagation 会触发 stack unwinding，栈上已经构造完成的对象会析构。因此资源应交给对象管理：
+**Exception propagation** 会触发 **stack unwinding**，栈上已经构造完成的对象会析构。因此资源应交给对象管理：
 
-> Acquire resources in constructor; release resources in destructor.
+> Acquire resources in **constructor（构造函数）**; release resources in **destructor** .
 
 这就是 **RAII（Resource Acquisition Is Initialization）** 。
 
@@ -682,26 +682,26 @@ void func() {
 只要 `File::~File()` 正确关闭文件，无论函数正常结束、提前 `return`，还是由于异常退出，文件都能被释放。
 
 
-## Exception 与 Constructors
+## Exception 与 **Constructors**
 
 ### 构造失败如何报告
 
-Constructor 没有返回值。若构造过程无法建立合法对象，可选方案包括：
+**Constructor** 没有返回值。若构造过程无法建立合法对象，可选方案包括：
 
 - 设置 `initialized` flag，让对象处于“构造完成但不可用”的状态；
 - 将真正初始化推迟到显式 `init()`；
-- 直接在 constructor 中抛出异常。
+- 直接在 **constructor** 中抛出异常。
 
 前两种方案会使对象出现额外状态，并依赖用户记得检查或调用 `init()`。
 
 > 构造失败时，抛出异常通常是最自然的设计：对象只有“成功构造并满足不变量”与“构造失败、不产生对象”两种结果。
 
-### 构造函数抛异常后的规则
+### **Constructor** 抛异常后的规则
 
-若 constructor 抛出异常：
+若 **constructor** 抛出异常：
 
 1. 该对象的构造没有完成；
-2. 该对象自身的 destructor 不会被调用；
+2. 该对象自身的 **destructor** 不会被调用；
 3. 已经完整构造的 base-class subobjects 与 member objects 会被析构；
 4. 对象表达式本身使用的存储由语言机制处理。
 
@@ -713,11 +713,11 @@ Y* p = new Y;    // Y::Y() 抛异常时，new 为 Y 分配的原始存储会被�
                  // 且 p 不会得到一个有效的 Y* 值
 ```
 
-真正危险的是 constructor 内部手动获得的裸资源：完整对象未形成，类本身的 destructor 没有机会释放这些资源。
+真正危险的是 **constructor** 内部手动获得的裸资源：完整对象未形成，类本身的 **destructor** 没有机会释放这些资源。
 
 ### 裸资源导致 leak
 
-一个在构造函数中申请动态数组的类：
+一个在 **Constructor** 中申请动态数组的类：
 
 ```cpp
 #include <iostream>
@@ -762,7 +762,7 @@ caught
 观察：
 
 - `A()` 已经执行 `new int[10]`；
-- 随后 constructor 抛出异常；
+- 随后 **constructor** 抛出异常；
 - `A` 未构造完成，因此 `A::~A()` 不会执行；
 - `delete[] vdata` 不会发生；
 - 动态数组发生 memory leak。
@@ -792,14 +792,14 @@ public:
 };
 ```
 
-此时 `A a;` 已构造完成，后续 `a.init()` 抛异常时析构函数最终有机会释放 `vdata`。
+此时 `A a;` 已构造完成，后续 `a.init()` 抛异常时 **Destructor** 最终有机会释放 `vdata`。
 
 但代价较大：
 
 - 用户可能忘记调用 `init()`；
 - 对象存在“已构造但还不可使用”的中间状态；
-- 每个成员函数可能都需要检查初始化状态；
-- 构造函数“保证初始化”的价值被削弱。
+- 每个 **Member Function（成员函数）** 可能都需要检查初始化状态；
+- **Constructor** “保证初始化”的价值被削弱。
 
 建议优先采用 RAII 管理构造期间取得的资源。
 
@@ -859,7 +859,7 @@ caught
 
 这提供了构造异常安全的核心思路：
 
-> 不直接用裸指针管理资源；将资源包装为成员对象，让成员对象的析构函数负责释放资源。
+> 不直接用裸指针管理资源；将资源包装为成员对象，让成员对象的 **Destructor** 负责释放资源。
 
 ### Wrapper 管理资源
 
@@ -929,9 +929,9 @@ caught
 
 这就是“用栈上对象的生命周期管理堆资源”的 RAII 思想。
 
-### 用智能指针实现同一设计
+### 用 **Smart Pointer（智能指针）** 实现同一设计
 
-对于动态内存，无需手写 `Wrapper`，标准库已经提供 smart pointer：
+对于 **Dynamic Memory（动态内存）**，无需手写 `Wrapper`，标准库已经提供 **smart pointer**：
 
 ```cpp
 #include <iostream>
@@ -965,22 +965,22 @@ int main() {
 
 使用原则：
 
-- 独占所有权：优先 `std::unique_ptr`；
-- 共享所有权确实存在时：使用 `std::shared_ptr`；
+- **Unique Ownership（独占所有权）**：优先 `std::unique_ptr`；
+- **Shared Ownership（共享所有权）** 确实存在时：使用 `std::shared_ptr`；
 - 文件、锁、网络连接等资源：使用相应 RAII wrapper；
 - 尽量避免在拥有资源的类中保存需要手工清理的 raw owning pointer。
 
 
-## Exception 与 Destructors
+## Exception 与 **Destructors**
 
-Destructor 可能在两种路径中执行：
+**Destructor** 可能在两种路径中执行：
 
 1. 正常生命周期结束：
    - 栈上对象离开 scope；
    - 堆上对象被 `delete`；
-2. exception propagation 导致 stack unwinding。
+2. **exception propagation** 导致 **stack unwinding**。
 
-若析构函数在 stack unwinding 中再次让异常逃出，程序面临同时传播多个异常的冲突，运行时将调用 `std::terminate()`。
+若 **Destructor** 在 **stack unwinding** 中再次让异常逃出，程序面临同时传播多个异常的冲突，运行时将调用 `std::terminate()`。
 
 应遵守：
 
@@ -988,7 +988,7 @@ Destructor 可能在两种路径中执行：
 Never let exceptions escape from destructors.
 ```
 
-通常析构函数按 non-throwing operation 设计：
+通常 **Destructor** 按 non-throwing operation 设计：
 
 ```cpp
 class File {
@@ -1002,7 +1002,7 @@ public:
 ```
 
 :::WARNING
-析构函数的职责是清理对象已有资源。若清理失败需要报告，可在析构前提供显式的 `close()` / `commit()` 接口供 caller 检查结果；析构函数仍作为不抛异常的最终兜底释放路径。
+**Destructor** 的职责是清理对象已有资源。若清理失败需要报告，可在析构前提供显式的 `close()` / `commit()` 接口供 caller 检查结果； **Destructor** 仍作为不抛异常的最终兜底释放路径。
 :::
 
 
@@ -1021,7 +1021,7 @@ try {
 }
 ```
 
-若异常体系依赖 virtual function 或派生类携带的诊断信息，by value 会丢失信息。
+若异常体系依赖 **virtual function（虚函数）** 或 **Derived Class** 携带的诊断信息，by value 会丢失信息。
 
 ### Catch by pointer：引入所有权问题
 
@@ -1033,7 +1033,7 @@ try {
 }
 ```
 
-异常处理路径需要管理动态内存，容易造成 leak，并让正常代码与 handler 因所有权规则耦合。
+异常处理路径需要管理 **Dynamic Memory**，容易造成 leak，并让正常代码与 handler 因所有权规则耦合。
 
 ### Prefer catching by reference
 
@@ -1124,9 +1124,9 @@ class BankAccount {
 |---|---|
 | No-throw guarantee | 操作承诺不会抛出异常，例如用于提交状态变更的 `swap()` |
 
-### Widget 的拷贝赋值问题
+### Widget 的 **Copy Assignment（拷贝赋值）** 问题
 
-构造了一个拥有动态资源的 `Widget`。为了模拟资源复制可能失败，`Resource` 的 copy constructor 主动抛出异常：
+构造了一个拥有动态资源的 `Widget`。为了模拟资源复制可能失败，`Resource` 的 **copy constructor（拷贝构造函数）** 主动抛出异常：
 
 ```cpp
 #include <stdexcept>
@@ -1195,11 +1195,11 @@ pr = new Resource(*w.pr);  // 若这里抛异常
 
 - 旧资源已经被 `delete`；
 - `pr` 尚未成功改为新地址，仍保存已释放的旧地址；
-- `pr` 成为 dangling pointer；
+- `pr` 成为 **dangling pointer（悬空指针）**；
 - 后续析构再次 `delete pr` 可能造成严重错误；
 - `i` 与 `s` 已经变成新值，资源字段却失效，对象状态不一致。
 
-### Basic guarantee：避免 dangling pointer
+### Basic guarantee：避免 **dangling pointer**
 
 最低限度可以在删除后立即清空指针：
 

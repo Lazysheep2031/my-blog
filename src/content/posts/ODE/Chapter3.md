@@ -11,7 +11,7 @@ draft: false
 
 ### Basic Idea
 
-考虑二阶线性齐次方程
+考虑二阶 **Homogeneous Linear Equation（线性齐次方程）**
 
 $$
 A(x)y''+B(x)y'+C(x)y=0.
@@ -31,9 +31,9 @@ $$
 \boxed{y(x)=x^r\sum_{n=0}^{\infty}c_nx^n.}
 $$
 
-然后把它代回原方程，逐项比较同次幂的系数，得到 **recurrence relation** ，再由此一步步推出整个级数。
+然后把它代回原方程，逐项比较同次幂的系数，得到 **recurrence relation（递推关系）** ，再由此一步步推出整个级数。
 
-### Review of Power Series
+### Review of **Power Series（幂级数）**
 $$
 \sum_{n=0}^{\infty}c_n(x-a)^n.
 $$
@@ -99,8 +99,8 @@ $$
    \qquad
    y''=\sum_{n=2}^{\infty}n(n-1)c_nx^{n-2};
    $$
-2. **平移指标（index shift）** ，把不同求和式统一成同一个 $x^n$；
-3. **比较同次幂系数** ，利用 identity principle 得到递推式。
+2. **Index Shift（平移指标）** ，把不同求和式统一成同一个 $x^n$；
+3. **比较同次幂系数** ，利用 identity principle 得到 **Recurrence Relation**。
 
 ## Standard Form and Point Classification
 
@@ -122,16 +122,16 @@ $$
 
 然后在某一点 $x=a$ 对这个点分类：
 
-- **ordinary point** ：$P,Q$ 在 $x=a$ 解析；
-- **regular singular point** ：$(x-a)P(x)$ 与 $(x-a)^2Q(x)$ 在 $x=a$ 解析；
+- **ordinary point** ：$P,Q$ 在 $x=a$ **Analytic（解析）**；
+- **regular singular point** ：$(x-a)P(x)$ 与 $(x-a)^2Q(x)$ 在 $x=a$ **Analytic**；
 - **irregular singular point** ：既不是 ordinary，也不是 regular singular。
 
 :::NOTE
 **What does “analytic at $x=a$” mean?**
 
-一个函数在 $x=a$ 解析，意思是：
+一个函数在 $x=a$ **Analytic**，意思是：
 
-**它在 $a$ 附近可以写成一个关于 $(x-a)$ 的收敛幂级数。**
+**它在 $a$ 附近可以写成一个关于 $(x-a)$ 的收敛Power Series。**
 
 也就是存在某个邻域，使得
 
@@ -145,12 +145,12 @@ $$
 e^x,\ \sin x,\ \cos x
 $$
 
-这类函数是解析的；而
+这类函数是 **Analytic** 的；而
 
 $$
 \frac1{x-a},\ \frac1{(x-a)^2},\ \ln(x-a),\ |x-a|
 $$
-这类函数在 $x=a$ 一般都不解析。
+这类函数在 $x=a$ 一般都不 **Analytic**。
 :::
 
 :::NOTE
@@ -164,12 +164,12 @@ $$
 
 在 $x=a$ 附近分类时：
 
-* 若 $P,Q$ 都在 $x=a$ 解析，则 $x=a$ 是 **ordinary point** ；
+* 若 $P,Q$ 都在 $x=a$ **Analytic**，则 $x=a$ 是 **ordinary point** ；
 * 若
   $$
   (x-a)P(x),\qquad (x-a)^2Q(x)
   $$
-  在 $x=a$ 解析，则 $x=a$ 是 **regular singular point** 。
+  在 $x=a$ **Analytic**，则 $x=a$ 是 **regular singular point** 。
 
 这个条件正好来自导数的“降阶”：
 
@@ -208,7 +208,7 @@ $$
 (x-a)P(x),\qquad (x-a)^2Q(x)
 $$
 
-要在 $x=a$ 解析。
+要在 $x=a$ **Analytic**。
 
 > **(P) 最多允许一阶奇性，(Q) 最多允许二阶奇性；再坏就不是 regular singular 了。**
 
@@ -217,7 +217,7 @@ $$
 
 ## Series Solutions near Ordinary Points
 
-若 $x=a$ 是 **ordinary point** ，那么在 $a$ 附近解可以展开成普通幂级数。
+若 $x=a$ 是 **ordinary point** ，那么在 $a$ 附近解可以展开成普通 **Power Series**。
 
 不妨把中心平移到 $a=0$，则有
 
@@ -227,12 +227,12 @@ $$
 
 关键是：
 
-- **ordinary point 附近，普通幂级数就够了** ；
-- 收敛半径和 $P,Q$ 在复平面中的最近奇点有关。
+- **ordinary point 附近，普通Power Series就够了** ；
+- **Radius of Convergence（收敛半径）** 和 $P,Q$ 在 **Complex Plane（复平面）** 中的最近 **Singular Point（奇点）** 有关。
 
 直观上就是：
 
-> 只要系数函数在这个点附近 **够好** ，解也会 **长得够好** ，可以用 ordinary power series 表示。
+> 只要系数函数在这个点附近 **够好** ，解也会 **长得够好** ，可以用 ordinary **power series** 表示。
 
 **General Workflow**
 
@@ -247,14 +247,14 @@ $$
 4. 代回原方程；
 5. 把所有项整理成关于 $x^n$ 的单一求和式；
 6. 比较系数，得到 **recurrence relation** ；
-7. 由 $c_0,c_1$ 两个自由参数生成两组 linearly independent solutions；
-8. 写出通解
+7. 由 $c_0,c_1$ 两个自由参数生成两组 **linearly independent（线性无关）** solutions；
+8. 写出 **General Solution（通解）**
    $$
    y=c_0y_0+c_1y_1.
    $$
 
 > [!IMPORTANT]
-> 二阶线性齐次方程最后通常会留下 **两个自由参数** 。在级数语言里，它们往往就是 $c_0,c_1$。
+> 二阶 **Homogeneous Linear Equation** 最后通常会留下 **两个自由参数** 。在级数语言里，它们往往就是 $c_0,c_1$。
 
 ### Example
 #### Example 1
@@ -279,7 +279,7 @@ P(x)=\frac{3x}{x^2-4},
 Q(x)=\frac{1}{x^2-4}
 $$
 
-在 $x=0$ 都解析，所以 $x=0$ 是 **ordinary point** 。
+在 $x=0$ 都 **Analytic**，所以 $x=0$ 是 **ordinary point** 。
 
 于是设
 
@@ -291,7 +291,7 @@ y'=\sum_{n=1}^{\infty}nc_nx^{n-1},
 y''=\sum_{n=2}^{\infty}n(n-1)c_nx^{n-2}.
 $$
 
-代回并整理成同次幂后，可得递推关系
+代回并整理成同次幂后，可得 **Recurrence Relation**
 
 $$
 \boxed{c_{n+2}=\frac{n+1}{4(n+2)}c_n \qquad (n\ge 0).}
@@ -323,13 +323,13 @@ $$
 y_1(x)=x+\frac16x^3+\frac1{30}x^5+\cdots.
 $$
 
-所以通解为
+所以 **General Solution** 为
 
 $$
 \boxed{y=c_0y_0(x)+c_1y_1(x).}
 $$
 
-- 递推式隔两个下标连一次，所以自然分成 **偶数链** 和 **奇数链** ；
+- **Recurrence Relation** 隔两个下标连一次，所以自然分成 **偶数链** 和 **奇数链** ；
 - 因此两个基本解常常就是 **只含偶次幂** 和 **只含奇次幂** 的两组级数。
 
 </details>
@@ -352,7 +352,7 @@ P(x)=-x,
 Q(x)=-x^2,
 $$
 
-都在 $x=0$ 解析，所以 $x=0$ 仍然是 **ordinary point** 。
+都在 $x=0$ **Analytic**，所以 $x=0$ 仍然是 **ordinary point** 。
 
 设
 
@@ -370,7 +370,7 @@ $$
   $$
   6c_3-c_1=0 \Rightarrow c_3=\frac16c_1;
   $$
-- 对 $n\ge 2$，有递推关系
+- 对 $n\ge 2$，有 **Recurrence Relation**
   $$
   \boxed{c_{n+2}=\frac{nc_n+c_{n-2}}{(n+2)(n+1)}.}
   $$
@@ -385,26 +385,26 @@ $$
 y_1(x)=x+\frac16x^3+\frac3{40}x^5+\cdots.
 $$
 
-所以通解为
+所以 **General Solution** 为
 
 $$
 \boxed{y=c_0y_0(x)+c_1y_1(x).}
 $$
 
-- 递推关系变成了 **three-term recurrence** ；
+- **Recurrence Relation** 变成了 **three-term recurrence** ；
 
 </details>
 
 
-### Radius of Convergence and Nearest Singular Point
+### **Radius of Convergence** and Nearest **Singular Point**
 
-对 ordinary point 附近的幂级数解，除了会得到 recurrence relation，还要记住一个很重要的结论：
+对 ordinary point 附近的 **Power-Series Solution（幂级数解）**，除了会得到 **recurrence relation**，还要记住一个很重要的结论：
 
-> 若 $x=a$ 是 ordinary point，则方程在 $a$ 附近有两组 linearly independent 的 power-series solutions，且它们的收敛半径至少达到从 $a$ 到最近 singular point 的距离；这里的 singular point 要在 **complex plane** 里看，而不只是在实轴上。
+> 若 $x=a$ 是 ordinary point，则方程在 $a$ 附近有两组 **linearly independent** 的 **power-series solutions**，且它们的 **Radius of Convergence** 至少达到从 $a$ 到最近 **singular point** 的距离；这里的 **singular point** 要在 **complex plane** 里看，而不只是在实轴上。
 
-**收敛半径不是只看“实数范围内哪里出问题”，而是要看复平面中最近的奇点离展开中心有多远。**
+**Radius of Convergence不是只看“实数范围内哪里出问题”，而是要看Complex Plane中最近的Singular Point离展开中心有多远。**
 
-例如，若标准形式中的系数函数只有复奇点
+例如，若标准形式中的系数函数只有复 **Singular Point**
 
 $$
 x=\pm 3i,
@@ -415,19 +415,19 @@ $$
 
 那么：
 
-- 若在 $x=0$ 展开，最近奇点距离是 $3$，因此级数解的收敛半径至少为 $3$；
-- 若在 $x=4$ 展开，最近奇点到 $4$ 的距离是
+- 若在 $x=0$ 展开，最近 **Singular Point** 距离是 $3$，因此级数解的 **Radius of Convergence** 至少为 $3$；
+- 若在 $x=4$ 展开，最近 **Singular Point** 到 $4$ 的距离是
   $$
   \sqrt{4^2+3^2}=5,
   $$
-  因此收敛半径至少为 $5$。
+  因此 **Radius of Convergence** 至少为 $5$。
 
 </details>
 
 
 所以：
 
-> **展开中心不同，保证的收敛半径也会不同。**
+> **展开中心不同，保证的Radius of Convergence也会不同。**
 
 
 ### Legendre Equation and Legendre Polynomials
@@ -443,9 +443,9 @@ $$
 需要先注意两点：
 
 1. 在 $x=0$ 附近，$1-x^2\neq 0$，所以这里可以按 ordinary point 来做；
-2. 但在 $x=\pm 1$，系数会出问题，所以这两个点是它的奇点。
+2. 但在 $x=\pm 1$，系数会出问题，所以这两个点是它的 **Singular Point**。
 
-当参数 $\alpha=n\in\mathbb N$ 时，会出现特殊的多项式解，称为 **Legendre polynomials** 。这就是为什么幂级数方法最后会通向特殊函数。
+当参数 $\alpha=n\in\mathbb N$ 时，会出现特殊的多项式解，称为 **Legendre polynomials** 。这就是为什么 **Power Series** 方法最后会通向特殊函数。
 对 Legendre equation
 
 $$
@@ -470,7 +470,7 @@ $$
 > **当 $\alpha=n$ 为非负整数时，两组级数里恰有一组会终止成多项式；哪一组终止，取决于 $n$ 的奇偶性。**
 
 这就是 Legendre polynomial 出现的原因：  
-递推关系在某一步把更高次系数“截断”了。
+**Recurrence Relation** 在某一步把更高次系数“截断”了。
 
 前几个 Legendre polynomials 是
 
@@ -510,7 +510,7 @@ $$
 ## Regular Singular Points
 ### Frobenius Method
 
-若展开点不是 ordinary point，而是 singular point，那么直接设
+若展开点不是 ordinary point，而是 **singular point**，那么直接设
 
 $$
 y=\sum_{n=0}^{\infty}c_nx^n
@@ -518,7 +518,7 @@ $$
 
 往往会失败，因为方程里的 $P(x),Q(x)$ 本身已经带有类似 $1/x,1/x^2$ 的奇性。
 
-这时普通幂级数不够灵活，需要更一般的设法。
+这时普通 **Power Series** 不够灵活，需要更一般的设法。
 
 **Standard Form near a Regular Singular Point**
 
@@ -528,7 +528,7 @@ $$
 \boxed{y''+\frac{p(x)}{x}y'+\frac{q(x)}{x^2}y=0},
 $$
 
-其中 $p(x),q(x)$ 在 $x=0$ 附近解析，因此可展开为
+其中 $p(x),q(x)$ 在 $x=0$ 附近 **Analytic**，因此可展开为
 
 $$
 p(x)=\sum_{n=0}^{\infty}p_nx^n,
@@ -536,7 +536,7 @@ p(x)=\sum_{n=0}^{\infty}p_nx^n,
 q(x)=\sum_{n=0}^{\infty}q_nx^n.
 $$
 
-这时虽然 $P(x)=p(x)/x$ 和 $Q(x)=q(x)/x^2$ 在 $0$ 不解析，但它们的奇性仍然是可控的：
+这时虽然 $P(x)=p(x)/x$ 和 $Q(x)=q(x)/x^2$ 在 $0$ 不 **Analytic**，但它们的奇性仍然是可控的：
 
 - $P$ 最多像 $1/x$；
 - $Q$ 最多像 $1/x^2$。
@@ -545,7 +545,7 @@ $$
 
 **Frobenius Series Ansatz**
 
-此时把普通幂级数推广成
+此时把普通 **Power Series** 推广成
 
 $$
 \boxed{y(x)=x^r\sum_{n=0}^{\infty}c_nx^n,
@@ -554,12 +554,12 @@ $$
 
 这叫 **Frobenius series** 。
 
-和普通幂级数相比，它多了一个前导因子 $x^r$。这个 $r$ 不是先给定的，而是要由方程自己决定。
+和普通 **Power Series** 相比，它多了一个前导因子 $x^r$。这个 $r$ 不是先给定的，而是要由方程自己决定。
 
 - ordinary point 情况下，解的主导行为就是 $x^0=1$ 这一层；
 - regular singular point 情况下，解的主导行为可能是 $x^r$，而且 $r$ 未必是整数，甚至可能是负数。
 
-**Indicial Equation**
+**Indicial Equation（指数方程）**
 
 把
 
@@ -577,12 +577,12 @@ $$
 
 它的根 $r_1,r_2$ 称为 **exponents** 。
 
-1. 先由 indicial equation 决定主导幂 $x^r$；
-2. 再由 recurrence relation 决定后续系数 $c_n$。
+1. 先由 **indicial equation** 决定主导幂 $x^r$；
+2. 再由 **recurrence relation** 决定后续系数 $c_n$。
 
 **Three Scenarios for the Exponents**
 
-设 indicial equation 的两个实根满足 $r_1\ge r_2$。那么按 $r_1-r_2$ 是否为整数，通常分成三类：
+设 **indicial equation** 的两个实根满足 $r_1\ge r_2$。那么按 $r_1-r_2$ 是否为整数，通常分成三类：
 
 1. **$r_1-r_2\notin\mathbb Z$** ：最理想，通常能得到两组 Frobenius fundamental solutions；
 2. **$r_1-r_2\in\mathbb N$** ：有时仍能得到两组 Frobenius 级数解；
@@ -603,8 +603,8 @@ $$
    $$
 4. 计算 $y',y''$ 并代回；
 5. 先取最低次幂，求出 **indicial equation** ；
-6. 对每个 exponent $r$ 分别求递推关系；
-7. 判断能否得到两组 linearly independent solutions。
+6. 对每个 exponent $r$ 分别求 **Recurrence Relation**；
+7. 判断能否得到两组 **linearly independent** solutions。
 
 > [!TIP]
 > Frobenius 题里最关键的两行通常是：
@@ -747,7 +747,7 @@ $$
 
 **Case 2: $r=-1$**
 
-此时递推式变成
+此时 **Recurrence Relation** 变成
 $$
 c_n=-\frac{c_{n-2}}{n(n-1)},\qquad n\ge 2.
 $$
@@ -823,7 +823,7 @@ y_2(x)=\frac{\cos x}{x}.
 }
 $$
 
-所以通解为
+所以 **General Solution** 为
 $$
 \boxed{
 y(x)=C_1\frac{\sin x}{x}+C_2\frac{\cos x}{x}.
@@ -905,7 +905,7 @@ $$
 
 对一般项：
 
-- $n=0$ 给出指数方程；
+- $n=0$ 给出 **Indicial Equation**；
 - 对 $n\ge 1$，
   $$
   (n+r)(n+r+5)c_n+(n+r)c_{n-1}=0.
@@ -926,7 +926,7 @@ $$
 
 **Case 1: $r=0$**
 
-此时递推式为
+此时 **Recurrence Relation** 为
 $$
 c_n=-\frac{c_{n-1}}{n+5},\qquad n\ge 1.
 $$
@@ -1039,7 +1039,7 @@ $$
 
 **Final answer**
 
-因此可取两组线性无关解为
+因此可取两组 **Linearly Independent** 解为
 $$
 \boxed{
 y_1(x)=1-\frac{x}{6}+\frac{x^2}{42}-\frac{x^3}{336}
@@ -1053,7 +1053,7 @@ y_2(x)=x^{-5}\left(1-x+\frac{x^2}{2}-\frac{x^3}{6}+\frac{x^4}{24}\right).
 }
 $$
 
-所以通解为
+所以 **General Solution** 为
 $$
 \boxed{
 y(x)=C_1\,y_1(x)+C_2\,y_2(x).
@@ -1072,7 +1072,7 @@ $$
 y''+\frac{p(x)}{x}y'+\frac{q(x)}{x^2}y=0,
 $$
 
-若 indicial equation
+若 **indicial equation**
 
 $$
 r(r-1)+p_0r+q_0=0
@@ -1084,7 +1084,7 @@ $$
 r_1-r_2\notin\mathbb Z
 $$
 
-时，情况最理想：方程有两组 linearly independent 的 Frobenius series solutions。
+时，情况最理想：方程有两组 **linearly independent** 的 Frobenius series solutions。
 
 真正麻烦的是 **exceptional cases** ，也就是两根满足
 
@@ -1096,12 +1096,12 @@ $$
 
 ### Methodology: the three scenarios
 
-设 $r_1\ge r_2$ 为 indicial equation 的两个根。
+设 $r_1\ge r_2$ 为 **indicial equation** 的两个根。
 
 **Case 1. $r_1-r_2\notin\mathbb Z$**
 
 最简单的情况。  
-方程有两组 linearly independent 的 Frobenius series solutions：
+方程有两组 **linearly independent** 的 Frobenius series solutions：
 
 $$
 y_1=x^{r_1}\sum_{n=0}^{\infty}a_nx^n,
@@ -1121,7 +1121,7 @@ $$
 y_1=x^{r_1}\sum_{n=0}^{\infty}a_nx^n.
 $$
 
-这时第二组线性无关解不再是普通 Frobenius series，而具有标准形式
+这时第二组 **Linearly Independent** 解不再是普通 Frobenius series，而具有标准形式
 
 $$
 \boxed{
@@ -1132,7 +1132,7 @@ $$
 也就是说：
 
 - 第一部分是 $y_1\ln x$；
-- 第二部分是一个更高一阶起始的 power series correction。
+- 第二部分是一个更高一阶起始的 **power series** correction。
 
 这里的 logarithmic term **一定出现** 。
 
@@ -1169,15 +1169,15 @@ $$
 背后的逻辑是这样的：
 
 - 先用 Frobenius method 找到一组已知解 $y_1$；
-- 若第二组 Frobenius series 不能直接得到，就转而用 **reduction of order** 去找第二组线性无关解。
+- 若第二组 Frobenius series 不能直接得到，就转而用 **reduction of order** 去找第二组 **Linearly Independent** 解。
 
-对于标准二阶齐次方程
+对于标准二阶 **Homogeneous Equation（齐次方程）**
 
 $$
 y''+P(x)y'+Q(x)y=0,
 $$
 
-若已知一个解 $y_1(x)$，则第二个线性无关解可写成
+若已知一个解 $y_1(x)$，则第二个 **Linearly Independent** 解可写成
 
 $$
 \boxed{
@@ -1185,7 +1185,7 @@ y_2=y_1\int \frac{e^{-\int P(x)\,dx}}{y_1(x)^2}\,dx.
 }
 $$
 
-在 regular singular point 附近，把 $P(x)$ 和 $y_1(x)$ 的局部行为代进去以后，被积函数会出现类似
+在 regular singular point 附近，把 $P(x)$ 和 $y_1(x)$ 的局部行为代进去以后， **Integrand（被积函数）** 会出现类似
 
 $$
 \frac{1}{x}
@@ -1252,7 +1252,7 @@ $$
 +\sum_{n=2}^{\infty}a_{n-2}x^{n+r}=0.
 $$
 
-于是最低次幂 $x^r$ 的系数给出 indicial equation
+于是最低次幂 $x^r$ 的系数给出 **indicial equation**
 
 $$
 r^2=0,
@@ -1371,7 +1371,7 @@ $$
   b_1=0;
   $$
 - 所有奇数项都因此消失；
-- 偶数项满足非齐次递推。
+- 偶数项满足 **Nonhomogeneous（非齐次）** 递推。
 
 先看 $b_2$：
 
@@ -1453,7 +1453,7 @@ $$
 <details>
 <summary>展开解答</summary>
 
-对应的 indicial equation 有两根
+对应的 **indicial equation** 有两根
 
 $$
 r_1=1,\qquad r_2=-1,
@@ -1513,7 +1513,7 @@ y_2=y_1\int\frac{1}{x\left(\frac{x}{2}-\frac{x^3}{16}+\frac{x^5}{384}-\cdots\rig
 $$
 
 
-被积函数是
+**Integrand** 是
 
 $$
 \frac{1}{x\,y_1^2}=\frac{1}{x\left(\frac{x}{2}-\frac{x^3}{16}+\frac{x^5}{384}-\cdots\right)^2}.
@@ -1551,7 +1551,7 @@ $$
 \frac{1}{1-\frac{x^2}{4}+\frac{x^4}{192}-\frac{7x^6}{4608}+\cdots}
 $$
 
-的幂级数展开。
+的 **Power Series** 展开。
 
 设
 
@@ -1609,7 +1609,7 @@ $$
 4\left(\frac{1}{4x}+\frac{1}{x^3}+\frac{7x}{192}+\frac{19x^3}{4608}+\cdots\right),
 $$
 
-> **把 reduction-of-order 公式中的复杂被积函数，变成可逐项积分的 Laurent 级数。**
+> **把 reduction-of-order 公式中的复杂Integrand，变成可逐项积分的 Laurent 级数。**
 
 $$
 4y_1\int\left(\frac{1}{4x}+\frac{1}{x^3}+\frac{7x}{192}+\frac{19x^3}{4608}+\cdots

@@ -69,7 +69,7 @@ container -- exposes iterator --> algorithm
 
 ## 统一接口与 `std::find`
 
-### 半开区间 `[first, last)`
+### **Half-Open Range（半开区间）** `[first, last)`
 
 STL 算法通常接收一对 iterator：
 
@@ -77,7 +77,7 @@ STL 算法通常接收一对 iterator：
 first, last
 ```
 
-它们描述一个 half-open range（半开区间）：
+它们描述一个 **Half-Open Range**：
 
 ```text
 [first, last)
@@ -248,9 +248,9 @@ Iterator 的统一接口看起来像指针：
 | `--iter` | 移动到前一个元素 | 仅双向及更强 iterator |
 | `iter += n`、`iter[n]`、`iter2 - iter1` | 随机位置移动或求距离 | 仅 random-access iterator |
 
-Iterator 并不一定是地址。它通常是一个 class object，内部保存访问容器所需的状态，并通过运算符重载暴露指针式接口。
+Iterator 并不一定是地址。它通常是一个 class object，内部保存访问容器所需的状态，并通过 **Operator Overloading（运算符重载）** 暴露指针式接口。
 
-### 运算符重载的本质
+### **Operator Overloading** 的本质
 
 用类似 `auto_ptr` 的类型演示 `*` 和 `->` 的重载：
 
@@ -282,11 +282,11 @@ Iterator& operator++();
 让使用者采用与指针相似的写法，而容器真实的移动逻辑被封装在运算符实现内部。
 
 
-## 为单链表设计 Iterator
+## 为 **Singly Linked List（单链表）** 设计 Iterator
 
 ### 只暴露节点时的问题
 
-实现一个最简单的 singly linked list（单链表），并用 dummy head 简化头插操作。
+实现一个最简单的 **Singly Linked List**，并用 dummy head 简化头插操作。
 
 如果容器只暴露链表节点，遍历代码必须写成：
 
@@ -479,7 +479,7 @@ advanced: 1
 ListItem<T>* ptr;
 ```
 
-这说明 iterator 自己知道单链表的节点表示。
+这说明 iterator 自己知道 **Singly Linked List** 的节点表示。
 
 但是对外接口已经转换为统一形式：
 
@@ -528,9 +528,9 @@ for (auto it = l.begin(), last = l.end();
 因此，range-based for 并不要求容器是标准库容器；只要提供满足遍历需求的 iterator 接口即可。
 
 
-## Associated type 与 `iterator_traits`
+## **Associated type（关联类型）** 与 `iterator_traits`
 
-### 为什么算法需要关联类型
+### 为什么算法需要 **Associated Type**
 
 一个模板算法接收 iterator 时，编译器可以推导 iterator 类型 `I`：
 
@@ -573,7 +573,7 @@ void func(I iter) {
 
 ### 在自定义 iterator 中声明类型信息
 
-更直接的方式是在 iterator 类型内部显式声明 associated types（关联类型）：
+更直接的方式是在 iterator 类型内部显式声明 **Associated Type**：
 
 ```cpp
 template <class T>
@@ -730,12 +730,12 @@ reference = const T&;
 
 元素的值类型仍是 `T`，但通过 iterator 得到的访问权限保留为只读。
 
-> 课件第 26 页的图示表达了这一结构：`int*`、`const int*`、`list<int>::iterator`、`vector<int>::iterator` 和自定义 iterator 都进入 `iterator_traits`，算法统一取得上述关联类型。
+> 课件第 26 页的图示表达了这一结构：`int*`、`const int*`、`list<int>::iterator`、`vector<int>::iterator` 和自定义 iterator 都进入 `iterator_traits`，算法统一取得上述 **Associated Type**。
 
 
 ## Template specialization
 
-### Primary、full 与 partial specialization
+### Primary、full 与 **partial specialization（偏特化）**
 
 `iterator_traits` 能处理 raw pointer，依赖于 template specialization（模板特化）。
 
@@ -748,7 +748,7 @@ class A {
 };
 ```
 
-当所有模板参数都指定时，可以提供 full specialization（全特化）：
+当所有模板参数都指定时，可以提供 **full specialization（全特化）**：
 
 ```cpp
 template <>
@@ -757,7 +757,7 @@ class A<int, double, 5> {
 };
 ```
 
-当只限定一部分参数模式时，可以提供 partial specialization（偏特化）：
+当只限定一部分参数模式时，可以提供 **Partial Specialization**：
 
 ```cpp
 template <class T2>
@@ -773,7 +773,7 @@ class A<int, T2, 3> {
 
 ### 演示代码
 
-用一个参数的模板展示了全特化与“指针模式”的偏特化：
+用一个参数的模板展示了 **Full Specialization** 与“指针模式”的 **Partial Specialization**：
 
 ```cpp
 #include <iostream>
@@ -822,7 +822,7 @@ int main() {
 }
 ```
 
-`A<Node*>` 的匹配结果仍是 pointer partial specialization，因为实例化类型整体是指针；它所指向的是 `Node` 并不改变这一事实。
+`A<Node*>` 的匹配结果仍是 pointer **partial specialization**，因为实例化类型整体是指针；它所指向的是 `Node` 并不改变这一事实。
 
 ### 为何 traits 可以支持指针
 
@@ -844,7 +844,7 @@ ListIter<int>::value_type
 IteratorTraits<int*>::value_type
 ```
 
-偏特化匹配 `T*`，此时直接令：
+**Partial Specialization** 匹配 `T*`，此时直接令：
 
 ```cpp
 T = int
@@ -877,7 +877,7 @@ typename std::iterator_traits<I>::value_type
 能力越强，算法能够采用的高效实现越多。
 
 :::TIP
-单向链表 iterator 只能自然地向后沿 `next` 移动，因此课堂实现的 `ListIter` 声明为 `forward_iterator_tag`；若是标准库 `std::list` 的双向链表 iterator，则属于 bidirectional iterator。
+**Singly Linked List** iterator 只能自然地向后沿 `next` 移动，因此课堂实现的 `ListIter` 声明为 `forward_iterator_tag`；若是标准库 `std::list` 的双向链表 iterator，则属于 bidirectional iterator。
 :::
 
 ### Category tag 的继承关系
@@ -915,7 +915,7 @@ random_access_iterator_tag
 | `vector<T>::iterator` | Random access | 连续存储，可 `it += n` |
 | `list<T>::iterator` | Bidirectional | 双向链表，可 `++it` / `--it` |
 | `set<T>::iterator` | Bidirectional | 按有序遍历顺序前进或后退；不能修改 key |
-| 课堂 `ListIter<T>` | Forward | 单链表只能自然地沿 `next` 前进 |
+| 课堂 `ListIter<T>` | Forward | **Singly Linked List** 只能自然地沿 `next` 前进 |
 
 
 ## Tag dispatch：根据能力选择算法实现
@@ -985,7 +985,7 @@ RandomAccessIterator
 (Iterator& i, Distance n)
 ```
 
-则三个函数模板的参数形状完全相同，无法仅凭模板参数名称形成重载。
+则三个 **Function Template（函数模板）** 的参数形状完全相同，无法仅凭模板参数名称形成重载。
 
 因此需要把真正不同的类型信息加入函数参数表：iterator category tag。
 
@@ -1158,9 +1158,9 @@ Algorithm
 核心结论：
 
 1. Iterator 是 pointer 概念的泛化，是 container 和 algorithm 之间的桥梁。
-2. 算法通常处理半开区间 `[first, last)`，`last` 只作为终止位置，不能解引用。
+2. 算法通常处理 **Half-Open Range** `[first, last)`，`last` 只作为终止位置，不能解引用。
 3. 自定义容器只要提供符合约定的 iterator，就可以接入 range-based for 与 STL 通用算法。
-4. `iterator_traits` 将 class iterator 和 raw pointer 的关联类型统一提取出来。
+4. `iterator_traits` 将 class iterator 和 raw pointer 的 **Associated Type** 统一提取出来。
 5. Template specialization 使 `iterator_traits<T*>` 与 `iterator_traits<const T*>` 可以直接支持原生指针。
 6. Iterator category 描述能力层级；tag dispatch 允许同一算法针对不同能力采用不同复杂度的实现。
 7. 通用 algorithm 只承诺基于 iterator 的通用复杂度。若某个容器具有更高效的成员算法，应优先考虑成员版本。

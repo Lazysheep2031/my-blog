@@ -72,7 +72,7 @@ Smythe | John | 9 Fuentes Dr | 555-7136
 
 ### File Attributes
 
-文件除了内容，还需要保存用于管理的 **元数据（Metadata）**：
+文件除了内容，还需要保存用于管理的 **Metadata（元数据）**：
 
 - **名称（Name）**：供人使用的文件名。
 - **标识符（Identifier）**：在一个文件系统内唯一标识文件的编号。
@@ -82,7 +82,7 @@ Smythe | John | 9 Fuentes Dr | 555-7136
 - **保护信息（Protection）**：哪些用户可以读、写、执行。
 - **时间与用户信息**：创建、修改、访问时间，以及所有者等信息。
 
-**文件控制块（File Control Block，FCB）** 保存文件的管理信息。UNIX 中的 inode 承担类似职责；目录项通过文件名找到相应的文件标识，再定位元数据和数据块。
+**File Control Block（文件控制块，FCB）** 保存文件的管理信息。UNIX 中的 inode 承担类似职责；目录项通过文件名找到相应的文件标识，再定位 **Metadata** 和数据块。
 
 文件名在不同目录中可以重复，标识符则用来区分文件对象。同一个文件也可以有多个名字。
 
@@ -101,15 +101,15 @@ $$
 \left\lceil \frac{1949}{512} \right\rceil = 4
 $$
 
-分配 $4\times512=2048$ B，最后一块剩余 $2048-1949=99$ B，形成内部碎片。文件本身的长度仍为 1,949 B。
+分配 $4\times512=2048$ B，最后一块剩余 $2048-1949=99$ B，形成 **Internal Fragmentation（内部碎片）**。文件本身的长度仍为 1,949 B。
 
 </details>
 
 ### File Operations
 
-可以把文件看成一种 **抽象数据类型（Abstract Data Type，ADT）**：内容和属性是状态，创建、读写、定位等操作提供接口。
+可以把文件看成一种 **Abstract Data Type（抽象数据类型，ADT）**：内容和属性是状态，创建、读写、定位等操作提供接口。
 
-**Create**：建立文件所需的元数据和目录项，准备必要的存储空间。
+**Create**：建立文件所需的 **Metadata** 和目录项，准备必要的存储空间。
 
 **Write**：从当前文件位置写入数据，更新位置；写到原文件末尾之后时，文件长度增加。
 
@@ -143,7 +143,7 @@ $$
 - **磁盘位置信息**：帮助快速找到数据，避免每次重新读取定位信息。
 - **访问方式**：本次打开允许只读、只写或读写等操作。
 
-在 UNIX/Linux 中，`open()` 返回进程内的整数 **文件描述符（File Descriptor，fd）**。实现上可分成“描述符表、打开文件描述、inode/vnode”三层；当前位置保存在可共享的打开文件描述中。
+在 UNIX/Linux 中，`open()` 返回进程内的整数 **File Descriptor（文件描述符，fd）**。实现上可分成“描述符表、打开文件描述、inode/vnode”三层；当前位置保存在可共享的打开文件描述中。
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261117204017.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
@@ -166,17 +166,17 @@ $$
 
 ### File Locking
 
-多个进程访问同一个文件时，可以通过 **文件锁（File Lock）** 协调读写。锁可以覆盖整个文件，也可以只覆盖某个字节区间。
+多个进程访问同一个文件时，可以通过 **File Lock（文件锁）** 协调读写。锁可以覆盖整个文件，也可以只覆盖某个字节区间。
 
-- **共享锁（Shared Lock）**：允许多个读者同时持有。
-- **排他锁（Exclusive Lock）**：供写入使用，与同一区域的共享锁和其他排他锁冲突。
+- **Shared Lock（共享锁）**：允许多个读者同时持有。
+- **Exclusive Lock（排他锁）**：供写入使用，与同一区域的 **Shared Lock** 和其他 **Exclusive Lock** 冲突。
 
 多人修改同一文档时，不同段落可以分别加锁；访问重叠区域时，需要按照锁规则等待或重试。
 
 按执行方式还可分为：
 
-- **强制锁（Mandatory Lock）**：系统检查冲突访问，阻止不满足锁条件的操作。
-- **建议锁（Advisory Lock）**：进程主动遵守加锁约定，未参与约定的程序仍可能直接访问文件。
+- **Mandatory Lock（强制锁）**：系统检查冲突访问，阻止不满足锁条件的操作。
+- **Advisory Lock（建议锁）**：进程主动遵守加锁约定，未参与约定的程序仍可能直接访问文件。
 
 共享/排他描述“哪些锁能共存”，强制/建议描述“由谁保证遵守”。
 
@@ -184,7 +184,7 @@ $$
 
 **Java：修改 `file.txt` 的前半部分，再读取后半部分。**
 
-前半部分申请排他锁，后半部分申请共享锁。
+前半部分申请 **Exclusive Lock**，后半部分申请 **Shared Lock**。
 
 <details>
 <summary>展开代码与锁定范围</summary>
@@ -227,7 +227,7 @@ public class LockingExample {
 
 - `position`：锁定区域的起始偏移。
 - `size`：锁定区域的字节长度。
-- `shared`：`true` 请求共享锁，`false` 请求排他锁。
+- `shared`：`true` 请求 **Shared Lock**，`false` 请求 **Exclusive Lock**。
 
 设文件长度为 $L$，`half = L / 2` 取整数部分。两段范围分别为 $[0,\text{half})$ 和 $[\text{half},L)$。
 
@@ -256,7 +256,7 @@ public class LockingExample {
 
 - **MS-DOS**：扩展名参与确定程序的执行方式，如 `.exe`、`.com`、`.bat`。
 - **早期 Macintosh/Mac OS 机制**：通过类型和创建者属性关联应用程序。
-- **UNIX**：可检查文件头的 **魔数（Magic Number）**，识别可执行文件、脚本、PostScript 等格式。
+- **UNIX**：可检查文件头的 **Magic Number（魔数）**，识别可执行文件、脚本、PostScript 等格式。
 
 同一扩展名可能对应不同格式，应用还需要检查内容能否正确解析。
 
@@ -282,7 +282,7 @@ public class LockingExample {
 可以看到几处标记：
 
 1. 文件开头的 `4D 5A` 对应字符 `MZ`，标识 DOS 头。
-2. DOS stub 中包含 `This program cannot be run in DOS mode.`，用于不支持 PE 的 DOS 环境。
+2. DOS **stub（存根）** 中包含 `This program cannot be run in DOS mode.`，用于不支持 PE 的 DOS 环境。
 3. 中间可见 `Rich` 字符串，它位于这份可执行文件的相关头部区域。
 4. 后面的 `50 45 00 00` 对应 `PE\0\0`，标识 PE 头的开始。
 
@@ -317,9 +317,9 @@ public class LockingExample {
 
 ## Access Methods
 
-### Sequential Access
+### **Sequential Access（顺序访问）**
 
-**顺序访问（Sequential Access）** 按当前位置依次处理文件内容，适合扫描文本、编译源文件、顺序处理日志等任务。
+**Sequential Access** 按当前位置依次处理文件内容，适合扫描文本、编译源文件、顺序处理日志等任务。
 
 基本操作：
 
@@ -331,9 +331,9 @@ public class LockingExample {
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261117204332.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
-### Direct Access
+### **Direct Access（直接访问）**
 
-**直接访问（Direct Access）** 把文件看成一组固定长度的记录或逻辑块，可以按相对编号访问任意一项。
+**Direct Access** 把文件看成一组固定长度的记录或逻辑块，可以按相对编号访问任意一项。
 
 基本操作有 `read n`、`write n`、`position to n`；定位后，也可以继续 `read next`、`write next`，或重写指定记录 `rewrite n`。
 
@@ -349,20 +349,20 @@ $$
 
 #### Example
 
-**怎样用直接访问实现顺序访问？**
+**怎样用Direct Access实现Sequential Access？**
 
 维护当前记录号 `cp`。
 
 <details>
 <summary>展开对应关系</summary>
 
-| 顺序访问操作 | 用直接访问实现 |
+| **Sequential Access** 操作 | 用 **Direct Access** 实现 |
 | --- | --- |
 | `reset` | `cp = 0` |
 | `read next` | `read(cp)`，然后 `cp = cp + 1` |
 | `write next` | `write(cp)`，然后 `cp = cp + 1` |
 
-直接访问能够模拟顺序访问。只有顺序访问接口时，要访问后面的某条记录，通常需要先走过前面的记录。
+**Direct Access** 能够模拟 **Sequential Access**。只有 **Sequential Access** 接口时，要访问后面的某条记录，通常需要先走过前面的记录。
 
 </details>
 
@@ -370,11 +370,11 @@ $$
 
 顺序和随机描述实际访问次序：按 `1、2、3、4、5、6、7、8` 读取具有局部性，按 `1、3、7、2、8、6、4、5` 读取则频繁改变位置。
 
-- **机械硬盘**：顺序访问减少寻道与旋转等待，随机访问可能把大量时间花在定位上。
+- **机械硬盘**： **Sequential Access** 减少寻道与旋转等待，随机访问可能把大量时间花在定位上。
 - **SSD**：消除了机械寻道，访问大小、并行度和控制器处理仍会影响吞吐。
-- **内存**：连续访问有利于利用缓存和预取，随机访问更容易出现缓存未命中。
+- **内存**：连续访问有利于利用缓存和预取，随机访问更容易出现 **Cache Miss（缓存未命中）**。
 
-**接口支持直接访问，程序仍可以按顺序使用它。**
+**接口支持Direct Access，程序仍可以按顺序使用它。**
 
 #### Example
 
@@ -382,7 +382,7 @@ $$
 
 下列为访问性能图中的一组实验结果，单位为 Values/Sec：
 
-| 存储介质 | 随机访问 | 顺序访问 |
+| 存储介质 | 随机访问 | **Sequential Access** |
 | --- | ---: | ---: |
 | Disk | 316 | 53,200,000 |
 | SSD | 1,924 | 42,200,000 |
@@ -393,15 +393,15 @@ $$
 <details>
 <summary>这些结果怎样解释？随机请求还能怎样优化？</summary>
 
-同一种介质的顺序访问通常更容易达到较高吞吐。表中的数值对应特定测试，重点是观察访问模式带来的差距。
+同一种介质的 **Sequential Access** 通常更容易达到较高吞吐。表中的数值对应特定测试，重点是观察访问模式带来的差距。
 
 假设缓冲了约 100 个允许重排的随机请求，可以先按访问位置排序，再批量执行，减少磁头来回移动。具有先后依赖的读写仍要保持必要顺序。
 
 </details>
 
-### Indexed Access
+### **Indexed Access（索引访问）**
 
-**索引访问（Indexed Access）** 建立“查找键 → 记录位置”的映射。访问时先查索引，再按得到的记录号或块号直接访问数据。
+**Indexed Access** 建立“查找键 → 记录位置”的映射。访问时先查索引，再按得到的记录号或块号 **Direct Access** 数据。
 
 索引通常比原始数据小，可以放入内存；索引过大时，还可以对索引再建立索引，形成多级结构。
 
@@ -474,9 +474,9 @@ $$
 
 目录组织要同时考虑 **查找效率、命名方便和逻辑分组**。不同用户希望使用相同文件名，同一个文件也可能需要多个名字；Java 程序、游戏等不同用途的文件则适合分别归组。
 
-### Single-Level Directory
+### **Single-Level Directory（单层目录）**
 
-**单层目录（Single-Level Directory）** 让所有用户的文件都放在同一个目录中。
+**Single-Level Directory** 让所有用户的文件都放在同一个目录中。
 
 结构简单，但所有文件名必须互不相同，用户之间容易命名冲突，也无法建立子目录来分组。
 
@@ -486,12 +486,12 @@ $$
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261117204428.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
-### Two-Level Directory
+### **Two-Level Directory（两级目录）**
 
-**两级目录（Two-Level Directory）** 为每个用户建立独立目录：
+**Two-Level Directory** 为每个用户建立独立目录：
 
-- **主文件目录（Master File Directory，MFD）**：根据用户找到其用户目录。
-- **用户文件目录（User File Directory，UFD）**：保存该用户的文件。
+- **Master File Directory（主文件目录，MFD）**：根据用户找到其用户目录。
+- **User File Directory（用户文件目录，UFD）**：保存该用户的文件。
 
 不同用户可以使用相同文件名，查找范围也缩小到相应用户目录。每个用户内部仍然只有一层，无法继续按项目分组；跨用户访问需要使用包含用户目录的路径。
 
@@ -505,18 +505,18 @@ $$
 
 ### Tree-Structured Directories
 
-**树形目录（Tree-Structured Directory）** 允许目录继续包含子目录，形成从根目录向下展开的层次结构。
+**Tree-Structured Directory（树形目录）** 允许目录继续包含子目录，形成从根目录向下展开的层次结构。
 
 目录项需要区分普通文件与子目录。用一个类型位表示时，可以约定文件为 0、目录为 1；实际文件系统还可以区分更多类型。
 
-树形结构允许按用户、项目、用途逐层组织文件。每个进程有一个 **当前工作目录（Current Working Directory）**，作为相对路径的起点。
+树形结构允许按用户、项目、用途逐层组织文件。每个进程有一个 **Current Working Directory（当前工作目录）**，作为 **Relative Path（相对路径）** 的起点。
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261117204455.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
 ### Path Names
 
-- **绝对路径（Absolute Path）**：从根目录开始，例如 `/spell/mail/prog/list`。
-- **相对路径（Relative Path）**：从当前目录开始，例如当前目录为 `/spell/mail` 时，`prog/list` 指向同一个文件。
+- **Absolute Path（绝对路径）**：从根目录开始，例如 `/spell/mail/prog/list`。
+- **Relative Path**：从当前目录开始，例如当前目录为 `/spell/mail` 时，`prog/list` 指向同一个文件。
 
 `.` 表示当前目录，`..` 表示父目录。解析路径时，系统按路径分量逐层查找。
 
@@ -541,9 +541,9 @@ cd /spell/mail/prog
 cat list
 ```
 
-同样，当前目录为 `/spell/mail` 时，`copy/all` 对应 `/spell/mail/copy/all`。如果当前目录改成 `/programs/p`，相对路径可以写成 `../../spell/mail/copy/all`。
+同样，当前目录为 `/spell/mail` 时，`copy/all` 对应 `/spell/mail/copy/all`。如果当前目录改成 `/programs/p`， **Relative Path** 可以写成 `../../spell/mail/copy/all`。
 
-**相对路径未必更短，也未必查找更快。** 它取决于当前目录与目标的位置关系。
+**Relative Path未必更短，也未必查找更快。** 它取决于当前目录与目标的位置关系。
 
 </details>
 
@@ -580,7 +580,7 @@ rm filename
 
 ### Acyclic-Graph Directories
 
-**无环图目录（Acyclic-Graph Directory）** 允许多个目录项指向同一个文件或子目录，从而支持共享。
+**Acyclic-Graph Directory（无环图目录）** 允许多个目录项指向同一个文件或子目录，从而支持共享。
 
 例如多个用户都要使用同一个公共 C 库，可以建立指向共享对象的链接，避免各自保存一份完整内容。
 
@@ -609,42 +609,42 @@ rm filename
 
 **链接（Link）** 为已有文件增加访问入口。解析链接时，系统沿着对应关系找到目标。
 
-**硬链接（Hard Link）**：增加一个指向同一文件对象的目录项。多个名字共享数据和元数据；通常要求位于同一文件系统，普通用户一般不能为目录创建硬链接。
+**Hard Link（硬链接）**：增加一个指向同一文件对象的目录项。多个名字共享数据和 **Metadata**；通常要求位于同一文件系统，普通用户一般不能为目录创建 **Hard Link**。
 
-**符号链接（Symbolic Link）**：单独保存目标路径。它可以跨文件系统，也可以指向目录；访问时继续解析其保存的路径。
+**Symbolic Link（符号链接）**：单独保存目标路径。它可以跨文件系统，也可以指向目录；访问时继续解析其保存的路径。
 
 ```bash
 ln source alias
 ln -s source shortcut
 ```
 
-第一条为 `source` 创建硬链接 `alias`；第二条创建保存目标路径 `source` 的符号链接 `shortcut`。
+第一条为 `source` 创建 **Hard Link** `alias`；第二条创建保存目标路径 `source` 的 **Symbolic Link** `shortcut`。
 
 共享带来的关键问题是：**删除一个名字时，其他名字是否仍然需要这个对象？**
 
-- **反向指针（Backpointer）**：为对象记录所有引用它的目录项，需要统一删除引用时可以逐一找到。引用列表可能很长，大小也不固定。
-- **链接计数（Link Count）**：只记录指向对象的硬链接数量；新建硬链接时加一，删除目录项时减一。
+- **Backpointer（反向指针）**：为对象记录所有引用它的目录项，需要统一删除引用时可以逐一找到。引用列表可能很长，大小也不固定。
+- **Link Count（链接计数）**：只记录指向对象的 **Hard Link** 数量；新建 **Hard Link** 时加一，删除目录项时减一。
 
 #### Example
 
 **`/dict/count` 与 `/spell/count` 指向同一个文件，删除前者后会怎样？**
 
 <details>
-<summary>硬链接、符号链接与打开引用</summary>
+<summary><strong>Hard Link</strong>、<strong>Symbolic Link</strong>与打开引用</summary>
 
-如果两个名字都是硬链接，链接数由 2 变为 1，文件仍可通过 `/spell/count` 访问。
+如果两个名字都是 **Hard Link**，链接数由 2 变为 1，文件仍可通过 `/spell/count` 访问。
 
-如果 `/spell/count` 是保存路径 `/dict/count` 的符号链接，删除目标名称后，符号链接仍在，但该路径已经无法解析，形成 **悬空链接（Dangling Link）**。
+如果 `/spell/count` 是保存路径 `/dict/count` 的 **Symbolic Link**，删除目标名称后， **Symbolic Link** 仍在，但该路径已经无法解析，形成 **Dangling Link（悬空链接）**。
 
-在 UNIX 中，删除最后一个硬链接时，若还有进程打开着文件，已有描述符仍可访问它；最后一个打开引用也释放后，才回收文件数据。
+在 UNIX 中，删除最后一个 **Hard Link** 时，若还有进程打开着文件，已有描述符仍可访问它；最后一个打开引用也释放后，才回收文件数据。
 
-**链接计数描述还有多少目录名称，打开引用描述还有多少使用者。** 两者分别维护。
+**Link Count描述还有多少目录名称，打开引用描述还有多少使用者。** 两者分别维护。
 
 </details>
 
 ### General Graph Directories
 
-**一般图目录（General Graph Directory）** 允许链接形成环。例如 `/avi/book` 指向某个目录，该目录中的 `avi` 又指回上层 `avi` 目录。
+**General Graph Directory（一般图目录）** 允许链接形成环。例如 `/avi/book` 指向某个目录，该目录中的 `avi` 又指回上层 `avi` 目录。
 
 如果遍历时不断沿 `book/avi/book/avi/...` 前进，就会反复访问同一对象，甚至无法终止。
 
@@ -653,9 +653,9 @@ ln -s source shortcut
 可以分别处理两个问题：
 
 1. **避免形成环**：只允许指向普通文件的链接，或在新增目录链接时进行环检测。
-2. **处理已有的环**：遍历时记录已访问对象，或不沿目录符号链接继续遍历；回收空间时从根目录标记可达对象，再回收不可达部分。
+2. **处理已有的环**：遍历时记录已访问对象，或不沿目录 **Symbolic Link** 继续遍历；回收空间时从根目录标记可达对象，再回收不可达部分。
 
-后者的空间回收方式属于 **垃圾回收（Garbage Collection）**。
+后者的空间回收方式属于 **Garbage Collection（垃圾回收）**。
 
 #### Example
 
@@ -668,7 +668,7 @@ ln -s source shortcut
 
 即使从根目录到这两个目录的所有入口都已删除，A 和 B 仍各有一个来自对方的引用，计数都大于 0。
 
-从根目录出发却已经无法到达它们。按可达性做垃圾回收，可以识别并回收这一整组对象。
+从根目录出发却已经无法到达它们。按可达性做 **Garbage Collection**，可以识别并回收这一整组对象。
 
 **引用计数检查引用数量，可达性检查能否从有效入口找到对象。**
 
@@ -693,7 +693,7 @@ ln -s source shortcut
 2. 取得文件标识 259，找到相应 inode。
 3. 读取其中的大小、权限和数据位置信息，再访问文件数据。
 
-目录保存名称关系，文件 inode 保存相应对象的管理信息。同一个 inode 可以被多个目录项引用，这也解释了硬链接如何共享文件。
+目录保存名称关系，文件 inode 保存相应对象的管理信息。同一个 inode 可以被多个目录项引用，这也解释了 **Hard Link** 如何共享文件。
 
 </details>
 
@@ -714,7 +714,7 @@ Linux 用 `/dev` 下的设备文件表示设备，分区也有相应路径。传
 
 这些旧式命名用于理解“通过路径表示设备”的方法；设备名称和编号范围随设备类型及系统配置而变化。
 
-### MBR Partitioning
+### **Master Boot Record（主引导记录，MBR）** Partitioning
 
 传统 **MBR** 分区表有四个主分区表项。其中一个可以用作 **扩展分区（Extended Partition）**，在内部继续组织多个 **逻辑分区（Logical Partition）**。
 
@@ -734,13 +734,13 @@ L4: /dev/hda8
 L5: /dev/hda9
 ```
 
-`hda5` 表示第一个逻辑分区。GPT 使用另一种分区表结构，不受 MBR 四个表项的限制。
+`hda5` 表示第一个逻辑分区。GPT 使用另一种分区表结构，不受 **MBR** 四个表项的限制。
 
 ### Mount Points
 
-**挂载（Mount）** 把一个文件系统接入当前目录树。接入的位置称为 **挂载点（Mount Point）**，通常是已有目录。
+**挂载（Mount）** 把一个文件系统接入当前目录树。接入的位置称为 **Mount Point（挂载点）**，通常是已有目录。
 
-挂载时指定要接入的设备或远程文件系统，以及挂载点。系统识别文件系统、建立挂载关系；路径解析到该位置后，继续进入新文件系统的根目录。
+挂载时指定要接入的设备或远程文件系统，以及 **Mount Point**。系统识别文件系统、建立挂载关系；路径解析到该位置后，继续进入新文件系统的根目录。
 
 不同文件系统可以接在同一棵目录树中，各自保留原有的磁盘格式。访问者通过路径进入对应文件系统。
 
@@ -848,21 +848,21 @@ mount server:/remote /remote
 
 例如，一次写请求可能已经在服务器执行，但回复在网络中丢失。客户端无法仅凭“没收到回复”判断操作是否完成，重试和恢复必须考虑这一状态。
 
-**有状态服务** 需要在恢复时处理保留的会话、打开文件或请求状态。
+**Stateful Service（有状态服务）** 需要在恢复时处理保留的会话、打开文件或请求状态。
 
-**无状态服务** 尽量让每个请求携带完成操作所需的信息。以 NFSv3 的无状态设计为例，读取请求携带文件句柄、偏移和长度，服务器不依赖上次请求留下的“当前读取位置”。这使重启后的请求处理更容易恢复。
+**Stateless Service（无状态服务）** 尽量让每个请求携带完成操作所需的信息。以 NFSv3 的无状态设计为例，读取请求携带文件句柄、偏移和长度，服务器不依赖上次请求留下的“当前读取位置”。这使重启后的请求处理更容易恢复。
 
-分布式系统中的依赖可以很远：一台用户没有直接接触过的远程机器发生故障，也可能使本机正在进行的任务无法完成。
+**Distributed System（分布式系统）** 中的依赖可以很远：一台用户没有直接接触过的远程机器发生故障，也可能使本机正在进行的任务无法完成。
 
-### Consistency Semantics
+### **Consistency Semantics（一致性语义）**
 
-**一致性语义（Consistency Semantics）** 规定一个用户的修改何时对其他用户可见。
+**Consistency Semantics** 规定一个用户的修改何时对其他用户可见。
 
 从 `open()` 到 `close()` 之间的一系列访问称为一次文件 **会话（Session）**。不同语义在修改的可见时机上有不同规定。
 
 **UNIX 语义**：对共享文件完成的写入，可以立即被其他访问者观察到。多个进程共享同一打开文件描述时，还可以共享文件位置指针。
 
-**会话语义（Session Semantics）**：以 AFS 为例，会话中的修改在关闭后对后续开始的会话可见；已经打开文件的会话可以继续使用原来的版本。
+**Session Semantics（会话语义）**：以 AFS 为例，会话中的修改在关闭后对后续开始的会话可见；已经打开文件的会话可以继续使用原来的版本。
 
 另一种简化共享的方式是让发布后的共享文件不可修改，需要更新时生成新版本。
 
@@ -874,9 +874,9 @@ mount server:/remote /remote
 <summary>比较两种可见性规则</summary>
 
 - **UNIX 语义**：A 的写入完成后，B 再读取相应位置，可以看到 20。
-- **会话语义**：B 已经开始的会话可以继续看到 10；A 关闭文件并提交修改后，之后新打开的会话看到 20。
+- **Session Semantics**：B 已经开始的会话可以继续看到 10；A 关闭文件并提交修改后，之后新打开的会话看到 20。
 
-可见性规则决定“读到哪个版本”；文件锁和其他同步机制决定“并发操作怎样协调”。写入可见也不等于数据已经持久保存到物理介质。
+可见性规则决定“读到哪个版本”； **File Lock** 和其他同步机制决定“并发操作怎样协调”。写入可见也不等于数据已经持久保存到物理介质。
 
 </details>
 
@@ -884,17 +884,17 @@ mount server:/remote /remote
 
 当大文件的数据量超过单台机器的容量或吞吐能力时，可以把文件拆成块，分散存到多个节点。
 
-**GFS（Google File System）** 使用 Master 和 Chunkserver：Master 管理文件系统元数据，Chunkserver 保存数据块。Master 通过操作日志和检查点维护元数据状态，原始设计采用 64 MB 的 chunk。
+**GFS（Google File System）** 使用 Master 和 Chunkserver：Master 管理文件系统 **Metadata**，Chunkserver 保存数据块。Master 通过操作日志和 **Checkpoint（检查点）** 维护 **Metadata** 状态，原始设计采用 64 MB 的 chunk。
 
 **HDFS（Hadoop Distributed File System）** 使用相近的分工：
 
-- **NameNode**：管理目录、文件到块的映射、块位置及副本等元数据。
+- **NameNode**：管理目录、文件到块的映射、块位置及副本等 **Metadata**。
 - **DataNode**：实际存储数据块，处理块的读写。
-- **客户端**：先查询元数据，再直接与相应 DataNode 传输数据。
+- **客户端**：先查询 **Metadata**，再直接与相应 DataNode 传输数据。
 
-**元数据查询与文件数据传输分开进行。** 大量文件内容直接在客户端与数据节点之间传输，减少 NameNode 的数据流量负担。
+**Metadata查询与文件数据传输分开进行。** 大量文件内容直接在客户端与数据节点之间传输，减少 NameNode 的数据流量负担。
 
-Secondary NameNode 定期合并元数据镜像和编辑日志，生成检查点；自动故障接管需要另外的高可用机制。
+Secondary NameNode 定期合并 **Metadata** 镜像和编辑日志，生成 **Checkpoint**；自动故障接管需要另外的高可用机制。
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261117204921.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
@@ -937,7 +937,7 @@ NameNode 保存如下信息：
 
 例如，网络断成两部分，两边都继续根据旧余额处理同一账户的取款。网络恢复后，两边各自认为成功的操作可能无法同时成立。系统需要协调操作的提交与顺序。
 
-**共识（Consensus）** 用来让参与节点对同一个决定达成一致。复制系统可以据此协调元数据更新、确定主节点或形成一致的操作日志。
+**共识（Consensus）** 用来让参与节点对同一个决定达成一致。复制系统可以据此协调 **Metadata** 更新、确定主节点或形成一致的操作日志。
 
 #### Example
 
@@ -950,11 +950,11 @@ NameNode 保存如下信息：
 
 将军对应分布式节点，信使对应网络通信。目标是让忠诚将军遵守一致的决定，避免一部分进攻、另一部分撤退。
 
-**拜占庭故障（Byzantine Failure）** 允许节点出现任意错误行为，包括对不同节点给出不同消息。
+**Byzantine Failure（拜占庭故障）** 允许节点出现任意错误行为，包括对不同节点给出不同消息。
 
 </details>
 
-**Paxos** 是 Leslie Lamport 提出的共识算法，讨论节点可能停止、恢复以及消息丢失、延迟等非拜占庭故障。它通过多数派交叠与相应的提案规则，使已经选定的值能够被后续过程保留。
+**Paxos** 是 Leslie Lamport 提出的共识算法，讨论节点可能停止、恢复以及消息丢失、延迟等 **Non-Byzantine Failure（非拜占庭故障）**。它通过多数派交叠与相应的提案规则，使已经选定的值能够被后续过程保留。
 
 ZooKeeper 使用 **Zab** 协议维护有序的状态更新；HBase 等系统可借助 ZooKeeper 完成分布式协调。
 
@@ -977,11 +977,11 @@ ZooKeeper 使用 **Zab** 协议维护有序的状态更新；HBase 等系统可�
 
 ### Access-Control Lists
 
-**访问控制列表（Access-Control List，ACL）** 为文件记录用户或用户组及其允许的操作。
+**Access-Control List（访问控制列表，ACL）** 为文件记录用户或用户组及其允许的操作。
 
-例如，可以让所有者完全控制文档，项目成员读写，其他用户只读。对某位临时协作者只授予一个文件的权限，也可以直接在该文件的 ACL 中表达。
+例如，可以让所有者完全控制文档，项目成员读写，其他用户只读。对某位临时协作者只授予一个文件的权限，也可以直接在该文件的 **ACL** 中表达。
 
-ACL 灵活，但用户多时列表和管理工作也会增加。常见的简化方法是把用户归为所有者、组成员、其他用户三类，再为每类保存基本权限；需要更细的授权时再用 ACL 扩展。
+**ACL** 灵活，但用户多时列表和管理工作也会增加。常见的简化方法是把用户归为所有者、组成员、其他用户三类，再为每类保存基本权限；需要更细的授权时再用 **ACL** 扩展。
 
 ### UNIX Permissions
 
@@ -1083,7 +1083,7 @@ drwxrwxrwx  3 pbg staff     512 Jul  8 09:35 test/
 
 - 首字符 `-`：普通文件；若为 `d`，表示目录。
 - 接下来的 `rw-rw-r--`：所有者可读写，组成员可读写，其他用户只读，等价于 `664`。
-- `1`：硬链接数。
+- `1`： **Hard Link** 数。
 - `pbg`、`staff`：所有者和所属组。
 - `31200`：文件大小，单位为字节。
 - `Sep 3 08:30`：最后修改时间。
@@ -1106,7 +1106,7 @@ drwxrwxrwx  3 pbg staff     512 Jul  8 09:35 test/
 
 </details>
 
-### Windows ACL Management
+### Windows **ACL** Management
 
 Windows 可以在文件属性的 Security 页面中，针对具体账户或用户组设置权限。
 

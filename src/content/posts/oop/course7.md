@@ -49,7 +49,7 @@ public:
 };
 ```
 
-这里 `rayIntersect()` 是基类中的 virtual interface。它定义统一接口，具体的形状类负责实现具体算法。
+这里 `rayIntersect()` 是 **Base Class（基类）** 中的 virtual interface。它定义统一接口，具体的形状类负责实现具体算法。
 
 ### 绘图程序中的例子
 
@@ -94,13 +94,13 @@ Shape
 
 所以设计上：
 
-- 共同数据和共同操作放在基类；
-- 不同图形差异化的行为定义为 `virtual`，交给派生类实现。
+- 共同数据和共同操作放在 **Base Class**；
+- 不同图形差异化的行为定义为 `virtual`，交给 **Derived Class（派生类）** 实现。
 
 
 ## Shape 继承体系
 
-### 基类 `Shape`
+### **Base Class** `Shape`
 
 `Shape` 负责定义所有图形的共同属性和共同接口：
 
@@ -126,12 +126,12 @@ protected:
 重点：
 
 - `center` 是所有图形共有的数据；
-- `move()` 对所有图形的逻辑基本一致，所以可以写在基类中；
+- `move()` 对所有图形的逻辑基本一致，所以可以写在 **Base Class** 中；
 - `render()` 和 `resize()` 不同图形有不同实现，所以写成 `virtual`；
-- 析构函数写成 `virtual ~Shape()`，因为 `Shape` 会被当作多态基类使用。
+- **Destructor（析构函数）** 写成 `virtual ~Shape()`，因为 `Shape` 会被当作多态 **Base Class** 使用。
 
 :::TIP
-早期把 `render()` 注释为 `abstract`。从 C++ 语法上说，只有写成 `virtual void render() = 0;` 才是 pure virtual function，类才会变成 abstract class。这里只先强调它是一个需要派生类重新定义的虚接口。
+早期把 `render()` 注释为 `abstract`。从 C++ 语法上说，只有写成 `virtual void render() = 0;` 才是 **pure virtual function（纯虚函数）**，类才会变成 **abstract class（抽象类）**。这里只先强调它是一个需要 **Derived Class** 重新定义的虚接口。
 :::
 
 ### `Ellipse` 和 `Circle`
@@ -186,7 +186,7 @@ public:
 
 - `Circle` 是一种特殊的 `Ellipse`；
 - 圆的长轴和短轴相等；
-- 所以 `Circle(float radius)` 可以直接调用 `Ellipse(radius, radius)` 构造基类部分。
+- 所以 `Circle(float radius)` 可以直接调用 `Ellipse(radius, radius)` 构造 **Base Class** 部分。
 
 对象布局可以理解为：
 
@@ -214,7 +214,7 @@ Circle object
 
 ## `virtual` 与 polymorphic call
 
-### 没有 `virtual` 时：静态绑定
+### 没有 `virtual` 时： **Static Binding（静态绑定）**
 
 先定义三个类：
 
@@ -280,9 +280,9 @@ Shape::render()
 
 这就是 **static binding** 。
 
-### 加入 `virtual` 后：动态绑定
+### 加入 `virtual` 后： **Dynamic Binding（动态绑定）**
 
-把基类中的 `render()` 改成 `virtual`，并在派生类中使用 `override`：
+把 **Base Class** 中的 `render()` 改成 `virtual`，并在 **Derived Class** 中使用 `override`：
 
 ```cpp
 #include <iostream>
@@ -341,7 +341,7 @@ Circle::render()
 
 多态最常见的用法是：
 
-> 用基类指针统一管理一组不同派生类对象。
+> 用 **Base Class** 指针统一管理一组不同 **Derived Class** 对象。
 
 下面这个完整程序：
 
@@ -415,17 +415,17 @@ Ellipse::render()
 - 更现代的写法可以用 `std::unique_ptr<Shape>` 避免手动 `delete`。
 
 :::WARNING
-如果容器中存的是 `vector<Shape>` 而不是 `vector<Shape*>`，派生类对象会被切片，不能实现多态。多态通常依赖指针或引用。
+如果容器中存的是 `vector<Shape>` 而不是 `vector<Shape*>`， **Derived Class** 对象会被切片，不能实现多态。多态通常依赖指针或引用。
 :::
 
 
-## Static binding vs. Dynamic binding
+## **Static binding** vs. **Dynamic binding**
 
 
 | 绑定方式 | 含义 | 决定时机 | 依据 |
 |---|---|---|---|
-| Static binding | call the function of the declared type | 编译期 | 声明类型 / 静态类型 |
-| Dynamic binding | call the function of the real type | 运行期 | 实际对象类型 |
+| **Static binding** | call the function of the declared type | 编译期 | 声明类型 / 静态类型 |
+| **Dynamic binding** | call the function of the real type | 运行期 | 实际对象类型 |
 
 例子：
 
@@ -445,16 +445,16 @@ virtual 函数：动态绑定
 
 前提：
 
-> 动态绑定通常发生在通过基类指针或基类引用调用 virtual function 时。
+> **Dynamic Binding** 通常发生在通过 **Base Class** 指针或 **Base Class** 引用调用 **virtual function（虚函数）** 时。
 
 
-## Virtual destructor
+## **Virtual destructor（虚析构函数）**
 
-### 为什么基类析构函数要写成 `virtual`
+### 为什么 **Base Class**  **Destructor** 要写成 `virtual`
 
 多态类体系中，一个非常重要的规则是：
 
-> 如果一个类可能作为基类被继承，并且可能通过基类指针删除派生类对象，那么基类析构函数必须是 `virtual`。
+> 如果一个类可能作为 **Base Class** 被继承，并且可能通过 **Base Class** 指针删除 **Derived Class** 对象，那么 **Base Class**  **Destructor** 必须是 `virtual`。
 
 错误示例：
 
@@ -482,11 +482,11 @@ int main() {
 }
 ```
 
-如果 `~Shape()` 不是 `virtual`，`delete p` 只会根据 `p` 的静态类型调用 `~Shape()`。派生类析构函数可能不会被调用。
+如果 `~Shape()` 不是 `virtual`，`delete p` 只会根据 `p` 的静态类型调用 `~Shape()`。 **Derived Class**  **Destructor** 可能不会被调用。
 
 这会导致：
 
-- 派生类资源无法释放；
+- **Derived Class** 资源无法释放；
 - 内存、文件、锁等资源泄漏；
 - 行为不符合对象真实类型。
 
@@ -538,7 +538,7 @@ Shape* p = new Circle;
 delete p;
 ```
 
-并且析构函数是虚的，则调用过程是：
+并且 **Destructor** 是虚的，则调用过程是：
 
 ```text
 通过 vtable 找到 Circle::~Circle()
@@ -550,10 +550,10 @@ delete p;
 
 注意：
 
-> 派生类析构函数执行完后，基类析构函数会被自动调用，不需要手动写 `Shape::~Shape()`。
+> **Derived Class**  **Destructor** 执行完后， **Base Class**  **Destructor** 会被自动调用，不需要手动写 `Shape::~Shape()`。
 
 
-## `virtual` 的底层机制：vptr 与 vtable
+## `virtual` 的底层机制：vptr 与 **vtable（虚函数表）**
 
 :::WARNING
 下面讲的是主流编译器的典型实现方式，不是 C++ 标准强制规定的唯一实现。理解它有助于掌握多态的运行时机制，但不要在正常业务代码中依赖这些对象布局细节。
@@ -591,7 +591,7 @@ int main() {
 
 因为对象里只有一个 `int data`。
 
-加入一个虚函数：
+加入一个 **Virtual Function**：
 
 ```cpp
 #include <iostream>
@@ -632,9 +632,9 @@ Base object
 └── padding   // 4 bytes, for alignment
 ```
 
-`vptr` 是隐藏指针，指向这个类对应的 **virtual table（vtable，虚函数表）** 。
+`vptr` 是隐藏指针，指向这个类对应的 **Virtual Table** 。
 
-### 同一类对象共享同一张 vtable
+### 同一类对象共享同一张 **vtable**
 
 如果创建两个 `Base` 对象：
 
@@ -657,11 +657,11 @@ b2        │   ├── &Base::bar0
 └── data
 ```
 
-同一个类的对象共享虚函数表，避免每个对象都复制一份函数地址表。
+同一个类的对象共享 **Virtual Table**，避免每个对象都复制一份函数地址表。
 
-### 派生类有自己的 vtable
+### **Derived Class** 有自己的 **vtable**
 
-两个虚函数：
+两个 **Virtual Function**：
 
 ```cpp
 #include <iostream>
@@ -697,7 +697,7 @@ public:
 };
 ```
 
-`Base` 和 `Derived` 各有自己的 vtable：
+`Base` 和 `Derived` 各有自己的 **vtable**：
 
 ```text
 Base vtable
@@ -726,11 +726,11 @@ p 指向 Derived 对象
 → 调用 Derived::bar0()
 ```
 
-这就是 virtual function 能根据真实对象类型动态调用的原因。
+这就是 **virtual function** 能根据真实对象类型动态调用的原因。
 
-### `override` 与函数签名检查
+### `override` 与 **Function Signature（函数签名）** 检查
 
-如果派生类没有复写某个虚函数，那么派生类 vtable 对应位置会沿用基类函数地址。
+如果 **Derived Class** 没有复写某个 **Virtual Function**，那么 **Derived Class** **vtable** 对应位置会沿用 **Base Class** 函数地址。
 
 例如：
 
@@ -764,7 +764,7 @@ public:
 };
 ```
 
-这不是 overriding，因为函数签名不同。它只是定义了一个新的函数。
+这不是 overriding，因为 **Function Signature** 不同。它只是定义了一个新的函数。
 
 更好的写法是加 `override`：
 
@@ -777,15 +777,15 @@ public:
 };
 ```
 
-这会编译报错，因为基类没有 `virtual void bar1()` 这个签名可以被覆盖。
+这会编译报错，因为 **Base Class** 没有 `virtual void bar1()` 这个签名可以被覆盖。
 
 所以：
 
-> `override` 的主要价值是让编译器检查：你是否真的覆盖了一个基类虚函数。
+> `override` 的主要价值是让编译器检查：你是否真的覆盖了一个 **Base Class**  **Virtual Function**。
 
-### 通过 vtable 手动调用函数
+### 通过 **vtable** 手动调用函数
 
-函数指针说明：vtable 里存的确实是函数地址。下面代码是教学实验，不推荐在正常代码中使用：
+函数指针说明： **vtable** 里存的确实是函数地址。下面代码是教学实验，不推荐在正常代码中使用：
 
 ```cpp
 #include <iostream>
@@ -844,7 +844,7 @@ using Fn = void (*)(Derived*, int);
 
 原因：
 
-> 普通成员函数有一个隐藏的 `this` 指针参数。
+> 普通 **Member Function（成员函数）** 有一个隐藏的 `this` 指针参数。
 
 所以：
 
@@ -859,9 +859,9 @@ Derived::bar1(&d, 20);
 ```
 
 
-## 类型转换与对象切片
+## 类型转换与 **Object Slicing（对象切片）**
 
-派生类到基类的转换：
+**Derived Class** 到 **Base Class** 的转换：
 
 ```text
 D is derived from B
@@ -873,7 +873,7 @@ D& => B&
 
 这三种转换的后果不同。
 
-### 派生类对象赋值给基类对象
+### **Derived Class** 对象赋值给 **Base Class** 对象
 
 课件例子：
 
@@ -884,7 +884,7 @@ Circle circ(60.0f);
 elly = circ;
 ```
 
-此时发生 **object slicing（对象切片）** ：
+此时发生 **Object Slicing** ：
 
 ```text
 Circle object
@@ -950,7 +950,7 @@ Circle *circ = new Circle(60.0f);
 elly = circ;
 ```
 
-这里不会发生对象切片，因为没有复制对象本身，只是让指针改指向。
+这里不会发生 **Object Slicing**，因为没有复制对象本身，只是让指针改指向。
 
 但会发生另一个问题：
 
@@ -964,7 +964,7 @@ elly->render(); // Circle::render()
 
 如果 `render()` 是 virtual，那么 `elly` 虽然类型是 `Ellipse*`，但实际指向 `Circle` 对象，所以会调用 `Circle::render()`。
 
-更安全的写法应避免裸指针，例如使用智能指针：
+更安全的写法应避免裸指针，例如使用 **Smart Pointer（智能指针）**：
 
 ```cpp
 #include <memory>
@@ -976,7 +976,7 @@ shapes.push_back(make_unique<Circle>(60.0f));
 shapes.push_back(make_unique<Ellipse>(20.0f, 40.0f));
 ```
 
-### 引用参数中的虚函数调用
+### 引用参数中的 **Virtual Function** 调用
 
 例子：
 
@@ -1002,7 +1002,7 @@ Circle::render()
 - `elly` 的静态类型是 `Ellipse&`；
 - 它实际绑定的是 `Circle` 对象；
 - `render()` 是 virtual；
-- 所以发生 dynamic binding。
+- 所以发生 **dynamic binding**。
 
 ### 危险实验：手动复制 vptr
 
@@ -1047,7 +1047,7 @@ pb->bar();     // 可能动态调用 Derived::bar()
 - 结果可能是随机数、崩溃或未定义行为。
 
 :::WARNING
-这段实验只用于说明 vptr/vtable 与 dynamic binding 的关系。实际程序中不能手动改 vptr，也不能依赖对象内部布局。
+这段实验只用于说明 vptr/ **vtable** 与 **dynamic binding** 的关系。实际程序中不能手动改 vptr，也不能依赖对象内部布局。
 :::
 
 
@@ -1055,7 +1055,7 @@ pb->bar();     // 可能动态调用 Derived::bar()
 
 ### `override` 的作用
 
-> `override` redefines the body of a virtual function.
+> `override` redefines the body of a **virtual function** .
 
 例子：
 
@@ -1073,8 +1073,8 @@ public:
 
 `override` 的作用：
 
-1. 表明这个函数是为了覆盖基类虚函数；
-2. 让编译器检查函数签名是否真的匹配；
+1. 表明这个函数是为了覆盖 **Base Class**  **Virtual Function**；
+2. 让编译器检查 **Function Signature** 是否真的匹配；
 3. 避免因为参数、`const`、引用限定等细节写错导致没有真正覆盖。
 
 例如：
@@ -1091,9 +1091,9 @@ public:
 };
 ```
 
-### 向上调用基类版本
+### 向上调用 **Base Class** 版本
 
-覆盖基类虚函数后，派生类仍然可以主动调用基类版本来复用旧逻辑：
+覆盖 **Base Class**  **Virtual Function** 后， **Derived Class** 仍然可以主动调用 **Base Class** 版本来复用旧逻辑：
 
 ```cpp
 #include <iostream>
@@ -1117,7 +1117,7 @@ public:
 
 这种写法表示：
 
-> 在基类行为基础上增加派生类的新功能，不需要复制基类原来的代码。
+> 在 **Base Class** 行为基础上增加 **Derived Class** 的新功能，不需要复制 **Base Class** 原来的代码。
 
 
 ## Return type relaxation
@@ -1172,7 +1172,7 @@ virtual Expr self();
 virtual BinaryExpr self();
 ```
 
-不合法，因为返回值是对象本身，按值返回不支持这种放宽。按值返回还会涉及对象切片问题。
+不合法，因为返回值是对象本身， **Return by Value（按值返回）** 不支持这种放宽。 **Return by Value** 还会涉及 **Object Slicing** 问题。
 
 
 ## Overloading and virtual
@@ -1187,7 +1187,7 @@ public:
 };
 ```
 
-如果派生类只写：
+如果 **Derived Class** 只写：
 
 ```cpp
 class Derived : public Base {
@@ -1196,9 +1196,9 @@ public:
 };
 ```
 
-那么 `Derived::func()` 会隐藏基类中同名的其他重载版本，例如 `Base::func(int)`。
+那么 `Derived::func()` 会隐藏 **Base Class** 中同名的其他重载版本，例如 `Base::func(int)`。
 
-这和上一讲的 **name hiding** 是同一类问题。
+这和上一讲的 **name hiding（同名函数隐藏）** 是同一类问题。
 
 解决方案有两种：
 
@@ -1212,7 +1212,7 @@ public:
 };
 ```
 
-### 用 `using` 引入基类重载集合
+### 用 `using` 引入 **Base Class** 重载集合
 
 ```cpp
 class Derived : public Base {
@@ -1226,15 +1226,15 @@ public:
 这样 `Base::func(int)` 仍然参与名字查找。
 
 :::TIP
-如果一个 virtual function 有多个 overloaded variants，派生类覆盖其中一个时，要检查其他同名重载是否被隐藏。
+如果一个 **virtual function** 有多个 overloaded variants， **Derived Class** 覆盖其中一个时，要检查其他同名重载是否被隐藏。
 :::
 
 
-## Abstract classes
+## **Abstract classes**
 
-**Abstract class（抽象类）** 用来定义接口和约束，不一定提供完整实现。
+**Abstract Class** 用来定义接口和约束，不一定提供完整实现。
 
-为什么需要抽象类：
+为什么需要 **Abstract Class**：
 
 - modeling；
 - force correct behavior；
@@ -1242,11 +1242,11 @@ public:
 
 什么时候使用：
 
-- 基类信息不足，无法给出合理实现；
+- **Base Class** 信息不足，无法给出合理实现；
 - 设计目标是 interface inheritance；
-- 需要强制派生类实现某些操作。
+- 需要强制 **Derived Class** 实现某些操作。
 
-C++ 中通过 **pure virtual function** 定义抽象类：
+C++ 中通过 **pure virtual function** 定义 **Abstract Class**：
 
 ```cpp
 class Shape {
@@ -1266,7 +1266,7 @@ protected:
 
 含义：
 
-- `render()` 没有基类通用实现；
+- `render()` 没有 **Base Class** 通用实现；
 - 任何具体图形都必须实现 `render()`；
 - `Shape` 自身不能直接实例化。
 
@@ -1280,12 +1280,12 @@ Shape* p = new Circle(10.0f);  // 可以：指向具体派生类对象
 
 ## Protocol / Interface classes
 
-> Protocol / Interface class 是一种特殊的 abstract base class。
+> Protocol / Interface class 是一种特殊的 **abstract base class（抽象基类）**。
 
 特征：
 
-- 所有 non-static member functions 都是 pure virtual，析构函数除外；
-- 有一个 virtual destructor，通常函数体为空；
+- 所有 non-static **member functions** 都是 pure virtual， **Destructor** 除外；
+- 有一个 **virtual destructor**，通常函数体为空；
 - 不含 non-static member variables；
 - 可以含 static members。
 

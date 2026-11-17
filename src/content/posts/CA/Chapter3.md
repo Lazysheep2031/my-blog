@@ -77,13 +77,13 @@ cache 不是凭空有效的，它依赖的是 **principle of locality（局部�
 :::
 
 :::TIP
-- 时间局部性强调 **刚访问过的对象还会再来** ；
-- 空间局部性强调 **附近的数据通常会被一起用到** 。
+- **Temporal Locality** 强调 **刚访问过的对象还会再来** ；
+- **Spatial Locality** 强调 **附近的数据通常会被一起用到** 。
 
 cache 的两个最基本设计动作，正好就对应这两点：
 
-- 时间局部性 -> 把最近访问过的数据留在更靠近 CPU 的地方；
-- 空间局部性 -> 不是只搬一个 word，而是把一整块相邻数据一起搬上来。
+- **Temporal Locality** -> 把最近访问过的数据留在更靠近 CPU 的地方；
+- **Spatial Locality** -> 不是只搬一个 word，而是把一整块相邻数据一起搬上来。
 :::
 
 
@@ -99,7 +99,7 @@ cache 的两个最基本设计动作，正好就对应这两点：
 - L2、L3 继续往下缓存；
 - 从更大的视角看，memory 甚至还可以看成 disk 上数据的 **上层缓存** 。
 
-#### Cache Hit / Cache Miss
+#### **Cache Hit（缓存命中）** / **Cache Miss（缓存未命中）**
 
 1. **cache hit（命中）**
    - 处理器要的数据已经在 cache 中；
@@ -127,7 +127,7 @@ cache 和 memory 之间传输数据时，基本单位不是单个 word，而是�
 
 :::NOTE
 **为什么不只搬一个 word？**
-- 空间局部性说明：既然访问了这个地址，附近地址的数据很可能也快要用了；
+- **Spatial Locality** 说明：既然访问了这个地址，附近地址的数据很可能也快要用了；
 - 所以一次 miss 时顺手把整个 block 一起搬上来，通常更划算。
 
 对应而生的参数：
@@ -204,7 +204,7 @@ memory hierarchy 的目标：
 
 这就引出了后面常见的 split vs unified。
 
-### Cache Miss
+### **Cache Miss**
 
 miss 发生以后，miss 所需时间主要有两部分：
 
@@ -214,21 +214,21 @@ miss 发生以后，miss 所需时间主要有两部分：
 2. **bandwidth（带宽相关时间）**
    - 在第一个 word 到达之后，把这个 block 其余部分传完所需要的时间。
 
-miss penalty（失效代价）：
+**miss penalty（失效代价）**：
 
 - 第一个字到来的等待；
 - 整个 block 传输完成的等待。
 
 这也是为什么 block size 不是越大越好的原因：
 
-- block 大，空间局部性利用得更充分；
-- 但一次 miss 时要搬的数据更多，miss penalty 也会变大。
+- block 大， **Spatial Locality** 利用得更充分；
+- 但一次 miss 时要搬的数据更多， **miss penalty** 也会变大。
 
 ### 3C Misses
 
 **Compulsory / Capacity / Conflict**
 
-cache miss 常见地分成三类，也就是经典的 **3C model** ：
+**cache miss** 常见地分成三类，也就是经典的 **3C model** ：
 
 1. **Compulsory miss（强制失效）**
    - 第一次访问某个 block；
@@ -239,14 +239,14 @@ cache miss 常见地分成三类，也就是经典的 **3C model** ：
    - 某个 block 被挤掉了，之后又要重新取回来。
 
 3. **Conflict miss（冲突失效）**
-   - cache 不是 fully associative；
+   - cache 不是 **fully associative（全相联）**；
    - 不同 block 因为映射到同一位置/同一组，互相挤掉。
 
 这三类 miss 后面会反复影响设计选择：
 
-- 增大 block size 往往主要影响 compulsory miss；
-- 增大 cache size 通常主要缓解 capacity miss；
-- 提高 associativity 通常主要缓解 conflict miss。
+- 增大 block size 往往主要影响 **compulsory miss**；
+- 增大 cache size 通常主要缓解 **capacity miss**；
+- 提高 **associativity（相联度）** 通常主要缓解 **conflict miss**。
 
 ### Split Cache vs Unified Cache
 
@@ -303,9 +303,9 @@ L1 一般是 split
 
 ### Q1：Block Placement
 
-#### Direct Mapped
+#### **Direct Mapped（直接映射）**
 
-**direct mapped cache（直接映射）** :
+**Direct-Mapped** :
 
 一个 memory block 只能去 cache 里的一个固定位置。
 
@@ -321,16 +321,16 @@ $$
 
 - 实现最简单；
 - 查找快；
-- hit time 往往较小。
+- **hit time（命中时间）** 往往较小。
 
 缺点：
 
 - 灵活性最差；
-- 很容易出现 conflict miss。
+- 很容易出现 **conflict miss**。
 
-#### Fully Associative
+#### **Fully Associative**
 
-**fully associative cache（全相联）** :
+**Fully Associative** :
 一个 memory block 可以放到 cache 中任意位置。
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202604171019996.png" alt="fully associative cache" style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
@@ -338,7 +338,7 @@ $$
 优点：
 
 - 放置最灵活；
-- conflict miss 最少。
+- **conflict miss** 最少。
 
 缺点：
 
@@ -346,9 +346,9 @@ $$
 - 需要比较所有 tag；
 - 硬件开销大。
 
-#### Set Associative
+#### **Set Associative（组相联）**
 
-**set associative cache（组相联）** 处于两者之间。
+**Set-Associative** 处于两者之间。
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202604171020068.png" alt="set associative cache" style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
@@ -359,15 +359,15 @@ $$
 - 一个 memory block 先确定自己属于哪一组；
 - 进入该组后，再从这组里的 `n` 个位置中挑一个。
 
-三者其实可以都看作 Set Associative：
+三者其实可以都看作 **Set Associative**：
 
-- direct mapped = `1-way set associative`
-- fully associative = 整个 cache 只有一组
+- **direct mapped** = `1-way set associative`
+- **fully associative** = 整个 cache 只有一组
 
 :::TIP
-- associativity 不是越大越好；
-- associativity 越高，冲突越少，但查找和 replacement 逻辑也越复杂；
-- 实际系统里，很多 cache 的 associativity 常见是 `n ≤ 4`。
+- **associativity** 不是越大越好；
+- **associativity** 越高，冲突越少，但查找和 replacement 逻辑也越复杂；
+- 实际系统里，很多 cache 的 **associativity** 常见是 `n ≤ 4`。
 :::
 
 :::NOTE
@@ -379,7 +379,7 @@ $$
 
 - 低位已经被 block offset 占掉，不能再用来选 set；
 - 如果直接拿高位做 index，那么很多连续地址会扎堆映射到同一个 set；
-- 这会破坏空间局部性本来带来的好处。
+- 这会破坏 **Spatial Locality** 本来带来的好处。
 
 所以更常见的做法是：
 
@@ -395,7 +395,7 @@ $$
 设：
 
 - $M$：Cache 总块数
-- $n$：每组中的块数，即相联度（associativity）
+- $n$：每组中的块数，即 **Associativity**
 - $G$：组数（number of sets）
 
 则有：
@@ -404,37 +404,37 @@ $$
 M = n \times G
 $$
 
-- **全相联（full-associative）**
+- **Fully Associative**
   - $n = M$
   - $G = 1$
   - 整个 Cache 只有一组，主存块可放入任意 Cache 块中
 
-- **直接映射（direct mapped）**
+- **Direct-Mapped**
   - $n = 1$
   - $G = M$
   - 每组只有一个块，主存块只能映射到唯一位置
 
-- **组相联（set-associative）**
+- **Set-Associative**
   - $1 < n < M$
   - $1 < G < M$
   - 主存块先映射到某一组，再放入该组内任意一个块中
 
-相联度 $n$ 越大，优点：
+**Associativity** $n$ 越大，优点：
 
 - Cache 空间利用更充分
 - **块冲突（block collision）** 更少
-- **冲突失效（conflict miss）** 降低
-- 整体 **miss rate** 往往下降
+- **Conflict Miss** 降低
+- 整体 **miss rate（失效率）** 往往下降
 
 缺点：
 
 - 命中判断更复杂，需要比较更多 tag
 - 硬件成本更高
 - 功耗增加
-- 命中时间（hit time）可能变长
+- **Hit Time** 可能变长
 - 替换策略（如 LRU）实现更复杂
 
-实际设计中，大多数 Cache 的相联度不会太高，常见为：
+实际设计中，大多数 Cache 的 **Associativity** 不会太高，常见为：
 
 $$
 n \le 4
@@ -462,8 +462,8 @@ Q1 解决的是能放哪；Q2 解决的是放进去以后怎么找到它。
 其中：
 
 1. **Index**
-   - direct mapped 时选中某一行；
-   - set associative 时选中某一组。
+   - **direct mapped** 时选中某一行；
+   - **set associative** 时选中某一组。
 
 2. **Byte Offset**
    - 选中 block 内具体哪个字节；
@@ -472,7 +472,7 @@ Q1 解决的是能放哪；Q2 解决的是放进去以后怎么找到它。
 3. **Tag**
    - 用来确认“这一行/这一组里放的到底是不是我要的 block”。
 
-此外每个 cache line 通常还带有：
+此外每个 **cache line** 通常还带有：
 
 - **valid bit（有效位）**
 
@@ -486,7 +486,7 @@ Q1 解决的是能放哪；Q2 解决的是放进去以后怎么找到它。
 一次访问的判断顺序：
 
 1. 根据 index 找到对应行/对应组；
-2. 先看 valid bit；
+2. 先看 **valid bit**；
 3. 再比较 tag；
 4. 若命中，再根据 offset 取出具体数据。
 
@@ -497,7 +497,7 @@ Q1 解决的是能放哪；Q2 解决的是放进去以后怎么找到它。
 
 #### 查找方式
 
-##### Direct Mapped
+##### **Direct Mapped**
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202604171032241.png" alt="direct mapped cache" style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
@@ -513,7 +513,7 @@ Q1 解决的是能放哪；Q2 解决的是放进去以后怎么找到它。
 - 查找路径最短；
 - 但如果别的 block 映射到同一行，就一定会冲突。
 
-##### Fully Associative
+##### **Fully Associative**
 
 Assume cache has 4 blocks
 
@@ -521,7 +521,7 @@ Assume cache has 4 blocks
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202604171100639.png" alt="fully associative cache example" style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
-fully associative 最灵活，也最贵：
+**fully associative** 最灵活，也最贵：
 
 - 没有传统意义上的 index；
 - 访问时必须对所有行的 tag 做比较；
@@ -529,7 +529,7 @@ fully associative 最灵活，也最贵：
 
 因此它通常只在规模较小、对灵活性要求很高的结构里更适合。
 
-##### Set Associative
+##### **Set Associative**
 - Assume cache has 4 blocks and each block is 1 word
 - 2 blocks per set, hence 2 sets per cache
 
@@ -541,7 +541,7 @@ fully associative 最灵活，也最贵：
 - 组内每一行都要看 valid，并比较 tag；
 - 只要组内某一行匹配，就 hit。
 
-因此它比 direct mapped 多出来的，是：
+因此它比 **direct mapped** 多出来的，是：
 
 - 组内并行比较多个 tag；
 - 以及 miss 时还得在组内决定替换谁。
@@ -634,13 +634,13 @@ Cache Controller 适合建模成一个 **有限状态机** 。
 
 - 地址长度：$A$ bits  
   （例如 64 位地址时，$A=64$）
-- Cache 数据区共有 $L$ 个 cache line（或 block）
+- Cache 数据区共有 $L$ 个 **cache line** （或 block）
 - 每个 block 大小为 $2^m$ words
 - 每个 word = 4 bytes = 32 bits
-- 相联度（associativity）为 $k$
-  - direct-mapped：$k=1$
-  - $k$-way set-associative：$1<k<L$
-  - full-associative：$k=L$
+- **Associativity** 为 $k$
+  - **direct-mapped**：$k=1$
+  - $k$-way **set-associative**：$1<k<L$
+  - **full-associative**：$k=L$
 - 组数为 $S$
 
 则有：
@@ -675,7 +675,7 @@ $$
 
 ###### 行存储内容
 
-每个 cache line 至少包含：
+每个 **cache line** 至少包含：
 
 - **Data**
 - **Tag**
@@ -683,7 +683,7 @@ $$
 
 若考虑 write-back cache，还常常需要：
 
-- **Dirty bit**
+- **Dirty bit（脏位）**
 
 因此每一行总位数可写成：
 
@@ -713,9 +713,9 @@ $$
 
 **Direct-Mapped Cache**
 
-direct-mapped 时：
+**direct-mapped** 时：
 
-- 相联度 $k=1$
+- **Associativity** $k=1$
 - 每组 1 行
 - 所以：
   $$
@@ -745,7 +745,7 @@ $$
 
 **$k$-way Set-Associative Cache**
 
-$k$-路组相联时：
+$k$-路 **Set-Associative** 时：
 
 - 每组 $k$ 行
 - 组数：
@@ -777,9 +777,9 @@ $$
 
 **Full-Associative Cache**
 
-full-associative 时：
+**full-associative** 时：
 
-- 相联度 $k=L$
+- **Associativity** $k=L$
 - 整个 Cache 只有 1 组
 - 所以：
   $$
@@ -818,7 +818,7 @@ $$
 
 ##### Example 1
 
-> 一个 **16 KiB data** 的 direct-mapped cache，block size 是 **4 words** ，地址长度 **64 bit** 。问这个 cache 一共需要多少 bit？
+> 一个 **16 KiB data** 的 **direct-mapped cache**，block size 是 **4 words** ，地址长度 **64 bit** 。问这个 cache 一共需要多少 bit？
 
 - `16 KiB = 2^14 bytes = 2^12 words`
 - block size = `4 words = 2^2 words`
@@ -909,9 +909,9 @@ $$
 
 ##### Example 3
 
-direct-mapped 访问过程
+**direct-mapped** 访问过程
 - data cache 大小：`16KB`
-- direct-mapped
+- **direct-mapped**
 - block size：`4 words`
 - 依次读取 4 个地址：
   - `0x00000014`
@@ -992,7 +992,7 @@ $$
 \text{return } d
 $$
 
-这刚好说明 spatial locality：
+这刚好说明 **spatial locality**：
 
 - 虽然第一次只想读 `0x14`；
 - 但因为整个 block 已经被搬上来；
@@ -1008,7 +1008,7 @@ $$
 - `valid = 0`
 - 发生 miss
 
-于是把 `[0x30, 0x34, 0x38, 0x3C]` 这一整块数据装入对应 cache line。
+于是把 `[0x30, 0x34, 0x38, 0x3C]` 这一整块数据装入对应 **cache line**。
 
 再看 offset：
 
@@ -1043,7 +1043,7 @@ $$
 - **cache miss**
 - 且必须 **replacement（替换）**
 
-因为是 direct mapped，能替换的只有这一行本身。  
+因为是 **direct mapped**，能替换的只有这一行本身。  
 新 block `[0x8010, 0x8014, 0x8018, 0x801C]` 进入该行后，再按 offset 取值，得到：
 
 $$
@@ -1107,8 +1107,8 @@ Q3 解决的是：
 
 需要选择策略的的，是：
 
-- set associative
-- fully associative
+- **set associative**
+- **fully associative**
 
 #### 替换策略
 
@@ -1156,13 +1156,13 @@ Q3 解决的是：
 
 优点：
 
-- 和 temporal locality 很契合；
+- 和 **temporal locality** 很契合；
 - 通常表现优于纯随机和 FIFO。
 
 缺点：
 
 - 需要额外记录访问顺序；
-- associativity 一大，硬件代价就会上升得很快。
+- **associativity** 一大，硬件代价就会上升得很快。
 
 ##### OPT
 
@@ -1195,7 +1195,7 @@ hit 次数：
 | 策略 | 命中次数 | 评论 |
 | --- | --- | --- |
 | FIFO | `3` | 只看进入顺序，容易换错对象 |
-| LRU | `4` | 更符合 temporal locality |
+| LRU | `4` | 更符合 **temporal locality** |
 | OPT | `5` | 理论最优，因为“知道未来” |
 
 - replacement policy 确实会直接影响 hit rate；
@@ -1203,11 +1203,11 @@ hit 次数：
 
 
 
-#### Thrashing and Belady Anomaly
+#### **Thrashing（抖动）** and Belady Anomaly
 
-#### Thrashing
+#### **Thrashing**
 
-如果工作集比 cache 能承受的更大，并且访问序列不断在几组数据之间来回切换，就会出现 **thrashing（抖动）** 。
+如果工作集比 cache 能承受的更大，并且访问序列不断在几组数据之间来回切换，就会出现 **Thrashing** 。
 
 典型序列：
 
@@ -1221,7 +1221,7 @@ hit 次数：
 - hit 非常少；
 - 系统大部分时间都花在 miss 和 replacement 上。
 
-thrashing 的本质就是：
+**thrashing** 的本质就是：
 
 - **工作集大于有效 cache 容量**
 - **映射冲突太严重**
@@ -1301,7 +1301,7 @@ Q4 讨论的是：
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202604171134354.png" alt="write policy flowchart" style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
-- **write-through + no-write-allocation**
+- **write-through（写直达） + no-write-allocation**
   - 结构简单；
   - 写 miss 直接往下写；
   - 不在 cache 中留副本。
@@ -1313,11 +1313,11 @@ Q4 讨论的是：
 
 #### Write Hit
 
-Write-Through vs Write-Back
+**Write-Through** vs Write-Back
 
-##### Write-Through
+##### **Write-Through**
 
-**write-through（写直达）** 的：
+**Write-Through** 的：
 
 - 一次 write hit 时；
 - 同时把数据写到 cache 和 main memory。
@@ -1347,7 +1347,7 @@ Write-Through vs Write-Back
 - 可预测性；
 - 而不是单纯追求写性能。
 
-所以会采用 write-through。
+所以会采用 **write-through**。
 
 ##### Write-Back
 
@@ -1359,7 +1359,7 @@ Write-Through vs Write-Back
 
 这时就需要一个额外控制位：
 
-- **dirty bit（脏位）**
+- **Dirty Bit**
 
 它表示：
 
@@ -1382,15 +1382,15 @@ Write-Through vs Write-Back
 
 #### Write Miss
 
-Write Allocate vs No-Write-Allocate
+**Write Allocate（写分配）** vs **No-Write-Allocate（写不分配）**
 
 write miss 时，策略分歧主要在：
 
 要不要先把目标 block 装进 cache？
 
-##### Write Allocate
+##### **Write Allocate**
 
-**write allocate（写分配）** ：
+**Write Allocate** ：
 
 - write miss 时；
 - 先把对应 block 从 main memory 调到 cache；
@@ -1398,17 +1398,17 @@ write miss 时，策略分歧主要在：
 
 它的思想体现：
 
-- temporal locality：既然现在要写，后面可能还要读或继续写；
-- spatial locality：同一 block 中的其他数据可能也很快用到。
+- **temporal locality**：既然现在要写，后面可能还要读或继续写；
+- **spatial locality**：同一 block 中的其他数据可能也很快用到。
 
 因此 **write allocate** 常和 **write-back** 搭配，因为：
 
 - 既然块已经进 cache 了；
 - 后续对这个块的多次写就都能在 cache 中完成。
 
-##### No-Write-Allocate
+##### **No-Write-Allocate**
 
-**no-write-allocate（写不分配）** ，也常叫 **write around** ：
+**No-Write-Allocate** ，也常叫 **write around** ：
 
 - write miss 时；
 - 直接把数据写到 main memory；
@@ -1443,9 +1443,9 @@ write miss 时，策略分歧主要在：
 性能优先 -> 更偏 `write-back + write-allocate`
 一致性 / 可预测性优先 -> 更偏 `write-through + no-write-allocate`
 
-#### Write Stall and Write Buffer
+#### Write Stall and **Write Buffer（写缓冲）**
 
-write-through 的一个直接问题是：
+**write-through** 的一个直接问题是：
 
 - 每次写都可能要等 main memory；
 - CPU 很容易被迫停下来。
@@ -1454,7 +1454,7 @@ write-through 的一个直接问题是：
 
 一种非常常见的优化是：
 
-- **write buffer（写缓冲）**
+- **Write Buffer**
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202604171134562.png" alt="write buffer" style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
@@ -1464,7 +1464,7 @@ write-through 的一个直接问题是：
 - 然后继续执行后续指令；
 - 由 buffer 在后台慢慢把数据推到 memory。
 
-这样可以明显减轻 write-through 的性能损失。  
+这样可以明显减轻 **write-through** 的性能损失。  
 但它也不是万能的，因为：
 
 - 如果短时间内写太密集；
@@ -1474,11 +1474,11 @@ write-through 的一个直接问题是：
 
 #### Example
 
-No-Write-Allocate vs Write-Allocate
+**No-Write-Allocate** vs Write-Allocate
 
 条件：
 
-- fully associative
+- **fully associative**
 - write-back
 - cache 很大，不考虑 replacement
 - 初始为空
@@ -1523,7 +1523,7 @@ No-Write-Allocate vs Write-Allocate
 
 因此结果是：
 
-| 操作 | no-write-allocate |
+| 操作 | **no-write-allocate** |
 | --- | --- |
 | `write Mem[100]` | miss |
 | `write Mem[100]` | miss |
@@ -1542,7 +1542,7 @@ No-Write-Allocate vs Write-Allocate
 
 1. `write Mem[100]`
    - write miss
-   - 但因为采用 write allocate，要先把 100 所在 block 调到 cache
+   - 但因为采用 **write allocate**，要先把 100 所在 block 调到 cache
    - 再写入 cache
    - `miss`
 
@@ -1578,7 +1578,7 @@ No-Write-Allocate vs Write-Allocate
 - `3 hits`
 - `2 misses`
 
->如果后续确实还要继续访问这个 block；那么 write allocate 往往更合适。也就是说，write allocate 的效果本质上还是靠 locality 在支撑。
+>如果后续确实还要继续访问这个 block；那么 **write allocate** 往往更合适。也就是说， **write allocate** 的效果本质上还是靠 locality 在支撑。
 
 
 ## Memory System Performance
@@ -1587,9 +1587,9 @@ Cache 的性能：
 
 真正影响系统性能的，不只是有没有 cache，而是 cache 的三个关键量：
 
-- **hit time（命中时间）**
-- **miss rate（失效率）**
-- **miss penalty（失效代价）**
+- **Hit Time**
+- **Miss Rate**
+- **Miss Penalty**
 
 所有后面的优化，几乎都可以看成是在想办法改善这三者中的一个或多个。
 
@@ -1635,7 +1635,7 @@ $$
 
 这两个写法本质一样，只是视角不同：
 
-- 一个从 miss rate 出发；
+- 一个从 **miss rate** 出发；
 - 一个从每条指令平均 miss 次数出发。
 
 ### AMAT
@@ -1677,10 +1677,10 @@ $$
 假设：
 
 - 基础执行 `CPI = 1.0`（先忽略 memory stalls）
-- cache miss penalty = `200` clock cycles
-- miss rate = `2%`
+- **cache miss** penalty = `200` clock cycles
+- **miss rate** = `2%`
 - 平均每条指令有 `1.5` 次 memory reference
-- 平均每 `1000` 条指令有 `30` 次 cache miss
+- 平均每 `1000` 条指令有 `30` 次 **cache miss**
 
 问：把 cache 行为算进来后，对性能有什么影响？
 
@@ -1768,7 +1768,7 @@ $$
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202604231329256.png" alt="Cache Optimization Summary" style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
-### Reducing the Hit Time
+### Reducing the **Hit Time**
 
 #### Small and Simple First-Level Caches
 
@@ -1777,7 +1777,7 @@ L1 cache 几乎每次访存都会经过，所以 **L1 的 hit time 往往比它�
 核心思路：
 
 - L1 不做得太大；
-- associativity 不做得太高；
+- **associativity** 不做得太高；
 - 让 tag compare、data access、way select 这条关键路径尽量短。
 
 优点：
@@ -1787,7 +1787,7 @@ L1 cache 几乎每次访存都会经过，所以 **L1 的 hit time 往往比它�
 
 代价：
 
-- 容量小、相联度低时，可能增加 miss rate；
+- 容量小、 **Associativity** 低时，可能增加 **miss rate**；
 - 需要依赖更大的 L2 / L3 来兜底。
 
 所以经典设计通常是：
@@ -1798,14 +1798,14 @@ L1 cache 几乎每次访存都会经过，所以 **L1 的 hit time 往往比它�
 
 #### Way Prediction
 
-组相联 cache 的问题在于：  
-为了知道哪一 way 命中，通常要比较多个 tag，再做数据选择，这会拉长 hit time。
+**Set-Associative** cache 的问题在于：  
+为了知道哪一 way 命中，通常要比较多个 tag，再做数据选择，这会拉长 **hit time**。
 
 **way prediction** 的做法是：
 
 - 先预测“这次大概率命中哪一 way”；
 - 先按这个预测去访问；
-- 如果预测正确，就接近 direct-mapped 的 hit path；
+- 如果预测正确，就接近 **direct-mapped** 的 hit path；
 - 如果预测错误，再补查其他 way，付出额外延迟。
 
 本质上它是在做这样的折中：
@@ -1815,8 +1815,8 @@ L1 cache 几乎每次访存都会经过，所以 **L1 的 hit time 往往比它�
 
 适合场景：
 
-- 组相联 cache；
-- 对 hit time 很敏感的前端 / L1。
+- **Set-Associative** cache；
+- 对 **hit time** 很敏感的前端 / L1。
 
 代价：
 
@@ -1864,7 +1864,7 @@ L1 cache 几乎每次访存都会经过，所以 **L1 的 hit time 往往比它�
 优点：
 
 - 提高并发访问能力；
-- 对 superscalar、多发射、多 load/store 系统尤其重要。
+- 对 **superscalar（超标量）**、 **Multiple Issue（多发射）**、多 load/store 系统尤其重要。
 
 代价：
 
@@ -1896,7 +1896,7 @@ L1 cache 几乎每次访存都会经过，所以 **L1 的 hit time 往往比它�
 
 优点：
 
-- 显著降低 effective miss penalty；
+- 显著降低 effective **miss penalty**；
 - 对 memory-level parallelism 较高的程序很有效。
 
 代价：
@@ -1905,7 +1905,7 @@ L1 cache 几乎每次访存都会经过，所以 **L1 的 hit time 往往比它�
 - 需要处理返回乱序、命中/失效碰撞、coherence 等问题。
 
 
-### Reducing the Miss Penalty
+### Reducing the **Miss Penalty**
 
 #### Multilevel Caches
 
@@ -1917,7 +1917,7 @@ L1 cache 几乎每次访存都会经过，所以 **L1 的 hit time 往往比它�
 
 作用：
 
-- 把“直接掉到主存”的昂贵 miss，改成“更低一级 cache hit”的相对便宜 miss；
+- 把“直接掉到主存”的昂贵 miss，改成“更低一级 **cache hit** ”的相对便宜 miss；
 - 从而降低 **effective miss penalty** 。
 
 代价：
@@ -1945,13 +1945,13 @@ L1 cache 几乎每次访存都会经过，所以 **L1 的 hit time 往往比它�
 适合场景：
 
 - block 较大；
-- miss penalty 中“首字返回延迟”占比较高。
+- **miss penalty** 中“首字返回延迟”占比较高。
 
 
 #### Read Miss Priority Over Write Miss
 
 读 miss 往往直接阻塞程序继续执行；  
-写请求很多时候可以先暂存在 write buffer 里。
+写请求很多时候可以先暂存在 **write buffer** 里。
 
 所以常见策略是：
 
@@ -1966,7 +1966,7 @@ L1 cache 几乎每次访存都会经过，所以 **L1 的 hit time 往往比它�
 
 #### Merging Write Buffers
 
-如果 write buffer 中有多次写，目标恰好落在同一 cache line 或相邻区域，就可以合并：
+如果 **write buffer** 中有多次写，目标恰好落在同一 **cache line** 或相邻区域，就可以合并：
 
 - 减少总线事务数；
 - 减少下层存储压力；
@@ -1974,7 +1974,7 @@ L1 cache 几乎每次访存都会经过，所以 **L1 的 hit time 往往比它�
 
 优点：
 
-- 对 write-through cache 特别常见；
+- 对 **write-through** cache 特别常见；
 - 硬件代价通常不算太夸张。
 
 代价：
@@ -1991,28 +1991,28 @@ L1 cache 几乎每次访存都会经过，所以 **L1 的 hit time 往往比它�
 工作方式：
 
 - L1 hit：直接返回；
-- L1 miss 且 victim cache hit：通常执行 **swap** ，把 victim cache 中的目标块和 L1 中冲突块交换；
-- L1 miss 且 victim cache miss：再访问下层存储。
+- L1 miss 且 victim **cache hit**：通常执行 **swap** ，把 victim cache 中的目标块和 L1 中冲突块交换；
+- L1 miss 且 victim **cache miss**：再访问下层存储。
 
 它针对的核心问题是：
 
 - **conflict miss**
-- 且通常是 **被替换后很快又重用** 的那类 conflict miss
+- 且通常是 **被替换后很快又重用** 的那类 **conflict miss**
 
 优点：
 
 - 不把额外复杂度放到 L1 正常 hit path 上；
-- 对 direct-mapped cache 很有吸引力；
-- 常能以很小硬件代价显著缓解“ABAB 式冲突抖动”。
+- 对 **direct-mapped cache** 很有吸引力；
+- 常能以很小硬件代价显著缓解“ABAB 式冲突 **Thrashing** ”。
 
 局限：
 
-- 对 capacity miss 帮助有限；
+- 对 **capacity miss** 帮助有限；
 - 对长 reuse distance、流式访问帮助也有限；
 - 它不是一个“正常的额外 cache level”，而是一个 **专门接住 victim line 的小旁路结构** 。
 
 
-### Reducing the Miss Rate
+### Reducing the **Miss Rate**
 
 #### Larger Block Size
 
@@ -2023,9 +2023,9 @@ block 变大以后，一次 miss 会顺带把附近更多数据带上来，因�
 
 但副作用也很明显：
 
-- miss penalty 变大；
+- **miss penalty** 变大；
 - 同样 cache 容量下，block 数变少；
-- 可能加重 conflict miss / capacity miss。
+- 可能加重 **conflict miss** / **capacity miss**。
 
 所以 block size 永远是 locality 和 penalty 的折中。
 
@@ -2040,16 +2040,16 @@ cache 更大时，能留下更多 block，因此：
 
 - 成本和面积增加；
 - 功耗上升；
-- hit time 可能变长。
+- **hit time** 可能变长。
 
 因此：
 
 - L1 通常不会做得很大；
 - 更大的容量往往放到 L2 / L3 / LLC。
 
-#### Higher Associativity
+#### Higher **Associativity**
 
-提高 associativity 的核心作用是：
+提高 **associativity** 的核心作用是：
 
 - 把“只能放一个位置”变成“能在同组多个位置中选一个”
 - 从而减少 **conflict miss**
@@ -2062,7 +2062,7 @@ cache 更大时，能留下更多 block，因此：
 
 - tag compare 更多；
 - replacement 逻辑更复杂；
-- hit time 往往更长；
+- **hit time** 往往更长；
 - 功耗也会增加。
 
 所以常见的理解就是：
@@ -2082,7 +2082,7 @@ cache 更大时，能留下更多 block，因此：
 
 作用：
 
-- 提高 spatial locality；
+- 提高 **spatial locality**；
 - 让一个 cache block 中的数据尽可能被连续用完。
 
 ##### Blocking / Tiling
@@ -2091,7 +2091,7 @@ cache 更大时，能留下更多 block，因此：
 
 作用：
 
-- 提高 temporal locality；
+- 提高 **temporal locality**；
 - 在数据被替换前多用几次。
 
 这一类优化说明一个关键事实：
@@ -2099,9 +2099,9 @@ cache 更大时，能留下更多 block，因此：
 - **locality 不只是硬件属性，也是程序组织属性**
 
 
-### Reducing Miss Penalty or Miss Rate via Parallelism
+### Reducing **Miss Penalty** or **Miss Rate** via Parallelism
 
-#### Hardware Prefetching
+#### Hardware **Prefetching（预取）**
 
 核心思想：
 
@@ -2114,16 +2114,16 @@ cache 更大时，能留下更多 block，因此：
 - next-line prefetch
 - stream buffer
 - stride prefetch
-- 更复杂的相关性预取
+- 更复杂的相关性 **Prefetching**
 
 优点：
 
-- 若预取及时，可把后续 miss 变成 hit；
-- 若不够及时，也能降低 miss penalty。
+- 若 **Prefetching** 及时，可把后续 miss 变成 hit；
+- 若不够及时，也能降低 **miss penalty**。
 
 代价：
 
-- 预取错会浪费带宽；
+- **Prefetching** 错会浪费带宽；
 - 还可能污染 cache；
 - 对功耗也可能有负面影响。
 
@@ -2132,11 +2132,11 @@ cache 更大时，能留下更多 block，因此：
 - **用多做一点“可能没必要的工作”**
 - 去换 **关键时刻少等一点**
 
-#### Compiler-Controlled Prefetching
+#### Compiler-Controlled **Prefetching**
 
 这类方法由编译器显式插入 prefetch 指令：
 
-- 在真正用到数据之前若干迭代，先发预取；
+- 在真正用到数据之前若干迭代，先发 **Prefetching**；
 - 目标通常是让访问和计算重叠。
 
 优点：
@@ -2146,13 +2146,13 @@ cache 更大时，能留下更多 block，因此：
 
 前提：
 
-- 必须给预取留出足够“提前量”；
-- cache 通常需要是 **nonblocking** 的，否则预取本身又会把执行卡住。
+- 必须给 **Prefetching** 留出足够“提前量”；
+- cache 通常需要是 **nonblocking** 的，否则 **Prefetching** 本身又会把执行卡住。
 
 代价：
 
 - 会增加指令数；
-- 预取距离不好选；
+- **Prefetching** 距离不好选；
 - 程序行为稍变，效果可能就明显波动。
 
 
@@ -2244,7 +2244,7 @@ cache 更大时，能留下更多 block，因此：
 
 ### Skewed-Associative Cache
 
-普通组相联 cache 中，同一个 block 先确定 set，再在该 set 里挑 way。  
+普通 **Set-Associative** cache 中，同一个 block 先确定 set，再在该 set 里挑 way。  
 **skewed-associative cache** 的特殊点在于：
 
 - **不同的 way 使用不同的索引/哈希函数**
@@ -2252,12 +2252,12 @@ cache 更大时，能留下更多 block，因此：
 
 作用：
 
-- 进一步降低 conflict miss；
-- 尤其适合那些“普通组相联里仍然老撞同一组”的模式。
+- 进一步降低 **conflict miss**；
+- 尤其适合那些“普通 **Set-Associative** 里仍然老撞同一组”的模式。
 
 优点：
 
-- 比直接增加 associativity 更有针对性；
+- 比直接增加 **associativity** 更有针对性；
 - 有时能以较低 way 数取得不错效果。
 
 代价：
@@ -2270,12 +2270,12 @@ cache 更大时，能留下更多 block，因此：
 
 它想同时保住两件事：
 
-- direct-mapped 的快 hit time；
-- set-associative 的较低 conflict miss
+- **direct-mapped** 的快 **hit time**；
+- **set-associative** 的较低 **conflict miss**
 
 基本思路：
 
-- 先按 direct-mapped 的主位置查一次；
+- 先按 **direct-mapped** 的主位置查一次；
 - 如果主位置没命中，再去查一个“备用位置”；
 - 若备用位置命中，这种命中叫 **pseudo-hit**
 
@@ -2283,7 +2283,7 @@ cache 更大时，能留下更多 block，因此：
 
 - 正常 hit 很快；
 - pseudo-hit 比正常 hit 慢；
-- miss rate 介于 direct-mapped 和 set-associative 之间。
+- **miss rate** 介于 **direct-mapped** 和 **set-associative** 之间。
 
 本质上它是在做：
 
@@ -2344,7 +2344,7 @@ CPU 通常更依赖 cache 去降低延迟；
 GPU 除了使用 cache，还大量依赖：
 
 - **multithreading**
-- **coalescing**
+- **coalescing（合并访存）**
 - **shared memory / scratchpad**
 - **高带宽显存**
 
@@ -2390,7 +2390,7 @@ GPU 常见的 memory hierarchy 可以粗略理解为：
 - 更强调 **高带宽** ；
 - 更依赖 **大量线程隐藏延迟** ；
 - cache 往往没有 CPU 那么“全能”，shared memory 反而很关键；
-- 访存模式是否能 **coalescing（合并访存）** 非常重要。
+- 访存模式是否能 **Coalescing** 非常重要。
 
 所以 GPU memory hierarchy 的优化重点通常是：
 
@@ -2430,10 +2430,10 @@ GPU 的 **unified memory** 指的是：
 更稳妥的比较维度是：
 
 1. **它主要针对哪一类问题？**
-   - hit time
+   - **hit time**
    - bandwidth
-   - miss penalty
-   - miss rate
+   - **miss penalty**
+   - **miss rate**
    - system-level capacity / sharing
 
 2. **它把代价放在 hit path 还是 miss path？**
@@ -2456,19 +2456,19 @@ GPU 的 **unified memory** 指的是：
 
 | Technique | Main Goal | Best For | Main Cost |
 |---|---|---|---|
-| Small/simple L1 | Reduce hit time | latency-sensitive L1 | higher miss rate |
-| Way prediction | Reduce average hit time | set-associative L1 | misprediction penalty |
+| Small/simple L1 | Reduce **hit time** | latency-sensitive L1 | higher **miss rate** |
+| Way prediction | Reduce average **hit time** | **set-associative** L1 | misprediction penalty |
 | Pipelined cache | Increase bandwidth / freq | high-frequency cores | higher access latency |
 | Multibanked cache | Increase bandwidth | multiple accesses per cycle | bank conflicts |
 | Nonblocking cache | Hide miss latency | MLP-rich workloads | high control complexity |
-| Critical word first / early restart | Reduce miss penalty | large block refill | refill control complexity |
-| Merging write buffer | Reduce write-related penalty | write-through / heavy write traffic | merge logic |
-| Compiler optimization | Reduce miss rate | regular loop kernels | compile dependence |
-| Hardware prefetch | Reduce miss penalty / rate | predictable streams | bandwidth waste / pollution |
-| Compiler prefetch | Reduce miss penalty / rate | regular loops with lookahead | instruction overhead |
-| Victim cache | Reduce conflict miss | short-reuse conflicts | small extra buffer |
-| Skewed-associative | Reduce conflict miss | stubborn conflict patterns | hashing/replacement complexity |
-| Pseudo-associative | Reduce conflict miss with fast first hit | between DM and SA | pseudo-hit latency |
+| Critical word first / early restart | Reduce **miss penalty** | large block refill | refill control complexity |
+| Merging **write buffer** | Reduce write-related penalty | **write-through** / heavy write traffic | merge logic |
+| Compiler optimization | Reduce **miss rate** | regular loop kernels | compile dependence |
+| Hardware prefetch | Reduce **miss penalty** / rate | predictable streams | bandwidth waste / pollution |
+| Compiler prefetch | Reduce **miss penalty** / rate | regular loops with lookahead | instruction overhead |
+| Victim cache | Reduce **conflict miss** | short-reuse conflicts | small extra buffer |
+| Skewed-associative | Reduce **conflict miss** | stubborn conflict patterns | hashing/replacement complexity |
+| Pseudo-associative | Reduce **conflict miss** with fast first hit | between DM and SA | pseudo-hit latency |
 | Cache coloring | Reduce LLC conflicts | OS-level placement / isolation | allocator complexity |
 | System-level cache | Reduce off-chip traffic | heterogeneous SoC | coherence/QoS complexity |
 | HBM | Extend bandwidth-rich memory layer | bandwidth-bound systems | cost / packaging |
@@ -2506,14 +2506,14 @@ Virtual memory 是 OS memory management 中最重要的机制之一。它让用�
 - 物理内存是否连续；
 - 其他进程的地址空间在哪里。
 
-程序看到的是一套由 OS 提供的 **虚拟地址空间** 。硬件中的 **MMU（Memory Management Unit）** 负责把虚拟地址翻译成物理地址，并配合权限位检查访问是否合法。
+程序看到的是一套由 OS 提供的 **虚拟地址空间** 。硬件中的 **MMU（Memory Management Unit）** 负责把虚拟 **Address Translation（地址翻译）** 成物理地址，并配合权限位检查访问是否合法。
 
 :::TIP
 可以把 virtual memory 看成 OS 做的一层“抽象”：
 
 - 程序使用 virtual address；
 - OS 维护 virtual address 到 physical address 的映射；
-- MMU 在硬件路径上快速完成地址翻译；
+- MMU 在硬件路径上快速完成 **Address Translation**；
 - 出现找不到映射或权限错误时，触发 page fault，由 OS 接管。
 :::
 
@@ -2577,7 +2577,7 @@ Virtual Memory = Main Memory + Secondary Storage
 - CPU 希望大多数访问都在快层级命中；
 - 访问不到时，再去慢层级取。
 
-区别是：virtual memory 的下一级可能是 disk / SSD，miss penalty 极大，因此设计上会尽量降低 virtual memory miss 的概率。
+区别是：virtual memory 的下一级可能是 disk / SSD， **miss penalty** 极大，因此设计上会尽量降低 virtual memory miss 的概率。
 
 #### 灵活管理：物理地址可以不连续
 
@@ -2623,21 +2623,21 @@ Cache 和 virtual memory 都属于 memory hierarchy，但它们的管理粒度�
 
 | 对比项 | First-level cache | Virtual memory |
 |---|---:|---:|
-| 管理单位 | block / cache line | page |
+| 管理单位 | block / **cache line** | page |
 | 典型大小 | 16-128 bytes | 4KB-64KB，现代系统也支持 huge page |
-| Hit time | 约 1-3 cycles | 约 100-200 cycles |
-| Miss penalty | 几个到几十个 cycles | 可达到百万级 cycles |
-| Miss rate | 相对更高，可接受 | 必须极低 |
+| **Hit time** | 约 1-3 cycles | 约 100-200 cycles |
+| **Miss penalty** | 几个到几十个 cycles | 可达到百万级 cycles |
+| **Miss rate** | 相对更高，可接受 | 必须极低 |
 | 地址映射 | physical address 到 cache address | virtual address 到 physical address |
 | 管理主体 | 主要由硬件管理 | OS + hardware 协同 |
 
-关键差别在 miss penalty：
+关键差别在 **miss penalty**：
 
-- cache miss 通常访问下一级 cache 或 main memory；
+- **cache miss** 通常访问下一级 cache 或 main memory；
 - virtual memory miss 可能需要访问 secondary storage；
 - 代价差几个数量级。
 
-所以在 cache 里，direct mapped 带来的 conflict miss 有时可以接受；在 virtual memory 里，页放置通常采用更接近 **fully associative** 的策略，尽量避免因为放置限制导致 miss。
+所以在 cache 里， **direct mapped** 带来的 **conflict miss** 有时可以接受；在 virtual memory 里，页放置通常采用更接近 **fully associative** 的策略，尽量避免因为放置限制导致 miss。
 
 
 ### Virtual Memory Allocation
@@ -2660,7 +2660,7 @@ page address = page number || page offset
 例如 4KB page：
 
 - page size = $2^{12}$ bytes；
-- page offset = 12 bits；
+- **page offset（页内偏移）** = 12 bits；
 - 剩下的高位作为 page number。
 
 优点：
@@ -2699,8 +2699,8 @@ segment address = segment number + offset
 
 | 机制 | 管理单位 | 地址形式 | 主要优点 | 主要问题 |
 |---|---|---|---|---|
-| Paging | 固定大小 page | page # + offset | 替换简单，页表索引清晰 | 内部碎片 |
-| Segmentation | 可变大小 segment | segment # + offset | 符合程序逻辑结构 | 外部碎片，管理复杂 |
+| Paging | 固定大小 page | page # + offset | 替换简单，页表索引清晰 | **Internal Fragmentation** |
+| Segmentation | 可变大小 segment | segment # + offset | 符合程序逻辑结构 | **External Fragmentation**，管理复杂 |
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202605111836491.png" alt="Paging vs Segmentation" style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
@@ -2716,14 +2716,14 @@ segment address = segment number + offset
 
 原因：
 
-- virtual memory miss penalty 极大；
+- virtual memory **miss penalty** 极大；
 - 如果因为“固定映射位置”导致冲突 miss，代价无法接受；
 - 因此 OS 通常允许 page 放在任意可用 frame 中。
 
-这和 cache 的 direct mapped 形成对比：
+这和 cache 的 **direct mapped** 形成对比：
 
 - cache 追求 hit path 简单、速度快；
-- virtual memory 更重视降低 miss rate。
+- virtual memory 更重视降低 **miss rate**。
 
 #### Q2：How is a block found if it is in main memory?
 
@@ -2745,9 +2745,9 @@ Physical Address = PPN || page offset
 
 - `VPN`：Virtual Page Number；
 - `PPN`：Physical Page Number / Physical Page Frame Number；
-- `page offset`：页内偏移，翻译前后保持不变。
+- `page offset`： **Page Offset**，翻译前后保持不变。
 
-地址翻译的核心就是：
+**Address Translation** 的核心就是：
 
 ```text
 VPN ──查 Page Table──> PPN
@@ -2755,7 +2755,7 @@ PPN || page offset ──> Physical Address
 ```
 
 :::NOTE
-Page table 记录的是 page-level 的映射，所以它只需要翻译页号部分；页内偏移不需要改变。
+Page table 记录的是 page-level 的映射，所以它只需要翻译页号部分； **Page Offset** 不需要改变。
 :::
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202605111838334.png" alt="Address Translation" style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
@@ -2788,7 +2788,7 @@ LRU 在 virtual memory 中通常通过 **use bit / reference bit** 近似实现�
 - dirty = 0：page 内容没有被修改，替换时可以直接丢弃；
 - dirty = 1：page 内容已经修改，替换前必须写回 secondary storage。
 
-### Address Translation
+### **Address Translation**
 
 #### Page Table 的基本作用
 
@@ -2804,7 +2804,7 @@ virtual address = VPN || page offset
 physical address = PPN || page offset
 ```
 
-一次地址翻译可以写成：
+一次 **Address Translation** 可以写成：
 
 ```text
 VPN    = virtual_address[high bits]
@@ -2854,7 +2854,7 @@ Page table 通常存放在 main memory 中。
 
 这会让访存时间近似翻倍。
 
-解决方法是增加一个专门缓存地址翻译结果的小 cache：
+解决方法是增加一个专门缓存 **Address Translation** 结果的小 cache：
 
 ```text
 TLB = Translation Lookaside Buffer
@@ -2864,16 +2864,16 @@ TLB 保存最近用过的 virtual page 到 physical page 的翻译关系。
 
 ### Translation Lookaside Buffer
 
-TLB 可以理解成专门服务于地址翻译的 cache。
+TLB 可以理解成专门服务于 **Address Translation** 的 cache。
 
 TLB entry 通常包含：
 
 - tag：virtual address 的一部分，通常来自 VPN；
 - data：physical page frame number / PPN；
-- valid bit；
+- **valid bit**；
 - protection field；
 - use / reference bit；
-- dirty bit。
+- **dirty bit**。
 
 #### TLB Hit
 
@@ -2885,7 +2885,7 @@ TLB[VPN] -> PPN
 PA = PPN || offset
 ```
 
-此时不需要访问 page table，地址翻译非常快。
+此时不需要访问 page table， **Address Translation** 非常快。
 
 #### TLB Miss
 
@@ -2915,7 +2915,7 @@ TLB miss 时：
    - `PPN || page offset` 形成最终 physical address。
 
 :::NOTE
-TLB 和 cache 的思想相同：把近期常用信息保存在小而快的结构中。区别在于 cache 缓存数据，TLB 缓存地址翻译结果。
+TLB 和 cache 的思想相同：把近期常用信息保存在小而快的结构中。区别在于 cache 缓存数据，TLB 缓存 **Address Translation** 结果。
 :::
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202605111839497.png" alt="Address Translation with Cache" style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
@@ -2933,21 +2933,21 @@ Page size 会影响 page table、TLB、page fault penalty 和空间浪费。
 - TLB miss 次数可能减少；
 - 从 secondary storage 调入调出时，较大块传输更高效。
 
-这类似 cache 中较大 block size 对 spatial locality 的利用。
+这类似 cache 中较大 block size 对 **spatial locality** 的利用。
 
 #### Larger Page Size 的代价
 
 更大的 page 也有明显代价：
 
-- 内部碎片更严重；
-- page fault 时一次调入更多数据，单次 miss penalty 更高；
+- **Internal Fragmentation** 更严重；
+- page fault 时一次调入更多数据，单次 **miss penalty** 更高；
 - 如果程序局部性不好，会搬入很多用不到的数据。
 
 #### Smaller Page Size 的优点
 
 更小的 page size 可以：
 
-- 减少内部碎片；
+- 减少 **Internal Fragmentation**；
 - 更精细地管理内存；
 - 对小对象和稀疏访问更友好。
 
@@ -2960,12 +2960,12 @@ Page size 会影响 page table、TLB、page fault penalty 和空间浪费。
 - 小页适合细粒度管理；
 - 大页适合大连续内存区域；
 - 大页能减少 TLB miss；
-- 某些程序中，TLB miss 对 CPI 的影响可以接近 cache miss。
+- 某些程序中，TLB miss 对 CPI 的影响可以接近 **cache miss**。
 
 
-### Address Translation with Cache
+### **Address Translation** with Cache
 
-一个完整的地址翻译例子：
+一个完整的 **Address Translation** 例子：
 
 - virtual address：64-bit；
 - physical address：41-bit；
@@ -3017,7 +3017,7 @@ TLB index = 8 bits
 TLB tag   = VPN - TLB index = 51 - 8 = 43 bits
 ```
 
-TLB 命中后输出 `PPN = 28 bits`，再与 13-bit page offset 拼接成 41-bit physical address。
+TLB 命中后输出 `PPN = 28 bits`，再与 13-bit **page offset** 拼接成 41-bit physical address。
 
 #### L1 Cache 位宽
 
@@ -3043,12 +3043,12 @@ L1 tag          = 41 - 7 - 6 = 28 bits
 L1 index + block offset = 7 + 6 = 13 bits = page offset
 ```
 
-page offset 在地址翻译前后不变，因此 L1 的 index 可以直接从 virtual address 的低 13 位中取出；同时，真正的 tag 比较仍然依赖翻译得到的 physical address 高位。
+**page offset** 在 **Address Translation** 前后不变，因此 L1 的 index 可以直接从 virtual address 的低 13 位中取出；同时，真正的 tag 比较仍然依赖翻译得到的 physical address 高位。
 
 :::TIP
 这就是很多处理器中常见的思路：
 
-- 用 page offset 中的位先索引 L1；
+- 用 **page offset** 中的位先索引 L1；
 - TLB 并行翻译得到 physical tag；
 - 再用 physical tag 做最终比较。
 
@@ -3085,7 +3085,7 @@ L2 tag          = 41 - 16 - 6 = 19 bits
 7. L2 miss：访问 main memory
 ```
 
-#### 地址翻译伪代码
+#### **Address Translation** 伪代码
 
 ```text
 function access(virtual_address):
@@ -3129,7 +3129,7 @@ function access(virtual_address):
 2. **Intel Core i7 6700**
    - 具有多级 cache；
    - L1、L2、L3 与 TLB 共同组成访存路径；
-   - 地址翻译和 cache access 在硬件中被尽可能并行化。
+   - **Address Translation** 和 cache access 在硬件中被尽可能并行化。
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202605111843808.png" alt="Intel Core i7 6700 Memory Hierarchy" style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
@@ -3177,7 +3177,7 @@ Time-sharing 让多个用户或多个程序共享 CPU 和 memory，并给每个�
 
 - 处理器状态可以被保存和恢复；
 - 用户态不能随便执行高权限操作；
-- 地址翻译与权限检查不能被用户程序绕过。
+- **Address Translation** 与权限检查不能被用户程序绕过。
 
 OS 设计者需要保证：
 
@@ -3248,7 +3248,7 @@ virtual address space -> physical memory / secondary storage
 它解决的是：
 
 - 地址空间抽象；
-- 地址翻译；
+- **Address Translation**；
 - 内存扩容；
 - 进程隔离；
 - 页级保护与共享。
@@ -3275,4 +3275,4 @@ VMM / hypervisor 向 guest OS 提供一个“像真实硬件一样”的抽象�
 
 - virtual memory 是 OS + MMU 提供的地址空间机制；
 - virtual machine 是 hypervisor 提供的机器级虚拟化机制；
-- 两者都会涉及地址翻译、权限保护和资源隔离。
+- 两者都会涉及 **Address Translation**、权限保护和资源隔离。

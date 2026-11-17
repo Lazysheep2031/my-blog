@@ -133,8 +133,8 @@ $$
 这里有几个关键词：
 
 1. **implementation technique**
-   - 流水线首先是“实现技术”，不是 ISA 本身；
-   - 同一套 ISA，可以有流水线实现，也可以没有。
+   - 流水线首先是“实现技术”，不是 **Instruction Set Architecture（指令集体系结构，ISA）** 本身；
+   - 同一套 **ISA**，可以有流水线实现，也可以没有。
 
 2. **overlapped execution**
    - 真正的收益来自多个阶段并行工作；
@@ -316,17 +316,17 @@ slides 里举的是浮点运算相关例子：同一组 segment 可以按不同�
 
 3. **Inter-processor pipelining**
    - 又叫 macro pipelining
-   - 多个处理机串接处理同一数据流
+   - 多个处理机串接处理同一 **Data Stream（数据流）**
    - 每个处理机负责大任务中的一个阶段
 
 这三个层次对应的是：
 
 - 部件内部的流水；
-- 单处理器内部的指令流水；
+- 单处理器内部的 **Instruction Stream（指令流）** 水；
 - 多处理器之间的宏观流水。
 
 
-### Linear 与 Nonlinear Pipelining
+### Linear 与 **Nonlinear Pipelining（非线性流水线）**
 
 1. **Linear pipelining**
 
@@ -335,7 +335,7 @@ slides 里举的是浮点运算相关例子：同一组 segment 可以按不同�
 
 2. **Nonlinear pipelining**
 
-非线性流水线中除了串联，还存在反馈路径。  
+**Nonlinear Pipeline** 中除了串联，还存在反馈路径。  
 因此同一个任务可能会 **再次回到某个已经经过的阶段** 。
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202603301119548.png" alt="Nonlinear Pipeline" style="width: 320px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
@@ -372,7 +372,7 @@ $$
 
 ### Scalar 与 Vector Pipelining
 
-1. **Scalar processor**
+1. **Scalar processor（标量处理器）**
 
 只处理标量数据，没有专门的向量表示和向量指令。
 
@@ -446,7 +446,7 @@ $$
 - 就能完成一个任务。
 
 
-### Speedup
+### **Speedup（加速比）**
 
 如果不用流水线，执行 $n$ 个任务需要：
 
@@ -454,7 +454,7 @@ $$
 T_{non}=nm\Delta t_0
 $$
 
-于是流水线的加速比为：
+于是流水线的 **Speedup** 为：
 
 $$
 Sp=\frac{T_{non}}{T_{pipe}}
@@ -468,7 +468,7 @@ $$
 Sp \approx m
 $$
 
-这说明在理想情况下，流水线的最大加速比接近阶段数。
+这说明在理想情况下，流水线的最大 **Speedup** 接近阶段数。
 
 
 ### Efficiency
@@ -492,7 +492,7 @@ $$
 - 管线建立和排空的损失相对可以忽略。
 
 
-### 当 stage 不均衡时：Bottleneck Segment
+### 当 stage 不均衡时： **Bottleneck Segment**
 
 真实流水线往往并不完美平衡。  
 如果各段时延分别是 $\Delta t_1,\Delta t_2,\dots,\Delta t_m$，则时钟周期必须至少取最大值：
@@ -507,7 +507,7 @@ $$
 T=\sum_{i=1}^{m}\Delta t_i + (n-1)\max(\Delta t_1,\Delta t_2,\dots,\Delta t_m)
 $$
 
-其中最长的那一段就叫 **bottleneck segment（瓶颈段）** 。
+其中最长的那一段就叫 **Bottleneck Segment** 。
 
 <img src = "https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202603301121538.png" alt="Bottleneck Segment" style="width: 620px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
@@ -524,7 +524,7 @@ $$
 也就是说，虽然大多数阶段都很快，但整个流水线节拍只能跟着最慢的 $S_2$ 走。
 
 
-### 解决瓶颈段的两种常见办法
+### 解决 **Bottleneck Segment** 的两种常见办法
 
 1. **Subdivision**
 
@@ -546,7 +546,7 @@ $$
 
 2. **Repetition**
 
-直接复制瓶颈段，做多个并行副本，再用 data distributor / collector 分配与收集数据。
+直接复制 **Bottleneck Segment**，做多个并行副本，再用 data distributor / collector 分配与收集数据。
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202603301125715.png" alt="Repetition" style="width: 320px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
@@ -657,7 +657,7 @@ $$
 - 某些段仍然会空闲；
 - 乘加之间还存在前后依赖。
 
-因此最终加速比并没有显著超过前一个静态例子。
+因此最终 **Speedup** 并没有显著超过前一个静态例子。
 
 
 ### 对流水线性能的几点讨论
@@ -666,7 +666,7 @@ $$
 
 本质不是把单条指令做得更“短”，而是把很多条指令 **重叠起来** ，从而提高吞吐率。
 
-2. **理想加速比为什么接近 stage 数**
+2. **理想Speedup为什么接近 stage 数**
 
 因为在完全平衡、无冲突、无额外开销时，稳态下每拍完成一个任务，而非流水线需要每个任务独占 $m$ 个阶段。
 
@@ -707,7 +707,7 @@ $$
 - clock skew
 - stage 不均衡
 - 多功能切换的空拍
-- 数据相关和控制相关造成的 stall
+- **Data Dependence（数据相关）** 和 **Control Dependence（控制相关）** 造成的 stall
 :::
 
 
@@ -749,7 +749,7 @@ $$
 这三类几乎覆盖了基础流水线里最重要的时序问题。
 
 
-### Data Dependence
+### **Data Dependence**
 
 最基本的真相关（true dependence）例子是：
 
@@ -761,15 +761,15 @@ FADD.D  F4, F0, F2
 这里第二条指令依赖第一条指令写回的 `F0`。  
 如果 `FLD` 还没有把数据准备好，`FADD.D` 就不能安全使用这个操作数。
 
-这类相关是真正的数据流关系，因此不能靠简单改名消除。
+这类相关是真正的 **Data Stream** 关系，因此不能靠简单改名消除。
 
 
-### Name Dependence
+### **Name Dependence（名相关）**
 
-name dependence 不是“值被依赖”，而是“名字撞上了”。  
+**name dependence** 不是“值被依赖”，而是“名字撞上了”。  
 slides 给了两个典型例子。
 
-1. **Anti-dependence（WAR）**
+1. **Anti-dependence（反相关）（WAR）**
 
 ```text
 FDIV.D  F2, F6, F4
@@ -786,9 +786,9 @@ FADD.D  S,  F0, F12
 FSUB.D  F8, S,  F14
 ```
 
-那么这类 name dependence 就被消除了。
+那么这类 **name dependence** 就被消除了。
 
-2. **Output-dependence（WAW）**
+2. **Output-dependence（输出相关）（WAW）**
 
 ```text
 FDIV.D  F2, F6, F4
@@ -796,17 +796,17 @@ FADD.D  F6, F0, F12
 FSUB.D  F2, F6, F14
 ```
 
-这里第一条和第三条都写 `F2`，于是发生 output dependence。  
+这里第一条和第三条都写 `F2`，于是发生 **output dependence**。  
 如果把其中一个写回目标改名为 `S`，就能消除这类“名字冲突”。
 
 要点是：
 
-- WAR / WAW 不反映真实数据流；
+- WAR / WAW 不反映真实 **Data Stream**；
 - 它们反映的是“同名寄存器造成的约束”；
-- register renaming 可以消除 name dependence。
+- **register renaming（寄存器重命名）** 可以消除 **name dependence**。
 
 
-### Control Dependence
+### **Control Dependence**
 
 
 ```text
@@ -902,10 +902,10 @@ FSUB.D  F2, F6, F14
 ```
 
 在基础、顺序发射的整数流水线里，真正最常见的是 RAW；  
-WAR 和 WAW 更容易在乱序执行、多周期功能部件里变得显著。
+WAR 和 WAW 更容易在 **Out-of-Order Execution（乱序执行）**、多周期功能部件里变得显著。
 
 
-### Forwarding：最常见的数据冒险缓解方法
+### **Forwarding（数据前递）**：最常见的数据冒险缓解方法
 
 **forwarding** 也叫 **bypassing** 。  
 它的思想非常直接：
@@ -915,20 +915,20 @@ WAR 和 WAW 更容易在乱序执行、多周期功能部件里变得显著。
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202603301143960.png" alt="Forwarding" style="width: 520px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
-也就是说，forwarding 缩短的是“生产者计算完成”与“消费者拿到结果”之间的路径。
+也就是说， **forwarding** 缩短的是“生产者计算完成”与“消费者拿到结果”之间的路径。
 
 这在 ALU-ALU 依赖中尤其有效。
 
-但要注意，forwarding 不是万能的。  
+但要注意， **forwarding** 不是万能的。  
 
 > **Can’t forward backward in time.**
 
-也就是说，如果消费者需要值的时刻早于生产者真正产生值的时刻，那么单纯 forwarding 仍然不够，还是得 stall。
+也就是说，如果消费者需要值的时刻早于生产者真正产生值的时刻，那么单纯 **forwarding** 仍然不够，还是得 stall。
 
 
 ### Load-Use Hazard
 
-最典型的 forwarding 也救不了的例子是 **load-use hazard** ：
+最典型的 **forwarding** 也救不了的例子是 **load-use hazard** ：
 
 ```text
 LD    R1, 0(R2)
@@ -944,7 +944,7 @@ XOR   R8, R1, R9
 
 因此这时通常要：
 
-- 插入 1 个 bubble；
+- 插入 1 个 **bubble**；
 - 等 `LD` 的数据到位后，再 forward 给后面的 EX。
 
 不过这里有一个 slides 里也单独举出来的 **特殊情况** ：
@@ -954,7 +954,7 @@ LD    R5, 0(R1)
 SD    R5, 12(R1)
 ```
 
-如果 `Load` 后面紧跟的是 `Store`，而相关寄存器只是作为 **store data** 被后一条指令使用，那么很多实现可以把 `LD` 读出的结果直接 forwarding 到 store 的数据通路上。  
+如果 `Load` 后面紧跟的是 `Store`，而相关寄存器只是作为 **store data** 被后一条指令使用，那么很多实现可以把 `LD` 读出的结果直接 **forwarding** 到 store 的数据通路上。  
 也就是说，这一类 `load -> store` 相关不一定需要额外停顿，不必机械地把它和普通的 load-use hazard 归为同一种情况。
   
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202603301144254.png" alt="Load-Use Hazard" style="width: 520px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
@@ -1041,10 +1041,10 @@ sw   $t5, 16($t0)
 重点在于：
 
 - 哪些指令之间有真正依赖；
-- 哪些独立指令可以前移填补 bubble。
+- 哪些独立指令可以前移填补 **bubble**。
 
 
-## Data Hazards: Forwarding vs. Stalling
+## Data Hazards: **Forwarding** vs. Stalling
 
 这里则进一步讨论：
 
@@ -1055,7 +1055,7 @@ sw   $t5, 16($t0)
 
 ### 一个基础序列
 
-下面这组 ALU 指令来引出 forwarding 检测：
+下面这组 ALU 指令来引出 **forwarding** 检测：
 
 ```text
 sub  $2,  $1, $3
@@ -1095,12 +1095,12 @@ sw   $15, 100($2)
 3. `MEM/WB.RegisterRd == ID/EX.RegisterRs`
 4. `MEM/WB.RegisterRd == ID/EX.RegisterRt`
 
-就能知道是否存在需要前递的依赖。
+就能知道是否存在需要 **Forwarding** 的依赖。
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202603301148794.png" alt="Forwarding" style="width: 500px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
 
-### Forwarding 的基本条件
+### **Forwarding** 的基本条件
 
 但仅仅寄存器号相等还不够，slides 还强调了两个额外限制：
 
@@ -1112,7 +1112,7 @@ sw   $15, 100($2)
    - `EX/MEM.RegisterRd != 0`
    - `MEM/WB.RegisterRd != 0`
 
-于是常见 forwarding 条件写成：
+于是常见 **forwarding** 条件写成：
 
 #### EX hazard
 
@@ -1172,7 +1172,7 @@ add  $1, $1, $4
 只有在 EX hazard 不成立时，才允许使用 MEM/WB 的结果做 forwarding
 ```
 
-这一步非常关键，因为它体现了 forwarding 并不是“有匹配就转发”，而是要保证拿到的是 **最新版本** 。
+这一步非常关键，因为它体现了 **forwarding** 并不是“有匹配就转发”，而是要保证拿到的是 **最新版本** 。
 
 
 ### Load-Use Hazard 的检测条件
@@ -1194,10 +1194,10 @@ if (ID/EX.MemRead and
 - 它将写回的目标寄存器，正是下一条正在 ID 阶段译码指令要用的源寄存器。
 
 这里同样要注意一个实现层面的特例：  
-如果下一条指令是 `store`，并且相关寄存器只是用作待写回内存的数据，那么可以单独为 store data path 增加 forwarding，把 `load` 的结果直接送过去。  
+如果下一条指令是 `store`，并且相关寄存器只是用作待写回内存的数据，那么可以单独为 store data path 增加 **forwarding**，把 `load` 的结果直接送过去。  
 因此 `load -> store` 不一定都要按“普通 load-use hazard”处理成 1 个 stall。
 
-一旦检测到这种情况，就必须 stall 并插入 bubble。
+一旦检测到这种情况，就必须 stall 并插入 **bubble**。
 
 
 ### How to Stall the Pipeline
@@ -1210,13 +1210,13 @@ stall 的实现：
 
 2. **把 ID/EX 中的控制信号清零**
    - 让 EX、MEM、WB 看起来像在执行一个 `nop`
-   - 这就相当于插入了一个 bubble
+   - 这就相当于插入了一个 **bubble**
 
 3. **等待 1 个周期**
    - 让 load 在 MEM 阶段把数据真正读出来
    - 下一拍再把它 forward 给 EX
 
-因此，bubble 的本质并不是“整条流水线全停住”，而是：
+因此， **bubble** 的本质并不是“整条流水线全停住”，而是：
 
 - 前半段冻结；
 - 中间插一个空操作；
@@ -1226,7 +1226,7 @@ stall 的实现：
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202603301149767.png" alt="Hazard Detection" style="width: 600px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
 
-## Control Hazards and Dynamic Branch Prediction
+## Control Hazards and **Dynamic Branch Prediction（动态分支预测）**
 
 ### 为什么 branch 会破坏流水线
 
@@ -1296,13 +1296,13 @@ control hazard 的根源是：
 这种策略的特点是：
 
 - 对“not taken” 分支几乎没有额外代价；
-- 对“taken” 分支要承担 flush penalty。
+- 对“taken” 分支要承担 **flush** penalty。
 
 
 
-### Static Branch Prediction
+### **Static Branch Prediction（静态分支预测）**
 
-在真正进入动态预测前，slides 还先提了一种更朴素的思路： **static branch prediction（静态分支预测）** 。
+在真正进入动态预测前，slides 还先提了一种更朴素的思路： **Static Branch Prediction** 。
 
 它不是根据运行历史来猜，而是根据“这类 branch 通常长什么样”来猜。  
 slides 给出的经验规则是：
@@ -1320,9 +1320,9 @@ slides 给出的经验规则是：
 这类规则虽然粗糙，但实现简单，在没有复杂预测器时也能带来一定收益。
 
 
-### Delayed Branch
+### **Delayed Branch（延迟分支）**
 
-另一种经典思路是 **delayed branch（延迟分支）** 。  
+另一种经典思路是 **Delayed Branch** 。  
 其核心语义是：
 
 > 分支后的那一条 delay slot 指令，无论 branch 最终是否跳转，都会执行。
@@ -1336,28 +1336,28 @@ slides 给出的经验规则是：
 
 但缺点也很明显：
 
-- ISA 语义变复杂；
+- **ISA** 语义变复杂；
 - 编译器负担加重；
 - 对深流水线和复杂实现并不友好。
 
 slides 后面借 RISC-V 手册专门提醒：  
-**RISC-V base ISA 不采用 branch delay slot** 。
+**RISC-V base ISA 不采用 branch delay slot（分支延迟槽）** 。
 
 :::note
-延迟分支是理解经典 RISC 流水线非常重要的概念，但现代 ISA 未必继续保留它。  
+**Delayed Branch** 是理解经典 RISC 流水线非常重要的概念，但现代 **ISA** 未必继续保留它。  
 这一点在考试中常用来比较 “经典 MIPS 风格” 与 “现代 RISC-V 风格”。
 :::
 
 
-### Branch Operand 的数据相关
+### Branch Operand 的 **Data Dependence**
 
-分支本身还会受到数据相关影响。  
+分支本身还会受到 **Data Dependence** 影响。  
 因为 branch 需要比较寄存器，如果这些寄存器恰好是前面指令刚写出来的，那么 branch 也可能要等。
 
 三种情况：
 
 1. 若比较寄存器来自前面第 2 或第 3 条 ALU 指令
-   - 可通过 forwarding 解决
+   - 可通过 **forwarding** 解决
 
 2. 若比较寄存器来自紧前一条 ALU 指令，或前面第 2 条 load 指令
    - 需要 **1 个 stall cycle**
@@ -1371,18 +1371,18 @@ slides 后面借 RISC-V 手册专门提醒：
 - branch 自己使用的操作数，也可能触发 data hazard。
 
 
-### Dynamic Branch Prediction
+### **Dynamic Branch Prediction**
 
-随着流水线变深、甚至进入 superscalar 场景，branch penalty 会越来越不能接受。  
-于是就需要 **dynamic branch prediction（动态分支预测）** 。
+随着流水线变深、甚至进入 **superscalar（超标量）** 场景，branch penalty 会越来越不能接受。  
+于是就需要 **Dynamic Branch Prediction** 。
 
 它的基本思路是：
 
 - 硬件记录历史行为；
 - 下次遇到同一个 branch 时，猜它会延续之前的趋势；
-- 如果猜错，就 flush 并更新历史。
+- 如果猜错，就 **flush** 并更新历史。
 
-首先给出的是 **BHT（Branch History Table）** ，也叫 branch prediction buffer。
+首先给出的是 **BHT（Branch History Table）** ，也叫 **branch prediction（分支预测）** buffer。
 
 它通常：
 
@@ -1457,7 +1457,7 @@ slides 后面借 RISC-V 手册专门提醒：
 这个表反映出 BTB 的核心收益：
 
 - 猜对且命中时，taken branch 可以做到 **0 额外延迟** ；
-- 猜错时仍要付出 flush 代价。
+- 猜错时仍要付出 **flush** 代价。
 
 BTB 的进一步好处：
 
@@ -1472,28 +1472,28 @@ BTB 的进一步好处：
 随着前端越来越复杂，instruction fetch 也不再只是一个简单 stage。  
 **integrated instruction fetch unit** 会把几件事情整合在一起：
 
-- integrated branch prediction
+- integrated **branch prediction**
 - instruction prefetch
 - instruction memory access and buffering
 
 也就是说，现代前端并不是“先取指，再单独预测，再单独访问 cache”，而是把这些功能高度耦合起来共同为高吞吐服务。
 
 
-## Schedule of Nonlinear Pipelining
+## Schedule of **Nonlinear Pipelining**
 
 前面大部分内容都围绕线性指令流水线展开。  
-这一节讨论的是更抽象也更理论化的内容： **非线性流水线的调度** 。
+这一节讨论的是更抽象也更理论化的内容： **Nonlinear Pipeline的调度** 。
 
-由于非线性流水线存在反馈路径，同一个任务可能重复占用某个 stage。  
+由于 **Nonlinear Pipeline** 存在反馈路径，同一个任务可能重复占用某个 stage。  
 于是问题变成：
 
 - 新任务能否在某个时刻进入？
 - 如果进入，会不会和已有任务在某个 stage、某个时刻发生冲突？
 
 
-### Reservation Table
+### **Reservation Table（预约表）**
 
-分析这类问题最常见的工具是 **reservation table（预约表）** 。
+分析这类问题最常见的工具是 **Reservation Table** 。
 
 它的做法是：
 
@@ -1501,11 +1501,11 @@ BTB 的进一步好处：
 - 列表示相对时间槽
 - 在某个格子里打勾，表示某个任务在该时刻占用了该 stage
 
-一条任务在不同时间槽里反复使用某些 stage，于是就形成了一个具有反馈特征的预约表。
+一条任务在不同时间槽里反复使用某些 stage，于是就形成了一个具有反馈特征的 **Reservation Table**。
 
-预约表的作用是：
+**Reservation Table** 的作用是：
 
-- 把“一个任务自身怎样走完整条非线性流水线”表示清楚；
+- 把“一个任务自身怎样走完整条 **Nonlinear Pipeline** ”表示清楚；
 - 然后据此分析两个不同任务是否会撞车。
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202603301348149.png" alt="reservation table" style="width: 500px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
@@ -1513,7 +1513,7 @@ BTB 的进一步好处：
 
 ### Initial Conflict Vector
 
-从 reservation table 可以推出 **prohibit sets（禁止延迟集合）** 。  
+从 **reservation table** 可以推出 **prohibit sets（禁止延迟集合）** 。  
 slides 给出的样例是：
 
 $$
@@ -1603,9 +1603,9 @@ $$
 $$
 
 
-### State Transition Graph
+### **State Transition Graph（状态转移图）**
 
-为了系统枚举所有可能的合法调度，slides 又引入了 **state transition graph（状态转移图）** 。
+为了系统枚举所有可能的合法调度，slides 又引入了 **State Transition Graph** 。
 
 图中的：
 

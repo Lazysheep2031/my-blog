@@ -9,7 +9,7 @@ draft: false
 
 ## Database Storage Architecture
 
-数据库里的数据要持久保存，所以最终会放在 **non-volatile storage** 上，例如：
+数据库里的数据要持久保存，所以最终会放在 **non-volatile storage（非易失存储）** 上，例如：
 
 - magnetic disk
 - SSD
@@ -62,13 +62,13 @@ disk / SSD
 - 不同 relation 使用不同 file
 - record 不跨越 block boundary
 
-这样实现最简单，但真实数据库中经常会出现可变长度字段，所以还需要处理 variable-length records。
+这样实现最简单，但真实数据库中经常会出现可变长度字段，所以还需要处理 **variable-length records（变长记录）**。
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202604281457791.png" alt="Fixed-Length Records" style="width: 520px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
-### Fixed-Length Records
+### **Fixed-Length Records（定长记录）**
 
-**定长记录** 指每条 record 占用相同字节数。
+**Fixed-Length Record** 指每条 record 占用相同字节数。
 
 假设每条 record 长度为 `n` bytes，那么一个简单存储方式是：
 
@@ -106,7 +106,7 @@ record i starts at byte n × (i - 1)
 
 这样会浪费 block 末尾的一点空间，但能避免一次访问需要读两个 block。
 
-### 删除定长记录
+### 删除 **Fixed-Length Record**
 
 删除 record `i` 有三种策略。
 
@@ -170,17 +170,17 @@ record i, ..., record n-1
 3. 更新 header，指向下一个空闲位置。
 4. 如果没有空闲位置，就追加到文件末尾。
 
-这也是定长记录里最常用、最自然的删除处理方式。
+这也是 **Fixed-Length Record** 里最常用、最自然的删除处理方式。
 
-### Variable-Length Records
+### **Variable-Length Records**
 
-**变长记录** 出现的原因主要有三类：
+**Variable-Length Record** 出现的原因主要有三类：
 
 - 一个 file 里存多种 record type
 - record 中有变长字段，例如 `varchar`
-- record 中有重复字段，例如数组、集合、multiset
+- record 中有重复字段，例如数组、集合、 **multiset（多重集）**
 
-变长记录需要解决两个问题：
+**Variable-Length Record** 需要解决两个问题：
 
 1. 一条 record 内部怎么表示，才能快速取出各个 attribute？
 2. 一个 block 内部怎么放多条变长 record，才能方便插入、删除和移动？
@@ -213,7 +213,7 @@ record i, ..., record n-1
 
 ### Slotted Page Structure
 
-变长记录真正放进 block 时，常用 **slotted page（分槽页）** 。
+**Variable-Length Record** 真正放进 block 时，常用 **slotted page（分槽页）** 。
 
 一个 slotted page 由两部分组成：
 
@@ -258,7 +258,7 @@ header 中保存：
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202604281513789.png" alt="Slotted Page Structure" style="width: 520px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
-### Large Objects
+### **Large Objects（大对象）**
 
 有些属性可能远大于一个 block，例如：
 
@@ -270,17 +270,17 @@ header 中保存：
 
 SQL 中常见类型：
 
-- **BLOB** ：binary large object
-- **CLOB** ：character large object
+- **BLOB** ：binary **large object**
+- **CLOB** ：character **large object**
 
 数据库通常采用下面的处理方式：
 
-- 大对象单独存储
-- record 中只保存指向大对象的 logical pointer
+- **Large Object** 单独存储
+- record 中只保存指向 **Large Object** 的 logical pointer
 
 这样可以避免普通 record 超过 block size。
 
-大对象也可以放在数据库外部文件系统中，只在数据库里保存文件路径。但这样会带来两个问题：
+**Large Object** 也可以放在数据库外部文件系统中，只在数据库里保存文件路径。但这样会带来两个问题：
 
 - 文件可能被外部删除，导致数据库中的路径失效
 - 数据库自身的权限控制无法直接约束外部文件
@@ -297,10 +297,10 @@ record 在 file 里可以有多种组织方式：
 | File Organization | 核心思想 | 适合场景 |
 |---|---|---|
 | Heap | record 可以放在任意有空间的位置 | 插入多、无序访问 |
-| Sequential | 按 search key 顺序存放 | 顺序扫描、范围处理 |
+| Sequential | 按 **search key（搜索键）** 顺序存放 | 顺序扫描、范围处理 |
 | Multitable Clustering | 多个 relation 的相关记录放在一起 | join 很频繁 |
 | B+-tree | 用 B+-tree 保持有序并支持高效插删 | 有序访问 + 点查 |
-| Hashing | 对 search key 做 hash 决定 block | 等值查找 |
+| Hashing | 对 **search key** 做 hash 决定 block | 等值查找 |
 
 ### Heap File Organization
 
@@ -380,7 +380,7 @@ second level:      4   |     7   |     2   |     6
 
 注意：
 
-> search key 不一定是 primary key，也不一定是 superkey。
+> **search key** 不一定是 **primary key（主键）**，也不一定是 **superkey（超键）**。
 
 例如 instructor records 可以按 `ID` 排序：
 
@@ -391,7 +391,7 @@ second level:      4   |     7   |     2   |     6
 优点：
 
 - 适合顺序处理整个文件
-- 适合按 search key 做范围扫描
+- 适合按 **search key** 做范围扫描
 - 对某些排序、连接算法有帮助
 
 为了维持 search-key order，record 通常会带有 pointer，指向逻辑上的下一条 record。
@@ -500,7 +500,7 @@ transaction_2019
 优点：
 
 - 减少每个 partition 的 free-space 管理成本
-- 查询带 partition key 条件时，只访问相关 partition
+- 查询带 **partition key（分区键）** 条件时，只访问相关 partition
 - 不同 partition 可以放在不同存储设备上
 
 例如：
@@ -511,19 +511,19 @@ transaction_2019
 缺点：
 
 - 如果查询没有 partition 条件，仍要访问所有 partitions
-- 分区键选得不好，会导致负载不均匀
+- **Partition Key** 选得不好，会导致负载不均匀
 - 维护复杂度上升
 
 
 ## Data-Dictionary Storage
 
-**Data dictionary** 也叫 **system catalog** ，保存的是 metadata。
+**Data dictionary（数据字典）** 也叫 **system catalog** ，保存的是 **metadata（元数据）**。
 
-metadata 就是：
+**metadata** 就是：
 
 > data about data。
 
-数据库需要保存的 metadata 包括：
+数据库需要保存的 **metadata** 包括：
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202604281523083.png" alt="Relational Representation of System Metadata" style="width: 520px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
@@ -533,7 +533,7 @@ metadata 就是：
 - 每个 relation 的 attributes
 - attributes 的 types 和 lengths
 - views 的 names 和 definitions
-- integrity constraints
+- **integrity constraints（完整性约束）**
 
 ### User 与权限信息
 
@@ -561,7 +561,7 @@ metadata 就是：
 - indexed attributes
 - index type
 
-一种简化的 metadata schema 可以写成：
+一种简化的 **metadata** schema 可以写成：
 
 ```text
 Relation_metadata(relation_name, number_of_attributes, storage_organization, location)
@@ -573,10 +573,10 @@ User_metadata(user_name, encrypted_password, group)
 
 关键点：
 
-- data dictionary 本身也可以用 relation 表示
+- **data dictionary** 本身也可以用 relation 表示
 - 它相当于一个“关于数据库的小数据库”
 - 真实系统中会保存更多字段
-- 为了快速访问，启动数据库时常把 system metadata 读入内存
+- 为了快速访问，启动数据库时常把 system **metadata** 读入内存
 
 有一个 bootstrap 问题：
 
@@ -595,7 +595,7 @@ block 是存储分配和数据传输的单位。
 
 因此会在内存中开辟一块区域：
 
-- **buffer** ：main memory 中用于缓存 disk blocks 的区域
+- **buffer** ：main memory 中用于缓存 **disk blocks（磁盘块）** 的区域
 - **buffer manager** ：负责分配和管理 buffer space 的子系统
 
 基本思想：
@@ -808,7 +808,7 @@ for each tuple tr of r do
         if tr and ts match then output
 ```
 
-如果 `s` 被反复全表扫描，LRU 可能表现很差。
+如果 `s` 被反复 **Full Table Scan（全表扫描）**，LRU 可能表现很差。
 
 原因：
 
@@ -917,7 +917,7 @@ buffer 允许写操作先发生在内存中，稍后再写回 disk。
 
 现代文件系统通常用 **journaling** 缓解这一问题：
 
-- 先把写操作顺序记录到 log disk / journal
+- 先把写操作顺序记录到 **log disk（日志磁盘）** / journal
 - 实际数据可以稍后写回真实位置
 - 崩溃后根据 journal 重做未完成写入
 
@@ -927,9 +927,9 @@ buffer 允许写操作先发生在内存中，稍后再写回 disk。
 > buffer manager 不能随意写回 dirty block，它必须和 recovery subsystem 协调。
 
 
-## Column-Oriented Storage
+## **Column-Oriented Storage（列式存储）**
 
-### Row Store 与 Column Store
+### **Row Store（行式存储）** 与 **Column Store**
 
 传统数据库通常使用 **row-oriented storage** ：
 
@@ -956,7 +956,7 @@ salary column:    65000, 90000, 40000, ...
 
 如果要重构第 `i` 行 tuple，需要从每个 column 的第 `i` 个位置取值，然后拼回 tuple。
 
-### 列式存储的优点
+### **Column Store** 的优点
 
 #### Reduced I/O
 
@@ -971,17 +971,17 @@ from instructor;
 
 只需要读 `salary` 列，不需要读 `ID`、`name`、`dept_name`。
 
-列式存储可以显著减少 I/O。
+**Column Store** 可以显著减少 I/O。
 
 #### Improved CPU Cache Performance
 
 现代 CPU 会按 cache line 读取连续内存。
 
-列式存储中，相邻字节往往属于同一 column。
+**Column Store** 中，相邻字节往往属于同一 column。
 
 如果查询正在扫描 `salary`，cache line 里大多都是有用的 salary values。
 
-行式存储中，相邻字节会混合 ID、name、dept_name、salary，很多字段对当前查询没用，浪费 cache。
+**Row Store** 中，相邻字节会混合 ID、name、dept_name、salary，很多字段对当前查询没用，浪费 cache。
 
 #### Improved Compression
 
@@ -993,19 +993,19 @@ from instructor;
 - salary 都是数字
 - ID 长度和格式相似
 
-所以列式存储更容易压缩。
+所以 **Column Store** 更容易压缩。
 
 压缩的收益：
 
 - 减少磁盘 I/O
 - 减少内存占用
-- 对数据仓库尤其重要
+- 对 **Data Warehouse（数据仓库）** 尤其重要
 
 #### Vector Processing
 
 现代 CPU 支持 vector processing。
 
-列式存储把同一列连续放置，适合批量执行：
+**Column Store** 把同一列连续放置，适合批量执行：
 
 - 比较一列是否满足条件
 - 对一列做聚合
@@ -1021,7 +1021,7 @@ where salary > 80000;
 
 可以对 salary column 做连续扫描和向量化比较。
 
-### 列式存储的代价
+### **Column Store** 的代价
 
 #### Tuple Reconstruction Cost
 
@@ -1033,17 +1033,17 @@ from instructor
 where ID = '10101';
 ```
 
-列式存储需要从多个 column 中取出同一行位置的值，再重构 tuple。
+**Column Store** 需要从多个 column 中取出同一行位置的值，再重构 tuple。
 
 这会带来额外成本。
 
 #### Tuple Deletion and Update Cost
 
-列式存储常配合压缩。
+**Column Store** 常配合压缩。
 
 如果单独更新或删除一条 tuple，可能需要改写压缩块中的大量数据。
 
-所以列式存储不适合频繁小更新。
+所以 **Column Store** 不适合频繁小更新。
 
 #### Decompression Cost
 
@@ -1055,8 +1055,8 @@ where ID = '10101';
 
 | 存储方式 | 更适合 |
 |---|---|
-| Row-oriented storage | OLTP，事务处理，频繁点查和更新 |
-| Column-oriented storage | OLAP，决策支持，数据分析，大量扫描少数列 |
+| **Row-oriented storage** | OLTP，事务处理，频繁点查和更新 |
+| **Column-oriented storage** | OLAP，决策支持，数据分析，大量扫描少数列 |
 
 
 ### ORC 与 Parquet
@@ -1099,16 +1099,16 @@ ORC File
 - 查询可以跳过不需要的 group，减少 I/O
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202604281613053.png" alt="ORC File Format" style="width: 520px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
-### Hybrid Row/Column Store
+### Hybrid Row/ **Column Store**
 
-有些数据库同时支持 row store 和 column store，称为：
+有些数据库同时支持 **row store** 和 **column store**，称为：
 
 > hybrid row/column stores
 
 典型思路：
 
-- 新写入、频繁更新的数据放 row store
-- 稳定后、用于分析的数据迁移到 column store
+- 新写入、频繁更新的数据放 **row store**
+- 稳定后、用于分析的数据迁移到 **column store**
 
 这样可以同时服务：
 
@@ -1117,7 +1117,7 @@ ORC File
 
 还有一种折中方案：
 
-> 在一个 disk block 内部使用 column-oriented layout。
+> 在一个 **disk block** 内部使用 column-oriented layout。
 
 这样：
 
@@ -1128,7 +1128,7 @@ ORC File
 这介于纯行式和纯列式之间。
 
 
-## Main-Memory Databases
+## **Main-Memory Databases（主存数据库）**
 
 随着内存容量变大，有些数据库可以整体放入 main memory。
 
@@ -1138,8 +1138,8 @@ ORC File
 
 它和“传统数据库把 buffer 设得很大”有区别：
 
-- 传统数据库仍以 disk block 为核心组织单位
-- main-memory database 可以直接围绕内存指针和内存布局优化
+- 传统数据库仍以 **disk block** 为核心组织单位
+- **main-memory database** 可以直接围绕内存指针和内存布局优化
 
 主要特点：
 
@@ -1169,16 +1169,16 @@ memory pointer → record
 
 如果使用 slotted page，record 可能因为 page 内重组而移动。
 
-所以 main-memory database 常直接在内存中分配 records，并尽量保证 record 不因其他 record 更新而移动。
+所以 **main-memory database** 常直接在内存中分配 records，并尽量保证 record 不因其他 record 更新而移动。
 
 问题：
 
 - variable-size records 反复插入删除会造成 memory fragmentation
 - 系统需要内存管理策略或周期性 compaction
 
-### 内存中的列式存储
+### 内存中的 **Column Store**
 
-main-memory database 也可以使用 column-oriented storage。
+**main-memory database** 也可以使用 **column-oriented storage**。
 
 例如每一列是一个逻辑数组。
 

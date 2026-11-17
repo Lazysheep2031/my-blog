@@ -20,7 +20,7 @@ Differential equations can be classified by:
 - type: ODE / PDE
 - order: highest derivative
 - linearity: linear / nonlinear
-- homogeneity: homogeneous / nonhomogeneous
+- homogeneity: **homogeneous（齐次）** / **nonhomogeneous（非齐次）**
 
 **Mathematical modeling**
 ODEs are used to model changing quantities in physics, ecology, engineering, etc.
@@ -31,14 +31,14 @@ Typical variables:
 **Meaning of a solution**
 A function $y=\phi(x)$ is a solution if it satisfies the ODE identically on an interval.
 
-**General vs particular solution**
-- General solution: a family of parametrized solutions
-- Particular solution: one specific solution selected by extra conditions
+**General vs particular solution（特解）**
+- **General solution（通解）**: a family of parametrized solutions
+- **Particular solution**: one specific solution selected by extra conditions
 
 **Subsidiary conditions**
-To determine a unique particular solution, we usually need:
-- initial condition
-- boundary condition
+To determine a unique **particular solution**, we usually need:
+- **initial condition（初始条件）**
+- **boundary condition（边界条件）**
 
 Not every ODE has a solution, and not every solution is unique.
 
@@ -85,14 +85,14 @@ $$
 
 往往本身就是一个解。
 
-这个解有时会包含在通解里，有时 **不会** ，所以一定要单独检查。
+这个解有时会包含在 **General Solution** 里，有时 **不会** ，所以一定要单独检查。
 
 > [!TIP]
-> **分离变量时如果除掉了某个可能为 0 的因子，可能会漏掉解。**
+> **Separation of Variables（分离变量）时如果除掉了某个可能为 0 的因子，可能会漏掉解。**
 
 ### Solution Types: Implicit, General, and Singular
 
-#### Implicit Solution
+#### **Implicit Solution（隐式解）**
 
 例如
 
@@ -116,7 +116,7 @@ $$
 x^2+y^2=4
 $$
 
-是微分方程的一个隐式解。
+是微分方程的一个 **Implicit Solution**。
 
 它对应两个显式分支：
 
@@ -129,8 +129,8 @@ $$
 </details>
 
 
-#### General Solution
-带任意常数 $C$ 的解族通常叫通解。
+#### **General Solution**
+带任意常数 $C$ 的解族通常叫 **General Solution**。
 
 例如：
 
@@ -144,15 +144,15 @@ $$
 y=1+(x^2+C)^3
 $$
 
-都属于通解族。
+都属于 **General Solution** 族。
 
-#### Singular Solution
-奇异解是：
+#### **Singular Solution（奇异解）**
+**Singular Solution** 是：
 
-> 是原方程的解，但 **不能** 通过通解中取某个常数得到。
+> 是原方程的解，但 **不能** 通过 **General Solution** 中取某个常数得到。
 
 :::warning
-奇异解会在分离变量中被漏掉
+**Singular Solution** 会在 **Separation of Variables** 中被漏掉
 
 考虑
 
@@ -180,7 +180,7 @@ $$
 (y-1)^{1/3}=x^2+C
 $$
 
-所以通解是
+所以 **General Solution** 是
 
 $$
 \boxed{y=1+(x^2+C)^3}
@@ -210,10 +210,10 @@ $$
 
 对所有 $x$ 成立。
 
-所以 $y\equiv 1$ 是一个 **奇异解** 。
+所以 $y\equiv 1$ 是一个 **Singular Solution** 。
 
 
-在分离变量时你实际上做了
+在 **Separation of Variables** 时你实际上做了
 
 $$
 \frac{1}{(y-1)^{2/3}}
@@ -232,9 +232,9 @@ $$
 
 这说明：
 
-**同一个初值问题，解可能不唯一。**
+**同一个Initial Value Problem（初值问题，IVP），解可能不唯一。**
 
-而这正和存在唯一性定理呼应：  
+而这正和 **Existence and Uniqueness Theorem（存在唯一性定理）** 呼应：  
 这里右端 $f(x,y)=6x(y-1)^{2/3}$ 在 $y=1$ 附近关于 $y$ 的性质不够好，所以唯一性会失效。
 
 </details>
@@ -295,7 +295,7 @@ $$
 P(t)=\frac{M}{Ce^{-kt}+1}
 $$
 
-再由 $P(0)=P_0$ 确定 $C$，得到特解。
+再由 $P(0)=P_0$ 确定 $C$，得到 **Particular Solution**。
 
 代入初值后的常见结果:
 
@@ -314,7 +314,7 @@ P(t)=\frac{MP_0}{(M-P_0)e^{-kt}+P_0}
 $$
 
 $P=0$ 和 $P=M$ 也是常数解，需要单独检查；  
-它们有时能在通解表达式中体现出来，有时最好单独写明。
+它们有时能在 **General Solution** 表达式中体现出来，有时最好单独写明。
 
 #### Torricelli’s law
 
@@ -382,7 +382,7 @@ $$
 \frac{dy}{dx}=g\!\left(\frac{y}{x}\right)
 $$
 
-这种方程右边只依赖于比值 $y/x$，叫 **equidimensional equation** （也常被称作 homogeneous type）。
+这种方程右边只依赖于比值 $y/x$，叫 **equidimensional equation** （也常被称作 **homogeneous** type）。
 
 **标准换元** :
 
@@ -442,7 +442,7 @@ $$
 xu'=\sqrt{1-u^2}
 $$
 
-从而分离变量：
+从而 **Separation of Variables**：
 
 $$
 \frac{du}{\sqrt{1-u^2}}=\frac{dx}{x}
@@ -474,7 +474,7 @@ $$
 \boxed{y=\pm x}
 $$
 
-这又是“分离变量时可能漏掉特殊解”的同一类问题。
+这又是“ **Separation of Variables** 时可能漏掉特殊解”的同一类问题。
 
 </details>
 
@@ -555,13 +555,13 @@ $$
 - 观察线性分式是否可化简
 
 **Step 2：Solve**
-分离变量并积分。
+**Separation of Variables** 并积分。
 
 **Step 3：Check lost / special solutions**
 检查：
 
 - 有没有在约分时漏掉的常数解
-- 有没有奇异解
+- 有没有 **Singular Solution**
 - 解是否满足原方程
 
 **Step 4：Use initial condition**
@@ -571,19 +571,19 @@ $$
 答案要写清：
 
 - 显式 or 隐式
-- 特解 or 通解
-- 是否还有额外常数解/奇异解
+- **Particular Solution** or **General Solution**
+- 是否还有额外常数解/ **Singular Solution**
 - 定义区间
 
 ## Linear First-Order Equations
 
-**一阶线性微分方程** ：
+**First-Order Linear Differential Equation（一阶线性微分方程）** ：
 
 **标准形式** ：
 
 $$\boxed{y'+P(x)y=Q(x)}$$
 
-### Homogeneous vs Nonhomogeneous
+### **Homogeneous** vs **Nonhomogeneous**
 
 对线性方程
 
@@ -594,16 +594,16 @@ $y'+P(x)y=Q(x)$
 
 $$\boxed{y'+P(x)y=0}$$
 
-称为 **齐次（homogeneous）** 线性方程。
+称为 **Homogeneous** 线性方程。
 
 
 若$Q(x)\not\equiv 0$,则方程为
 
 $$\boxed{y'+P(x)y=Q(x)}$$
 
-称为 **非齐次（nonhomogeneous）** 线性方程。
+称为 **Nonhomogeneous** 线性方程。
 
-### Integrating Factor Method
+### **Integrating Factor Method（积分因子法）**
 
 对方程
 
@@ -628,13 +628,13 @@ $$
 \ln \rho=\int P(x)\,dx
 $$
 
-所以积分因子可取为
+所以 **Integrating Factor（积分因子）** 可取为
 
 $$
 \boxed{\rho(x)=e^{\int P(x)\,dx}}
 $$
 
-乘上积分因子后：
+乘上 **Integrating Factor** 后：
 
 $$
 \rho y'+\rho P y=\rho Q
@@ -652,7 +652,7 @@ $$
 \rho y=\int \rho Q\,dx+C
 $$
 
-所以通解是
+所以 **General Solution** 是
 
 $$
 \boxed{
@@ -666,7 +666,7 @@ $$
 \boxed{(\rho(x)y)'=\rho(x)Q(x)}
 $$
 
-这才是积分因子法的本质。
+这才是 **Integrating Factor Method** 的本质。
 
 #### Standard Workflow
 
@@ -842,17 +842,17 @@ $$
 - $P(x)=1/x$、$Q(x)=\sin x/x^2$ 在 $(0,\infty)$ 上连续
 - 但在 $x=0$ 不连续
 
-因此根据存在唯一性定理，解在整个$(0,\infty)$ 上唯一存在。
+因此根据 **Existence and Uniqueness Theorem**，解在整个$(0,\infty)$ 上唯一存在。
 
 **$x=0$ is not a singular solution.**
-$x=0$ 不是一条解曲线，而是方程的 **奇点（singular point）** 。  
-它和前面讨论的 **奇异解 singular solution** 不是一回事。
+$x=0$ 不是一条解曲线，而是方程的 **Singular Point（奇点）** 。  
+它和前面讨论的 **Singular Solution** 不是一回事。
 
 </details>
 
 ### Existence and Uniqueness for Linear ODEs
 
-考虑初值问题
+考虑 **IVP**
 
 $$
 y'+P(x)y=Q(x),\qquad y(x_0)=y_0
@@ -868,9 +868,9 @@ $$
 
 而且这个解在整个区间 $I$ 上存在。
 
-### Initial-Value Integrating Factor Formula
+### Initial-Value **Integrating Factor** Formula
 
-对初值问题
+对 **IVP**
 
 $$
 y'+P(x)y=Q(x),\qquad y(x_0)=y_0
@@ -899,23 +899,23 @@ $$
 - 自动满足初值
 - 不用最后再额外求常数 $C$
 
-### Structure: Homogeneous + Particular
+### Structure: **Homogeneous** + Particular
 
-对非齐次方程
+对 **Nonhomogeneous Equation（非齐次方程）**
 
 $$
 y'+P(x)y=Q(x)
 $$
 
 若：
-- $Y(x)$ 是对应齐次方程
+- $Y(x)$ 是对应 **Homogeneous Equation（齐次方程）**
   $$
   y'+P(x)y=0
   $$
-  的通解
-- $y^*(x)$ 是原方程的一个特解
+  的 **General Solution**
+- $y^*(x)$ 是原方程的一个 **Particular Solution**
 
-那么原方程的通解是
+那么原方程的 **General Solution** 是
 
 $$
 \boxed{y(x)=Y(x)+y^*(x)}
@@ -923,13 +923,13 @@ $$
 
 #### Linear Superposition Principle
 
-对非齐次线性方程
+对 **Nonhomogeneous Linear Equation（非齐次线性方程）**
 
 $$
 y'+P(x)y=Q(x)
 $$
 
-通解可写为
+**General Solution** 可写为
 
 $$
 \boxed{y=Y+y^*}
@@ -1098,7 +1098,7 @@ $$
 y=v-x-c,\qquad \frac{dy}{dx}=\frac{dv}{dx}-1.
 $$
 
-代回后得到关于 $v$ 的一阶方程，再分离变量。
+代回后得到关于 $v$ 的一阶方程，再 **Separation of Variables**。
 
 #### Classic example
 
@@ -1127,7 +1127,7 @@ $$
 \frac{dv}{dx}=1+v^2.
 $$
 
-分离变量：
+**Separation of Variables**：
 
 $$
 \frac{dv}{1+v^2}=dx
@@ -1158,7 +1158,7 @@ $$
 
 </details>
 
-### Homogeneous Equations
+### **Homogeneous Equations**
 
 若方程可写成
 
@@ -1213,7 +1213,7 @@ $$
 P(x,y)\,y'=Q(x,y)
 $$
 
-其中 $P,Q$ 的每一项都有相同总次数，则通常可化成 homogeneous equation。
+其中 $P,Q$ 的每一项都有相同总次数，则通常可化成 **homogeneous equation**。
 
 #### Classic example
 
@@ -1248,7 +1248,7 @@ $$
 x\frac{dv}{dx}=\frac{v^2+4}{2v}.
 $$
 
-分离变量：
+**Separation of Variables**：
 
 $$
 \frac{2v}{v^2+4}\,dv=\frac{dx}{x}
@@ -1302,12 +1302,12 @@ $$
 - 若 $k<0$，则 $x\le \dfrac{4}{k}$
 
 > [!TIP]
-> 对 homogeneous equation，解完后常要额外检查：
+> 对 **homogeneous equation**，解完后常要额外检查：
 > - $\ln|x|$ 带来的区间限制
 > - 根号带来的定义域限制
 > - 写成 $y=\pm\sqrt{g(x)}$ 后要求 $g(x)\ge 0$
 
-#### A Special Homogeneous IVP with Radical
+#### A Special **Homogeneous** **IVP** with Radical
 
 考虑
 
@@ -1342,7 +1342,7 @@ $$
 x\frac{dv}{dx}=\sqrt{1-v^2}.
 $$
 
-分离变量：
+**Separation of Variables**：
 
 $$
 \frac{dv}{\sqrt{1-v^2}}=\frac{dx}{x}
@@ -1430,7 +1430,7 @@ $$
 
 则该方程称为 **exact equation** 。
 
-这时通解直接写成
+这时 **General Solution** 直接写成
 
 $$
 \boxed{F(x,y)=C}.
@@ -1493,7 +1493,7 @@ $$
 F_x=y^3,\qquad F_y=3xy^2.
 $$
 
-所以原方程是 exact，其通解为
+所以原方程是 exact，其 **General Solution** 为
 
 $$
 \boxed{xy^3=C}
@@ -1534,7 +1534,7 @@ $$
 > [!WARNING]
 > exactness 不是“解集本身”的性质，而与方程写成的具体形式 $Mdx+Ndy=0$ 有关。
 
-### Integrating Factor for Nonexact Equations
+### **Integrating Factor** for Nonexact Equations
 
 若
 
@@ -1570,7 +1570,7 @@ $$
 \frac{M_y-N_x}{N}
 $$
 
-恰好只依赖于 $x$，则存在积分因子
+恰好只依赖于 $x$，则存在 **Integrating Factor**
 
 $$
 \boxed{
@@ -1586,7 +1586,7 @@ $$
 \frac{N_x-M_y}{M}
 $$
 
-恰好只依赖于 $y$，则存在积分因子
+恰好只依赖于 $y$，则存在 **Integrating Factor**
 
 $$
 \boxed{
@@ -1595,7 +1595,7 @@ $$
 $$
 
 > [!TIP]
-> 线性方程中的积分因子
+> 线性方程中的 **Integrating Factor**
 > $$
 > \rho(x)=e^{\int P(x)\,dx}
 > $$
@@ -1680,7 +1680,7 @@ $$
 p'+p^2=0.
 $$
 
-分离变量：
+**Separation of Variables**：
 
 $$
 \frac{dp}{p^2}=-dx
@@ -1762,7 +1762,7 @@ x(y)=\int \frac{1}{p(y,C_1)}\,dy + C_2
 }
 $$
 
-通常最后得到的是 **隐式解** 。
+通常最后得到的是 **Implicit Solution** 。
 
 #### Classic example
 
@@ -2079,7 +2079,7 @@ $$
 2v\frac{dv}{du}=1-v.
 $$
 
-分离变量：
+**Separation of Variables**：
 
 $$
 \frac{2v}{1-v}\,dv=du.
@@ -2141,7 +2141,7 @@ $$
 
 这与上面一致。
 
-分离变量：
+**Separation of Variables**：
 
 $$
 \frac{2p}{1-p}\,dp=dx.
@@ -2174,7 +2174,7 @@ $$
 
 这个例子说明：
 
-- 隐式方程不一定要先显式解出 $y'$；
+- 隐式方程不一定要先 **Explicit Solution（显式解）** 出 $y'$；
 - 直接把 $p=y'$ 当作参数，有时会更自然；
 - 最终答案常是 $(x(p),y(p))$ 的参数方程，而不是 $y=f(x)$ 的显式式子。
 
@@ -2216,15 +2216,15 @@ $$
 (y')^2+y-x=1+x-x=1\neq 0.
 $$
 
-因此 $y=x$ **不是** 原方程的解，更不是 singular solution。  
+因此 $y=x$ **不是** 原方程的解，更不是 **singular solution**。  
 这题正好说明：
 
-- p-discriminant 给出的是 **candidate curve** ，不是自动成立的奇异解；
+- p-discriminant 给出的是 **candidate curve** ，不是自动成立的 **Singular Solution**；
 - 找到 candidate 以后，必须再检查它是否真的是原方程的解。
 
 </details>
 
-#### Example 2: Clairaut-Type Equation and Singular Solution
+#### Example 2: Clairaut-Type Equation and **Singular Solution**
 
 考虑
 
@@ -2327,7 +2327,7 @@ $$
 
 ##### Geometric interpretation
 
-对于一般解族
+对于 **General Solution** 族
 
 $$
 y=Cx+\frac{C^2}{2},
@@ -2341,12 +2341,12 @@ $$
 y=-\frac{x^2}{2}
 $$
 
-恰好是这族直线的包络线（envelope）。  
+恰好是这族直线的 **Envelope（包络线）**。  
 也就是说，每条直线都与它相切。
 
-因此 singular solution 的一个典型来源就是：
+因此 **singular solution** 的一个典型来源就是：
 
-> 一族一般解曲线的包络线。
+> 一族 **General Solution** 曲线的 **Envelope**。
 
 </details>
 
@@ -2439,7 +2439,7 @@ y=\pm 3x
 }
 $$
 
-这两条直线是 singular solutions。
+这两条直线是 **singular solutions**。
 
 ##### Branch 2: $x\dfrac{dp}{dx}-p=0$
 
@@ -2449,7 +2449,7 @@ $$
 \frac{dp}{dx}=\frac{p}{x}.
 $$
 
-分离变量：
+**Separation of Variables**：
 
 $$
 \frac{dp}{p}=\frac{dx}{x}.
@@ -2473,7 +2473,7 @@ $$
 y=\frac{x(Cx)}{2}+\frac{9x}{2Cx}=\frac{C}{2}x^2+\frac{9}{2C}.
 $$
 
-因此一般解为
+因此 **General Solution** 为
 
 $$
 \boxed{
@@ -2481,7 +2481,7 @@ y=\frac{C}{2}x^2+\frac{9}{2C}
 }
 $$
 
-再加上 singular solutions
+再加上 **singular solutions**
 
 $$
 \boxed{
@@ -2498,8 +2498,8 @@ $$
   A(p,x,y)\cdot B(p,x,y)=0,
   $$
   那么两因子对应的分支都要讨论；
-- 其中某些分支会给出一般解族；
-- 某些分支会给出奇异解。
+- 其中某些分支会给出 **General Solution** 族；
+- 某些分支会给出 **Singular Solution**。
 
 这和前面 Example 2 的结构完全一致。
 
@@ -2607,7 +2607,7 @@ $$
 y=\cos\theta=\cos(C-x).
 $$
 
-故得到一般解
+故得到 **General Solution**
 
 $$
 \boxed{
@@ -2615,7 +2615,7 @@ y=\cos(C-x)
 }
 $$
 
-再加上两条 singular solutions
+再加上两条 **singular solutions**
 
 $$
 \boxed{
@@ -2623,18 +2623,18 @@ y=\pm 1
 }
 $$
 
-##### Why are $y=\pm 1$ singular solutions?
+##### Why are $y=\pm 1$ **singular solutions**?
 
-因为对于一般解
+因为对于 **General Solution**
 
 $$
 y=\cos(C-x),
 $$
 
 若你试图通过某个固定常数 $C$ 让它变成恒等于 $1$ 或 $-1$，是不可能的。  
-它们不是一般解族中的某个成员，而是额外出现的解支。
+它们不是 **General Solution** 族中的某个成员，而是额外出现的解支。
 
-所以依然属于 singular solutions。
+所以依然属于 **singular solutions**。
 
 </details>
 
@@ -2741,7 +2741,7 @@ $$
 y=\frac{1}{1+p^2}
 }
 $$
-this gives the general solution in parametric form:
+this gives the **general solution** in parametric form:
 $$
 \boxed{
 x=C-\arctan p-\frac{p}{1+p^2},
@@ -2772,23 +2772,23 @@ So the line
 $$
 \boxed{y=1}
 $$
-is touched by the family of parametric solution curves, and it is the envelope of the general family.
+is touched by the family of parametric solution curves, and it is the **envelope** of the general family.
 
 Therefore $y=1$ is a **singular solution** .
 
 </details>
 
 
-## Singular Solutions
+## **Singular Solutions**
 
-### What Singular Solutions Mean
+### What **Singular Solutions** Mean
 
 #### Analytic definition
 
 若某个解：
 
 - 满足原方程；
-- 但不能通过一般解族中某个固定常数值代入得到；
+- 但不能通过 **General Solution** 族中某个固定常数值代入得到；
 
 则称其为 **singular solution** 。
 
@@ -2816,14 +2816,14 @@ $$
 
 > 对 $\Gamma$ 上每一点 $Q$，都存在另一条不同于 $\Gamma$ 的解曲线，在 $Q$ 与 $\Gamma$ 相切，
 
-则这条解曲线称为 singular solution。
+则这条解曲线称为 **singular solution**。
 
-#### General solution vs singular solution
+#### **General solution** vs **singular solution**
 
 - **General solution** : 通常是一族由参数 $C$ 描述的解曲线。
 - **Singular solution** : 不是这族曲线中的某一个固定成员，而是额外出现的一条特殊解曲线。
-- 几何上，singular solution 往往是一般解族的 **envelope** ，也就是包络线。
-- 因此它常常和一般解族中的某些成员相切，而不是横穿过去。
+- 几何上， **singular solution** 往往是 **General Solution** 族的 **envelope** ，也就是 **Envelope**。
+- 因此它常常和 **General Solution** 族中的某些成员相切，而不是横穿过去。
 
 例如 Example 2 中，
 
@@ -2837,9 +2837,9 @@ $$
 y=-\frac{x^2}{2}
 $$
 
-是它们的包络线，所以它是 singular solution。
+是它们的 **Envelope**，所以它是 **singular solution**。
 
-#### Typical ways singular solutions appear
+#### Typical ways **singular solutions** appear
 
 **1. From factorization**
 
@@ -2849,7 +2849,7 @@ $$
 A\cdot B=0,
 $$
 
-则往往要分支讨论：一支给出一般解，另一支给出 singular solution。
+则往往要分支讨论：一支给出 **General Solution**，另一支给出 **singular solution**。
 
 Examples:
 
@@ -2870,37 +2870,37 @@ Examples:
 
 在 separable equation 或化简过程中，如果除掉了某个可能为零的因子，就可能把特殊解支丢掉。
 
-前面分离变量部分的例子
+前面 **Separation of Variables** 部分的例子
 
 $$
 \frac{dy}{dx}=6x(y-1)^{2/3}
 $$
 
-中，$y\equiv 1$ 就是这样被漏掉的 singular solution。
+中，$y\equiv 1$ 就是这样被漏掉的 **singular solution**。
 
 **3. As an envelope of the general solution family**
 
 这是 week 3 最强调的几何图像。
 
-若一般解是一族曲线
+若 **General Solution** 是一族曲线
 
 $$
 y=\phi(x;C),
 $$
 
-而存在一条曲线被这族曲线在各点附近“擦着走”，那么这条包络线就很可能是 singular solution。
+而存在一条曲线被这族曲线在各点附近“擦着走”，那么这条 **Envelope** 就很可能是 **singular solution**。
 
 > [!TIP]
-> 判断 singular solution 时，不要只看“能不能代入某个常数得到”，还要看它是否是一般解族的 tangent envelope。
+> 判断 **singular solution** 时，不要只看“能不能代入某个常数得到”，还要看它是否是 **General Solution** 族的 tangent **envelope**。
 
 :::WARNING
-在分离变量、消元、因式分解时，若随手除掉某个因子，往往会把 singular solution 丢掉。
+在 **Separation of Variables**、消元、因式分解时，若随手除掉某个因子，往往会把 **singular solution** 丢掉。
 
 所以做题时要检查：
 
 - 有没有把可能为零的因子除掉；
 - 有没有额外的常数解或特殊分支；
-- 最终答案是否应写成 “general solution + singular solutions”；
+- 最终答案是否应写成 “ **general solution** + **singular solutions** ”；
 - 若你算出了 p-discriminant，它到底只是 candidate，还是已经验证过的真正解。
 :::
 
@@ -2928,19 +2928,19 @@ $$
 
 #### Why does it matter?
 
-它的重要性不只是“多一个定义”，而是因为它给了我们一个很快的找奇异解入口。
+它的重要性不只是“多一个定义”，而是因为它给了我们一个很快的找 **Singular Solution** 入口。
 
-- singular solution 若存在，通常先会出现在 $F_p=0$ 这一条件里；
-- 它对应“解族对参数发生退化”的地方，也就是包络线最容易出现的地方；
+- **singular solution** 若存在，通常先会出现在 $F_p=0$ 这一条件里；
+- 它对应“解族对参数发生退化”的地方，也就是 **Envelope** 最容易出现的地方；
 - 做题时，先算 p-discriminant，往往不用把整个方程完全解完，就能先定位 possible extra branches。
 
 所以在 implicit ODE 里，`p-discriminant` 是一个很实用的 screening tool。
 
-#### Relation with singular solutions
+#### Relation with **singular solutions**
 
 **Necessary condition**
 
-若 $y=\phi(x)$ 是 singular solution，则它一定是 p-discriminant。
+若 $y=\phi(x)$ 是 **singular solution**，则它一定是 p-discriminant。
 
 $$
 \text{singular solution} \Longrightarrow \text{p-discriminant}.
@@ -2948,7 +2948,7 @@ $$
 
 **Sufficient condition under suitable hypotheses**
 
-反过来，p-discriminant 不一定自动就是 singular solution。  
+反过来，p-discriminant 不一定自动就是 **singular solution**。  
 还需要一些 regularity / nondegeneracy 条件，并且最关键的是：
 
 - 这条 candidate curve 本身真的满足原方程；
@@ -2956,9 +2956,9 @@ $$
   $$
   F_y\neq 0,\qquad F_{pp}\neq 0;
   $$
-- 同时它确实表现出与一般解族相切的 envelope 结构。
+- 同时它确实表现出与 **General Solution** 族相切的 **envelope** 结构。
 
-在这些适当条件下，p-discriminant 也可推出 singular solution。
+在这些适当条件下，p-discriminant 也可推出 **singular solution**。
 
 所以逻辑上应记成：
 
@@ -2992,10 +2992,10 @@ $$
    $$
    消去 $p$，得到 candidate curve。
 4. **单独验证** 这条 candidate curve 是否真的是原方程的解。
-5. 若是，再判断它是否不属于一般解族，并观察是否与一般解族相切。
+5. 若是，再判断它是否不属于 **General Solution** 族，并观察是否与 **General Solution** 族相切。
 
 > [!IMPORTANT]
-> p-discriminant 的作用是帮你找到“可能的奇异解”，不是直接替代验算。
+> p-discriminant 的作用是帮你找到“可能的 **Singular Solution** ”，不是直接替代验算。
 
 ### **Example**
 
@@ -3018,8 +3018,8 @@ $$
 
 这题分成两步看最清楚：
 
-- **Step 1** : 用 $p=y'$ 把方程化成参数形式，得到一般解族；
-- **Step 2** : 再用 p-discriminant 检查有没有额外的 singular solution。
+- **Step 1** : 用 $p=y'$ 把方程化成参数形式，得到 **General Solution** 族；
+- **Step 2** : 再用 p-discriminant 检查有没有额外的 **singular solution**。
 
 #### Key steps
 
@@ -3035,7 +3035,7 @@ $$
 y=x-p^2.
 $$
 
-进一步求导并利用 $p=y'$，可得到参数形式的一般解：
+进一步求导并利用 $p=y'$，可得到参数形式的 **General Solution**：
 
 $$
 \boxed{
@@ -3092,13 +3092,13 @@ $$
 }
 $$
 
-它的解只来自前面求出的那族参数型 general solutions。
+它的解只来自前面求出的那族参数型 **general solutions**。
 
 </details>
 
 ### Bonus: Picard Local Existence and Uniqueness
 
-对初值问题
+对 **IVP**
 
 $$
 y'=f(x,y),\qquad y(a)=b,

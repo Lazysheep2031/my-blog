@@ -7,7 +7,7 @@ category: 笔记
 draft: true
 ---
 
-本文全面介绍 C++ 中函数式编程风格的核心工具——Lambda 表达式与 STL 算法。从传统函数指针的局限性出发，深入讲解 Lambda 的语法、捕获机制（值捕获 vs 引用捕获）、泛型 lambda 的使用，以及 lambda 本质上是 functor 的实现原理。随后系统梳理 STL 常用算法（`count`、`sort`、`partition`、`copy_if`、`transform` 等）的使用模式、iterator 要求、以及 iterator adaptors（`back_inserter`、`ostream_iterator` 等）的实践技巧，并重点解析 erase-remove idiom、输出迭代器的正确用法等常见陷阱。
+本文全面介绍 C++ 中函数式编程风格的核心工具——Lambda 表达式与 STL 算法。从传统 **Function Pointer（函数指针）** 的局限性出发，深入讲解 Lambda 的语法、捕获机制（**Capture by Value（值捕获）** vs **Capture by Reference（引用捕获）**）、 **Generic Lambda（泛型 lambda）** 的使用，以及 lambda 本质上是 functor 的实现原理。随后系统梳理 STL 常用算法（`count`、`sort`、`partition`、`copy_if`、`transform` 等）的使用模式、iterator 要求、以及 iterator adaptors（`back_inserter`、`ostream_iterator` 等）的实践技巧，并重点解析 erase-remove idiom、 **Output Iterator（输出迭代器）** 的正确用法等常见陷阱。
 
 ## 目录
 
@@ -20,11 +20,11 @@ draft: true
   - [Problem 3：给 predicate 加参数也不行](#problem-3给-predicate-加参数也不行)
   - [Solution：lambda + capture](#solutionlambda--capture)
 - [Lambda Functions](#lambda-functions)
-  - [为什么 function pointers 不够用？](#为什么-function-pointers-不够用)
+  - [为什么 **function pointers** 不够用？](#为什么-function-pointers-不够用)
   - [Lambda：带 capture 的 predicate](#lambda带-capture-的-predicate)
   - [Lambda 语法拆解](#lambda-语法拆解)
   - [Capture：按值 vs 按引用](#capture按值-vs-按引用)
-  - [泛型 lambda：不需要 `template <typename T>`](#泛型-lambda不需要-template-typename-t)
+  - [**Generic Lambda**：不需要 `template <typename T>`](#generic-lambda不需要-template-typename-t)
   - [Lambda 的本质：Functors](#lambda-的本质functors)
   - [`std::bind`：固定部分参数](#stdbind固定部分参数)
 - [Algorithms](#algorithms)
@@ -32,14 +32,14 @@ draft: true
   - [`std::sort`：排序 + comparator](#stdsort排序--comparator)
   - [输出：`std::copy` + `ostream_iterator`](#输出stdcopy--ostream_iterator)
   - [`partition` / `stable_partition`：按 predicate 分组](#partition--stable_partition按-predicate-分组)
-  - [`copy_if` 的坑：第三个参数需要 Output Iterator，而不是容器](#copy_if-的坑第三个参数需要-output-iterator而不是容器)
+  - [`copy_if` 的坑：第三个参数需要 **Output Iterator**，而不是容器](#copy_if-的坑第三个参数需要-output-iterator而不是容器)
   - [`erase-remove idiom`：真正删除元素](#erase-remove-idiom真正删除元素)
 - [Callable](#callable)
-- [Lambda capture 的两个关键坑](#lambda-capture-的两个关键坑)
-  - [1) 值捕获是“当时拷贝”](#1-值捕获是当时拷贝)
-  - [2) 引用捕获要注意生命周期](#2-引用捕获要注意生命周期)
+- [**Lambda capture（Lambda 捕获）** 的两个关键坑](#lambda-capture-的两个关键坑)
+  - [1) **Capture by Value** 是“当时拷贝”](#1-capture-by-value-是当时拷贝)
+  - [2) **Capture by Reference** 要注意生命周期](#2-capture-by-reference-要注意生命周期)
 - [Algorithms 的 iterator 要求](#algorithms-的-iterator-要求)
-- [输出迭代器（Output Iterator）与 iterator adaptors](#输出迭代器output-iterator与-iterator-adaptors)
+- [**Output Iterator** 与 iterator adaptors](#output-iterator-与-iterator-adaptors)
 - [两个算法套路](#两个算法套路)
   - [1) transform：映射（map）/逐元素变换](#1-transform映射map逐元素变换)
   - [2) sort + unique + erase：去重](#2-sort--unique--erase去重)
@@ -65,7 +65,7 @@ int countOccurences(InputIt begin, InputIt end, const DataType& val) {
 }
 ```
 
-隐式接口（implicit interface）要求：
+**Implicit Interface（隐式接口）** 要求：
 
 - `InputIt` 支持：`!=`, `++it`, `*it`
 - `*it == val` 必须合法（元素类型可与 `val` 比较）
@@ -141,9 +141,9 @@ lambda 的关键价值：
 
 ## Lambda Functions
 
-### 为什么 function pointers 不够用？
+### 为什么 **function pointers** 不够用？
 
-普通函数（函数指针指向的函数）不能捕获 `main` 的局部变量：
+普通函数（**Function Pointer** 指向的函数）不能捕获 `main` 的局部变量：
 
 ```cpp
 bool isLessThanLimit(int val) {
@@ -151,7 +151,7 @@ bool isLessThanLimit(int val) {
 }
 ```
 
-因此当 predicate 需要“带状态”（如阈值 limit）时，单纯函数指针方案很笨/做不到。
+因此当 predicate 需要“带状态”（如阈值 limit）时，单纯 **Function Pointer** 方案很笨/做不到。
 
 ---
 
@@ -182,7 +182,7 @@ auto name = [capture](params) -> return_type { body };
 
 - `auto name = ...`：lambda 类型是匿名类型，交给编译器推导
 - `[capture]`：捕获外部变量（不写就不能用外部局部变量）
-- `(params)`：参数列表；可写 `(auto x)` 做“泛型 lambda”
+- `(params)`：参数列表；可写 `(auto x)` 做“ **Generic Lambda** ”
 - `-> return_type`：返回类型可省略；复杂分支时可写清楚
 - `{ body }`：函数体
 
@@ -193,22 +193,22 @@ auto name = [capture](params) -> return_type { body };
 
 ### Capture：按值 vs 按引用
 
-- `[x]`：按值捕获 x（拷贝一份进 lambda）
-- `[&x]`：按引用捕获 x（引用外部同一份对象）
-- `[=]`：默认按值捕获所有用到的外部变量
-- `[&]`：默认按引用捕获所有用到的外部变量
+- `[x]`： **Capture by Value** x（拷贝一份进 lambda）
+- `[&x]`： **Capture by Reference** x（引用外部同一份对象）
+- `[=]`：默认 **Capture by Value** 所有用到的外部变量
+- `[&]`：默认 **Capture by Reference** 所有用到的外部变量
 
 例外指定：
 
-- `[=, &teas]`：默认值捕获，但 `teas` 用引用
-- `[&, banned]`：默认引用捕获，但 `banned` 用值
+- `[=, &teas]`：默认 **Capture by Value**，但 `teas` 用引用
+- `[&, banned]`：默认 **Capture by Reference**，但 `banned` 用值
 
 > [!WARNING]  
-> 引用捕获要注意生命周期：不要让 lambda 在外部变量已经销毁后仍被调用（会悬空引用）。
+> **Capture by Reference** 要注意生命周期：不要让 lambda 在外部变量已经销毁后仍被调用（会 **Dangling Reference（悬空引用）**）。
 
 ---
 
-### 泛型 lambda：不需要 `template <typename T>`
+### **Generic Lambda**：不需要 `template <typename T>`
 
 想让 predicate 接受任意类型时，直接写：
 
@@ -223,7 +223,7 @@ template <typename T>
 auto pred = ... // ❌ 不能这样给局部变量“加模板”
 ```
 
-如果需要统计调用次数，可用引用捕获：
+如果需要统计调用次数，可用 **Capture by Reference**：
 
 ```cpp
 int num_times_called = 0;
@@ -237,7 +237,7 @@ auto pred = [limit, &num_times_called](auto val) {
 
 ### Lambda 的本质：Functors
 
-lambda 不是“语法糖函数指针”，而是一个对象（匿名类实例），内部实现了 `operator()`：
+lambda 不是“ **Syntactic Sugar（语法糖）**  **Function Pointer** ”，而是一个对象（匿名类实例），内部实现了 `operator()`：
 
 ```cpp
 auto mult = [](int a, int b) { return a * b; };
@@ -278,7 +278,7 @@ int k2 = std::count_if(v.begin(), v.end(),
                        [](int x){ return x < 5; });
 ```
 
-隐式接口：
+**Implicit Interface**：
 
 - iterator 支持遍历（InputIt）
 - `count` 要求元素支持 `== value`
@@ -314,7 +314,7 @@ std::copy(courses.begin(), courses.end(),
           std::ostream_iterator<Course>(std::cout, "\n"));
 ```
 
-`ostream_iterator<T>` 是一种 **iterator adaptor** ：把 `std::cout` 伪装成 Output Iterator。  
+`ostream_iterator<T>` 是一种 **iterator adaptor** ：把 `std::cout` 伪装成 **Output Iterator**。  
 隐式要求：`T` 支持 `operator<<`。
 
 ---
@@ -335,7 +335,7 @@ std::stable_partition(courses.begin(), courses.end(), isCS);
 
 ---
 
-### `copy_if` 的坑：第三个参数需要 Output Iterator，而不是容器
+### `copy_if` 的坑：第三个参数需要 **Output Iterator**，而不是容器
 
 错误写法（第三参写成容器对象）：
 
@@ -359,7 +359,7 @@ std::copy_if(courses.begin(), courses.end(),
 ```
 
 > [!TIP]  
-> `back_inserter(vec)` 也是 iterator adaptor：把 `push_back` 伪装成 Output Iterator。
+> `back_inserter(vec)` 也是 iterator adaptor：把 `push_back` 伪装成 **Output Iterator**。
 
 ---
 
@@ -385,10 +385,10 @@ v.erase(std::remove_if(v.begin(), v.end(), pred), v.end());
 
 在 STL algorithms 里，predicate/comparator 通常是一个 **callable** ：
 
-- function pointer：`bool (*)(T)`
+- **function pointer**：`bool (*)(T)`
 - lambda（本质是 functor）：`[](T x){...}`
 - functor：重载 `operator()` 的对象
-- `std::function<R(Args...)>`： **类型擦除** 的可调用封装（更灵活但有开销）
+- `std::function<R(Args...)>`： **Type Erasure（类型擦除）** 的可调用封装（更灵活但有开销）
 
 > [!TIP]
 > 优先用 **模板参数接 callable（lambda/functor）** ：零额外开销、可内联。
@@ -396,9 +396,9 @@ v.erase(std::remove_if(v.begin(), v.end(), pred), v.end());
 
 ---
 
-## Lambda capture 的两个关键坑
+## **Lambda capture** 的两个关键坑
 
-### 1) 值捕获是“当时拷贝”
+### 1) **Capture by Value** 是“当时拷贝”
 
 ```cpp
 int limit = 5;
@@ -407,7 +407,7 @@ limit = 100;
 pred(50); // 仍然用的是旧的 limit=5
 ```
 
-### 2) 引用捕获要注意生命周期
+### 2) **Capture by Reference** 要注意生命周期
 
 ```cpp
 std::function<bool(int)> f;
@@ -419,7 +419,7 @@ f(3); // ❌ 悬空引用（UB）
 ```
 
 > [!WARNING]  
-> 只要 lambda 可能在“捕获变量作用域结束后”仍被调用，就不要引用捕获；改用值捕获或把状态放到更长寿命对象里。
+> 只要 lambda 可能在“捕获变量作用域结束后”仍被调用，就不要 **Capture by Reference**；改用 **Capture by Value** 或把状态放到更长寿命对象里。
 
 ---
 
@@ -431,7 +431,7 @@ f(3); // ❌ 悬空引用（UB）
 
 ---
 
-## 输出迭代器（Output Iterator）与 iterator adaptors
+## **Output Iterator** 与 iterator adaptors
 
 很多算法的签名是 `(..., OutputIt out, ...)`：
 
@@ -442,8 +442,8 @@ f(3); // ❌ 悬空引用（UB）
 
 - `std::back_inserter(vec)`：把 `push_back` 包装成 OutputIt（容器需支持 `push_back`）
 - `std::inserter(container, pos)`：把 `insert` 包装成 OutputIt（适用于 set/map/任意可 insert 容器）
-- `std::ostream_iterator<T>(cout, "\n")`：把输出流变成 OutputIt
-- `std::istream_iterator<T>(cin)`：把输入流变成 InputIt（常用于把输入直接喂给算法）
+- `std::ostream_iterator<T>(cout, "\n")`：把 **Output Stream（输出流）** 变成 OutputIt
+- `std::istream_iterator<T>(cin)`：把 **Input Stream（输入流）** 变成 InputIt（常用于把输入直接喂给算法）
 
 例：copy 到 set（没有 push_back）：
 

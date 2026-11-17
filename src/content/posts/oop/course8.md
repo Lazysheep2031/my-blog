@@ -83,7 +83,7 @@ x = x - f(x) / df(x);
 
 Newton's method 的优点是收敛很快。
 
-quadratic convergence（二次收敛）大致表示：当当前点已经足够接近真实解时，每迭代一次，误差大约会平方级下降。
+**quadratic convergence（二次收敛）** 大致表示：当当前点已经足够接近真实解时，每迭代一次，误差大约会平方级下降。
 
 例如误差可能从：
 
@@ -147,9 +147,9 @@ int main() {
 - 常数 `2.0` 写死在公式里；
 - 用户无法方便替换问题。
 
-### 终止条件
+### **Termination Condition（终止条件）**
 
-迭代法需要 termination condition（终止条件）。
+迭代法需要 **Termination Condition**。
 
 1. 最多迭代 `max_iters` 次；
 2. 当 $|f(x)| < tolerance$ 时提前停止。
@@ -367,13 +367,13 @@ $$
 
 所以设计目标是：
 
-- 把不变的主流程封装到 base class；
+- 把不变的主流程封装到 **base class（基类）**；
 - 把会变化的 `f()` 和 `df()` 留成 virtual interface；
 - 用户通过继承定义自己的问题。
 
 这种模式叫 **Template Method** 。
 
-> Template Method：在基类中固定算法骨架，在其中调用若干可被派生类重写的步骤。
+> Template Method：在 **Base Class** 中固定算法骨架，在其中调用若干可被 **Derived Class（派生类）** 重写的步骤。
 
 ### Library code：NewtonSolver
 
@@ -432,7 +432,7 @@ virtual double f(double x) const = 0;
 virtual double df(double x) const = 0;
 ```
 
-这两个函数没有实现，因为 library 不知道用户要解什么问题。它们是 pure virtual functions，强制派生类提供具体实现。
+这两个函数没有实现，因为 library 不知道用户要解什么问题。它们是 **pure virtual functions（纯虚函数）**，强制 **Derived Class** 提供具体实现。
 
 `improve()` 是不变流程：
 
@@ -443,7 +443,7 @@ x = x - f(x) / df(x);
 它不需要知道具体问题，只需要通过接口调用 `f()` 和 `df()`。
 
 :::TIP
-上面代码把 `f()` 和 `df()` 放在 `private` 下，表示外界不应该直接调用它们。即使是 private virtual function，派生类仍然可以 override。实际工程中也常见把这类扩展点放在 `protected`，便于派生类理解和使用。
+上面代码把 `f()` 和 `df()` 放在 `private` 下，表示外界不应该直接调用它们。即使是 private **virtual function（虚函数）**， **Derived Class** 仍然可以 override。实际工程中也常见把这类扩展点放在 `protected`，便于 **Derived Class** 理解和使用。
 :::
 
 ### User code：SquareRootSolver
@@ -544,7 +544,7 @@ int main() {
 }
 ```
 
-可以看到，新增问题时不需要修改 `NewtonSolver`，只需要增加一个新的派生类。
+可以看到，新增问题时不需要修改 `NewtonSolver`，只需要增加一个新的 **Derived Class**。
 
 这就是 open for extension, closed for modification 的思想。
 
@@ -599,16 +599,16 @@ solver.improve(10.0);
 
 ### 核心思想
 
-C++ 不只能用 OO 的继承和虚函数来做扩展。也可以用更函数式的方式：
+C++ 不只能用 OO 的继承和 **Virtual Function** 来做扩展。也可以用更函数式的方式：
 
 > 把会变化的函数 `f` 和 `df` 作为参数传入通用算法。
 
 此时：
 
-- 不再定义基类；
+- 不再定义 **Base Class**；
 - 不再让用户继承；
-- 用户只需要提供两个函数对象；
-- 通用 solver 调用这两个函数对象。
+- 用户只需要提供两个 **Function Object（函数对象）**；
+- 通用 solver 调用这两个 **Function Object**。
 
 这体现了另一种接口设计方式。
 
@@ -631,7 +631,7 @@ using Fn = function<double(double)>;
 function<double(double)>
 ```
 
-表示一个函数对象：
+表示一个 **Function Object**：
 
 - 参数类型是 `double`；
 - 返回值类型是 `double`。
@@ -700,7 +700,7 @@ double square_root_newton(double a, double x0 = 1.0) {
 [a]
 ```
 
-表示 lambda 捕获外部变量 `a`。所以 `f` 这个函数对象不仅有参数 `x`，还记住了上下文里的 `a`。
+表示 **Lambda Capture（lambda 捕获）** 外部变量 `a`。所以 `f` 这个 **Function Object** 不仅有参数 `x`，还记住了上下文里的 `a`。
 
 求 n 次根：
 
@@ -824,7 +824,7 @@ double newton_solve(Fn f,
 } // namespace ns
 ```
 
-注意：默认参数只写在函数声明里即可。实现文件里的定义不再重复写默认参数。
+注意： **Default Argument（默认参数）** 只写在函数声明里即可。实现文件里的定义不再重复写 **Default Argument**。
 
 ### 用户代码
 
@@ -905,8 +905,8 @@ g++ -std=c++17 main.cpp newton_solver.cpp -o main
 
 | 设计方式 | 扩展点 | 用户需要做什么 | 优点 | 代价 |
 |---|---|---|---|---|
-| OO / Template Method | `virtual f()` 和 `virtual df()` | 继承基类，override 两个函数 | 结构清晰，适合对象体系 | 需要定义类，存在继承关系 |
-| Functional interface | `std::function` 参数 | 定义函数/lambda，作为参数传入 | 轻量，调用灵活 | 函数对象抽象可能有额外开销 |
+| OO / Template Method | `virtual f()` 和 `virtual df()` | 继承 **Base Class**，override 两个函数 | 结构清晰，适合对象体系 | 需要定义类，存在继承关系 |
+| Functional interface | `std::function` 参数 | 定义函数/lambda，作为参数传入 | 轻量，调用灵活 | **Function Object** 抽象可能有额外开销 |
 
 二者精神一致：
 
@@ -925,7 +925,7 @@ class design 问题包括：
 - When to define a class?
 - What kind of interface/data in a class?
 - Shall we utilize inheritance to promote interface and code reuse?
-- Which function should be virtual to support dynamic binding at run-time?
+- Which function should be virtual to support **dynamic binding（动态绑定）** at run-time?
 
 也就是设计类时要考虑：
 
@@ -992,7 +992,7 @@ Coupling（耦合）描述的是：
 - message mechanism；
 - interface abstraction；
 - virtual interface；
-- function object / lambda。
+- **function object** / lambda。
 
 本讲中：
 
@@ -1077,11 +1077,11 @@ SOLID 是面向对象设计中的五个原则，用来提高代码的可理解�
 
 ### Liskov Substitution Principle
 
-> Functions that use pointers or references to base classes must be able to use objects of derived classes without knowing it.
+> Functions that use pointers or references to **base classes** must be able to use objects of **derived classes** without knowing it.
 
-使用基类指针或引用的代码，应该能够在不知道派生类具体类型的情况下正确使用派生类对象。
+使用 **Base Class** 指针或引用的代码，应该能够在不知道 **Derived Class** 具体类型的情况下正确使用 **Derived Class** 对象。
 
-如果 `NewtonSolver` 是基类，派生类必须真正满足它要求的接口契约：
+如果 `NewtonSolver` 是 **Base Class**， **Derived Class** 必须真正满足它要求的接口契约：
 
 ```cpp
 virtual double f(double x) const = 0;

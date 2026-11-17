@@ -80,7 +80,7 @@ hr
 
 所以应该构造两次、析构两次，最后 `object_count` 回到 0。
 
-但实际如果没有自己写 copy constructor，只有 `h` 的默认构造函数会执行一次。`hr = h` 对应的是 **copy construction** ，由编译器自动生成的 copy constructor 完成。这个自动生成版本不会执行我们写在默认构造函数里的 `++object_count`。
+但实际如果没有自己写 **copy constructor（拷贝构造函数）**，只有 `h` 的 **Default Constructor（默认构造函数）** 会执行一次。`hr = h` 对应的是 **copy construction** ，由编译器自动生成的 **copy constructor** 完成。这个自动生成版本不会执行我们写在 **Default Constructor** 里的 `++object_count`。
 
 于是可能看到类似现象：
 
@@ -93,10 +93,10 @@ HowMany(): 1
 这说明：
 
 - `hr` 确实被创建了；
-- 只是创建 `hr` 时没有调用默认构造函数；
-- 编译器自动生成的 copy constructor 没有更新 `object_count`。
+- 只是创建 `hr` 时没有调用 **Default Constructor**；
+- 编译器自动生成的 **copy constructor** 没有更新 `object_count`。
 
-如果我们自己写 copy constructor，就可以追踪这个对象：
+如果我们自己写 **copy constructor**，就可以追踪这个对象：
 
 ```cpp
 #include <iostream>
@@ -140,7 +140,7 @@ int main() {
 
 在这个例子中，可能出现的对象包括：
 
-1. `h`：由默认构造函数创建；
+1. `h`：由 **Default Constructor** 创建；
 2. `x`：函数 `f` 的值传递形参，由 `h` copy 出来；
 3. `hr`：由 `f(h)` 的返回值初始化出来。
 
@@ -149,11 +149,11 @@ int main() {
 :::
 
 
-## Copy constructor
+## **Copy constructor**
 
-### 函数签名
+### **Function Signature（函数签名）**
 
-copy constructor 的标准形式是：
+**copy constructor** 的标准形式是：
 
 ```cpp
 T::T(const T& other);
@@ -168,7 +168,7 @@ public:
 };
 ```
 
-它仍然是 constructor，所以：
+它仍然是 **constructor（构造函数）**，所以：
 
 - 没有返回值；
 - 函数名和类名相同；
@@ -177,13 +177,13 @@ public:
 
 ### 为什么参数必须是引用
 
-copy constructor 不能写成：
+**copy constructor** 不能写成：
 
 ```cpp
 HowMany(HowMany other);  // 错误设计
 ```
 
-原因是：如果按值传参，调用这个函数时要先把实参 copy 到形参 `other`。但这个 copy 又需要调用 copy constructor，于是会无限递归。
+原因是：如果按值传参，调用这个函数时要先把实参 copy 到形参 `other`。但这个 copy 又需要调用 **copy constructor**，于是会无限递归。
 
 逻辑是：
 
@@ -200,9 +200,9 @@ HowMany(HowMany other);  // 错误设计
 HowMany(const HowMany& other);
 ```
 
-### 编译器自动生成的 copy constructor
+### 编译器自动生成的 **copy constructor**
 
-如果你没有定义 copy constructor，C++ 会自动生成一个。
+如果你没有定义 **copy constructor**，C++ 会自动生成一个。
 
 自动生成的版本做的是 **member-wise copy** ：
 
@@ -212,7 +212,7 @@ HowMany(const HowMany& other);
 
 对于普通数值成员，例如 `int`、`double`，它直接复制值。
 
-对于 class-type 成员，例如 `std::string` 或另一个自定义类对象，它会调用该成员自己的 copy constructor。
+对于 class-type 成员，例如 `std::string` 或另一个自定义类对象，它会调用该成员自己的 **copy constructor**。
 
 对于 pointer 成员，它只复制地址值。
 
@@ -221,7 +221,7 @@ HowMany(const HowMany& other);
 
 ## Member-wise copy
 
-### class-type member 会递归调用 copy constructor
+### class-type member 会递归调用 **copy constructor**
 
 看一个更直接的例子：
 
@@ -250,7 +250,7 @@ int main() {
 }
 ```
 
-`B` 没有自己写 copy constructor，但这行代码仍然合法：
+`B` 没有自己写 **copy constructor**，但这行代码仍然合法：
 
 ```cpp
 B b2 = b1;
@@ -263,7 +263,7 @@ B::B(const B& other)
     : a1(other.a1), a2(other.a2) {}
 ```
 
-所以 `b2 = b1` 会调用两次 `A` 的 copy constructor：
+所以 `b2 = b1` 会调用两次 `A` 的 **copy constructor**：
 
 ```text
 A copy ctor
@@ -272,9 +272,9 @@ A copy ctor
 
 这就是 member-wise copy 的递归含义。
 
-### 自己写空 copy constructor 的问题
+### 自己写空 **copy constructor** 的问题
 
-如果你自己写了一个空的 copy constructor：
+如果你自己写了一个空的 **copy constructor**：
 
 ```cpp
 struct B {
@@ -296,7 +296,7 @@ B b2 = b1; 时，b2 被创建出来了，但 b2.a1、b2.a2 没有复制 b1.a1、
 
 这和编译器自动生成的 member-wise copy 不一样。
 
-正确写法应该使用 initializer list：
+正确写法应该使用 **initializer list（初始化列表）**：
 
 ```cpp
 struct B {
@@ -311,7 +311,7 @@ struct B {
 ```
 
 :::TIP
-构造函数体执行前，成员已经被初始化完了。copy constructor 中要复制成员，优先写在 initializer list 里。
+**Constructor** 体执行前，成员已经被初始化完了。 **copy constructor** 中要复制成员，优先写在 **initializer list** 里。
 :::
 
 ### 普通类型和指针类型的区别
@@ -328,7 +328,7 @@ struct B {
 };
 ```
 
-编译器自动生成的 copy constructor 大致等价于：
+编译器自动生成的 **copy constructor** 大致等价于：
 
 ```cpp
 B::B(const B& other)
@@ -341,7 +341,7 @@ B::B(const B& other)
 
 区别在于：
 
-- `a1`、`a2` 是 class-type member，会调用 `A` 的 copy constructor；
+- `a1`、`a2` 是 class-type member，会调用 `A` 的 **copy constructor**；
 - `i`、`f` 是普通类型，直接复制值；
 - `p` 是指针，也直接复制值，也就是复制地址。
 
@@ -414,9 +414,9 @@ new char[...]
 delete[]
 ```
 
-### 默认浅拷贝的问题
+### 默认 **Shallow Copy（浅拷贝）** 的问题
 
-如果没有自己写 copy constructor：
+如果没有自己写 **copy constructor**：
 
 ```cpp
 int main() {
@@ -428,7 +428,7 @@ int main() {
 }
 ```
 
-`p2 = p1` 会使用编译器自动生成的 copy constructor。它只做：
+`p2 = p1` 会使用编译器自动生成的 **copy constructor**。它只做：
 
 ```cpp
 p2.name = p1.name;
@@ -449,9 +449,9 @@ p2.name ----/
 
 最终会发生 **double delete** ，程序可能崩溃。
 
-这类默认行为称为 **shallow copy（浅拷贝）** 。
+这类默认行为称为 **Shallow Copy** 。
 
-### 深拷贝的 copy constructor
+### **Deep Copy（深拷贝）** 的 **copy constructor**
 
 正确行为应该是：
 
@@ -463,7 +463,7 @@ p2.name ----> "chang"
 
 两个对象内容相同，但管理不同内存。
 
-这叫 **deep copy（深拷贝）** 。
+这叫 **Deep Copy** 。
 
 ```cpp
 #include <cstring>
@@ -514,7 +514,7 @@ int main() {
 此时 `p1.data()` 和 `p2.data()` 的地址不同，析构时各自释放自己的内存，不会互相干扰。
 
 :::TIP
-`Person(const Person& other)` 是 `Person` 的成员函数，因此它可以访问 `other.name`。`private` 限制的是类外代码，不限制同一个类的成员函数访问同类对象的私有成员。
+`Person(const Person& other)` 是 `Person` 的 **Member Function（成员函数）**，因此它可以访问 `other.name`。`private` 限制的是类外代码，不限制同一个类的 **Member Function** 访问同类对象的私有成员。
 :::
 
 
@@ -537,7 +537,7 @@ a = b;         // assignment：a 已经存在，修改 a 的内容
 MyType a = b;
 ```
 
-虽然有等号，但它是 **初始化** ，调用 copy constructor。
+虽然有等号，但它是 **初始化** ，调用 **copy constructor**。
 
 第二行：
 
@@ -545,7 +545,7 @@ MyType a = b;
 a = b;
 ```
 
-是 **赋值** ，调用 copy assignment operator，也就是：
+是 **赋值** ，调用 **copy assignment operator（拷贝赋值运算符）**，也就是：
 
 ```cpp
 a.operator=(b);
@@ -555,14 +555,14 @@ a.operator=(b);
 
 | 代码 | 语义 | 是否创建新对象 | 调用 |
 |---|---|---|---|
-| `MyType a = b;` | initialization | 是 | copy constructor |
+| `MyType a = b;` | initialization | 是 | **copy constructor** |
 | `a = b;` | assignment | 否 | `operator=` |
 
 每个对象只会被构造一次、析构一次，但构造完成后可以被赋值很多次。
 
 ### 默认生成的 operator=
 
-如果你没有定义 `operator=`，编译器会自动生成一个 copy assignment operator。
+如果你没有定义 `operator=`，编译器会自动生成一个 **copy assignment operator**。
 
 形式大致是：
 
@@ -619,7 +619,7 @@ p2.name ----/
 
 所以 raw pointer 下，赋值比拷贝构造更复杂：赋值前，左侧对象已经管理着一份资源，必须先处理旧资源。
 
-### 正确的 copy assignment operator
+### 正确的 **copy assignment operator**
 
 一个基本正确的写法是：
 
@@ -700,7 +700,7 @@ return *this;
 
 1. 判断是不是自己给自己赋值；
 2. 如果不是，先释放旧资源；
-3. 再做深拷贝；
+3. 再做 **Deep Copy**；
 4. 返回 `*this`，让连续赋值可用。
 
 例如：
@@ -742,7 +742,7 @@ p2 = p2;
 执行顺序变成：
 
 1. `delete[] name;` 把自己的字符串释放掉；
-2. `rhs.name` 也变成了指向已释放区域的悬空指针；
+2. `rhs.name` 也变成了指向已释放区域的 **Dangling Pointer（悬空指针）**；
 3. 再用 `rhs.name` 拷贝内容，结果未定义。
 
 所以标准骨架是：
@@ -802,11 +802,11 @@ Person& operator=(const Person&);
 
 这就是 **Rule of Zero** ：
 
-> 大多数情况下，不要自己写 destructor、copy constructor、copy assignment operator。让成员对象自己管理资源，让编译器生成默认行为。
+> 大多数情况下，不要自己写 **destructor（析构函数）**、 **copy constructor**、 **copy assignment operator**。让成员对象自己管理资源，让编译器生成默认行为。
 
-### 自动生成的三个特殊成员函数
+### 自动生成的三个 **Special Member Function（特殊成员函数）**
 
-编译器会自动生成三类特殊成员函数：
+编译器会自动生成三类 **Special Member Function**：
 
 ```cpp
 ~T();                    // destructor
@@ -816,7 +816,7 @@ T& operator=(const T&);  // copy assignment operator
 
 它们的默认行为都是 member-wise 的：
 
-- 对 class-type member 和 base object，递归调用对应的 destructor / copy constructor / assignment operator；
+- 对 class-type member 和 base object，递归调用对应的 **destructor** / **copy constructor** / assignment operator；
 - 对 `int`、`float`、pointer 等非 class 类型，做普通值操作。
 
 对于 pointer，普通值操作意味着：
@@ -831,7 +831,7 @@ this->p = other.p;
 
 判断标准很实用：
 
-> 如果你需要自己写 destructor 来释放资源，通常也需要自己写 copy constructor 和 copy assignment operator。
+> 如果你需要自己写 **destructor** 来释放资源，通常也需要自己写 **copy constructor** 和 **copy assignment operator**。
 
 这就是 **Rule of Three** 。
 
@@ -850,7 +850,7 @@ this->p = other.p;
 :::
 
 
-## Copy constructor 什么时候会被调用
+## **Copy constructor** 什么时候会被调用
 
 ### 初始化
 
@@ -863,7 +863,7 @@ Person baby_c(baby_a);   // copy constructor
 
 这两行都在创建新对象，所以都是 initialization。
 
-### 传值参数
+### **Pass-by-Value Parameter（传值参数）**
 
 ```cpp
 void roster(Person p) {
@@ -876,7 +876,7 @@ roster(child);  // child 被 copy 到形参 p
 
 `p` 是一个新的局部对象，由 `child` copy 构造出来。
 
-### 按值返回
+### **Return by Value（按值返回）**
 
 ```cpp
 Person captain() {
@@ -887,9 +887,9 @@ Person captain() {
 Person who = captain();
 ```
 
-返回值是值语义，也可能触发 copy constructor。
+返回值是值语义，也可能触发 **copy constructor**。
 
-但现代编译器常会做 copy elision，所以实际输出可能看不到 copy constructor 被调用。
+但现代编译器常会做 copy elision，所以实际输出可能看不到 **copy constructor** 被调用。
 
 ### copy elision
 
@@ -1042,7 +1042,7 @@ int main() {
 这说明 `vector` 的动态扩容很方便，但扩容时搬运已有元素会带来额外开销。
 
 :::WARNING
-现代 C++ 中，如果类型有 move constructor，`vector` 扩容时可能移动元素而不是拷贝元素。本讲还没有展开 move semantics，所以这里用 copy constructor 来观察核心机制。
+现代 C++ 中，如果类型有 **move constructor（移动构造函数）**，`vector` 扩容时可能移动元素而不是拷贝元素。本讲还没有展开 **move semantics（移动语义）**，所以这里用 **copy constructor** 来观察核心机制。
 :::
 
 ### reserve 减少扩容 copy
@@ -1099,7 +1099,7 @@ int main() {
 
 ### emplace_back 原地构造
 
-`emplace_back` 的优势是：可以把构造函数参数直接传给容器，让对象在 vector 内部原地构造。
+`emplace_back` 的优势是：可以把 **Constructor** 参数直接传给容器，让对象在 vector 内部原地构造。
 
 错误理解是：
 
@@ -1165,7 +1165,7 @@ int main() {
 
 有些类型不应该被 copy。
 
-例如后面会学到的 `std::unique_ptr`，它表达的是独占所有权。如果允许 copy，两个对象就会同时认为自己拥有同一份资源，语义会被破坏。
+例如后面会学到的 `std::unique_ptr`，它表达的是 **Unique Ownership（独占所有权）**。如果允许 copy，两个对象就会同时认为自己拥有同一份资源，语义会被破坏。
 
 C++11 以后，可以用 `= delete` 禁止 copy：
 

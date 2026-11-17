@@ -13,7 +13,7 @@ draft: false
 
 **Dependence（相关性 / 依赖关系）** 是程序自身的属性。只要程序写出来，指令之间是否有数据传递、是否复用同一个寄存器名称、是否受分支控制，这些关系就已经存在。
 
-**Hazard（流水线冒险）** 是流水线组织方式的属性。程序中有 dependence，不一定会导致 hazard；是否形成 hazard，取决于流水线是否能通过 forwarding、stall、renaming、prediction 等机制处理它。
+**Hazard（流水线冒险）** 是流水线组织方式的属性。程序中有 dependence，不一定会导致 hazard；是否形成 hazard，取决于流水线是否能通过 **forwarding（数据前递）**、stall、renaming、prediction 等机制处理它。
 
 > Dependences are a property of programs.  
 > Hazards are properties of the pipeline organization.
@@ -25,9 +25,9 @@ draft: false
 
 ### 三类主要 dependence
 
-#### Data Dependence
+#### **Data Dependence（数据相关性）**
 
-**data dependence（数据相关）** 指后面的指令真正需要前面指令产生的数据。
+**Data Dependence** 指后面的指令真正需要前面指令产生的数据。
 
 典型形式：
 
@@ -44,15 +44,15 @@ FADD.D  F4, F0, F2
 - 后读前写
 - 后面的读必须等前面的写产生结果
 
-RAW 是真实数据相关，不能靠简单改寄存器名字消除。常见解决方式是：
+RAW 是真实 **Data Dependence**，不能靠简单改寄存器名字消除。常见解决方式是：
 
-- forwarding / bypassing；
+- **forwarding** / bypassing；
 - stall / bubble；
-- 动态调度中等待操作数 ready。
+- **Dynamic Scheduling（动态调度）** 中等待操作数 ready。
 
-#### Name Dependence
+#### **Name Dependence（名相关）**
 
-**name dependence（名相关）** 指两条指令复用了同一个寄存器名字，但它们之间没有真实数据传递。
+**Name Dependence** 指两条指令复用了同一个寄存器名字，但它们之间没有真实数据传递。
 
 它分成两类。
 
@@ -74,16 +74,16 @@ FSUB.D  F2, F6, F14
 
 两条指令都写 `F2`。如果后写和前写的顺序被打乱，最终 `F2` 的值可能错误。
 
-name dependence 的本质是“名字冲突”。它可以通过 **register renaming（寄存器重命名）** 消除。
+**name dependence** 的本质是“名字冲突”。它可以通过 **register renaming（寄存器重命名）** 消除。
 
 :::TIP
 RAW 代表真实的数据流动，不能随便改名消掉。  
 WAR / WAW 多数来自寄存器名字复用，可以通过重命名解决。
 :::
 
-#### Control Dependence
+#### **Control Dependence（控制相关）**
 
-**control dependence（控制相关）** 来自分支指令。
+**Control Dependence** 来自分支指令。
 
 例如：
 
@@ -113,7 +113,7 @@ if (p2) {
 
 3. **Control hazard**
    - 下一条取什么指令取决于分支结果；
-   - 需要分支预测、延迟槽或 stall 等机制处理。
+   - 需要 **Branch Prediction（分支预测）**、延迟槽或 stall 等机制处理。
 
 ### Example
 
@@ -136,7 +136,7 @@ FSUB.D  R1, R4, R5
 
 处理思路：
 
-- `I1 -> I2` 的 RAW 是真实数据相关，必须保留；
+- `I1 -> I2` 的 RAW 是真实 **Data Dependence**，必须保留；
 - `R2` 上的 WAR 可以通过重命名消除；
 - `R1` 上的 WAW / WAR 也可以通过重命名消除。
 
@@ -155,7 +155,7 @@ FSUB.D  R6, R4, R5
 :::
 
 
-## Dynamic Scheduling
+## **Dynamic Scheduling**
 
 ### 顺序流水线的限制
 
@@ -164,7 +164,7 @@ FSUB.D  R6, R4, R5
 - in-order issue；
 - in-order execution。
 
-也就是说，指令按照程序顺序进入流水线；如果某条指令因为数据相关或结构冲突停住，后面的指令也可能被卡住。
+也就是说，指令按照程序顺序进入流水线；如果某条指令因为 **Data Dependence** 或结构冲突停住，后面的指令也可能被卡住。
 
 slides 中给出的例子是：
 
@@ -178,32 +178,32 @@ FADD.D  F12, F6, F14
 
 - `FSUB.D` 依赖 `FDIV.D` 产生的 `F4`；
 - `FDIV.D` 是长延迟指令，`FSUB.D` 必须等待；
-- `FADD.D` 与前两条指令没有真实数据相关；
+- `FADD.D` 与前两条指令没有真实 **Data Dependence**；
 - 但在顺序流水线中，`FADD.D` 仍然会被前面的 `FSUB.D` 挡住。
 
 这就造成了功能部件浪费。后面的短指令本来可以先执行，却因为程序顺序被迫等待。
 
-### 动态调度的基本思想
+### **Dynamic Scheduling** 的基本思想
 
-**dynamic scheduling（动态调度）** 的核心思想是：
+**Dynamic Scheduling** 的核心思想是：
 
 > 程序运行过程中，由 CPU 硬件动态判断每条指令是否可以执行；只要操作数 ready 且功能部件可用，就允许它先执行。
 
 对应实现方式是：
 
 - **in-order issue** ：按程序顺序进入调度结构；
-- **out-of-order execution** ：进入后，谁先满足执行条件谁先执行；
+- **out-of-order execution（乱序执行）** ：进入后，谁先满足执行条件谁先执行；
 - **out-of-order completion** ：短指令可能先完成。
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202605111936387.png" alt="Dynamic Scheduling" style="width: 320px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
 这样可以提升功能部件利用率，减少无谓等待。
 
-### 乱序执行带来的新问题
+### **Out-of-Order Execution** 带来的新问题
 
 在五级整数流水线中，WAR / WAW 通常不会真正形成问题，因为读寄存器和写寄存器的位置固定，且指令顺序推进。
 
-但乱序执行后，后面的指令可能先执行、先写回，因此会出现：
+但 **Out-of-Order Execution** 后，后面的指令可能先执行、先写回，因此会出现：
 
 - **WAR hazard** ：后面的写覆盖了前面尚未读取的值；
 - **WAW hazard** ：后面的写先于前面的写完成，破坏最终结果顺序。
@@ -221,15 +221,15 @@ FADD.D  F6,  F8, F14
 - `FDIV.D` 和 `FSUB.D` 对 `F10` 的 WAW；
 - `FSUB.D` 与 `FADD.D` 对 `F6` 的 WAR。
 
-所以乱序执行必须解决两个问题：
+所以 **Out-of-Order Execution** 必须解决两个问题：
 
 1. **尽可能让独立指令提前执行** ；
 2. **保证执行结果仍然和原程序语义一致** 。
 
-Scoreboard 和 Tomasulo 都是在解决这个问题。
+**Scoreboard（记分牌）** 和 Tomasulo 都是在解决这个问题。
 
 
-### Scoreboard Algorithm
+### **Scoreboard Algorithm（记分牌算法）**
 
 #### Example
 
@@ -244,11 +244,11 @@ FADD.D F6, F8, F2
 
 #### 基本思想
 
-**Scoreboard algorithm（记分牌算法）** 是早期用于动态调度和乱序执行的经典方法。
+**Scoreboard Algorithm** 是早期用于 **Dynamic Scheduling** 和 **Out-of-Order Execution** 的经典方法。
 
 它的直觉很简单：
 
-- 用一个中心化的记分牌记录当前所有功能部件、寄存器、指令的状态；
+- 用一个中心化的 **Scoreboard** 记录当前所有功能部件、寄存器、指令的状态；
 - 每条指令进入时，先检查是否有结构冲突；
 - 操作数没有 ready 时先等待；
 - 操作数 ready 后就可以执行；
@@ -256,7 +256,7 @@ FADD.D F6, F8, F2
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202605111937127.png" alt="Scoreboard Structure" style="width: 320px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
-Scoreboard 的目标是： **允许部分指令乱序执行，同时由硬件检测 hazard，保证结果正确** 。
+**Scoreboard** 的目标是： **允许部分指令Out-of-Order Execution，同时由硬件检测 hazard，保证结果正确** 。
 
 #### 从 ID 拆成 IS 和 RO
 
@@ -269,7 +269,7 @@ Scoreboard 的目标是： **允许部分指令乱序执行，同时由硬件检
 
 如果所有检查都放在 ID 中，那么前面一条指令卡住时，后面的指令没有机会进入不同功能部件等待。
 
-为了支持乱序执行，需要把 ID 拆成两个阶段：
+为了支持 **Out-of-Order Execution**，需要把 ID 拆成两个阶段：
 
 1. **Issue（IS）**
    - decode instruction；
@@ -289,9 +289,9 @@ Scoreboard 的目标是： **允许部分指令乱序执行，同时由硬件检
 真正允许乱序的是 RO / EX 之后的推进过程。
 :::
 
-#### Scoreboard 的四个阶段
+#### **Scoreboard** 的四个阶段
 
-Scoreboard 中每条指令大致经过四个阶段：
+**Scoreboard** 中每条指令大致经过四个阶段：
 
 | 阶段 | 含义 | 主要检查 |
 | ---- | ---- | -------- |
@@ -342,11 +342,11 @@ FDIV.D  F10, F0, F6
 FADD.D  F6,  F8, F2
 ```
 
-`FDIV.D` 需要读取 `F6`，`FADD.D` 要写 `F6`。如果 `FADD.D` 在 `FDIV.D` 读取 `F6` 前写回，就会形成 WAR。Scoreboard 没有做寄存器重命名，只能让 `FADD.D` 等到 `FDIV.D` 完成 RO 后再 WB。
+`FDIV.D` 需要读取 `F6`，`FADD.D` 要写 `F6`。如果 `FADD.D` 在 `FDIV.D` 读取 `F6` 前写回，就会形成 WAR。 **Scoreboard** 没有做 **Register Renaming**，只能让 `FADD.D` 等到 `FDIV.D` 完成 RO 后再 WB。
 
 #### 三张状态表
 
-Scoreboard 需要维护三类信息。
+**Scoreboard** 需要维护三类信息。
 
 ##### Instruction Status
 
@@ -461,9 +461,9 @@ Scoreboard 需要维护三类信息。
 | -------- | -- | -- | -- | -- | -- | --- | --- | --- |
 | Qi |  |  |  |  |  | Divide |  |  |
 
-#### Scoreboard 的局限
+#### **Scoreboard** 的局限
 
-Scoreboard 可以实现乱序执行，但它的处理方式偏保守。
+**Scoreboard** 可以实现 **Out-of-Order Execution**，但它的处理方式偏保守。
 
 它能做到：
 
@@ -474,15 +474,15 @@ Scoreboard 可以实现乱序执行，但它的处理方式偏保守。
 
 但它还做不到：
 
-- 通过硬件寄存器重命名消除 WAR / WAW；
-- 从根本上解决 name dependence 带来的等待；
+- 通过硬件 **Register Renaming** 消除 WAR / WAW；
+- 从根本上解决 **name dependence** 带来的等待；
 - 自然保证精确异常。
 
 因此当它发现 WAR / WAW 时，通常只能等待。
 
-后续 Tomasulo 算法会引入 reservation station、CDB、硬件寄存器重命名，用更主动的方式减少这些等待。
+后续 Tomasulo 算法会引入 **reservation station（保留站）**、 **Common Data Bus（公共数据总线，CDB）**、硬件 **Register Renaming**，用更主动的方式减少这些等待。
 
-#### Scoreboard 时序填写
+#### **Scoreboard** 时序填写
 
 ##### 条件
 
@@ -637,19 +637,19 @@ IS = 13, RO = 14, EX = 15–16, WB = 22
 
 ### Tomasulo's Approach
 
-**Scoreboard** 可以检测 RAW / WAR / WAW，并让一部分指令乱序执行。它的问题是：
+**Scoreboard** 可以检测 RAW / WAR / WAW，并让一部分指令 **Out-of-Order Execution**。它的问题是：
 
-- 对真实数据相关 RAW，只能等前面结果产生，这个必须保留；
-- 对 name dependence 引起的 WAR / WAW，也只能检测并等待；
+- 对真实 **Data Dependence** RAW，只能等前面结果产生，这个必须保留；
+- 对 **name dependence** 引起的 WAR / WAW，也只能检测并等待；
 - 它没有真正“消除”这些名字相关带来的冲突。
 
-**Tomasulo 算法** 的核心改进是：在硬件中做 **register renaming（寄存器重命名）** 。
+**Tomasulo 算法** 的核心改进是：在硬件中做 **Register Renaming** 。
 
 也就是说，当程序中的两个指令只是碰巧用了同一个寄存器名字，但实际上没有真实数据传递时，硬件自动给它们换一个内部名字。这样就可以保留真正的数据依赖，同时消除 WAR / WAW。
 
-#### 从 Scoreboard 到 Tomasulo
+#### 从 **Scoreboard** 到 Tomasulo
 
-回顾一个 name dependence 的例子：
+回顾一个 **name dependence** 的例子：
 
 ```asm
 FDIV.D  F0, F2, F4
@@ -678,51 +678,51 @@ FMUL.D  F6, F10, T
 
 - 原来 `FADD.D` 写的 `F6` 改成临时名 `S`；
 - 原来 `FSUB.D` 写的 `F8` 改成临时名 `T`；
-- 真正的数据流仍然保留，比如 `FMUL.D` 依赖 `FSUB.D` 的结果。
+- 真正的 **Data Stream（数据流）** 仍然保留，比如 `FMUL.D` 依赖 `FSUB.D` 的结果。
 
 :::TIP
 Tomasulo 要解决的问题就是：这件“看代码后手工改名”的事情，能不能让 CPU 在运行时自动完成。
 :::
 
 
-#### 硬件结构：Reservation Station 与 CDB
+#### 硬件结构： **Reservation Station** 与 **CDB**
 
-Tomasulo 在 Scoreboard 的基础上改变了硬件组织方式。它减少对单一集中式控制表的依赖，在功能部件前面加入多个 **reservation stations（保留站）** 。
+Tomasulo 在 **Scoreboard** 的基础上改变了硬件组织方式。它减少对单一集中式控制表的依赖，在功能部件前面加入多个 **Reservation Station** 。
 
 整体结构可以理解为：
 
 - 上方是 **instruction queue** ，指令仍然按程序顺序进入；
 - load / store 指令进入 **load buffer / store buffer** ；
 - 加法、乘法等浮点运算进入对应的 **reservation station** ；
-- 结果通过 **CDB（Common Data Bus，公共数据总线）** 广播给所有需要它的位置。
+- 结果通过 **CDB** 广播给所有需要它的位置。
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260518183405.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
-保留站的作用不只是缓存指令。它同时完成三件事：
+**Reservation Station** 的作用不只是缓存指令。它同时完成三件事：
 
 1. **扩展功能部件前的等待空间**  
-   例如只有一个加法器，但前面可以有 3 个加法保留站，所以最多可以有 3 条加法类指令先进入流水线等待。
+   例如只有一个加法器，但前面可以有 3 个加法 **Reservation Station**，所以最多可以有 3 条加法类指令先进入流水线等待。
 
 2. **保存操作数的值或生产者名字**  
-   如果操作数已经 ready，保留站中直接保存值；如果还没有 ready，保留站保存“将来由哪个保留站产生”。
+   如果操作数已经 ready， **Reservation Station** 中直接保存值；如果还没有 ready， **Reservation Station** 保存“将来由哪个 **Reservation Station** 产生”。
 
-3. **完成寄存器重命名**  
-   指令进入保留站以后，源操作数和目的操作数不再单纯依赖架构寄存器名，改用保留站名或具体值表示。
+3. **完成Register Renaming**  
+   指令进入 **Reservation Station** 以后，源操作数和目的操作数不再单纯依赖架构寄存器名，改用 **Reservation Station** 名或具体值表示。
 
-和 Scoreboard 相比，Tomasulo 的关键差别是：
+和 **Scoreboard** 相比，Tomasulo 的关键差别是：
 
-| 项目 | Scoreboard | Tomasulo |
+| 项目 | **Scoreboard** | Tomasulo |
 |---|---|---|
-| 控制方式 | 集中式 scoreboard | 分布式 reservation stations + CDB |
-| Issue 时检查 | 功能部件是否空闲 | 对应保留站 / buffer 是否有空位 |
-| WAR / WAW | 检测后等待 | 通过 register renaming 消除 |
+| 控制方式 | 集中式 **scoreboard** | 分布式 **reservation stations** + **CDB** |
+| Issue 时检查 | 功能部件是否空闲 | 对应 **Reservation Station** / buffer 是否有空位 |
+| WAR / WAW | 检测后等待 | 通过 **register renaming** 消除 |
 | RAW | 等待前面结果产生 | 用 tag 记录生产者，结果出现后广播 |
-| 写回 | 写寄存器，并释放部件 | 通过 CDB 广播到寄存器和所有等待位置 |
+| 写回 | 写寄存器，并释放部件 | 通过 **CDB** 广播到寄存器和所有等待位置 |
 
 这里要特别注意：
 
 - **Tomasulo 的 IS 阶段仍然是 in-order issue** ；
-- 进入保留站之后，谁的操作数 ready、谁的功能部件空闲，谁就可以先执行；
+- 进入 **Reservation Station** 之后，谁的操作数 ready、谁的功能部件空闲，谁就可以先执行；
 - 因此执行和写回可以乱序。
 
 #### Tomasulo 的三个阶段
@@ -733,17 +733,17 @@ Tomasulo 把指令执行分成三个主要阶段。
 
 从 instruction queue 的队首取出下一条指令。
 
-如果对应类型的 reservation station 或 load/store buffer 有空位，就把指令发射进去；否则发生结构冲突，指令停在队列中。
+如果对应类型的 **reservation station** 或 load/store buffer 有空位，就把指令发射进去；否则发生结构冲突，指令停在队列中。
 
-Issue 阶段同时做 register renaming：
+Issue 阶段同时做 **register renaming**：
 
-- 如果源操作数已经在寄存器中，就把值直接读入保留站；
-- 如果源操作数还没 ready，就记录将来产生它的保留站名；
-- 如果该指令要写某个寄存器，就在 register status table 中记录：这个寄存器将来由哪个保留站产生。
+- 如果源操作数已经在寄存器中，就把值直接读入 **Reservation Station**；
+- 如果源操作数还没 ready，就记录将来产生它的 **Reservation Station** 名；
+- 如果该指令要写某个寄存器，就在 register status table 中记录：这个寄存器将来由哪个 **Reservation Station** 产生。
 
 :::TIP
 Tomasulo 的 Issue 不再检查“功能部件是否忙”。  
-它先检查保留站是否有空位，让指令先进来；进入之后再等操作数和功能部件。
+它先检查 **Reservation Station** 是否有空位，让指令先进来；进入之后再等操作数和功能部件。
 :::
 
 ##### Execute
@@ -757,12 +757,12 @@ load / store 指令有两个动作：
 
 ##### Write Result
 
-当结果产生后，通过 CDB 广播。
+当结果产生后，通过 **CDB** 广播。
 
 广播目标包括：
 
 - 架构寄存器；
-- 所有正在等待这个结果的 reservation stations；
+- 所有正在等待这个结果的 **reservation stations**；
 - store buffer 等需要该结果的位置。
 
 同一个结果在一个 clock cycle 中可以被多个等待者同时收到。
@@ -799,7 +799,7 @@ F6 = c
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260518184600.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
-因为 `F2` 和 `F4` 都已经有值，所以保留站中直接存：
+因为 `F2` 和 `F4` 都已经有值，所以 **Reservation Station** 中直接存：
 
 ```text
 MULT1: MUL, Vj = a, Vk = b
@@ -813,7 +813,7 @@ Qi[F0] = MULT1
 
 意思是：`F0` 将来由 `MULT1` 产生。
 
-此时 `MUL.D` 已经把旧的 `F2 = a` 读入保留站。后面即使有人写 `F2`，也不会影响这条乘法指令。
+此时 `MUL.D` 已经把旧的 `F2 = a` 读入 **Reservation Station**。后面即使有人写 `F2`，也不会影响这条乘法指令。
 
 2. `ADD.D F2, F0, F6` issue 到 `ADD1`
 
@@ -833,7 +833,7 @@ Qi[F2] = ADD1
 
 这里 `F2` 的 WAR 已经被消除：
 
-- `MUL.D` 需要的旧 `F2` 已经变成保留站里的值 `a`；
+- `MUL.D` 需要的旧 `F2` 已经变成 **Reservation Station** 里的值 `a`；
 - `ADD.D` 将来写的 `F2` 对应内部名字 `ADD1`；
 - 两者不再争用同一个“名字”。
 
@@ -847,12 +847,12 @@ Qi[F2] = ADD1
 e = a × b
 ```
 
-`MULT1` 通过 CDB 广播 `e`。
+`MULT1` 通过 **CDB** 广播 `e`。
 
 于是：
 
 - `F0` 得到 `e`；
-- 所有等待 `MULT1` 的保留站也得到 `e`；
+- 所有等待 `MULT1` 的 **Reservation Station** 也得到 `e`；
 - `ADD1` 从 `Qj = MULT1` 变成 `Vj = e`。
 
 此后 `ADD1` 可以执行：
@@ -864,7 +864,7 @@ F2 = e + c
 这个例子的核心是：
 
 - RAW 通过 `Qj/Qk` 保留下来；
-- WAR / WAW 通过保留站名和 `Qi` 表被消除。
+- WAR / WAW 通过 **Reservation Station** 名和 `Qi` 表被消除。
 
 #### Tomasulo 的三张状态表
 
@@ -880,24 +880,24 @@ Tomasulo 需要记录三类状态。
 
 这张表主要用于帮助理解算法，通常不是硬件中的真实结构。
 
-##### Reservation Station Table
+##### **Reservation Station** Table
 
-保留站表记录每个保留站当前是否被占用，以及源操作数是否 ready。
+**Reservation Station** 表记录每个 **Reservation Station** 当前是否被占用，以及源操作数是否 ready。
 
 常见字段如下：
 
 | 字段 | 含义 |
 |---|---|
-| `Busy` | 当前保留站是否被占用 |
+| `Busy` | 当前 **Reservation Station** 是否被占用 |
 | `Op` | 要执行的操作 |
 | `Vj, Vk` | 已经 ready 的源操作数值 |
-| `Qj, Qk` | 将来产生源操作数的保留站名 |
+| `Qj, Qk` | 将来产生源操作数的 **Reservation Station** 名 |
 | `A` | load/store 的地址计算相关信息 |
 
 判断一个操作数是否 ready：
 
 - 如果 `Qj/Qk` 为空，说明对应操作数已经在 `Vj/Vk` 中；
-- 如果 `Qj/Qk` 不为空，说明还在等某个保留站通过 CDB 广播结果。
+- 如果 `Qj/Qk` 不为空，说明还在等某个 **Reservation Station** 通过 **CDB** 广播结果。
 
 ##### Register Status Table
 
@@ -941,7 +941,7 @@ FADD.D  F6, F8, F2
 FLD F6, 34(R2)
 ```
 
-第二条 load 已经 issue 和 execute，但还没有 write result。后面四条指令已经 issue 到对应保留站。
+第二条 load 已经 issue 和 execute，但还没有 write result。后面四条指令已经 issue 到对应 **Reservation Station**。
 
 Instruction Status 大致为：
 
@@ -954,7 +954,7 @@ Instruction Status 大致为：
 | `FDIV.D F10, F0, F6` | √ |  |  |
 | `FADD.D F6, F8, F2` | √ |  |  |
 
-Reservation Station Table 可以概括成：
+**Reservation Station** Table 可以概括成：
 
 | Name | Busy | Op | Vj | Vk | Qj | Qk | A |
 |---|---|---|---|---|---|---|---|
@@ -976,7 +976,7 @@ Register Status Table 为：
 
 第一条 load 已经把旧的 `F6` 写回，后面的 `FDIV.D` 在 issue 时已经读到了旧 `F6` 的值；而最后一条 `FADD.D` 将来要写新的 `F6`，所以 `Qi[F6] = Add2`。
 
-这说明 Tomasulo 已经把“旧 `F6`”和“新 `F6`”区分开了。Scoreboard 中 `FADD.D` 因 WAR 不能过早写 `F6`，但 Tomasulo 不需要这样等待。
+这说明 Tomasulo 已经把“旧 `F6`”和“新 `F6`”区分开了。 **Scoreboard** 中 `FADD.D` 因 WAR 不能过早写 `F6`，但 Tomasulo 不需要这样等待。
 
 ##### 关键时刻 2：`FMUL.D` 准备写回
 
@@ -998,7 +998,7 @@ Register Status Table 为：
 | `FDIV.D F10, F0, F6` | √ |  |  |
 | `FADD.D F6, F8, F2` | √ | √ | √ |
 
-Reservation Station Table 只剩下两个乘除相关项：
+**Reservation Station** Table 只剩下两个乘除相关项：
 
 | Name | Busy | Op | Vj | Vk | Qj | Qk |
 |---|---|---|---|---|---|---|
@@ -1011,16 +1011,16 @@ Register Status Table 为：
 |---|---|---|---|---|---|---|---|
 | `Qi` | Mult1 |  |  |  |  | Mult2 |  |
 
-此时 `FSUB.D` 和 `FADD.D` 虽然在程序顺序上排在 `FMUL.D` 和 `FDIV.D` 后面，但已经写回。这就是 Tomasulo 的乱序执行 / 乱序写回。
+此时 `FSUB.D` 和 `FADD.D` 虽然在程序顺序上排在 `FMUL.D` 和 `FDIV.D` 后面，但已经写回。这就是 Tomasulo 的 **Out-of-Order Execution** / 乱序写回。
 
 #### Tomasulo 的贡献与局限
 
 Tomasulo 的主要贡献：
 
-1. 提供了成熟的动态调度机制；
-2. 通过硬件 register renaming 消除 WAR / WAW；
+1. 提供了成熟的 **Dynamic Scheduling** 机制；
+2. 通过硬件 **register renaming** 消除 WAR / WAW；
 3. 对 RAW 用 tag 保留真实数据依赖；
-4. 比 Scoreboard 更适合现代乱序处理器；
+4. 比 **Scoreboard** 更适合现代乱序处理器；
 5. 引入了 load/store disambiguation 的思想。
 
 其中 load/store 指令是否能乱序，要看地址关系：
@@ -1033,16 +1033,16 @@ Tomasulo 的主要贡献：
 Tomasulo 的局限也很明显：
 
 1. **硬件结构复杂**  
-   需要保留站、load/store buffer、CDB、register status 等结构。
+   需要 **Reservation Station**、load/store buffer、 **CDB**、register status 等结构。
 
 2. **CDB 容易成为瓶颈**  
-   所有结果都要通过 CDB 广播。如果多个功能部件同一周期完成，就需要仲裁或多条 CDB。
+   所有结果都要通过 **CDB** 广播。如果多个功能部件同一周期完成，就需要仲裁或多条 **CDB**。
 
 3. **访存相关仍然难处理**  
    load/store 依赖地址计算，只有知道地址后才能判断是否可以安全乱序。
 
 4. **不能自然保证 precise exception**  
-   Tomasulo 允许乱序执行和乱序写回。这样可能出现：后面的指令已经修改了机器状态，前面的指令却发生异常。此时程序员看到的状态可能不像按顺序执行那样干净。
+   Tomasulo 允许 **Out-of-Order Execution** 和乱序写回。这样可能出现：后面的指令已经修改了机器状态，前面的指令却发生异常。此时程序员看到的状态可能不像按顺序执行那样干净。
 
 
 #### Tomasulo 时序填写
@@ -1054,7 +1054,7 @@ Tomasulo 的局限也很明显：
 - Division 执行需要 40 个 clock cycles；
 - Load 的访存执行需要 1 个 clock cycle；
 - 指令按顺序 issue；
-- 结果通过 CDB 写回。
+- 结果通过 **CDB** 写回。
 
 ```asm
 FLD     F6, 34(R2)
@@ -1082,13 +1082,13 @@ FADD.D  F6, F8, F2
 
 1. 第二条 load 为什么可以第 2 拍 IS ？
 
-和 Scoreboard 不同，Tomasulo 检查的是 load buffer 是否有空位。只要 load buffer 有空，第二条 `FLD` 就可以进入流水线，不必等第一条 load 完全写回。
+和 **Scoreboard** 不同，Tomasulo 检查的是 load buffer 是否有空位。只要 load buffer 有空，第二条 `FLD` 就可以进入流水线，不必等第一条 load 完全写回。
 
 2. `FMUL.D` 和 `FSUB.D` 为什么都可以第 6 拍开始 EX ？
 
-第二条 load 在第 5 拍通过 CDB 写回 `F2`。`FMUL.D` 和 `FSUB.D` 都在等待这个结果。
+第二条 load 在第 5 拍通过 **CDB** 写回 `F2`。`FMUL.D` 和 `FSUB.D` 都在等待这个结果。
 
-CDB 广播的特点是：一个结果可以在同一拍被多个等待者同时收到。
+**CDB** 广播的特点是：一个结果可以在同一拍被多个等待者同时收到。
 
 所以第 6 拍：
 
@@ -1103,7 +1103,7 @@ CDB 广播的特点是：一个结果可以在同一拍被多个等待者同时�
 - `F8` 由 `FSUB.D` 产生，`FSUB.D` 第 8 拍 WB；
 - 因此 `FADD.D` 第 9–10 拍执行，第 11 拍写回。
 
-在 Scoreboard 中，`FADD.D` 写 `F6` 会因为前面的 `FDIV.D` 还没读完 `F6` 而发生 WAR 等待；在 Tomasulo 中，`FDIV.D` issue 时已经把旧 `F6` 的值读到保留站，所以 `FADD.D` 可以直接写回新的 `F6`。
+在 **Scoreboard** 中，`FADD.D` 写 `F6` 会因为前面的 `FDIV.D` 还没读完 `F6` 而发生 WAR 等待；在 Tomasulo 中，`FDIV.D` issue 时已经把旧 `F6` 的值读到 **Reservation Station**，所以 `FADD.D` 可以直接写回新的 `F6`。
 
 因此 Tomasulo 的写回顺序是：
 
@@ -1111,14 +1111,14 @@ CDB 广播的特点是：一个结果可以在同一拍被多个等待者同时�
 1 → 2 → 4 → 6 → 3 → 5
 ```
 
-这体现了乱序执行和乱序写回。
+这体现了 **Out-of-Order Execution** 和乱序写回。
 
 
 ## Hardware-Based Speculation
 
 Tomasulo 能提高功能部件利用率，但它带来一个问题：
 
-> Out-of-order execution 是否一定意味着 out-of-order completion？
+> **Out-of-order execution** 是否一定意味着 out-of-order completion？
 
 答案是：可以把二者分开。
 
@@ -1127,9 +1127,9 @@ Tomasulo 能提高功能部件利用率，但它带来一个问题：
 - 执行时乱序，提高硬件利用率；
 - 对外完成时仍然顺序，保证程序语义和精确异常。
 
-这就需要在 Tomasulo 后面再加一个 buffer： **ROB（Reorder Buffer，重排序缓冲区）** 。
+这就需要在 Tomasulo 后面再加一个 buffer： **Reorder Buffer（重排序缓冲区，ROB）** 。
 
-### 为什么需要 ROB
+### 为什么需要 **ROB**
 
 - 同学按学号 1、2、3、4、5 的顺序进入教室；
 - 教室里有多个功能部件，可以让同学乱序完成不同任务；
@@ -1142,30 +1142,30 @@ Tomasulo 能提高功能部件利用率，但它带来一个问题：
 - 2 号如果先完成，要坐在沙发上等 1 号；
 - 5 号如果最早完成，也要等 1、2、3、4 都出去之后才能出去。
 
-这个“沙发”就是 ROB。
+这个“沙发”就是 **ROB**。
 
 :::TIP
-ROB 的本质作用是：允许指令乱序执行，但强制指令按程序顺序 commit。
+**ROB** 的本质作用是：允许指令 **Out-of-Order Execution**，但强制指令按程序顺序 commit。
 :::
 
 ### 基于硬件推测的基本结构
 
-Hardware-Based Speculation 在 Tomasulo 基础上加入 ROB。
+Hardware-Based Speculation 在 Tomasulo 基础上加入 **ROB**。
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260518185200.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
 它结合了三个核心思想：
 
-1. **dynamic branch prediction**  
+1. **dynamic branch prediction（动态分支预测）**  
    预测后面应该取哪些指令。
 
 2. **speculation**  
-   在控制相关还没有完全确定之前，先让预测路径上的指令执行。
+   在 **Control Dependence** 还没有完全确定之前，先让预测路径上的指令执行。
 
 3. **dynamic scheduling**  
-   让不同基本块中的指令也能动态调度，尽量提高功能部件利用率。
+   让不同基本块中的指令也能 **Dynamic Scheduling**，尽量提高功能部件利用率。
 
-加入 ROB 后，CDB 不再直接把结果写入最终的架构寄存器。结果先进入 ROB，等到该指令成为 ROB 队首并且前面所有指令都已经完成后，才真正 commit。
+加入 **ROB** 后， **CDB** 不再直接把结果写入最终的架构寄存器。结果先进入 **ROB**，等到该指令成为 **ROB** 队首并且前面所有指令都已经完成后，才真正 commit。
 
 ### 四个阶段：IS / EX / WB / Commit
 
@@ -1175,14 +1175,14 @@ Hardware-Based Speculation 的指令流程变成四个阶段。
 
 从 instruction queue 中按顺序取指令。
 
-如果对应 reservation station 有空位，并且 ROB 有空位，就可以 issue。
+如果对应 **reservation station** 有空位，并且 **ROB** 有空位，就可以 issue。
 
 Issue 时会同时分配：
 
-- 一个 reservation station；
-- 一个 ROB entry。
+- 一个 **reservation station**；
+- 一个 **ROB** entry。
 
-register status table 记录的内容从 reservation station 名改为 ROB entry 编号。
+register status table 记录的内容从 **reservation station** 名改为 **ROB** entry 编号。
 
 ##### Execute
 
@@ -1190,51 +1190,51 @@ register status table 记录的内容从 reservation station 名改为 ROB entry
 
 - 等源操作数 ready；
 - 等功能部件可用；
-- ready 的指令可以乱序执行。
+- ready 的指令可以 **Out-of-Order Execution**。
 
 ##### Writeback
 
-执行完成后，通过 CDB 把结果写到 ROB 对应 entry 中，也会广播给等待该结果的保留站。
+执行完成后，通过 **CDB** 把结果写到 **ROB** 对应 entry 中，也会广播给等待该结果的 **Reservation Station**。
 
 区别是：此时还没有真正修改架构寄存器。
 
 ##### Commit
 
-ROB 按程序顺序检查队首指令。
+**ROB** 按程序顺序检查队首指令。
 
 只有当队首指令已经完成，才允许 commit：
 
-- 普通计算指令：把 ROB 中的结果写入架构寄存器；
+- 普通计算指令：把 **ROB** 中的结果写入架构寄存器；
 - store 指令：在 commit 时真正写内存；
-- 分支预测错误：从 ROB 中清除错误路径上的结果，并恢复到正确路径；
+- **Branch Prediction** 错误：从 **ROB** 中清除错误路径上的结果，并恢复到正确路径；
 - 异常：在 commit 时处理，从而保证 precise exception。
 
 :::TIP
-Writeback 是“结果算完并写入 ROB”。  
+Writeback 是“结果算完并写入 **ROB** ”。  
 Commit 是“这个结果正式成为程序可见状态”。  
 这两个阶段不能混在一起。
 :::
 
-### ROB 记录什么
+### **ROB** 记录什么
 
-ROB 需要记录每条已经 issue 但尚未 commit 的指令。
+**ROB** 需要记录每条已经 issue 但尚未 commit 的指令。
 
 常见字段包括：
 
 | 字段 | 含义 |
 |---|---|
-| `No.` | ROB entry 编号，按照 issue 顺序分配 |
+| `No.` | **ROB** entry 编号，按照 issue 顺序分配 |
 | `Busy` | 该 entry 是否被占用 |
 | `Instruction` | 对应指令 |
 | `Status` | 当前状态，如 Issue / EX / WB / Commit |
 | `Dest / Object` | 最终要写的寄存器或内存位置 |
 | `Value` | 已经算出的结果 |
 
-Reservation Station Table 也要增加一个字段：
+**Reservation Station** Table 也要增加一个字段：
 
 | 字段 | 含义 |
 |---|---|
-| `Dest` | 当前指令结果将写入哪个 ROB entry |
+| `Dest` | 当前指令结果将写入哪个 **ROB** entry |
 
 Register Status Table 变成记录：
 
@@ -1248,7 +1248,7 @@ Register Status Table 变成记录：
 ROB[F0] = #3
 ```
 
-表示 `F0` 的最新值将由 ROB 第 3 项产生。
+表示 `F0` 的最新值将由 **ROB** 第 3 项产生。
 
 
 ### Example
@@ -1266,7 +1266,7 @@ FDIV.D  F10, F0, F6
 FADD.D  F6, F8, F2
 ```
 
-ROB ：
+**ROB** ：
 
 | No. | Busy | Instruction | Status | Dest / Object | Value |
 |---:|---|---|---|---|---|
@@ -1278,7 +1278,7 @@ ROB ：
 | 6 | yes | `FADD.D F6, F8, F2` | WB | F6 | `#4 + #2` |
 
 
-Reservation Station Table ：
+**Reservation Station** Table ：
 
 | Name | Busy | Op | Vj | Vk | Qj | Qk | Dest | A |
 |---|---|---|---|---|---|---|---|---|
@@ -1294,7 +1294,7 @@ register status table ：
 
 | Register | F0 | F2 | F4 | F6 | F8 | F10 | ... |
 |---|---|---|---|---|---|---|---|
-| ROB | #3 |  |  | #6 | #4 | #5 |  |
+| **ROB** | #3 |  |  | #6 | #4 | #5 |  |
 | Busy | yes | no | no | yes | yes | yes |  |
 
 注意这里的关键现象：
@@ -1303,11 +1303,11 @@ register status table ：
 - 第 6 条 `FADD.D` 也已经 WB；
 - 但它们都不能 commit，因为第 3 条 `FMUL.D` 还没有 commit。
 
-所以 ROB 把“乱序写回”重新整理成“顺序提交”。
+所以 **ROB** 把“乱序写回”重新整理成“顺序提交”。
 
 ### Hardware-Based Speculation 时序填写
 
-同一组执行延迟下，加入 ROB 后，前面的 Issue / Execute / Writeback 和 Tomasulo 基本相同。区别在于多了 Commit 阶段。
+同一组执行延迟下，加入 **ROB** 后，前面的 Issue / Execute / Writeback 和 Tomasulo 基本相同。区别在于多了 Commit 阶段。
 
 最终表格为：
 
@@ -1332,13 +1332,13 @@ Out-of-Order Execution / Writeback.
 
 1. `FSUB.D` 为什么 WB 很早但 Commit 很晚 ？
 
-`FSUB.D` 第 8 拍已经写回 ROB。
+`FSUB.D` 第 8 拍已经写回 **ROB**。
 
 但它是第 4 条指令，前面的第 3 条 `FMUL.D` 要到第 17 拍才 commit，所以 `FSUB.D` 必须等到第 18 拍 commit。
 
 2. `FADD.D` 为什么第 11 拍 WB，却第 59 拍 Commit ？
 
-`FADD.D` 是第 6 条指令。它第 11 拍已经算完并写入 ROB。
+`FADD.D` 是第 6 条指令。它第 11 拍已经算完并写入 **ROB**。
 
 但前面的第 5 条 `FDIV.D` 很慢，要到第 58 拍 commit。
 
@@ -1348,7 +1348,7 @@ Out-of-Order Execution / Writeback.
 
 假设第 5 条 `FDIV.D` 发生异常。
 
-虽然第 6 条 `FADD.D` 早在第 11 拍就已经算完，但它的结果只在 ROB 中，还没有正式写入架构寄存器。因此处理器可以丢弃第 6 条及之后的推测结果，让机器状态停在“第 5 条发生异常之前”的精确位置。
+虽然第 6 条 `FADD.D` 早在第 11 拍就已经算完，但它的结果只在 **ROB** 中，还没有正式写入架构寄存器。因此处理器可以丢弃第 6 条及之后的推测结果，让机器状态停在“第 5 条发生异常之前”的精确位置。
 
 这就是 precise exception 的关键。
 
@@ -1356,15 +1356,15 @@ Out-of-Order Execution / Writeback.
 
 | 方法 | Issue | Execute | Writeback | Commit / 完成 | WAR / WAW | 精确异常 |
 |---|---|---|---|---|---|---|
-| Scoreboard | 顺序 | 可乱序 | 可能因 WAR 等待 | 写回即完成 | 检测后等待 | 较难保证 |
+| **Scoreboard** | 顺序 | 可乱序 | 可能因 WAR 等待 | 写回即完成 | 检测后等待 | 较难保证 |
 | Tomasulo | 顺序 | 乱序 | 乱序 | 写回即完成 | 通过重命名消除 | 不能自然保证 |
-| Tomasulo + ROB | 顺序 | 乱序 | 乱序 | 顺序 commit | 通过重命名消除 | 可以保证 |
+| Tomasulo + **ROB** | 顺序 | 乱序 | 乱序 | 顺序 commit | 通过重命名消除 | 可以保证 |
 
 
-## Exploiting ILP Using Multiple Issue and Static Scheduling
+## Exploiting ILP Using **Multiple Issue（多发射／多流出）** and Static Scheduling
 
-前面讨论的动态调度、寄存器重命名和 ROB，重点在于 **减少依赖造成的等待** ：只要一条指令的操作数已准备好，就允许它越过阻塞指令先执行。  
-接下来进一步提高性能的方法是 **Multiple Issue（多发射 / 多流出）** ：让处理器在一个 clock cycle 内发射多条指令，从而直接降低理想 CPI、提高 IPC。
+前面讨论的 **Dynamic Scheduling**、 **Register Renaming** 和 **ROB**，重点在于 **减少依赖造成的等待** ：只要一条指令的操作数已准备好，就允许它越过阻塞指令先执行。  
+接下来进一步提高性能的方法是 **Multiple Issue** ：让处理器在一个 clock cycle 内发射多条指令，从而直接降低理想 CPI、提高 IPC。
 
 理想情况下，若处理器最多每周期发射 $n$ 条指令，则：
 
@@ -1377,11 +1377,11 @@ $$
 - 程序中可利用的 ILP 是否足够；
 - 同周期发射的指令之间是否存在数据依赖或结构冲突；
 - 功能部件、寄存器端口、旁路网络和写回通路是否足够；
-- 分支判断、Load Delay、Cache Miss 等长延迟事件是否阻塞执行。
+- 分支判断、Load Delay、 **Cache Miss（缓存未命中）** 等长延迟事件是否阻塞执行。
 
-### 从 Single-Issue 到 Multiple-Issue
+### 从 Single-Issue 到 **Multiple-Issue**
 
-在普通单发射流水线中，每个 cycle 最多只有一条新指令进入流水线。多发射处理器希望在同一 cycle 发射两条甚至更多指令，例如：
+在普通单发射流水线中，每个 cycle 最多只有一条新指令进入流水线。 **Multiple Issue** 处理器希望在同一 cycle 发射两条甚至更多指令，例如：
 
 ```text
 cycle 1: issue I1, I2
@@ -1401,26 +1401,26 @@ cycle 3: issue I5, I6
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260526112851.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
-### 两类 Multiple-Issue Processor
+### 两类 **Multiple-Issue** Processor
 
-#### Superscalar
+#### **Superscalar（超标量）**
 
-**Superscalar（超标量）** 处理器每周期可发射的指令数目是不固定的：处理器设定一个发射上限，实际能发射几条取决于当前指令是否独立、资源是否可用。
+**Superscalar** 处理器每周期可发射的指令数目是不固定的：处理器设定一个发射上限，实际能发射几条取决于当前指令是否独立、资源是否可用。
 
-若一个处理器每周期最多发射 $n$ 条指令，则称为 **$n$-issue superscalar** 。
+若一个处理器每周期最 **Multiple Issue** $n$ 条指令，则称为 **$n$-issue superscalar** 。
 
 其特点是：
 
 - 每个 cycle 的实际发射数量可以从 `0` 到上限变化；
 - 指令仍以普通标量指令形式存在，处理器在运行时判断哪些指令可以并行发射；
-- 可以采用静态调度，也可以结合 Tomasulo、ROB 等机制进行动态调度和推测执行；
+- 可以采用静态调度，也可以结合 Tomasulo、 **ROB** 等机制进行 **Dynamic Scheduling** 和推测执行；
 - 二进制程序对微结构较透明，旧程序仍可运行，只是未必充分利用更宽的发射能力。
 
-Superscalar 是通用处理器中最成功的多发射实现方式。
+**Superscalar** 是通用处理器中最成功的 **Multiple Issue** 实现方式。
 
-#### VLIW：Very Long Instruction Word
+#### **Very Long Instruction Word（超长指令字，VLIW）**： **Very Long Instruction Word**
 
-**VLIW（Very Long Instruction Word，超长指令字）** 把若干个能够并行执行的操作在编译阶段打包成一条很长的指令，通常也称为一个 **instruction packet** 。
+**VLIW** 把若干个能够并行执行的操作在编译阶段打包成一条很长的指令，通常也称为一个 **instruction packet** 。
 
 其特点是：
 
@@ -1431,29 +1431,29 @@ Superscalar 是通用处理器中最成功的多发射实现方式。
 - 更适合 DSP、多媒体等执行模式规则、并行性容易被编译器识别的应用。
 
 :::TIP
-Superscalar 的核心是： **硬件在运行时寻找并行性** 。  
-VLIW 的核心是： **编译器在编译时把并行性写进指令包** 。
+**Superscalar** 的核心是： **硬件在运行时寻找并行性** 。  
+**VLIW** 的核心是： **编译器在编译时把并行性写进指令包** 。
 :::
 
-### 多发射实现方式对比
+### **Multiple Issue** 实现方式对比
 
-常见多发射处理器归纳为以下几类：
+常见 **Multiple Issue** 处理器归纳为以下几类：
 
 | 类型 | Issue Structure | Hazard Detection | Scheduling | 主要特征 | 典型应用 / 处理器 |
 |---|---|---|---|---|---|
-| Superscalar（静态） | 动态发射 | 硬件检测 | 静态 | 通常顺序执行 | MIPS、ARM 等 |
-| Superscalar（动态） | 动态发射 | 硬件检测 | 动态 | 允许一定程度的乱序执行 | 课程中作为算法扩展讨论 |
-| Superscalar（推测） | 动态发射 | 硬件检测 | 动态 + 推测 | 乱序执行、顺序提交 | Intel Core、AMD、IBM Power 等 |
-| VLIW / LIW | 静态打包 | 主要由软件保证 | 静态 | 危险由编译器分析并隐含解决 | TI C6x 等 DSP |
+| **Superscalar** （静态） | 动态发射 | 硬件检测 | 静态 | 通常顺序执行 | MIPS、ARM 等 |
+| **Superscalar** （动态） | 动态发射 | 硬件检测 | 动态 | 允许一定程度的 **Out-of-Order Execution** | 课程中作为算法扩展讨论 |
+| **Superscalar** （推测） | 动态发射 | 硬件检测 | 动态 + 推测 | **Out-of-Order Execution**、顺序提交 | Intel Core、AMD、IBM Power 等 |
+| **VLIW** / LIW | 静态打包 | 主要由软件保证 | 静态 | 危险由编译器分析并隐含解决 | TI C6x 等 DSP |
 | EPIC | 主要静态 | 主要由软件保证 | 大多静态 | 编译器显式指出并行与相关信息 | Itanium |
 
-多发射越宽，理想 IPC 越高；同时，依赖检测、寄存器端口、功能部件数量、写回通路和功耗都会迅速增加。
+**Multiple Issue** 越宽，理想 IPC 越高；同时，依赖检测、寄存器端口、功能部件数量、写回通路和功耗都会迅速增加。
 
-### Static-Scheduled Superscalar
+### Static-Scheduled **Superscalar**
 
-静态调度的 Superscalar 仍然由处理器在发射时检查冲突，但指令重排主要依赖编译器完成。
+静态调度的 **Superscalar** 仍然由处理器在发射时检查冲突，但指令重排主要依赖编译器完成。
 
-对于一个典型的 4-issue superscalar：
+对于一个典型的 4-issue **superscalar**：
 
 - IF 每周期从 instruction cache 中取出 `1 ~ 4` 条指令，形成 issue packet；
 - 处理器检查 packet 内部的结构冲突和数据冲突；
@@ -1482,11 +1482,11 @@ VLIW 的核心是： **编译器在编译时把并行性写进指令包** 。
 
 - 浮点 load / store 需要使用整数地址计算部件，会增加资源冲突；
 - 浮点寄存器文件需要增加读写端口；
-- 流水线中同时存在的指令增多，forwarding / bypass 通路必须扩展。
+- 流水线中同时存在的指令增多， **forwarding** / bypass 通路必须扩展。
 
-### Dynamic-Scheduled Multiple Issue
+### Dynamic-Scheduled **Multiple Issue**
 
-静态调度很难覆盖运行时才能确定的等待，例如 Cache Miss、分支结果和动态依赖。因此，多发射通常还会与动态调度结合。
+静态调度很难覆盖运行时才能确定的等待，例如 **Cache Miss**、分支结果和动态依赖。因此， **Multiple Issue** 通常还会与 **Dynamic Scheduling** 结合。
 
 #### Extended Tomasulo：双发射
 
@@ -1499,9 +1499,9 @@ VLIW 的核心是： **编译器在编译时把并行性写进指令包** 。
 
 关键设计原则为：
 
-- 指令仍需 **按程序顺序** 进入 reservation station，否则可能破坏程序语义；
-- 整数操作与浮点操作可以分别维护表结构，使一条 integer 指令和一条 FP 指令能在同周期进入各自的 reservation station；
-- 已经进入保留站的指令，只要操作数 ready 且功能部件可用，就可以乱序执行。
+- 指令仍需 **按程序顺序** 进入 **reservation station**，否则可能破坏程序语义；
+- 整数操作与浮点操作可以分别维护表结构，使一条 integer 指令和一条 FP 指令能在同周期进入各自的 **reservation station**；
+- 已经进入 **Reservation Station** 的指令，只要操作数 ready 且功能部件可用，就可以 **Out-of-Order Execution**。
 
 这相当于把两种思想叠加起来：
 
@@ -1528,20 +1528,20 @@ Loop:
 - 每周期可以 issue 一条 integer 指令和一条 floating-point 指令，即使二者之间存在依赖；
 - 有独立的整数 ALU / 地址计算部件，以及独立流水化的浮点功能部件；
 - Instruction flow 与 Write Result 各占一个 cycle；
-- 有动态分支预测部件，并带独立的分支条件计算部件；
-- 不使用延迟分支；分支预测完美；在分支完成前，后续指令只允许取出与 issue，不能执行；
+- 有 **Dynamic Branch Prediction** 部件，并带独立的分支条件计算部件；
+- 不使用 **Delayed Branch（延迟分支）**； **Branch Prediction** 完美；在分支完成前，后续指令只允许取出与 issue，不能执行；
 - 由于 Write Result 占一个 cycle，结果生成延迟为：integer operation 1 cycle、load 2 cycles、floating-point addition 3 cycles。
 
 本例只涉及 integer / load / store，因此浮点槽位处于空闲状态。
 
-#### 不带 ROB：分支之后的指令不能提前执行
+#### 不带 **ROB**：分支之后的指令不能提前执行
 
 首先考虑使用 Tomasulo，但 **不加入 ROB，也不进行推测执行** 。  
 此时下一轮循环的 `LD` 虽然可以被取出和 issue，但必须等待上一轮 `BNE` 的执行结果确认之后才能真正开始执行。
 
 前三轮执行时序如下（Without speculation）：
 
-| Loop | Instruction | IS | EX | MEM | Write CDB | 说明 |
+| Loop | Instruction | IS | EX | MEM | Write **CDB** | 说明 |
 |---:|---|---:|---:|---:|---:|---|
 | 1 | `LD X2, 0(X1)` | 1 | 2 | 3 | 4 | 第一条指令 |
 | 1 | `ADDI X2, X2, 1` | 1 | 5 |  | 6 | 等待 `LD` |
@@ -1562,21 +1562,21 @@ Loop:
 可以看出：
 
 - 三轮共 15 条指令在 19 cycles 内完成，平均 $IPC=\frac{15}{19}\approx 0.79$。
-- 主要瓶颈是 **数据相关分支** 与 **整数 ALU 争用** ：地址计算与整数运算挤在同一部件上。
+- 主要瓶颈是 **Data Dependence分支** 与 **整数 ALU 争用** ：地址计算与整数运算挤在同一部件上。
 - 改进思路是增加一个 adder，把地址计算功能从 ALU 中分离。
 
-#### 带 ROB 与推测执行：跨过分支继续执行
+#### 带 **ROB** 与推测执行：跨过分支继续执行
 
-若在双发射 Tomasulo 上进一步加入 ROB 与 branch prediction，则处理器可以在分支尚未最终提交前，对后续循环迭代进行 **推测执行** ：
+若在双发射 Tomasulo 上进一步加入 **ROB** 与 **branch prediction**，则处理器可以在分支尚未最终提交前，对后续循环迭代进行 **推测执行** ：
 
 - 下一轮 `LD` 不需要等上一轮 `BNE` 完成后才执行；
-- 执行结果先写入 ROB，不直接改变架构状态；
+- 执行结果先写入 **ROB**，不直接改变架构状态；
 - 若预测正确，按程序顺序 commit；
-- 若预测错误，则丢弃错误路径上的 ROB 项，恢复精确状态。
+- 若预测错误，则丢弃错误路径上的 **ROB** 项，恢复精确状态。
 
 带硬件推测（With hardware speculation）的前三轮时序如下：
 
-| Loop | Instruction | IS | EX | MEM | Write CDB | Commit | 说明 |
+| Loop | Instruction | IS | EX | MEM | Write **CDB** | Commit | 说明 |
 |---:|---|---:|---:|---:|---:|---:|---|
 | 1 | `LD X2, 0(X1)` | 1 | 2 | 3 | 4 | 5 | 第一条指令 |
 | 1 | `ADDI X2, X2, 1` | 1 | 5 |  | 6 | 7 | 等待 `LD` |
@@ -1595,7 +1595,7 @@ Loop:
 | 3 | `BNE X2, X3, Loop` | 9 | 13 |  |  | 14 | 等待 `ADDI` |
 
 由表可得：三轮共 15 条指令在 14 cycles 内提交，平均 $IPC=\frac{15}{14}\approx 1.07$。  
-按全部指令完成的口径，推测执行带来的加速比约为：
+按全部指令完成的口径，推测执行带来的 **Speedup（加速比）** 约为：
 
 $$
 Speedup=\frac{19}{14}\approx 1.36
@@ -1605,7 +1605,7 @@ $$
 
 - 分支可能成为关键性能瓶颈，硬件推测可以显著改善。
 - 非推测流水线的完成速率很快落后于发射速率，继续发射更多迭代会出现明显停顿。
-- 推测执行的收益依赖分支预测准确性；预测错误会降低性能并显著损耗能效。
+- 推测执行的收益依赖 **Branch Prediction** 准确性；预测错误会降低性能并显著损耗能效。
 
 这里的核心并是：
 
@@ -1614,11 +1614,11 @@ $$
 同时用 ROB 保证最终仍按顺序提交。
 ```
 
-### VLIW 的静态调度
+### **VLIW** 的静态调度
 
-VLIW 通过编译器把可以并行执行的操作打包成一条长指令。每个 operation slot 对应一种功能部件，因此一个 VLIW instruction 可以在同一 cycle 内驱动多个部件同时工作。
+**VLIW** 通过编译器把可以并行执行的操作打包成一条长指令。每个 operation slot 对应一种功能部件，因此一个 **VLIW** instruction 可以在同一 cycle 内驱动多个部件同时工作。
 
-采用如下五槽 VLIW 结构：
+采用如下五槽 **VLIW** 结构：
 
 | Operation Slot | 功能 |
 |---|---|
@@ -1628,9 +1628,9 @@ VLIW 通过编译器把可以并行执行的操作打包成一条长指令。每
 | `FP Instruction 2` | 第二个浮点操作 |
 | `Integer / Branch Instruction` | 整数运算或分支 |
 
-#### Example：循环展开后的 VLIW 打包
+#### Example： **Loop Unrolling（循环展开）** 后的 **VLIW** 打包
 
-以循环展开后的向量加标量程序为例：一次处理 7 个元素。  
+以 **Loop Unrolling** 后的向量加标量程序为例：一次处理 7 个元素。  
 
 展开前的原始循环指令序列：
 
@@ -1643,7 +1643,7 @@ Loop:
   BNE R1, R2, Loop
 ```
 
-循环展开后的指令序列（按程序顺序）：
+**Loop Unrolling** 后的指令序列（按程序顺序）：
 
 ```asm
 Loop:
@@ -1672,7 +1672,7 @@ Loop:
   BNE R1, R2, Loop
 ```
 
-VLIW 指令包安排如下，每一行代表一个 clock cycle：
+**VLIW** 指令包安排如下，每一行代表一个 clock cycle：
 
 | Cycle | L/S Instruction 1 | L/S Instruction 2 | FP Instruction 1 | FP Instruction 2 | Integer / Branch |
 |---:|---|---|---|---|---|
@@ -1710,25 +1710,25 @@ $$
 $$
 
 
-#### VLIW 的局限
+#### **VLIW** 的局限
 
-VLIW 将调度压力转移给编译器，硬件可以较简单，但也带来明显限制：
+**VLIW** 将调度压力转移给编译器，硬件可以较简单，但也带来明显限制：
 
-- **代码长度增加** ：为了暴露更多并行性，编译器往往需要大量 loop unrolling；
+- **代码长度增加** ：为了暴露更多并行性，编译器往往需要大量 **loop unrolling**；
 - **操作槽浪费** ：程序中并非始终存在足够独立操作，很多 slot 可能为空；
 - **Lockstep 机制** ：若某个功能部件因等待而暂停，整个长指令包往往都要暂停；
-- **二进制兼容性较差** ：VLIW 代码依赖功能部件数量和执行延迟，不同微结构之间较难直接复用同一份机器代码；
+- **二进制兼容性较差** ： **VLIW** 代码依赖功能部件数量和执行延迟，不同微结构之间较难直接复用同一份机器代码；
 - **程序本身 ILP 有限** ：存在真实数据依赖的操作不能简单打包并行执行。
 
-因此，多发射处理器最终都受到三类因素影响：
+因此， **Multiple Issue** 处理器最终都受到三类因素影响：
 
 1. 程序本身固有的 instruction-level parallelism；
-2. 实现多发射、冲突检测和并行通路的硬件复杂度；
-3. Superscalar 或 VLIW 各自技术路线的固有限制。
+2. 实现 **Multiple Issue**、冲突检测和并行通路的硬件复杂度；
+3. **Superscalar** 或 **VLIW** 各自技术路线的固有限制。
 
-### Superpipelining Processor
+### **Superpipelining（超流水）** Processor
 
-**Superpipelining（超流水）** 采用另一种提高吞吐率的方法：把原有 pipeline stage 进一步细分，使处理器可以在小于一个原始 clock cycle 的时间间隔内流入下一条指令。
+**Superpipelining** 采用另一种提高吞吐率的方法：把原有 pipeline stage 进一步细分，使处理器可以在小于一个原始 clock cycle 的时间间隔内流入下一条指令。
 
 若一个原始 cycle 被细分为 $n$ 份，则：
 
@@ -1736,12 +1736,12 @@ VLIW 将调度压力转移给编译器，硬件可以较简单，但也带来明
 - 而是每经过 $\frac{1}{n}$ 个原始 cycle 流入一条指令；
 - 从宏观上看，一个原始 cycle 内同样可以流入约 $n$ 条指令。
 
-这与 Superscalar 的区别为：
+这与 **Superscalar** 的区别为：
 
 | 技术 | 同一时刻并行发射多条指令 | 主要手段 |
 |---|---|---|
-| Superscalar | 是 | 增加并行功能部件和发射宽度 |
-| Superpipelining | 否 | 细分流水阶段，提高流水节拍频率 |
+| **Superscalar** | 是 | 增加并行功能部件和发射宽度 |
+| **Superpipelining** | 否 | 细分流水阶段，提高流水节拍频率 |
 
 <div style="display: flex; gap: 16px; justify-content: center; align-items: flex-start; flex-wrap: wrap; margin: 12px 0;">
   <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260526160238.png" style="width: 420px; max-width: 48%; height: auto;" />
@@ -1750,7 +1750,7 @@ VLIW 将调度压力转移给编译器，硬件可以较简单，但也带来明
 
 #### MIPS R4000：八段 Superpipeline
 
-**SGI MIPS R4000** 作为典型超流水处理器。其整数核心采用 8 段流水：
+**SGI MIPS R4000** 作为典型 **Superpipelining** 处理器。其整数核心采用 8 段流水：
 
 ```text
 IF → IS → RF → EX → DF → DS → TC → WB
@@ -1762,7 +1762,7 @@ IF → IS → RF → EX → DF → DS → TC → WB
 |---|---|
 | `IF` | 取指前半段：选择 PC，并启动 instruction cache 访问 |
 | `IS` | 取指后半段：完成 instruction cache 访问 |
-| `RF` | 指令译码、寄存器读取、hazard checking、instruction cache hit detection |
+| `RF` | 指令译码、寄存器读取、hazard checking、instruction **cache hit（缓存命中）** detection |
 | `EX` | 执行：有效地址计算、ALU 运算、分支目标地址与分支条件计算 |
 | `DF` | 数据访问前半段：启动 data cache 访问 |
 | `DS` | 数据访问后半段：完成 data cache 访问 |
@@ -1774,7 +1774,7 @@ R4000 中与该结构相关的硬件包括：
 - 分离的 Instruction Cache 与 Data Cache；
 - 两个 Cache 容量均为 `8 KB`；
 - 每个 Cache 数据宽度为 `64 bit`；
-- 整数核心含 `32 × 32-bit` 通用寄存器组、ALU 和独立乘除法部件。
+- 整数核心含 `32 × 32-bit` **General-Purpose Register（通用寄存器）** 组、ALU 和独立乘除法部件。
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260526160503.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260526160523.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
@@ -1792,16 +1792,16 @@ EX → DF → DS → TC → WB
 依赖该结果的下一条运算指令，即使已经进入流水线，也必须等待 load 数据真正可用。课件用 `LD R1` 后紧接 `ADD.D R2, R1` 的例子展示了 **two clock cycles for load delay** 。
 
 :::TIP
-更深的流水线提高的是潜在 throughput；如果依赖关系、分支或 Cache Miss 造成等待，实际 IPC 仍会下降。  
-因此 Superpipelining、Multiple Issue 与 Dynamic Scheduling 常常需要协同使用。
+更深的流水线提高的是潜在 throughput；如果依赖关系、分支或 **Cache Miss** 造成等待，实际 IPC 仍会下降。  
+因此 **Superpipelining**、 **Multiple Issue** 与 **Dynamic Scheduling** 常常需要协同使用。
 :::
 
 ### <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260526160535.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />方法对比
 
-| 方法 | 每周期进入流水线的指令数 | 并行性由谁发现 | 是否支持乱序执行 | 主要优势 | 主要限制 |
+| 方法 | 每周期进入流水线的指令数 | 并行性由谁发现 | 是否支持 **Out-of-Order Execution** | 主要优势 | 主要限制 |
 |---|---:|---|---|---|---|
 | Single-Issue Pipeline | 1 | 编译器 / 简单硬件 | 通常否 | 硬件简单 | 理想 IPC 上限低 |
-| Superscalar + Static Scheduling | `0 ~ n` | 编译器为主，硬件检查发射冲突 | 通常顺序执行 | 兼容普通标量程序 | 编译器受运行时事件限制 |
-| Superscalar + Dynamic Scheduling + ROB | `0 ~ n` | 硬件动态发现 | 是，顺序提交 | 能处理动态等待与分支推测 | 硬件复杂、功耗高 |
-| VLIW | 固定 packet 宽度 | 编译器 | 一般按静态计划执行 | 硬件发射逻辑较简单 | 空槽、代码膨胀、兼容性问题 |
-| Superpipelining | 每 $\frac{1}{n}$ cycle 流入一条 | 与调度方案独立 | 取决于实现 | 提高流水节拍 | 深流水放大 hazard 代价 |
+| **Superscalar** + Static Scheduling | `0 ~ n` | 编译器为主，硬件检查发射冲突 | 通常顺序执行 | 兼容普通标量程序 | 编译器受运行时事件限制 |
+| **Superscalar** + **Dynamic Scheduling** + **ROB** | `0 ~ n` | 硬件动态发现 | 是，顺序提交 | 能处理动态等待与分支推测 | 硬件复杂、功耗高 |
+| **VLIW** | 固定 packet 宽度 | 编译器 | 一般按静态计划执行 | 硬件发射逻辑较简单 | 空槽、代码膨胀、兼容性问题 |
+| **Superpipelining** | 每 $\frac{1}{n}$ cycle 流入一条 | 与调度方案独立 | 取决于实现 | 提高流水节拍 | 深流水放大 hazard 代价 |

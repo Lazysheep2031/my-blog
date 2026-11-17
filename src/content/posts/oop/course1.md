@@ -32,7 +32,7 @@ g++ main.cpp
 
 ## Using Objects
 
-`string` 是类对象，可以调用成员函数、也可以用重载运算符。
+`string` 是类对象，可以调用 **Member Function（成员函数）**、也可以用 **Overloaded Operator（重载运算符）**。
 
 常见能力：
 
@@ -106,7 +106,7 @@ int main() {
 - 使用 `>>` 读取时按空白分词
 
 
-## 正则表达式
+## **Regular Expression（正则表达式）**
 
 ```cpp
 #include <iostream>

@@ -7,17 +7,17 @@ category: 笔记
 draft: false
 ---
 
-## Homogeneous and Nonhomogeneous Systems
+## **Homogeneous（齐次）** and **Nonhomogeneous Systems（非齐次系统）**
 
-### Homogeneous Systems
+### **Homogeneous Systems（齐次系统）**
 $\mathbf{x}'=A\mathbf{x}$
 
 1. 小系统时可以先用 **elimination** ；
-2. 一般情形用 **eigenvalue method** ；
-3. 遇到重根时要区分 **complete** 与 **defective** ；
-4. 最后用 **matrix exponential** 统一表达。
+2. 一般情形用 **eigenvalue method（特征值方法）** ；
+3. 遇到 **Repeated Root（重根）** 时要区分 **complete** 与 **defective** ；
+4. 最后用 **matrix exponential（矩阵指数）** 统一表达。
 
-### Nonhomogeneous Systems
+### **Nonhomogeneous Systems**
 $\mathbf{x}'=A\mathbf{x}+\mathbf{f}(t)$
 
 $$
@@ -26,8 +26,8 @@ $$
 
 其中：
 
-- $\mathbf{x}_c$ 来自对应齐次系统；
-- $\mathbf{x}_p$ 用 **待定系数法** 或 **参数变易法** 求。
+- $\mathbf{x}_c$ 来自对应 **Homogeneous System**；
+- $\mathbf{x}_p$ 用 **Method of Undetermined Coefficients（待定系数法）** 或 **Variation of Parameters（参数变易法）** 求。
 
 
 ## The Method of Elimination
@@ -94,7 +94,7 @@ $$
 y''+3y'-10y=0.
 $$
 
-特征方程为
+**Characteristic Equation（特征方程）** 为
 
 $$
 r^2+3r-10=(r-2)(r+5)=0,
@@ -160,13 +160,13 @@ $$
 y''-4y'-5y=4e^t.
 $$
 
-对应齐次方程的特征根为 $5,-1$，所以
+对应 **Homogeneous Equation（齐次方程）** 的 **Characteristic Root（特征根）** 为 $5,-1$，所以
 
 $$
 y_c=C_1e^{5t}+C_2e^{-t}.
 $$
 
-对右端 $4e^t$，试特解 $y_p=Ae^t$，代入得
+对右端 $4e^t$，试 **Particular Solution（特解）** $y_p=Ae^t$，代入得
 
 $$
 (1-4-5)A=4 \quad\Longrightarrow\quad A=-\frac12.
@@ -194,9 +194,9 @@ $$
 
 
 
-## The Eigenvalue Method for Homogeneous Systems
+## The **Eigenvalue Method** for **Homogeneous Systems**
 
-对常系数齐次系统
+对常系数 **Homogeneous System**
 
 $$
 \mathbf{x}'=A\mathbf{x},
@@ -220,13 +220,13 @@ $$
 
 于是问题转化为：
 
-> **求矩阵 $A$ 的 eigenvalues 和 eigenvectors**
+> **求矩阵 $A$ 的 eigenvalues（特征值） 和 eigenvectors（特征向量）**
 
 ### Example 
 
-#### Case 1: Distinct Real Eigenvalues
+#### Case 1: Distinct **Real Eigenvalues（实特征值）**
 
-若 $A$ 有 $n$ 个不同实特征值 $\lambda_1,\dots,\lambda_n$，对应线性无关特征向量 $\mathbf{v}_1,\dots,\mathbf{v}_n$，则 general solution 为
+若 $A$ 有 $n$ 个不同 **Real Eigenvalue** $\lambda_1,\dots,\lambda_n$，对应 **Linearly Independent（线性无关）**  **Eigenvector** $\mathbf{v}_1,\dots,\mathbf{v}_n$，则 **general solution（通解）** 为
 
 $$
 \boxed{
@@ -234,7 +234,7 @@ $$
 }
 $$
 
-**Example：三个不同实特征值**
+**Example：三个不同Real Eigenvalue**
 
 $$
 \begin{cases}
@@ -258,13 +258,13 @@ A=
 \end{pmatrix}.
 $$
 
-其特征值为
+其 **Eigenvalue** 为
 
 $$
 \lambda=-1,\ 1,\ 2.
 $$
 
-下面把特征向量也算一下。
+下面把 **Eigenvector** 也算一下。
 
 对 $\lambda=-1$，解
 $$
@@ -387,7 +387,7 @@ $$
 \end{pmatrix}.
 $$
 
-所以 general solution 为
+所以 **general solution** 为
 
 $$
 \mathbf{x}(t)=
@@ -407,20 +407,20 @@ c_3
 \end{pmatrix}e^{2t}.
 $$
 
-这个例子是最理想情形：  **不同实特征值 $\Rightarrow$ 直接拼解。**
+这个例子是最理想情形：  **不同Real Eigenvalue $\Rightarrow$ 直接拼解。**
 
 </details>
 
 
-#### Case 2: Complex Eigenvalues
+#### Case 2: **Complex Eigenvalues（复特征值）**
 
-若 $A$ 有复特征值
+若 $A$ 有 **Complex Eigenvalue**
 
 $$
 \lambda=\alpha\pm i\beta,
 $$
 
-对应复特征向量
+对应 **Complex Eigenvector（复特征向量）**
 
 $$
 \mathbf{v}=\mathbf{p}+i\mathbf{q},
@@ -443,7 +443,7 @@ e^{\alpha t}\big(\mathbf{p}\sin \beta t+\mathbf{q}\cos \beta t\big).
 $$
 
 
-**Example：一个实特征值 + 一对复特征值**
+**Example：一个Real Eigenvalue + 一对Complex Eigenvalue**
 
 $$
 \begin{cases}
@@ -467,13 +467,13 @@ A=
 \end{pmatrix}.
 $$
 
-它的特征值为：
+它的 **Eigenvalue** 为：
 
 $$
 \lambda_1=2,\qquad \lambda_{2,3}=3\pm i.
 $$
 
-先算 $\lambda=2$ 的特征向量。解
+先算 $\lambda=2$ 的 **Eigenvector**。解
 $$
 (A-2I)\mathbf{v}=0,
 \qquad
@@ -552,7 +552,7 @@ $$
 c=(2-i)(1-i)=1-3i.
 $$
 
-因此可以取复特征向量
+因此可以取 **Complex Eigenvector**
 $$
   \mathbf{v}=
   \begin{pmatrix}
@@ -564,9 +564,9 @@ $$
   +i\underbrace{\begin{pmatrix}-1\\0\\-3\end{pmatrix}}_{\mathbf{q}}.
 $$
 
-与它等比例的复特征向量都可以；下面就用这一组 $\mathbf{p},\mathbf{q}$。
+与它等比例的 **Complex Eigenvector** 都可以；下面就用这一组 $\mathbf{p},\mathbf{q}$。
 
-general solution:
+**general solution**:
 
 $$
 \mathbf{x}(t)=c_1
@@ -608,9 +608,9 @@ $$
 
 
 
-#### Case 3: Repeated Eigenvalues
+#### Case 3: **Repeated Eigenvalues（重特征值）**
 
-若特征值 $\lambda_0$ 重数为 $k$，则会出现
+若 **Eigenvalue** $\lambda_0$ 重数为 $k$，则会出现
 
 $$
 \left(
@@ -629,17 +629,17 @@ $$
 这一部分内容在后面会讲。
 
 
-## Multiple Eigenvalue Solutions
+## Multiple **Eigenvalue** Solutions
 
 ### Complete vs. Defective
 
-设特征值 $\lambda$ 的代数重数为 $k$。
+设 **Eigenvalue** $\lambda$ 的 **Algebraic Multiplicity（代数重数）** 为 $k$。
 
-- 若它能给出 $k$ 个线性无关特征向量，称为 **complete** ；
-- 若它给不出这么多特征向量，则称为 **defective** 。
+- 若它能给出 $k$ 个 **Linearly Independent**  **Eigenvector**，称为 **complete** ；
+- 若它给不出这么多 **Eigenvector**，则称为 **defective** 。
 
 ### Example
-**Example 1：重根但 complete**
+**Example 1：Repeated Root但 complete**
 
 考虑矩阵
 
@@ -655,16 +655,16 @@ $$
 <details>
 <summary>展开解答</summary>
 
-其特征方程为
+其 **Characteristic Equation** 为
 
 $$
 (5-\lambda)(3-\lambda)^2=0.
 $$
 
-所以特征值是：
+所以 **Eigenvalue** 是：
 
 - $\lambda=5$；
-- $\lambda=3$（二重根）。
+- $\lambda=3$（**Double Root（二重根）**）。
 
 对 $\lambda=5$，先解
 $$
@@ -737,9 +737,9 @@ $$
   \end{pmatrix}.
   $$
 
-因此 $\lambda=3$ 虽然是二重根，但确实给出了两条线性无关特征向量。
+因此 $\lambda=3$ 虽然是 **Double Root**，但确实给出了两条 **Linearly Independent**  **Eigenvector**。
 
-因此虽然 $\lambda=3$ 是重根，但它是 **complete** ，通解仍然像普通情形一样：
+因此虽然 $\lambda=3$ 是 **Repeated Root**，但它是 **complete** ， **General Solution** 仍然像普通情形一样：
 
 $$
 \mathbf{x}(t)=
@@ -766,13 +766,13 @@ $$
 <details>
 <summary>展开解答</summary>
 
-特征方程为
+**Characteristic Equation** 为
 
 $$
 (\lambda-4)^2=0,
 $$
 
-所以唯一特征值是
+所以唯一 **Eigenvalue** 是
 
 $$
 \lambda=4
@@ -803,7 +803,7 @@ $$
 -3a-3b=0
 \Rightarrow a+b=0.
 $$
-所以特征向量只能写成
+所以 **Eigenvector** 只能写成
 $$
 \mathbf{v}=a
 \begin{pmatrix}
@@ -821,7 +821,7 @@ $$
 
 于是 $\lambda=4$ 是 **defective** 。
 
-这时只靠普通解
+这时只靠普 **General Solution**
 
 $$
 \mathbf{x}_1(t)=\mathbf{v}_1e^{4t}
@@ -877,7 +877,7 @@ $$
 \mathbf{x}_2(t)=\big(t\mathbf{v}_1+\mathbf{v}_2\big)e^{4t}.
 $$
 
-所以 general solution 为
+所以 **general solution** 为
 
 $$
 \mathbf{x}(t)=
@@ -898,7 +898,7 @@ $$
 
 ### Jordan Chain Formulas
 
-如果某个特征值 $\lambda$ 只有 1 个普通特征向量，但代数重数为 3，那么需要一条长度为 3 的链：
+如果某个 **Eigenvalue** $\lambda$ 只有 1 个普通 **Eigenvector**，但 **Algebraic Multiplicity** 为 3，那么需要一条长度为 3 的链：
 
 $$
 (A-\lambda I)\mathbf{v}_1=0,
@@ -935,7 +935,7 @@ $$
 这样的项。
 
 #### Example
-四维系统中的三重根
+四维系统中的 **Triple Root（三重根）**
 
 考虑四维系统
 $$
@@ -954,15 +954,15 @@ $$
 <details>
 <summary>展开解答</summary>
 
-其特征方程为
+其 **Characteristic Equation** 为
 $$
 \lambda(\lambda+2)^3=0.
 $$
 
-所以特征值为：
+所以 **Eigenvalue** 为：
 
 - $\lambda_0=0$；
-- $\lambda_1=-2$（三重根）。
+- $\lambda_1=-2$（**Triple Root**）。
 
 先看 $\lambda=0$。解
 $$
@@ -1037,7 +1037,7 @@ $$
   \end{pmatrix}.
   $$
 
-因此 $\lambda=-2$ 虽然是三重根，但只给出 2 个普通特征向量，还缺 1 个方向，所以需要再找一个 rank 2 generalized eigenvector。此时不必强行让它映到前面选定的 $\mathbf{v}_1$ 或 $\mathbf{v}_2$；只要它在作用一次 $(A+2I)$ 后落到 $\lambda=-2$ 的特征子空间里即可。
+因此 $\lambda=-2$ 虽然是 **Triple Root**，但只给出 2 个普通 **Eigenvector**，还缺 1 个方向，所以需要再找一个 rank 2 generalized eigenvector。此时不必强行让它映到前面选定的 $\mathbf{v}_1$ 或 $\mathbf{v}_2$；只要它在作用一次 $(A+2I)$ 后落到 $\lambda=-2$ 的 **Eigenspace（特征子空间）** 里即可。
 
 取
 $$
@@ -1071,7 +1071,7 @@ t\\
 \end{pmatrix}e^{-2t}.
 $$
 
-综上，四条线性无关解为
+综上，四条 **Linearly Independent** 解为
 $$
 \mathbf{x}_0(t)=
 \begin{pmatrix}
@@ -1098,7 +1098,7 @@ t\\
 \end{pmatrix}e^{-2t}.
 $$
 
-因此通解为
+因此 **General Solution** 为
 $$
 \boxed{
 \mathbf{x}(t)=
@@ -1129,17 +1129,17 @@ $$
 
 
 
-## Matrix Exponentials and Linear Systems
+## **Matrix Exponentials** and Linear Systems
 
 ### Fundamental matrix
 
-对齐次系统
+对 **Homogeneous System**
 
 $$
 \mathbf{x}'=A\mathbf{x},
 $$
 
-若找到 $n$ 个线性无关解向量 $\mathbf{x}_1(t),\dots,\mathbf{x}_n(t)$，把它们按列排成
+若找到 $n$ 个 **Linearly Independent** 解向量 $\mathbf{x}_1(t),\dots,\mathbf{x}_n(t)$，把它们按列排成
 
 $$
 \Phi(t)=\big[\mathbf{x}_1(t)\ \mathbf{x}_2(t)\ \cdots\ \mathbf{x}_n(t)\big],
@@ -1147,7 +1147,7 @@ $$
 
 则 $\Phi(t)$ 叫作 **fundamental matrix** 。
 
-这时 general solution 可压缩写成
+这时 **general solution** 可压缩写成
 
 $$
 \mathbf{x}(t)=\Phi(t)\mathbf{c},
@@ -1159,9 +1159,9 @@ $$
 \mathbf{x}(t)=\Phi(t)\Phi(0)^{-1}\mathbf{x}_0.
 $$
 
-### Matrix Exponentials
+### **Matrix Exponentials**
 
-矩阵指数定义为
+**Matrix Exponential** 定义为
 
 $$
 e^A=I+A+\frac{A^2}{2!}+\frac{A^3}{3!}+\cdots
@@ -1187,7 +1187,7 @@ $$
 X'=AX,\qquad X(0)=I
 $$
 
-的标准基本矩阵解。
+的标准 **Fundamental Matrix Solution（基本矩阵解）**。
 
 因此
 
@@ -1195,17 +1195,17 @@ $$
 \boxed{\mathbf{x}(t)=e^{At}\mathbf{x}_0}
 $$
 
-是常系数齐次系统初值问题的统一公式。
+是常系数 **Homogeneous System**  **Initial Value Problem（初值问题）** 的统一公式。
 
 **各种分类讨论，最终都被统一进 $e^{At}$ 里。**
 
-- 不同实特征值：$e^{At}$ 里只出现纯指数项；
-- 复特征值：$e^{At}$ 里出现 $e^{\alpha t}\cos \beta t,\ e^{\alpha t}\sin \beta t$；
-- defective 重根：$e^{At}$ 里自然出现 $t e^{\lambda t},\ \frac{t^2}{2}e^{\lambda t}$ 等项。
+- 不同 **Real Eigenvalue**：$e^{At}$ 里只出现纯指数项；
+- **Complex Eigenvalue**：$e^{At}$ 里出现 $e^{\alpha t}\cos \beta t,\ e^{\alpha t}\sin \beta t$；
+- defective **Repeated Root**：$e^{At}$ 里自然出现 $t e^{\lambda t},\ \frac{t^2}{2}e^{\lambda t}$ 等项。
 
 ### Three Approaches to Computing $e^{At}$
 
-**方法 1：$A$ 可对角化**
+**方法 1：$A$ Diagonalizable（可对角化）**
 
 若
 
@@ -1219,7 +1219,7 @@ $$
 e^{At}=Pe^{Dt}P^{-1},
 $$
 
-而对角矩阵指数最简单：
+而对角 **Matrix Exponential** 最简单：
 
 $$
 e^{Dt}=\operatorname{diag}(e^{\lambda_1 t},\dots,e^{\lambda_n t}).
@@ -1247,11 +1247,11 @@ $$
 e^{At}=e^{\lambda t}e^{Nt}.
 $$
 
-这正是 Jordan block / defective 重根情形中 $te^{\lambda t}$、$t^2e^{\lambda t}$ 的统一来源。
+这正是 Jordan block / defective **Repeated Root** 情形中 $te^{\lambda t}$、$t^2e^{\lambda t}$ 的统一来源。
 
 **方法 3：generalized eigenvectors**
 
-如果已经找到 generalized eigenvectors $u_1,\dots,u_n$，则对每个 $u$（特征值为 $\lambda$，rank 为 $r$），有
+如果已经找到 generalized eigenvectors $u_1,\dots,u_n$，则对每个 $u$（**Eigenvalue** 为 $\lambda$，rank 为 $r$），有
 
 $$
 e^{At}u=
@@ -1269,7 +1269,7 @@ $$
 即可。
 
 ### Example
-**Example 1:nilpotent matrix**
+**Example 1:nilpotent matrix（幂零矩阵）**
 
 若
 
@@ -1309,7 +1309,7 @@ e^{At}=I+At+\frac12A^2t^2=
 \end{pmatrix}.
 $$
 
-> **幂零矩阵的矩阵指数会截断成有限多项式。**
+> **Nilpotent Matrix的Matrix Exponential会截断成有限多项式。**
 
 </details>
 
@@ -1331,7 +1331,7 @@ $$
 <details>
 <summary>展开解答</summary>
 
-特征值为 $5,3,3$。其中 $\lambda=3$ 是二重 defective 根。
+**Eigenvalue** 为 $5,3,3$。其中 $\lambda=3$ 是二重 defective 根。
 
 先算 $\lambda=5$。解
 $$
@@ -1381,7 +1381,7 @@ $$
 u_2=\begin{pmatrix}1\\0\\0\end{pmatrix}.
 $$
 
-因为 $\lambda=3$ 的代数重数是 2，但这里只得到一个普通特征向量，所以还要找一个 rank 2 generalized eigenvector。解
+因为 $\lambda=3$ 的 **Algebraic Multiplicity** 是 2，但这里只得到一个普通 **Eigenvector**，所以还要找一个 rank 2 generalized eigenvector。解
 $$
 (A-3I)^2u=0.
 $$
@@ -1475,17 +1475,17 @@ $$
 </details>
 
 
-## Nonhomogeneous Linear Systems
+## **Nonhomogeneous（非齐次）** Linear Systems
 
 $x=x_c+x_p$
 
-对非齐次系统
+对 **Nonhomogeneous System**
 
 $$
 \mathbf{x}'=A\mathbf{x}+\mathbf{f}(t),
 $$
 
-其 general solution 仍然是
+其 **general solution** 仍然是
 
 $$
 \boxed{\mathbf{x}(t)=\mathbf{x}_c(t)+\mathbf{x}_p(t)}
@@ -1493,18 +1493,18 @@ $$
 
 其中：
 
-- $\mathbf{x}_c(t)$：对应齐次系统 $ \mathbf{x}'=A\mathbf{x} $ 的通解；
-- $\mathbf{x}_p(t)$：任取一个 particular solution。
+- $\mathbf{x}_c(t)$：对应 **Homogeneous System** $ \mathbf{x}'=A\mathbf{x} $ 的 **General Solution**；
+- $\mathbf{x}_p(t)$：任取一个 **particular solution**。
 
 
-### Undetermined Coefficients
+### **Undetermined Coefficients**
 
-当右端 $\mathbf{f}(t)$ 是多项式、指数、三角函数及它们组合时，可以像第二章一样猜一个同型特解，只不过“待定系数”现在是 **向量** 。
+当右端 $\mathbf{f}(t)$ 是多项式、指数、三角函数及它们组合时，可以像第二章一样猜一个同型 **Particular Solution**，只不过“待定系数”现在是 **向量** 。
 
 
 #### Example
 
-求特解：
+求 **Particular Solution**：
 
 $$
 \mathbf{x}'=
@@ -1559,7 +1559,7 @@ $$
 a_1=4,\quad a_2=-6,\quad b_1=17,\quad b_2=-25.
 $$
 
-因此一个特解是
+因此一个 **Particular Solution** 是
 
 $$
 x_1(t)=4t+17,\qquad x_2(t)=-6t-25.
@@ -1568,15 +1568,15 @@ $$
 </details>
 
 
-### Variation of Parameters
+### **Variation of Parameters**
 
-对非齐次系统
+对 **Nonhomogeneous System**
 
 $$
 \mathbf{x}'=P(t)\mathbf{x}+\mathbf{f}(t),
 $$
 
-若 $\Phi(t)$ 是对应齐次系统的 fundamental matrix，则猜
+若 $\Phi(t)$ 是对应 **Homogeneous System** 的 fundamental matrix，则猜
 
 $$
 \mathbf{x}_p(t)=\Phi(t)\mathbf{u}(t).
@@ -1602,7 +1602,7 @@ $$
 }
 $$
 
-于是 general solution 为
+于是 **general solution** 为
 
 $$
 \boxed{
@@ -1636,13 +1636,13 @@ $$
 <details>
 <summary>展开解答</summary>
 
-若已知齐次系统的 fundamental matrix $\Phi(t)$，则先算
+若已知 **Homogeneous System** 的 fundamental matrix $\Phi(t)$，则先算
 
 $$
 e^{At}=\Phi(t)\Phi(0)^{-1}.
 $$
 
-然后用定积分形式的参数变易法：
+然后用定积分形式的 **Variation of Parameters**：
 
 $$
 e^{-At}\mathbf{x}(t)=\mathbf{x}_0+\int_0^t e^{-As}\mathbf{f}(s)\,ds.
@@ -1673,7 +1673,7 @@ $$
 <details>
 <summary>展开解答</summary>
 
-Step 1：先解对应齐次系统
+Step 1：先解对应 **Homogeneous System**
 
 $$
 \begin{cases}
@@ -1692,7 +1692,7 @@ A=
 3&2&1
 \end{pmatrix}.
 $$
-它的特征值为
+它的 **Eigenvalue** 为
 $$
 \lambda_1=1,\qquad \lambda_{2,3}=1\pm 2i.
 $$
@@ -1738,7 +1738,7 @@ $$
 -2ib-2c=0
 \Rightarrow c=-ib.
 $$
-取 $b=1$，则 $c=-i$，可取复特征向量
+取 $b=1$，则 $c=-i$，可取 **Complex Eigenvector**
 $$
 \mathbf{v}=
 \begin{pmatrix}
@@ -1748,7 +1748,7 @@ $$
 +i\underbrace{\begin{pmatrix}0\\0\\-1\end{pmatrix}}_{\mathbf{q}}.
 $$
 
-因此齐次系统的三条实解可取为
+因此 **Homogeneous System** 的三条实解可取为
 $$
 \mathbf{x}_1(t)=
 \begin{pmatrix}
@@ -1842,7 +1842,7 @@ $$
 u_3=-\frac12 t-\frac18\sin 4t+C_3.
 $$
 
-为了取一个 particular solution，只需令积分常数为 $0$，于是
+为了取一个 **particular solution**，只需令积分常数为 $0$，于是
 $$
 \mathbf{u}_p(t)=
 \begin{pmatrix}
@@ -1852,7 +1852,7 @@ $$
 \end{pmatrix}.
 $$
 
-Step 4：乘回 $X(t)$，得到特解
+Step 4：乘回 $X(t)$，得到 **Particular Solution**
 $$
 \mathbf{x}_p(t)=X(t)\mathbf{u}_p(t)
 =e^t
@@ -1863,7 +1863,7 @@ $$
 \end{pmatrix}.
 $$
 
-因此通解为
+因此 **General Solution** 为
 $$
 \mathbf{x}(t)=
 C_1e^t
@@ -1893,9 +1893,9 @@ $$
 | 目标 | 场景 | 推荐方法 | 核心公式 |
 |---|---|---|---|
 | 把小系统化简 | 2×2 或 3×3 小系统 | **Elimination** | 消元后回到高阶 ODE |
-| 解齐次常系数系统 | 特征值容易求 | **Eigenvalue Method** | $x=\mathbf{v}e^{\lambda t}$ |
-| 处理重根 | 重特征值 | **Generalized Eigenvectors** | $(A-\lambda I)\mathbf{v}_{j}=\mathbf{v}_{j-1}$ |
-| 统一表达齐次解 | 常系数系统 | **Matrix Exponential** | $x(t)=e^{At}x_0$ |
-| 找非齐次特解 | 右端很规则 | **Undetermined Coefficients** | 猜同型特解 |
-| 找非齐次特解 | 一般情形 | **Variation of Parameters** | $x_p=\Phi\int \Phi^{-1}f\,dt$ |
+| 解 **Homogeneous** 常系数系统 | **Eigenvalue** 容易求 | **Eigenvalue Method** | $x=\mathbf{v}e^{\lambda t}$ |
+| 处理 **Repeated Root** | **Repeated Eigenvalue** | **Generalized Eigenvectors** | $(A-\lambda I)\mathbf{v}_{j}=\mathbf{v}_{j-1}$ |
+| 统一表达 **Homogeneous Solution（齐次解）** | 常系数系统 | **Matrix Exponential** | $x(t)=e^{At}x_0$ |
+| 找 **Nonhomogeneous**  **Particular Solution** | 右端很规则 | **Undetermined Coefficients** | 猜同型 **Particular Solution** |
+| 找 **Nonhomogeneous**  **Particular Solution** | 一般情形 | **Variation of Parameters** | $x_p=\Phi\int \Phi^{-1}f\,dt$ |
 

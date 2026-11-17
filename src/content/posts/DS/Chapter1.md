@@ -27,7 +27,7 @@ draft: false
 
 file system会导致:
 
-1. Data redundancy and inconsistency（数据冗余和不一致）
+1. **Data redundancy** and inconsistency（数据冗余和不一致）
 2. Data isolation（数据孤立）
 3. Difficulties in accessing data（数据访问困难）
 4. Integrity problems（完整性问题）
@@ -79,7 +79,7 @@ DBMS 负责：存储与检索、权限控制、并发处理、崩溃恢复
 
 #### Defining Structures
 
-定义数据的组织方式：表结构、字段类型、主键/外键、约束等。
+定义数据的组织方式：表结构、字段类型、 **Primary Key（主键）** / **Foreign Key（外键）**、约束等。
 
 ```sql
 create table student (
@@ -260,7 +260,7 @@ Instance 是“数据”。
 👉 Applications depend on logical schema, not physical schema.
 
 
-### Logical Data Independence（逻辑数据独立性）
+### **Logical Data Independence（逻辑数据独立性）**
 
 > 可以修改 logical schema 而不改变 user view schema
 
@@ -297,7 +297,7 @@ Instance 是“数据”。
    - Hierarchical Model（层次模型）
 
 
-## Relational Model（关系模型）
+## **Relational Model**
 
 由 **Ted Codd** 提出（Turing Award 1981）
 
@@ -316,7 +316,7 @@ Instance 是“数据”。
 - 列 = 属性（Attribute）
 - 行 = 元组（Tuple）
 
-关系模型是当前最广泛使用的数据模型。
+**Relational Model** 是当前最广泛使用的数据模型。
 
 👉 Chapter 2 将详细讨论。
 
@@ -339,17 +339,17 @@ create table instructor (
 );
 ```
 
-DDL 编译器会生成一组表模板，存储在 **数据字典（Data Dictionary）** 中。
+DDL 编译器会生成一组表模板，存储在 **Data Dictionary（数据字典）** 中。
 
-#### Data Dictionary（数据字典）
+#### **Data Dictionary**
 
-数据字典保存 **元数据（Metadata，即关于数据的数据）** ，包括：
+**Data Dictionary** 保存 **Metadata（元数据，即关于数据的数据）** ，包括：
 
 - **Database schema（数据库模式）**
 - **Integrity constraints（完整性约束）**
   - **Primary key** ：唯一标识一条记录
     - 例：`ID` 唯一标识每位 instructor
-  - **Referential integrity（参照完整性）** ：外键引用必须在目标表中存在
+  - **Referential integrity（参照完整性）** ： **Foreign Key** 引用必须在目标表中存在
     - 例：instructor 中的 `dept_name` 必须出现在 department 表中
   - **Check 约束** ：字段值满足指定条件
     - 例：`salary >= 60000`
@@ -486,7 +486,7 @@ cursor.execute("SELECT * FROM instructor")
 
 1. SQL 解析
 2. 查询优化
-3. 执行计划生成
+3. **Evaluation Plan（执行计划）** 生成
 4. 数据读取
 5. 事务管理
 6. 并发控制
@@ -520,14 +520,14 @@ cursor.execute("SELECT * FROM instructor")
 └─────────────────┘                      └─────────────────┘
 ```
 
-> 矩形 = 实体集，菱形 = 联系集，下划线属性 = 主键。
+> 矩形 = **Entity Set（实体集）**，菱形 = **Relationship Set（联系集）**，下划线属性 = **Primary Key**。
 
 👉 E-R 模型将在 **Part Two（Chapter 6, 7）** 详细介绍。
 
 
-### Normalization Theory（规范化理论）
+### **Normalization Theory（规范化理论）**
 
-规范化理论用于 **形式化地判断哪些数据库设计是"坏"的** ，并提供检验方法。
+**Normalization Theory** 用于 **形式化地判断哪些数据库设计是"坏"的** ，并提供检验方法。
 
 考虑下面这张将 instructor 与 department 合并的表：
 
@@ -548,12 +548,12 @@ cursor.execute("SELECT * FROM instructor")
 
 **❓ 这个设计有什么问题？**
 
-- **数据冗余（Redundancy）** ：`dept_name`、`building`、`budget` 在每个属于同一系的教师行中重复存储
-- **更新异常（Update Anomaly）** ：若某系搬楼，需修改多行，容易遗漏导致不一致
-- **插入异常（Insertion Anomaly）** ：若一个系还没有教师，该系的信息无法被记录
-- **删除异常（Deletion Anomaly）** ：若删掉某系最后一个教师，该系的所有信息也随之丢失
+- **Data Redundancy** ：`dept_name`、`building`、`budget` 在每个属于同一系的教师行中重复存储
+- **Update Anomaly（更新异常）** ：若某系搬楼，需修改多行，容易遗漏导致不一致
+- **Insertion Anomaly（插入异常）** ：若一个系还没有教师，该系的信息无法被记录
+- **Deletion Anomaly（删除异常）** ：若删掉某系最后一个教师，该系的所有信息也随之丢失
 
-👉 规范化理论将在 **Part Two（Chapter 6, 7）** 详细讨论。
+👉 **Normalization Theory** 将在 **Part Two（Chapter 6, 7）** 详细讨论。
 
 ## Database Engine
 
@@ -580,13 +580,13 @@ Storage Manager 是一个 **程序模块** ，提供底层数据库数据与应�
 |------|------|
 | **File manager** | 管理磁盘存储空间的分配及数据文件结构 |
 | **Buffer manager** | 负责将数据从磁盘读入内存，管理内存缓冲区 |
-| **Authorization and integrity manager** | 检验完整性约束，处理用户权限 |
+| **Authorization and integrity manager** | 检验 **Integrity Constraint**，处理用户权限 |
 | **Transaction manager** | 确保在事务并发执行和系统故障时数据库保持一致状态 |
 
 **Storage Manager 实现的数据结构：**
 
 - **Data files** ：存储数据库本身
-- **Data dictionary** ：存储数据库结构的元数据，特别是数据库的 schema
+- **Data dictionary** ：存储数据库结构的 **Metadata**，特别是数据库的 schema
 - **Indices** ：提供对数据项的快速访问；数据库索引存储指向持有特定值的数据项的指针
 - **Statistical data** ：存储关于数据的统计信息，供查询优化器使用
 
@@ -597,9 +597,9 @@ Storage Manager 是一个 **程序模块** ，提供底层数据库数据与应�
 
 **Query Processor 的组成组件：**
 
-- **DDL interpreter** ：解释 DDL 语句，并将定义记录到数据字典中
+- **DDL interpreter** ：解释 DDL 语句，并将定义记录到 **Data Dictionary** 中
 - **DML compiler** ：将查询语言中的 DML 语句翻译为由低级指令组成的 **evaluation plan** ，供查询执行引擎理解
-  - DML compiler 执行 **query optimization** ：从多种可能的执行计划中选取代价最低的方案
+  - DML compiler 执行 **query optimization** ：从多种可能的 **Evaluation Plan** 中选取代价最低的方案
 - **Query evaluation engine** ：执行由 DML compiler 生成的低级指令
 
 **Query Processing 的步骤：**
@@ -684,7 +684,7 @@ DBA 负责协调数据库系统的所有活动，对企业的信息资源和需�
 
 **DBA 的职责包括：**
 
-- **Schema definition** ：定义数据库模式
+- **Schema definition** ：定义 **Database Schema**
 - **Storage structure and access method definition** ：定义存储结构和访问方法
 - **Schema and physical organization modification** ：修改模式和物理组织结构
 - **Granting user authority** ：授予用户访问数据库的权限

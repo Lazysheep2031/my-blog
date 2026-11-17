@@ -9,15 +9,15 @@ draft: false
 
 ## 为什么体系结构课程要讨论安全
 
-在前面的章节中，Cache、乱序执行和动态分支预测始终作为 **性能优化技术** 出现：
+在前面的章节中，Cache、 **Out-of-Order Execution（乱序执行）** 和 **Dynamic Branch Prediction（动态分支预测）** 始终作为 **性能优化技术** 出现：
 
 - Cache 降低平均访存时间；
-- 乱序执行让不依赖的后续指令提前利用空闲功能部件；
-- 分支预测和推测执行减少控制相关造成的流水线停顿。
+- **Out-of-Order Execution** 让不依赖的后续指令提前利用空闲功能部件；
+- **Branch Prediction（分支预测）** 和推测执行减少 **Control Dependence（控制相关）** 造成的流水线停顿。
 
 > 处理器为了性能而提前做出的动作，可能在软件还没有正式得到结果之前，就已经改变了 Cache 状态。
 
-程序设计者通常只看到 ISA 层面的结果：
+程序设计者通常只看到 **Instruction Set Architecture（指令集体系结构，ISA）** 层面的结果：
 
 - 一条非法 load 会触发异常；
 - 一条走错路径的推测指令最终不会提交；
@@ -25,25 +25,25 @@ draft: false
 
 但攻击者关注的是更底层的物理现象：
 
-- 某个 cache line 是否被加载过；
+- 某个 **cache line（缓存行）** 是否被加载过；
 - 访问某个位置花了多少周期；
-- 某个分支预测器是否被训练到特定状态。
+- 某个 **Branch Predictor（分支预测器）** 是否被训练到特定状态。
 
 因此， **体系结构层的性能机制本身可以成为安全攻击的观测通道** 。
 
 - 在 Meltdown / Spectre 之前，系统安全通常默认 CPU 硬件隔离可信；
-- 这些漏洞表明：如果微架构状态能够泄露信息，上层 OS、沙箱或虚拟机的隔离也可能被绕过；
+- 这些漏洞表明：如果 **Microarchitectural State（微架构状态）** 能够泄露信息，上层 OS、沙箱或虚拟机的隔离也可能被绕过；
 - 做安全防护通常需要付出一定性能代价，不存在“完全无代价地提高安全性”的通用方案。
 
 
-## Cache Side Channel 的基本原理
+## Cache **Side Channel（侧信道）** 的基本原理
 
 ### Cache 为什么会泄露信息
 
 Cache 的正常作用是复用近期访问过的数据。对同一个地址而言：
 
-- 如果数据已经在 Cache 中，访问为 **cache hit** ，延迟很短；
-- 如果数据不在 Cache 中，需要从更低层级取回，访问为 **cache miss** ，延迟明显更长。
+- 如果数据已经在 Cache 中，访问为 **cache hit（缓存命中）** ，延迟很短；
+- 如果数据不在 Cache 中，需要从更低层级取回，访问为 **cache miss（缓存未命中）** ，延迟明显更长。
 
 一个直观类比：
 
@@ -57,7 +57,7 @@ $$
 T_{hit} \ll T_{miss}
 $$
 
-这就构成了一个侧信道：
+这就构成了一个 **Side Channel**：
 
 ```text
 受害者是否访问过某个地址
@@ -87,33 +87,33 @@ Cache 会被不同执行实体共享：
 - 另一个进程可以观察这种状态变化；
 - 即使两者在虚拟地址空间、权限或沙箱上相互隔离，也可能在 Cache 层面发生信息泄露。
 
-所以，Cache 侧信道攻击的本质是：
+所以，Cache **Side Channel** 攻击的本质是：
 
 > **利用共享微架构资源的可观察状态变化，绕开软件定义的安全隔离边界。**
 
-### Architectural State 与 Microarchitectural State
+### **Architectural State（体系结构状态）** 与 **Microarchitectural State**
 
 理解 Meltdown 与 Spectre，需要区分两类状态。
 
-1. **Architectural State（体系结构状态）**
+1. **Architectural State**
 
 程序能够直接看到的状态，例如：
 
 - 寄存器值；
 - 已提交的内存写入；
 - PC 与异常结果；
-- ISA 定义的可见行为。
+- **ISA** 定义的可见行为。
 
-如果推测执行方向错误，或指令最终触发异常，处理器必须保证 architectural state 看起来仍然正确。
+如果推测执行方向错误，或指令最终触发异常，处理器必须保证 **architectural state** 看起来仍然正确。
 
-2. **Microarchitectural State（微架构状态）**
+2. **Microarchitectural State**
 
 处理器为了实现高性能而维护的内部状态，例如：
 
-- Cache line 是否存在；
+- **Cache line** 是否存在；
 - TLB 条目；
-- 分支预测器历史；
-- 预取器状态；
+- **Branch Predictor** 历史；
+- **Prefetcher（预取器）** 状态；
 - 执行缓冲区内部状态。
 
 问题在于：
@@ -125,11 +125,11 @@ Cache 会被不同执行实体共享：
 因此，攻击的核心并非让非法结果正式提交，而是让非法或推测性的访问 **在 Cache 中留下痕迹** 。
 
 :::TIP
-最终的权限检查或异常处理会阻止非法结果提交，但瞬态执行产生的 Cache footprint 可能保留。不同处理器对权限检查与数据返回的具体实现时刻有所差异，architectural rollback 不等于 microarchitectural rollback
+最终的权限检查或异常处理会阻止非法结果提交，但 **Transient Execution（瞬态执行）** 产生的 Cache footprint 可能保留。不同处理器对权限检查与数据返回的具体实现时刻有所差异，architectural rollback 不等于 microarchitectural rollback
 :::
 
 
-## CPU Cache 缺陷与瞬态执行
+## CPU Cache 缺陷与 **Transient Execution**
 
 课件以一组依赖关系说明处理器为何会留下漏洞窗口：
 
@@ -138,11 +138,11 @@ Cache 会被不同执行实体共享：
 指令 4：依赖指令 3 的值计算新的访问位置
 ```
 
-在支持推测或乱序执行的处理器中，处理器可能在指令 3 的异常正式提交之前，让后续依赖访问进入执行过程：
+在支持推测或 **Out-of-Order Execution** 的处理器中，处理器可能在指令 3 的异常正式提交之前，让后续依赖访问进入执行过程：
 
 1. 指令 3 尝试读取受保护数据；
 2. 后续指令把这个数据转换成某个数组索引；
-3. 对应数组位置所在的 cache line 被载入；
+3. 对应数组位置所在的 **cache line** 被载入；
 4. 之后处理器发现前面访问非法，丢弃错误路径上的 architectural results；
 5. 但第 3 步形成的 Cache 状态变化仍然可以被计时观察。
 
@@ -166,9 +166,9 @@ secret 参与计算 probe[secret × stride]
 
 | 机制 | 正常目的 | 在攻击中的作用 |
 | --- | --- | --- |
-| Cache hit / miss latency | 降低平均访存时间 | 提供可计时的观测通道 |
-| Out-of-order execution | 隐藏长延迟、提高 ILP | 在异常正式处理前执行泄露操作 |
-| Speculative execution / BPU | 降低 branch penalty | 被训练后沿错误路径产生 Cache footprint |
+| **Cache hit** / miss latency | 降低平均访存时间 | 提供可计时的观测通道 |
+| **Out-of-order execution** | 隐藏长延迟、提高 ILP | 在异常正式处理前执行泄露操作 |
+| Speculative execution / **Branch Prediction Unit（分支预测单元，BPU）** | 降低 branch penalty | 被训练后沿错误路径产生 Cache footprint |
 
 <div style="display: flex; gap: 16px; justify-content: center; align-items: flex-start; flex-wrap: wrap; margin: 12px 0;">
    <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260526192840.png" style="width: 420px; max-width: 48%; height: auto;" />
@@ -176,7 +176,7 @@ secret 参与计算 probe[secret × stride]
 </div>
 
 
-## Meltdown：利用乱序执行泄露内核数据
+## Meltdown：利用 **Out-of-Order Execution** 泄露内核数据
 
 ### 漏洞原理
 
@@ -186,18 +186,18 @@ secret 参与计算 probe[secret × stride]
 
 - 用户程序无权读取内核地址；
 - 对内核地址的非法 load 应触发异常；
-- 提交阶段之后，程序不可能从 architectural state 中得到内核数据。
+- 提交阶段之后，程序不可能从 **architectural state** 中得到内核数据。
 
-Meltdown 利用的是乱序执行与异常处理之间的窗口：
+Meltdown 利用的是 **Out-of-Order Execution** 与异常处理之间的窗口：
 
 - 非法 load 最终会被识别并触发异常；
-- 在异常真正生效、相关指令退休之前，后续指令可能已经根据非法读出的值进行了瞬态执行；
+- 在异常真正生效、相关指令退休之前，后续指令可能已经根据非法读出的值进行了 **Transient Execution**；
 - 后续指令将秘密值编码到 Cache 状态中；
 - 即使处理器丢弃寄存器计算结果，攻击者仍能利用 Cache timing 恢复该值。
 
-课堂讲述把它与动态调度部分直接联系起来：
+课堂讲述把它与 **Dynamic Scheduling（动态调度）** 部分直接联系起来：
 
-- 指令先进入执行缓冲区 / reservation stations；
+- 指令先进入执行缓冲区 / **reservation stations（保留站）**；
 - 可执行的操作在结果正式按序提交前已经发生；
 - 最后通过按序 retirement / commit 维持程序可见结果正确；
 - 安全问题来自： **被丢弃指令产生的 Cache 副作用并没有同时丢弃** 。
@@ -237,7 +237,7 @@ secret = 0x41
 访问位置 = probe_array[0x41 × 4096]
 ```
 
-#### 第二步：瞬态执行秘密相关访问
+#### 第二步： **Transient Execution** 秘密相关访问
 
 `mov al, byte [rcx]` 属于无权限访问，最终一定会失败。  
 但在异常正式提交前，处理器可能已经执行：
@@ -248,12 +248,12 @@ mov rbx, qword [rbx+rax]
 
 于是与 `al` 对应的探测页进入 Cache。
 
-#### 第三步：异常处理恢复体系结构状态
+#### 第三步：异常处理恢复 **Architectural State**
 
 处理器发现用户态读取内核地址非法：
 
 - 丢弃相关指令的可见执行结果；
-- 恢复 architectural state；
+- 恢复 **architectural state**；
 - 触发异常或终止非法执行流。
 
 但 Cache 中被加载的页仍然存在。
@@ -287,10 +287,10 @@ probe_array[255 × 4096]
 
 #### Meltdown 缓解思路
 
-**KAISER / KPTI（Kernel Page-Table Isolation）** 方向：
+**KAISER / Kernel Page-Table Isolation（内核页表隔离技术，KPTI）** 方向：
 
 - 用户态运行期间，尽量不再把完整内核映射暴露在同一页表视图下；
-- 攻击者即使触发瞬态执行，也缺乏可直接读取的内核映射；
+- 攻击者即使触发 **Transient Execution**，也缺乏可直接读取的内核映射；
 - 这能够显著缓解 Meltdown 类型的攻击。
 
 局限性在于：
@@ -306,11 +306,11 @@ probe_array[255 × 4096]
 
 **Spectre** 的核心不是用户程序直接越权读取内核空间，而是：
 
-> 攻击者操纵受害程序的分支预测行为，使受害程序在错误预测路径上瞬态访问自身可访问但不应泄露的数据，再通过 Cache 侧信道将信息带出。
+> 攻击者操纵受害程序的 **Branch Prediction** 行为，使受害程序在错误预测路径上瞬态访问自身可访问但不应泄露的数据，再通过 Cache **Side Channel** 将信息带出。
 
-它与前面动态分支预测的知识直接对应：
+它与前面 **Dynamic Branch Prediction** 的知识直接对应：
 
-- BPU（Branch Prediction Unit）记录过去分支的行为；
+- **BPU** 记录过去分支的行为；
 - 处理器依据预测结果提前取指和执行；
 - 如果预测正确，性能提升；
 - 如果预测错误，错误路径上的 architectural results 被丢弃；
@@ -322,9 +322,9 @@ probe_array[255 × 4096]
 
 Spectre 攻击划分为三个阶段：
 
-1. **训练分支预测单元**
+1. **训练BPU**
 
-   攻击者使用大量合法输入，使 BPU 习惯于预测某个边界检查会通过。
+   攻击者使用大量合法输入，使 **BPU** 习惯于预测某个边界检查会通过。
 
 2. **触发错误推测执行**
 
@@ -354,7 +354,7 @@ if (x < array1_size) {
 
 攻击过程中：
 
-1. 攻击者多次提供合法 `x`，让 BPU 预测该条件通常为真；
+1. 攻击者多次提供合法 `x`，让 **BPU** 预测该条件通常为真；
 2. 再提供一个恶意越界 `x`，使 `array1[x]` 指向受害者地址空间中的敏感数据；
 3. 条件判断尚未真正完成时，预测执行临时进入分支体；
 4. `array1[x]` 的秘密字节决定 `array2[...]` 中哪个位置被访问；
@@ -377,7 +377,7 @@ array2[array1[x] * 256]
 
 三类缓解手段。
 
-1. **序列化 / 内存屏障指令**
+1. **序列化 / Memory Barrier（内存屏障）指令**
 
    在敏感路径上限制推测执行，例如使用类似 `LFENCE` 的指令，确保边界检查完成后再继续依赖访问。
 
@@ -388,16 +388,16 @@ array2[array1[x] * 256]
 
 2. **在条件分支附近插入阻止推测执行的处理**
 
-   通过编译器或程序改写，在关键分支及目标位置限制瞬态执行泄露。
+   通过编译器或程序改写，在关键分支及目标位置限制 **Transient Execution** 泄露。
 
    问题：
 
    - 需要识别所有危险代码位置；
    - 对热点代码的性能影响较大。
 
-3. **微代码与处理器修复**
+3. **Microcode（微代码）与处理器修复**
 
-   对分支预测或推测加载行为增加控制能力。
+   对 **Branch Prediction** 或推测加载行为增加控制能力。
 
    问题：
 
@@ -412,14 +412,14 @@ array2[array1[x] * 256]
 
 | 比较维度 | Meltdown | Spectre |
 | --- | --- | --- |
-| 主要联系的体系结构机制 | 乱序执行、异常处理、按序 retirement | 分支预测、推测执行、BPU 训练 |
+| 主要联系的体系结构机制 | **Out-of-Order Execution**、异常处理、按序 retirement | **Branch Prediction**、推测执行、 **BPU** 训练 |
 | 攻击目标 | 用户态读取原本受保护的内核数据 | 诱导受害程序泄露自身可访问的数据 |
 | 隔离边界 | 用户程序与操作系统内核之间 | 不同应用、沙箱或受害程序内部的逻辑边界 |
 | 关键动作 | 非法访问在异常处理前留下 Cache 痕迹 | 错误预测路径留下 Cache 痕迹 |
-| 是否依赖训练 BPU | 通常不以训练分支预测为核心 | 是 |
+| 是否依赖训练 **BPU** | 通常不以训练 **Branch Prediction** 为核心 | 是 |
 | 典型探测方式 | probe array + timing | array2 / probe array + timing |
 | 影响范围特征 | 早期典型情形与许多 Intel 处理器密切相关 | 影响范围更广，涉及 Intel、AMD、ARM 等 |
-| 典型软件缓解 | KAISER / KPTI | 屏障、retpoline、编译器与微代码缓解 |
+| 典型软件缓解 | KAISER / **KPTI** | 屏障、 **retpoline（返回跳板）**、编译器与 **Microcode** 缓解 |
 | 防护难点 | 隔离内核映射会影响性能 | 预测执行用途广，通用彻底防御困难 |
 
 共同点是：
@@ -445,7 +445,7 @@ Meltdown 与 Spectre 只是最具代表性的案例。slides 与课堂讲述还�
 
 - 受害程序的运行窗口很短；
 - 系统并发访问会扰动 Cache 状态；
-- 硬件预取可能干扰探测结果；
+- 硬件 **Prefetching（预取）** 可能干扰探测结果；
 - 补丁与操作系统实现会改变攻击成功率。
 
 因此，后续攻击研究往往追求三个指标：
@@ -458,7 +458,7 @@ Meltdown 与 Spectre 只是最具代表性的案例。slides 与课堂讲述还�
 
 ### TEE 与新的执行环境
 
-某些商用 **TEE（Trusted Execution Environment）** 在 Cache 侧信道面前并不天然安全。原因仍然是：
+某些商用 **TEE（Trusted Execution Environment）** 在 Cache **Side Channel** 面前并不天然安全。原因仍然是：
 
 - 不同安全域可能共享底层 Cache；
 - 软件或权限上的隔离并未等价为缓存资源隔离。
@@ -469,34 +469,34 @@ Meltdown 与 Spectre 只是最具代表性的案例。slides 与课堂讲述还�
 - serverless 等共享基础设施；
 - AI inference 等对性能高度敏感、资源复用密集的场景。
 
-这些场景下，性能优化越积极，共享资源越多，越需要关注微架构侧信道。
+这些场景下，性能优化越积极，共享资源越多，越需要关注微架构 **Side Channel**。
 
 ### 不同硬件平台的攻击分布
 
-- Intel、AMD、ARM 等主流商用平台都存在不同类型的缓存侧信道风险；
+- Intel、AMD、ARM 等主流商用平台都存在不同类型的缓存 **Side Channel** 风险；
 - 一部分攻击利用 Cache 共享、命中时延等通用性质，因此跨平台；
-- 一部分新型攻击依赖具体的查找逻辑、替换策略、目录、一致性协议、预取机制或瞬态执行，因此平台相关性更强；
-- 现有商用处理器仍难以对所有 Cache 侧信道攻击提供完全防护。
+- 一部分新型攻击依赖具体的查找逻辑、替换策略、目录、一致性协议、 **Prefetching** 机制或 **Transient Execution**，因此平台相关性更强；
+- 现有商用处理器仍难以对所有 Cache **Side Channel** 攻击提供完全防护。
 
 
 ## Cache 安全增强方案
 
 ### 商用处理器缓解方式
 
-Intel 与 ARM 面向已披露瞬态执行漏洞的部分缓解方式：
+Intel 与 ARM 面向已披露 **Transient Execution** 漏洞的部分缓解方式：
 
 | 攻击类型 | Intel 采用的防御方法 | ARM 采用的防御方法 |
 | --- | --- | --- |
-| 边界检查绕过 | 内存屏障指令 `LFENCE` | 新内存屏障指令 `CSDB` |
-| 分支目标注入 | 返回跳板 `retpoline` | 无通用缓解方法 |
-| 数据缓存恶意加载 | 内核页表隔离技术 `KPTI` | - |
-| 系统寄存器恶意加载 | 更新微代码 | 非必要 |
+| **Bounds Check Bypass（边界检查绕过）** | **Memory Barrier** 指令 `LFENCE` | 新 **Memory Barrier** 指令 `CSDB` |
+| **Branch Target Injection（分支目标注入）** | **Retpoline** `retpoline` | 无通用缓解方法 |
+| 数据缓存恶意加载 | **KPTI** `KPTI` | - |
+| 系统寄存器恶意加载 | 更新 **Microcode** | 非必要 |
 | 推测存储绕过 | `LFENCE`；特殊模块寄存器 `MSR` 的 `SSBD` 标识位 | `SSBB`、`PSSBB` |
 
 总体结论是：
 
 - 商用处理器已经针对 Meltdown / Spectre 等公开漏洞部署了一系列缓解方案；
-- 这些方案通常具有针对性，未必覆盖全部 Cache 侧信道变种；
+- 这些方案通常具有针对性，未必覆盖全部 Cache **Side Channel** 变种；
 - 安全增强会带来不同程度的性能开销。
 
 ### 基于软件的防御
@@ -553,7 +553,7 @@ Way 0  Way 1        Way 2  Way 3
 
 优点：
 
-- 从共享资源的根源上削弱侧信道；
+- 从共享资源的根源上削弱 **Side Channel**；
 - 隔离逻辑直观，安全语义清晰。
 
 缺点：
@@ -564,7 +564,7 @@ Way 0  Way 1        Way 2  Way 3
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260526201801.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
-#### 缓存随机化方法
+#### **Cache Randomization（缓存随机化）** 方法
 
 传统 Cache 映射具有固定关系：
 
@@ -573,7 +573,7 @@ address → index → cache set
 ```
 
 只要攻击者掌握映射规则，就可以构造与受害者冲突或用于探测的地址。  
-缓存随机化的目标是：
+**Cache Randomization** 的目标是：
 
 > 消除特定地址与缓存位置之间对攻击者稳定可预测的固定映射。
 
@@ -598,7 +598,7 @@ address → index → cache set
 
    - 附加存储较少；
    - 可以用较小开销实现随机化；
-   - 仍不能从原理上完全消除所有侧信道。
+   - 仍不能从原理上完全消除所有 **Side Channel**。
 
 结论是：
 
@@ -615,7 +615,7 @@ address → index → cache set
 
 #### 针对目录结构的防御
 
-对于目录或一致性相关侧信道，可以从两个角度处理：
+对于目录或一致性相关 **Side Channel**，可以从两个角度处理：
 
 1. **从源头减少冲突**
 
@@ -624,18 +624,18 @@ address → index → cache set
 
 2. **从攻击结果进行修复**
 
-   - 检测跨核心缓存行替换；
+   - 检测跨核心 **Cache Line** 替换；
    - 在发现异常替换后，将被替换行重新加载至 L2 等结构中。
 
 #### 重新定义软硬件接口
 
-仅在微架构内部“打补丁”难以长期覆盖所有新攻击，因此可以重新考虑 ISA 与程序语义：
+仅在微架构内部“打补丁”难以长期覆盖所有新攻击，因此可以重新考虑 **ISA** 与程序语义：
 
 - 通过 **Data-Oblivious Programming（数据遗忘编程）** ，消除机密信息与访存模式或分支执行时延之间的关联；
-- 通过优化基本块执行，减少敏感代码对分支预测的依赖；
-- 通过新的 ISA 支持，让软件明确表达敏感执行区域或禁止泄露的访问模式。
+- 通过优化基本块执行，减少敏感代码对 **Branch Prediction** 的依赖；
+- 通过新的 **ISA** 支持，让软件明确表达敏感执行区域或禁止泄露的访问模式。
 
 这一方向的核心思想是：
 
-> 安全不能永远依赖处理器事后猜测哪些瞬态执行可能危险；软件与硬件需要共同表达并维护安全边界。
+> 安全不能永远依赖处理器事后猜测哪些 **Transient Execution** 可能危险；软件与硬件需要共同表达并维护安全边界。
 

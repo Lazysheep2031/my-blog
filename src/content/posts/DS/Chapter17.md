@@ -146,10 +146,10 @@ A + B 的总和不变
 
 更一般地，一致性约束分为两类。
 
-**显式完整性约束：**
+**显式Integrity Constraint（完整性约束）：**
 
-- primary key
-- foreign key
+- **primary key（主键）**
+- **foreign key（外键）**
 - check constraint
 - not null
 
@@ -396,9 +396,9 @@ T2: using CPU
 > 多个事务的 read/write 操作交错执行，并且没有足够的隔离控制。
 
 
-## Lost Update
+## **Lost Update**
 
-丢失修改指：两个事务基于同一个旧值进行修改，后写入的结果覆盖了先写入的结果。
+**Lost Update** 指：两个事务基于同一个旧值进行修改，后写入的结果覆盖了先写入的结果。
 
 例子：
 
@@ -462,12 +462,12 @@ rollback
 
 这会导致数据库保留一个由无效数据推导出来的结果。
 
-脏读通常会破坏 recoverability。
+脏读通常会破坏 **recoverability（可恢复性）**。
 
 
-## Unrepeatable Read
+## **Unrepeatable Read**
 
-不可重复读指：同一个事务内，两次读取同一个数据项，得到不同结果。
+**Unrepeatable Read** 指：同一个事务内，两次读取同一个数据项，得到不同结果。
 
 课件例子：
 
@@ -497,9 +497,9 @@ A = 99
 如果 T1 的业务逻辑依赖“同一事务内重复读取结果稳定”，这个交错执行就会出错。
 
 
-## Phantom Problem
+## **Phantom Problem**
 
-幽灵问题指：一个事务按某个谓词条件查询一批记录，另一个事务插入或删除满足该条件的记录，导致前后两次查询结果集合变化。
+**Phantom Problem** 指：一个事务按某个谓词条件查询一批记录，另一个事务插入或删除满足该条件的记录，导致前后两次查询结果集合变化。
 
 课件例子：
 
@@ -529,12 +529,12 @@ where age = 18;
 
 新出现的那条记录像“幽灵”一样出现在第二次查询中。
 
-幽灵问题和不可重复读相似，但关注点不同：
+**Phantom Problem** 和 **Unrepeatable Read** 相似，但关注点不同：
 
-- 不可重复读：同一条记录的值变了
-- 幽灵问题：满足条件的记录集合变了
+- **Unrepeatable Read**：同一条记录的值变了
+- **Phantom Problem**：满足条件的记录集合变了
 
-在简单 read/write 模型中，幽灵问题不容易表达，因为它涉及谓词读取 `predicate read`。
+在简单 read/write 模型中， **Phantom Problem** 不容易表达，因为它涉及谓词读取 `predicate read`。
 
 
 ## Schedules
@@ -580,9 +580,9 @@ abort 是最后一步
 
 通常默认事务在成功执行完最后一条语句后会提交。
 
-### Serial Schedule
+### **Serial Schedule（串行调度）**
 
-串行调度指事务一个接一个执行，中间没有交错。
+**Serial Schedule** 指事务一个接一个执行，中间没有交错。
 
 设：
 
@@ -653,7 +653,7 @@ commit
 A = 40, B = 160, A + B = 200
 ```
 
-两个串行调度的最终结果可以不同，但都满足一致性约束。
+两个 **Serial Schedule** 的最终结果可以不同，但都满足一致性约束。
 
 这说明：
 
@@ -732,11 +732,11 @@ A = 50, B = 110, A + B = 160
 `A + B` 没有保持不变，因此 Schedule 4 是错误调度。
 
 
-## Serializability
+## **Serializability（可串行化）**
 
 ### 基本假设
 
-可串行化分析建立在一个基本假设上：
+**Serializability** 分析建立在一个基本假设上：
 
 > 每个事务单独执行时，都能保持数据库一致性。
 
@@ -746,13 +746,13 @@ A = 50, B = 110, A + B = 160
 事务串行执行 -> 一定保持一致性
 ```
 
-如果某个并发调度的效果等价于某个串行调度，那么这个并发调度也应该是正确的。
+如果某个并发调度的效果等价于某个 **Serial Schedule**，那么这个并发调度也应该是正确的。
 
-### 可串行化的含义
+### **Serializability** 的含义
 
 定义：
 
-> A schedule is serializable if it is equivalent to a serial schedule.
+> A schedule is serializable if it is equivalent to a **serial schedule** .
 
 也就是说：
 
@@ -760,17 +760,17 @@ A = 50, B = 110, A + B = 160
 并发 schedule S
 ```
 
-只要能找到某个串行 schedule S'，使得二者效果等价，那么 S 就是可串行化的。
+只要能找到某个串行 schedule S'，使得二者效果等价，那么 S 就是 **Serializability** 的。
 
-不同的“等价”定义会产生不同的可串行化概念：
+不同的“等价”定义会产生不同的 **Serializability** 概念：
 
 - **Conflict Serializability（冲突可串行化）**
 - **View Serializability（视图可串行化）**
 
 可以把两者的核心要求概括为：
 
-- 冲突可串行化： **所有冲突操作对的相对顺序保持一致** 。
-- 视图可串行化： **对应读操作读到的值一致** ，且 **每个数据项的最终写入者一致** 。
+- **Conflict Serializability**： **所有冲突操作对的相对顺序保持一致** 。
+- **View Serializability**： **对应读操作读到的值一致** ，且 **每个数据项的最终写入者一致** 。
 
 以 Schedule 1 和 Schedule 3 为例：
 
@@ -781,9 +781,9 @@ A = 50, B = 110, A + B = 160
 因此 Schedule 3 与 Schedule 1 在视图上等价。
 
 
-## Conflict Serializability
+## **Conflict Serializability**
 
-冲突可串行化只关注 read/write 操作之间的冲突关系。
+**Conflict Serializability** 只关注 read/write 操作之间的冲突关系。
 
 ### Conflict 的定义
 
@@ -834,7 +834,7 @@ S 和 S' conflict equivalent
 S 是 conflict serializable
 ```
 
-Schedule 3 可以通过交换非冲突操作，变成串行调度：
+Schedule 3 可以通过交换非冲突操作，变成 **Serial Schedule**：
 
 ```text
 T1 -> T2
@@ -844,7 +844,7 @@ T1 -> T2
 
 ### 反例
 
-不可冲突可串行化调度：
+**Non-Conflict-Serializable Schedule（不可冲突可串行化调度）**：
 
 ```text
 T3                         T4
@@ -879,11 +879,11 @@ T3 -> T4 -> T3
 所以它不是 conflict serializable。
 
 
-## Testing for Conflict Serializability
+## Testing for **Conflict Serializability**
 
-### Precedence Graph
+### **Precedence Graph（前驱图）**
 
-前驱图（precedence graph）用于判定一个 schedule 是否 conflict serializable。
+**Precedence Graph** 用于判定一个 schedule 是否 conflict serializable。
 
 构造方式：
 
@@ -904,7 +904,7 @@ Ti -> Tj
 
 核心定理：
 
-> A schedule is conflict serializable if and only if its precedence graph is acyclic.
+> A schedule is conflict serializable if and only if its **precedence graph** is acyclic.
 
 也就是说：
 
@@ -913,7 +913,7 @@ Ti -> Tj
 前驱图有环 <=> not conflict serializable
 ```
 
-如果前驱图无环，可以对图做拓扑排序。
+如果 **Precedence Graph** 无环，可以对图做拓扑排序。
 
 拓扑排序得到的事务顺序，就是等价的串行顺序。
 
@@ -966,11 +966,11 @@ T1, T3, T2, T4
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260602110453.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
 
-## View Serializability
+## **View Serializability**
 
-冲突可串行化较强，很多正确的调度会被排除。
+**Conflict Serializability** 较强，很多正确的调度会被排除。
 
-视图可串行化使用更宽松的等价关系：只要求每个读操作“看到”的值一致，并且最终写入者一致。
+**View Serializability** 使用更宽松的等价关系：只要求每个读操作“看到”的值一致，并且最终写入者一致。
 
 ### View Equivalent
 
@@ -992,7 +992,7 @@ T1, T3, T2, T4
 
 如果 schedule `S` view equivalent 于某个串行 schedule，则 `S` 是 view serializable。
 
-### 和 Conflict Serializability 的关系
+### 和 **Conflict Serializability** 的关系
 
 关系是：
 
@@ -1002,8 +1002,8 @@ Conflict serializable ⊆ View serializable
 
 即：
 
-- 每个 conflict serializable schedule 都是 view serializable
-- 有些 view serializable schedule 不是 conflict serializable
+- 每个 conflict **serializable schedule（可串行化调度）** 都是 view serializable
+- 有些 view **serializable schedule** 不是 conflict serializable
 
 例子：
 
@@ -1029,9 +1029,9 @@ T27 -> T28 -> T29
 原因在于其中存在 blind write 相关情况，使得冲突图可能出现环，但从“读到什么值”和“最终谁写入”的角度看，它仍能对应一个串行执行。
 
 
-## Other Notions of Serializability
+## Other Notions of **Serializability**
 
-有些调度最终结果和某个串行调度相同，但这种等价性无法只靠 read/write 冲突或 view equivalence 判断。
+有些调度最终结果和某个 **Serial Schedule** 相同，但这种等价性无法只靠 read/write 冲突或 view equivalence 判断。
 
 例子中，两个操作满足数学上的交换律：
 
@@ -1039,7 +1039,7 @@ T27 -> T28 -> T29
 (B - 10) + 50 = (B + 50) - 10
 ```
 
-因此最终结果可能和串行调度 `<T1, T5>` 一样。
+因此最终结果可能和 **Serial Schedule** `<T1, T5>` 一样。
 
 但要证明这种等价，需要理解事务内部计算逻辑：
 
@@ -1059,13 +1059,13 @@ T27 -> T28 -> T29
 ```
 
 
-## Recoverability
+## **Recoverability**
 
-可串行化主要解决隔离性。
+**Serializability** 主要解决隔离性。
 
 但即使一个调度在并发结果上看起来正确，也可能在事务失败时无法恢复。
 
-所以还需要 recoverability。
+所以还需要 **recoverability**。
 
 ### Recoverable Schedule
 
@@ -1174,7 +1174,7 @@ preferably cascadeless
 
 关键点：
 
-> 事务执行完以后再检测 schedule 是否可串行化已经太晚了。
+> 事务执行完以后再检测 schedule 是否 **Serializability** 已经太晚了。
 
 原因：
 
@@ -1189,12 +1189,12 @@ preferably cascadeless
 限制事务操作的执行顺序，使系统永远不会产生不安全调度
 ```
 
-它通常不会实时构造完整的 precedence graph，而是直接施加纪律。
+它通常不会实时构造完整的 **precedence graph**，而是直接施加纪律。
 
 例如：
 
 - 先加锁再读写
-- 按时间戳顺序访问
+- 按 **Timestamp（时间戳）** 顺序访问
 - 提交前做验证
 
 不同协议之间有权衡：
@@ -1206,11 +1206,11 @@ preferably cascadeless
 | 强隔离 | 性能下降 |
 | 弱隔离 | 程序员要承担更多一致性风险 |
 
-### 前驱图不是运行时检查机制
+### **Precedence Graph** 不是运行时检查机制
 
-前驱图、冲突边和拓扑排序主要是用来理解与证明调度正确性的数学工具。实际 DBMS 通常不会等一个 schedule 形成后再检查它有没有环，因为那时错误读写、错误输出或不可恢复提交可能已经发生。
+**Precedence Graph**、冲突边和拓扑排序主要是用来理解与证明调度正确性的数学工具。实际 DBMS 通常不会等一个 schedule 形成后再检查它有没有环，因为那时错误读写、错误输出或不可恢复提交可能已经发生。
 
-更实际的做法是：设计并发控制协议，让事务在运行过程中就遵守某些访问规则，从源头避免不可串行化、不可恢复或级联回滚的调度。
+更实际的做法是：设计并发控制协议，让事务在运行过程中就遵守某些访问规则，从源头避免 **Nonserializable（不可串行化）**、不可恢复或级联回滚的调度。
 
 ### 三类并发控制协议预告
 
@@ -1225,9 +1225,9 @@ preferably cascadeless
 
 **Timestamp-Based Protocols（基于时间戳的协议）** ：
 
-- 事务开始时分配时间戳
-- 数据项维护读时间戳和写时间戳
-- 系统用时间戳判断访问是否违反事务的逻辑先后顺序
+- 事务开始时分配 **Timestamp**
+- 数据项维护读 **Timestamp** 和写 **Timestamp**
+- 系统用 **Timestamp** 判断访问是否违反事务的逻辑先后顺序
 
 **Validation-Based Protocols（基于验证的协议）** ：
 
@@ -1252,7 +1252,7 @@ Read phase -> Validation phase -> Write phase
 - 查询优化器统计数据库数据分布
 - 监控系统计算近似指标
 
-这些任务不一定需要严格可串行化。
+这些任务不一定需要严格 **Serializability**。
 
 因为它们更看重：
 
@@ -1266,9 +1266,9 @@ Read phase -> Validation phase -> Write phase
 
 对只读事务，数据库可以采用多版本思想减少阻塞：写事务生成数据的新版本，已经开始的只读事务继续读取旧的一致版本。这样读事务可以在较强的一致性要求下尽量不阻塞写事务。
 
-这种方法提高读并发，但系统需要维护多个版本，并在合适时机回收旧版本。如果事务既读又写，或者要求严格可串行化，仍然需要额外的并发控制机制。
+这种方法提高读并发，但系统需要维护多个版本，并在合适时机回收旧版本。如果事务既读又写，或者要求严格 **Serializability**，仍然需要额外的并发控制机制。
 
-这就是隔离级别存在的原因。
+这就是 **Isolation Level（隔离级别）** 存在的原因。
 
 核心权衡：
 
@@ -1277,9 +1277,9 @@ accuracy <-> performance
 ```
 
 
-## Transaction Isolation Levels
+## Transaction **Isolation Levels**
 
-SQL 标准定义了多个事务隔离级别。
+SQL 标准定义了多个事务 **Isolation Level**。
 
 从强到弱大致为：
 
@@ -1292,7 +1292,7 @@ Read Uncommitted
 
 ### Serializable
 
-最强隔离级别。
+最强 **Isolation Level**。
 
 要求事务并发执行的效果等价于某个串行执行。
 
@@ -1306,7 +1306,7 @@ Read Uncommitted
 
 > 某些数据库系统默认级别并不是真正 serializable。
 
-例如教材和课件都提醒：Oracle、PostgreSQL 等系统默认支持或常用的并发行为可能是 snapshot isolation 或 read committed，而 snapshot isolation 不属于 SQL 标准隔离级别。
+例如教材和课件都提醒：Oracle、PostgreSQL 等系统默认支持或常用的并发行为可能是 snapshot isolation 或 read committed，而 snapshot isolation 不属于 SQL 标准 **Isolation Level**。
 
 ### Repeatable Read
 
@@ -1318,7 +1318,7 @@ Read Uncommitted
 因此它能避免：
 
 - dirty read
-- unrepeatable read
+- **unrepeatable read**
 
 但它仍可能出现某些非串行化情况，尤其是谓词查询相关问题。
 
@@ -1346,38 +1346,38 @@ Read Uncommitted
 
 Read committed 可以避免 dirty read，但可能出现：
 
-- unrepeatable read
-- phantom problem
-- lost update 的某些变体
+- **unrepeatable read**
+- **phantom problem**
+- **lost update** 的某些变体
 
 许多数据库系统默认使用 read committed。
 
 ### Read Uncommitted
 
-最低隔离级别。
+最低 **Isolation Level**。
 
 允许读取未提交数据。
 
 因此可能出现：
 
 - dirty read
-- unrepeatable read
-- phantom problem
+- **unrepeatable read**
+- **phantom problem**
 
 它适合对精度要求低、性能要求高的近似读取场景。
 
-### 隔离级别对比
+### **Isolation Level** 对比
 
-| 隔离级别 | 是否可读未提交数据 | 重复读是否稳定 | 是否保证可串行化 | 典型风险 |
+| **Isolation Level** | 是否可读未提交数据 | 重复读是否稳定 | 是否保证 **Serializability** | 典型风险 |
 |---|---:|---:|---:|---|
 | Serializable | 否 | 是 | 是 | 性能开销高 |
 | Repeatable Read | 否 | 是，针对已读记录 | 不一定 | phantom / 非串行化 |
-| Read Committed | 否 | 否 | 否 | 不可重复读、phantom |
+| Read Committed | 否 | 否 | 否 | **Unrepeatable Read**、phantom |
 | Read Uncommitted | 是 | 否 | 否 | 脏读 |
 
 还要注意：
 
-> SQL 标准的这些隔离级别都禁止 dirty write。
+> SQL 标准的这些 **Isolation Level** 都禁止 dirty write。
 
 Dirty write 指：
 
@@ -1421,9 +1421,9 @@ commit;
 rollback;
 ```
 
-### 自动提交
+### **Autocommit（自动提交）**
 
-大多数数据库系统默认开启自动提交。
+大多数数据库系统默认开启 **Autocommit**。
 
 含义：
 
@@ -1440,12 +1440,12 @@ update account set balance = balance - 50 where account_number = A;
 update account set balance = balance + 50 where account_number = B;
 ```
 
-如果自动提交开启：
+如果 **Autocommit** 开启：
 
 - 第一条 SQL 成功后可能已经提交
 - 第二条 SQL 失败时无法把第一条自然合并回滚
 
-因此应用程序中处理多语句事务时，通常要关闭自动提交。
+因此应用程序中处理多语句事务时，通常要关闭 **Autocommit**。
 
 JDBC 中：
 
@@ -1460,15 +1460,15 @@ try {
 }
 ```
 
-恢复自动提交：
+恢复 **Autocommit**：
 
 ```java
 connection.setAutoCommit(true);
 ```
 
-### 设置隔离级别
+### 设置 **Isolation Level**
 
-SQL 中可以在事务开始时设置隔离级别。
+SQL 中可以在事务开始时设置 **Isolation Level**。
 
 例如：
 
@@ -1484,13 +1484,13 @@ connection.setTransactionIsolation(
 );
 ```
 
-隔离级别也可以在数据库级别配置。
+**Isolation Level** 也可以在数据库级别配置。
 
 注意：
 
-- 设置隔离级别通常必须在事务开始时完成
-- 不同 DBMS 的默认隔离级别可能不同
-- 不同 DBMS 对同名隔离级别的实现细节也可能不同
+- 设置 **Isolation Level** 通常必须在事务开始时完成
+- 不同 DBMS 的默认 **Isolation Level** 可能不同
+- 不同 DBMS 对同名 **Isolation Level** 的实现细节也可能不同
 
 
 ## Transaction Boundaries

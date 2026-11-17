@@ -29,11 +29,11 @@ draft: false
 
 **逻辑通信** 可以画成两端对等层直接联系； **实际传输** 必须经过物理层与通信介质。
 
-在主机中，链路层主要由 **网络适配器／网卡（NIC）** 上的硬件实现，部分功能由运行在主机 CPU 上的软件完成。网卡中的链路层控制器承担分帧、链路访问、流量控制和差错检测等功能。路由器则通常在其线卡中实现链路层功能。
+在主机中，链路层主要由 **Network Interface Card（网络适配器／网卡，NIC）** 上的硬件实现，部分功能由运行在主机 CPU 上的软件完成。网卡中的链路层控制器承担分帧、链路访问、 **Flow Control（流量控制）** 和差错检测等功能。路由器则通常在其线卡中实现链路层功能。
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261012202749.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
-### Error Control and Flow Control
+### **Error Control（差错控制）** and **Flow Control**
 
 可靠传输中，三个机制相互配合：
 
@@ -70,7 +70,7 @@ draft: false
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261012203311.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
-### Flag Bytes with Byte Stuffing
+### Flag Bytes with **Byte Stuffing（字节填充）**
 
 在帧首、帧尾加入特殊的 **标志字节（FLAG）** ：
 
@@ -80,7 +80,7 @@ FLAG | Header | Payload | Trailer | FLAG
 
 前一帧的结束 FLAG 与后一帧的开始 FLAG 可以相邻出现。接收方失步后，可继续寻找可靠的标志序列，重新确定边界。
 
-问题是： **数据本身也可能包含 FLAG。** 为使任意数据都能传输，需要使用 **字节填充（Byte Stuffing）** ：数据中的 FLAG 前加一个转义字节 `ESC`；数据中的 ESC 前也加一个 ESC。接收端遇到 ESC 时，去掉转义用的 ESC，把紧随其后的字节作为普通数据处理。
+问题是： **数据本身也可能包含 FLAG。** 为使任意数据都能传输，需要使用 **Byte Stuffing** ：数据中的 FLAG 前加一个转义字节 `ESC`；数据中的 ESC 前也加一个 ESC。接收端遇到 ESC 时，去掉转义用的 ESC，把紧随其后的字节作为普通数据处理。
 
 #### Examples
 
@@ -112,9 +112,9 @@ B    → B
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261012203524.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
-### Flag Bits with Bit Stuffing
+### Flag Bits with **Bit Stuffing（比特填充）**
 
-**比特填充（Bit Stuffing）** 直接在比特层面工作，帧内容可以包含任意数量的比特。
+**Bit Stuffing** 直接在比特层面工作，帧内容可以包含任意数量的比特。
 
 帧边界使用：
 
@@ -156,7 +156,7 @@ $$
 
 **4B/5B 的例子** ：4 位数据只有 $2^4=16$ 种组合，5 位信号码共有 $2^5=32$ 种组合。正常数据映射之外的部分保留信号，可以用作控制标记。
 
-**曼彻斯特编码** ：正常比特在位周期中间有跳变。利用不符合正常跳变规则的信号形式作为帧起始标志。
+**Manchester Encoding（曼彻斯特编码）** ：正常比特在位周期中间有跳变。利用不符合正常跳变规则的信号形式作为帧起始标志。
 
 这种方法依赖物理层确实存在可用的保留编码。由于标记不会由正常数据编码产生，无需再为这一标记对普通数据做同样的填充。
 
@@ -164,25 +164,25 @@ $$
 
 ### Combining Framing Methods
 
-实际协议可以组合使用几种方法。例如，用 **前导码（Preamble）＋长度字段** 说明：前导码让接收方准备接收、建立同步，长度字段辅助定位帧尾。
+实际协议可以组合使用几种方法。例如，用 **Preamble（前导码）＋长度字段** 说明： **Preamble** 让接收方准备接收、建立同步，长度字段辅助定位帧尾。
 
-## Data link layer: Error Control
+## Data link layer: **Error Control**
 
 ### Error Models and Basic Strategies
 
 两种基本策略都需要增加冗余信息：
 
-**纠错码（Error-Correcting Codes）** 加入足够的冗余，使接收方在一定错误范围内推断并恢复原数据。较易出错、重传代价较大的链路适合考虑这种方法。
+**Error-Correcting Code（纠错码）** 加入足够的冗余，使接收方在一定错误范围内推断并恢复原数据。较易出错、重传代价较大的链路适合考虑这种方法。
 
-**检错码（Error-Detecting Codes）** 主要判断数据是否发生错误；发现问题后，可结合重传协议取得正确数据。在低误码率链路上，少量校验加偶发重传往往更经济。
+**Error-Detecting Code（检错码）** 主要判断数据是否发生错误；发现问题后，可结合重传协议取得正确数据。在低 **Bit Error Rate（误码率）** 链路上，少量校验加偶发重传往往更经济。
 
-两种主要错误模型： **孤立的单比特错误** ，以及由深衰落或瞬态干扰等引起的 **突发错误（Burst Error）** 。
+两种主要错误模型： **孤立的单比特错误** ，以及由深衰落或瞬态干扰等引起的 **Burst Error（突发错误）** 。
 
-突发错误描述一段受影响的范围，范围内不要求每一位都翻转。
+**Burst Error** 描述一段受影响的范围，范围内不要求每一位都翻转。
 
 ### Error Correction
 
-#### Block Codes and Code Rate
+#### Block Codes and **Code Rate（编码率）**
 
 设原始数据有 $m$ 位，校验位有 $r$ 位，则码字长度为：
 
@@ -190,23 +190,23 @@ $$
 n=m+r
 $$
 
-**块码（Block Code）** 的校验位由当前这组 $m$ 位数据计算得到。
+**Block Code（块码）** 的校验位由当前这组 $m$ 位数据计算得到。
 
-**系统码（Systematic Code）** 把输入数据位直接保留在码字中，并加入校验位；
+**Systematic Code（系统码）** 把输入数据位直接保留在码字中，并加入校验位；
 
-**线性码（Linear Code）** 的校验位是数据位的线性函数；二进制线性运算中常用异或。
+**Linear Code（线性码）** 的校验位是数据位的线性函数；二进制线性运算中常用异或。
 
-**码率（Code Rate）** 为有效数据位占整个码字的比例：
+**Code Rate** 为有效数据位占整个码字的比例：
 
 $$
 R_c=\frac{m}{n}=\frac{m}{m+r}
 $$
 
-码率 $1/2$ 表示约一半传输位用于冗余；码率接近 1 表示冗余相对较少。
+**Code Rate** $1/2$ 表示约一半传输位用于冗余； **Code Rate** 接近 1 表示冗余相对较少。
 
-#### Hamming Distance
+#### **Hamming Distance（海明距离）**
 
-两个等长比特串的 **海明距离（Hamming Distance）** 是对应位置不同的比特数。计算时可以先异或，再统计结果中 1 的个数：
+两个等长比特串的 **Hamming Distance** 是对应位置不同的比特数。计算时可以先异或，再统计结果中 1 的个数：
 
 ```text
   10001001
@@ -217,7 +217,7 @@ $$
 
 因此两者距离为 **3** 。
 
-一套编码的海明距离取所有不同合法码字之间距离的最小值：
+一套编码的 **Hamming Distance** 取所有不同合法码字之间距离的最小值：
 
 $$
 d_{\min}=\min_{x,y\in\mathcal C,\,x\ne y}d_H(x,y)
@@ -277,7 +277,7 @@ $$
 1111111111
 ```
 
-求码本的最小海明距离，并分析接收串 `0000000111`。
+求码本的最小 **Hamming Distance**，并分析接收串 `0000000111`。
 
 <details>
 <summary>展开解答</summary>
@@ -336,11 +336,11 @@ $$
 
 </details>
 
-$(7,4)$ 海明码示例取 $m=4,r=3,n=7$，有 $4+3+1=2^3$。
+$(7,4)$ **Hamming Code（海明码）** 示例取 $m=4,r=3,n=7$，有 $4+3+1=2^3$。
 
-#### Hamming Code
+#### **Hamming Code**
 
-**海明码（Hamming Code）** 利用特定的校验位位置，让校验结果直接指出单比特错误的位置。
+**Hamming Code** 利用特定的校验位位置，让校验结果直接指出单比特错误的位置。
 
 **从最右边开始编号，位置号为 $1,2,3,\ldots$，采用偶校验。**
 
@@ -402,9 +402,9 @@ $$
 
 </details>
 
-#### Syndrome and Single-Bit Error Correction
+#### **Syndrome（伴随式／校验综合）** and Single-Bit Error Correction
 
-接收方重新检查校验关系，得到 **伴随式／校验综合（Syndrome）** 。在上述偶校验构造中，也可以把收到码字内 **所有取值为 1 的位置号** 异或，包括校验位的位置。
+接收方重新检查校验关系，得到 **Syndrome** 。在上述偶校验构造中，也可以把收到码字内 **所有取值为 1 的位置号** 异或，包括校验位的位置。
 
 在“没有错误或至多一个比特错误”的前提下：
 
@@ -453,13 +453,13 @@ $$
 S=0\oplus j=j
 $$
 
-若有多个位置同时出错，结果变成这些位置号的异或，可能恰好指向另一个位置。因此，普通海明码的单错定位规则不能无条件用于多错情况。
+若有多个位置同时出错，结果变成这些位置号的异或，可能恰好指向另一个位置。因此，普通 **Hamming Code** 的单错定位规则不能无条件用于多错情况。
 
 </details>
 
 #### Binary Convolutional Codes
 
-**卷积码（Convolutional Code）** 连续处理输入序列，输出同时依赖当前输入与历史输入，编码器具有记忆。
+**Convolutional Code（卷积码）** 连续处理输入序列，输出同时依赖当前输入与历史输入，编码器具有记忆。
 
 用 $(n,m,K)$ 描述：每次输入 $m$ 位、输出 $n$ 位。输出依赖当前输入块与前 $K-1$ 个输入块；$K$ 为约束长度。
 
@@ -495,7 +495,7 @@ $$
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261012205135.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
-#### Convolutional Decoding and Trellis Diagram
+#### Convolutional Decoding and **Trellis Diagram（网格图）**
 
 译码的基本目标是：找出最可能产生收到的输出序列的输入序列。
 
@@ -520,7 +520,7 @@ $$
 | $c=01$ | $a=00$／11 | $b=10$／00 |
 | $d=11$ | $c=01$／01 | $d=11$／10 |
 
-将同一组状态沿 $t_0,t_1,t_2,\ldots$ 重复排列，并连接允许的转移，就得到 **网格图（Trellis Diagram）** 。
+将同一组状态沿 $t_0,t_1,t_2,\ldots$ 重复排列，并连接允许的转移，就得到 **Trellis Diagram** 。
 
 图上每条边对应一个输入以及由此产生的输出。把实际收到的输出与候选边输出比较，累积差异；多条路径到达同一状态时，保留累计差异更小的路径。这样利用了整段状态演化关系，无需把每个接收位孤立地判断。
 
@@ -530,15 +530,15 @@ $$
 
 
 
-NASA 二进制卷积码的应用图，每输入 1 位产生 2 位输出，该例码率为 $1/2$，6 个历史寄存器加当前输入，对应约束长度 $K=7$。
+NASA 二进制 **Convolutional Code** 的应用图，每输入 1 位产生 2 位输出，该例 **Code Rate** 为 $1/2$，6 个历史寄存器加当前输入，对应约束长度 $K=7$。
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261012205327.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
 ### Error Detection
 
-#### Parity
+#### **Parity（奇偶校验）**
 
-**奇偶校验（Parity）** 只添加一个校验位，使整个码字中 1 的个数满足约定的奇偶性。
+**Parity** 只添加一个校验位，使整个码字中 1 的个数满足约定的奇偶性。
 
 原始数据 `1011010` 含 4 个 1：
 
@@ -547,7 +547,7 @@ NASA 二进制卷积码的应用图，每输入 1 位产生 2 位输出，该例
 奇校验：1011010 + 1 → 10110101
 ```
 
-**奇数个位翻转会被检测，偶数个位翻转会保持奇偶性而漏检。** 单个奇偶校验位不能定位错误位置。
+**奇数个位翻转会被检测，偶数个位翻转会保持奇偶性而漏检。** 单个 **Parity** 位不能定位错误位置。
 
 该码的 $d_{\min}=2$，保证检出 1 位错误，不能保证纠正任何一位错误。
 
@@ -560,7 +560,7 @@ NASA 二进制卷积码的应用图，每输入 1 位产生 2 位输出，该例
 <details>
 <summary>展开计算</summary>
 
-**海明码单错纠正** ：令 $m=1000$，有
+**Hamming Code单错纠正** ：令 $m=1000$，有
 
 $$
 1000+r+1\le2^r
@@ -574,7 +574,7 @@ $$
 1000\times10=10000\text{ bit}
 $$
 
-**奇偶检错＋重传** ：每块增加 1 位校验，首先增加 1000 bit。按误码率 $10^{-6}$ 的稀少错误近似，1 Mbit 数据平均约有一次比特错误，约需重传一个含校验位的 1001 bit 块。
+**奇偶检错＋重传** ：每块增加 1 位校验，首先增加 1000 bit。按 **Bit Error Rate** $10^{-6}$ 的稀少错误近似，1 Mbit 数据平均约有一次比特错误，约需重传一个含校验位的 1001 bit 块。
 
 因此额外开销约为：
 
@@ -582,15 +582,15 @@ $$
 1000+1001=\boxed{2001\text{ bit}}
 $$
 
-**结论** ：低误码率场景可以用较少校验位，偶尔重传一个块，避免每个块都持续承担较多纠错冗余。
+**结论** ：低 **Bit Error Rate** 场景可以用较少校验位，偶尔重传一个块，避免每个块都持续承担较多纠错冗余。
 
 </details>
 
-#### Interleaving
+#### **Interleaving（交织）**
 
-单个奇偶位对长突发错误的保护有限。
+单个奇偶位对长 **Burst Error** 的保护有限。
 
-**交织（Interleaving）** 改变校验分组相对于传输顺序的组织方式，让连续位置的错误分散到不同校验组。
+**Interleaving** 改变校验分组相对于传输顺序的组织方式，让连续位置的错误分散到不同校验组。
 
 **数据按行发送，校验按列计算** ，最后发送各列校验位。
 
@@ -603,15 +603,15 @@ $$
 第 3 行：t  1110100 → 1101100  l
 ```
 
-两行各翻转 2 位，分别做行奇偶校验可能都漏检；按列看，第 3、4、5、6 列各有一个比特翻转，列校验能够发现问题。
+两行各翻转 2 位，分别做行 **Parity** 可能都漏检；按列看，第 3、4、5、6 列各有一个比特翻转，列校验能够发现问题。
 
 突发范围跨越 7 个比特位置，实际翻转了其中 4 位。
 
-当矩阵宽为 $n$ 位，且只发生一个长度不超过 $n$ 的突发错误时，按行传输会使每列至多受影响一位，列奇偶校验因而能够检出。更长或多个突发错误仍可能漏检。
+当矩阵宽为 $n$ 位，且只发生一个长度不超过 $n$ 的 **Burst Error** 时，按行传输会使每列至多受影响一位，列 **Parity** 因而能够检出。更长或多个 **Burst Error** 仍可能漏检。
 
-#### Two-Dimensional Parity
+#### Two-Dimensional **Parity**
 
-**二维奇偶校验** 同时给每一行、每一列增加校验位。单比特错误会同时破坏所在行与所在列的奇偶性，两者交点即可定位错误。
+**二维Parity** 同时给每一行、每一列增加校验位。单比特错误会同时破坏所在行与所在列的奇偶性，两者交点即可定位错误。
 
 偶校验示例为：
 
@@ -635,19 +635,19 @@ $$
 
 </details>
 
-#### The 16-bit Internet Checksum
+#### The 16-bit Internet **Checksum（校验和）**
 
-**校验和（Checksum）** 把数据划成固定长度的字，再做累加。
+**Checksum** 把数据划成固定长度的字，再做累加。
 
-**反码加法（One’s Complement Arithmetic）** ： 16 位 Internet 校验和。
+**反码加法（One’s Complement Arithmetic）** ： 16 位 Internet **Checksum**。
 
 **反码** 中，负数是对应正数的逐位取反； **补码** 在逐位取反后再加 1。
 
-**回卷进位** ：16 位相加发生高位溢出时，把溢出部分加回低 16 位；若仍有进位，继续回卷。最后逐位取反得到校验和。
+**回卷进位** ：16 位相加发生高位溢出时，把溢出部分加回低 16 位；若仍有进位，继续回卷。最后逐位取反得到 **Checksum**。
 
-**发送端** ：数据按 16 位分组，校验和字段先置 0；累加、回卷进位、逐位取反，写入校验和字段。
+**发送端** ：数据按 16 位分组， **Checksum** 字段先置 0；累加、回卷进位、逐位取反，写入 **Checksum** 字段。
 
-**接收端** ：把数据与收到的校验和一起累加并回卷；结果为 `FFFF`，等价于再取反得到 `0000`，表示校验通过。
+**接收端** ：把数据与收到的 **Checksum** 一起累加并回卷；结果为 `FFFF`，等价于再取反得到 `0000`，表示校验通过。
 
 #### Example
 
@@ -682,7 +682,7 @@ $$
 \boxed{\text{Checksum}=\mathtt{220D}}
 $$
 
-接收端将校验和一并累加：
+接收端将 **Checksum** 一并累加：
 
 $$
 \mathtt{0001}+\mathtt{F203}+\mathtt{F4F5}+\mathtt{F6F7}+\mathtt{220D}
@@ -701,17 +701,17 @@ $$
 
 这种方法比单个奇偶位提供更多检测信息，计算也简单；但求和具有局限，例如 **在保持分组方式的条件下，加入或删除全零数据字、交换完整数据字的位置** ，可能不改变结果。
 
-**校验通过只表示未检测到错误，不能证明数据绝对无误。** 后面的 CRC 也有同样的逻辑限制。
+**校验通过只表示未检测到错误，不能证明数据绝对无误。** 后面的 **Cyclic Redundancy Check（循环冗余校验，CRC）** 也有同样的逻辑限制。
 
-#### Cyclic Redundancy Check
+#### **Cyclic Redundancy Check**
 
-**循环冗余校验（Cyclic Redundancy Check，CRC）** 选择一段冗余，使发送的完整码字能够被双方约定的生成模式整除。所有运算都在模 2 意义下进行。
+**CRC** 选择一段冗余，使发送的完整码字能够被双方约定的生成模式整除。所有运算都在模 2 意义下进行。
 
 - $D$：$m$ 位原始数据；$T$：$n$ 位完整发送码字。
-- $F$：附在末尾的 $r=n-m$ 位帧校验序列（FCS）。
+- $F$：附在末尾的 $r=n-m$ 位 **Frame Check Sequence（帧校验序列，FCS）**。
 - $P$：双方约定的 $r+1$ 位生成模式；$Q$、$R$：除法的商与余数。
 
-$P$ 的最高位与最低位都为 1，长度比 FCS 多一位。将位串解释为多项式的系数，例如：
+$P$ 的最高位与最低位都为 1，长度比 **FCS** 多一位。将位串解释为多项式的系数，例如：
 
 $$
 10011\;\longleftrightarrow\;x^4+x+1
@@ -719,7 +719,7 @@ $$
 
 模 2 加法与减法都等同于 **异或** ，不产生普通二进制加减中的进位或借位。
 
-#### CRC Encoding and Verification
+#### **CRC** Encoding and Verification
 
 设生成多项式 $P(x)$ 的次数为 $r$。
 
@@ -739,7 +739,7 @@ $$
 \boxed{T(x)\bmod P(x)=0}
 $$
 
-接收端用同一个 $P$ 去除收到的完整码字。余数非零表示检测到错误；余数为零表示通过本次 CRC 检查。
+接收端用同一个 $P$ 去除收到的完整码字。余数非零表示检测到错误；余数为零表示通过本次 **CRC** 检查。
 
 #### Example
 
@@ -750,7 +750,7 @@ $$
 生成 P：10011
 ```
 
-求 FCS 和完整发送码字。
+求 **FCS** 和完整发送码字。
 
 <details>
 <summary>展开：模 2 长除法与验算</summary>
@@ -801,7 +801,7 @@ $$
 **错误模式本身能被 $P$ 整除，会怎样？**
 
 <details>
-<summary>展开：从错误多项式推导 CRC 漏检条件</summary>
+<summary>展开：从错误多项式推导 <strong>CRC</strong> 漏检条件</summary>
 
 把传输中翻转的位置写成错误模式 $E(x)$。接收串为：
 
@@ -817,7 +817,7 @@ $$
 
 若 $E(x)\ne0$ 且 $E(x)$ 恰好是 $P(x)$ 的倍数，接收串依然余数为 0， **错误会漏检** 。
 
-因此，CRC 检测能力与生成多项式有关。仅仅选一个任意生成模式，不能保证发现所有错误。
+因此， **CRC** 检测能力与生成多项式有关。仅仅选一个任意生成模式，不能保证发现所有错误。
 
 </details>
 
@@ -843,9 +843,9 @@ $$
 
 `frame_arrival`、`cksum_err`、`timeout` 分别表示完整帧到达、校验出错、定时器超时等事件。
 
-### A Utopian Simplex Protocol
+### A Utopian **Simplex（单工）** Protocol
 
-**理想单工协议：发送方一直发，接收方一直收。**
+**理想Simplex协议：发送方一直发，接收方一直收。**
 
 它建立在五个很强的假设上：数据仅单向传送；双方网络层始终就绪；处理时间忽略；接收缓冲无限；信道既不损坏帧，也不丢帧。
 
@@ -868,11 +868,11 @@ $$
 
 </details>
 
-### A Simplex Stop-and-Wait Protocol for an Error-Free Channel
+### A **Simplex** **Stop-and-Wait（停等）** Protocol for an Error-Free Channel
 
 现在保留“信道无错”，但允许接收方处理速度有限、缓冲有限。
 
-**停等（Stop-and-Wait）** ：发送一帧后暂停，直到接收方返回允许继续的确认，再发送下一帧。
+**Stop-and-Wait** ：发送一帧后暂停，直到接收方返回允许继续的确认，再发送下一帧。
 
 ```text
 发送方 A                         接收方 B
@@ -883,19 +883,19 @@ $$
    │            ……               │
 ```
 
-这里的确认首先承担 **流量控制** 作用：接收方处理完当前帧后，才放行下一帧。由于仍假定帧及确认不会丢失或损坏，协议 2 无须超时重传，也无须用序号区分重复帧。
+这里的确认首先承担 **Flow Control** 作用：接收方处理完当前帧后，才放行下一帧。由于仍假定帧及确认不会丢失或损坏，协议 2 无须超时重传，也无须用序号区分重复帧。
 
 > **单向数据与双向通信** ：分组仍只从 A 发往 B，但确认需要从 B 返回 A。因此，承载它的链路至少要允许双向交替通信。
 
-### A Simplex Stop-and-Wait Protocol for a Noisy Channel
+### A **Simplex** **Stop-and-Wait** Protocol for a Noisy Channel
 
 进一步允许 **数据帧或确认帧损坏、丢失** ，仅靠“发送后等待”会出现永久等待。
 
 协议模型假设损坏帧都能被检错机制识别；保留信道按发送次序传递帧的假设。
 
-采用 **自动重传请求（Automatic Repeat reQuest，ARQ）** 的思路，把以下机制组合起来：
+采用 **Automatic Repeat Request（自动重传请求，ARQ）** 的思路，把以下机制组合起来：
 
-**检错码** 判断收到的帧是否损坏； **ACK** 反馈接收结果； **定时器** 避免无限等待； **序号** 区分新帧与旧帧的重传副本； **发送缓冲** 保留尚未确认的分组，以便重传。
+**Error-Detecting Code** 判断收到的帧是否损坏； **ACK** 反馈接收结果； **定时器** 避免无限等待； **序号** 区分新帧与旧帧的重传副本； **发送缓冲** 保留尚未确认的分组，以便重传。
 
 #### Why a Timer Is Needed
 
@@ -927,7 +927,7 @@ $$
 
 #### Why One Bit Is Sufficient
 
-停等时，同一方向最多有一帧尚未确认。在按序传输的信道假设下，接收方只需区分 **当前期待的新帧** 与 **上一帧的重传副本** 。
+**Stop-and-Wait** 时，同一方向最多有一帧尚未确认。在按序传输的信道假设下，接收方只需区分 **当前期待的新帧** 与 **上一帧的重传副本** 。
 
 因此，序号交替使用即可：
 
@@ -994,7 +994,7 @@ $$
 
 </details>
 
-#### Operations of Stop-and-Wait
+#### Operations of **Stop-and-Wait**
 
 | 情形 | 发送方与接收方的行为 |
 | --- | --- |
@@ -1005,15 +1005,15 @@ $$
 
 **丢失 ACK 不应导致分组重复交付；损坏数据不应被交付；旧 ACK 不应误确认当前新帧。**
 
-## Sliding window protocols
+## **Sliding window（滑动窗口）** protocols
 
-滑动窗口把 **双向传输、确认、发送缓冲与流量控制** 统一起来。窗口大于 1 时，还允许多帧在途，减少停等造成的闲置。
+**Sliding Window** 把 **双向传输、确认、发送缓冲与Flow Control** 统一起来。窗口大于 1 时，还允许多帧在途，减少 **Stop-and-Wait** 造成的闲置。
 
-### Piggybacking
+### **Piggybacking（捎带确认／驮运）**
 
 双方都有数据要发时，一个方向上传送的数据帧，可以同时携带对另一方向数据的确认。
 
-**捎带确认／驮运（Piggybacking）** ：把 ACK 暂时留住，放到随后发往对端的数据帧中，一起发送。
+**Piggybacking** ：把 ACK 暂时留住，放到随后发往对端的数据帧中，一起发送。
 
 ```text
 A ─── 数据 A0 ──────────────────→ B
@@ -1033,9 +1033,9 @@ A ─── 数据 A1 ＋ 对 B0 的 ACK ──→ B
 
 这段等待时间足够短，避免因确认被拖延而引起对端不必要的超时重传。
 
-> 后面的协议 5 为简化代码，只使用捎带确认；协议 6 增加独立 ACK 与 ACK 定时器。
+> 后面的协议 5 为简化代码，只使用 **Piggybacking**；协议 6 增加独立 ACK 与 ACK 定时器。
 
-### The Essence of All Sliding Window Protocols
+### The Essence of All **Sliding Window** Protocols
 
 #### Sequence Space and Window Size
 
@@ -1067,7 +1067,7 @@ $$
 0\le\texttt{nbuffered}\le W_s
 $$
 
-取入并发送新分组，会增加未确认帧数；收到有效确认后，释放已确认帧的缓冲，窗口前沿可以继续推进。窗口满时暂停接收网络层的新分组，空位出现后再放行，这就是流量控制。
+取入并发送新分组，会增加未确认帧数；收到有效确认后，释放已确认帧的缓冲，窗口前沿可以继续推进。窗口满时暂停接收网络层的新分组，空位出现后再放行，这就是 **Flow Control**。
 
 #### Receiving Window
 
@@ -1099,29 +1099,29 @@ $$
 
 #### Logical Windows and Buffers
 
-**帧、缓冲区、滑动窗口分别是什么？**
+**帧、缓冲区、Sliding Window分别是什么？**
 
 帧是协议组织的数据单元；缓冲区保存待发、待重传或已收到的分组；窗口用序号规定“当前允许处理哪些帧”。分组放入 `buffer`／`out_buf`，需要发送时再构造帧。 **窗口前移通过更新序号或索引完成，无须把全部数据在内存中搬动一格。**
 
-SR 可以先把后到序号的帧写入缓冲。因此，窗口的连续性不能用“内存无法跳跃读取”解释；它来自这里采用的连续序号范围、有限缓冲、新旧帧区分与按序交付规则。
+**Selective Repeat（选择重传，SR）** 可以先把后到序号的帧写入缓冲。因此，窗口的连续性不能用“内存无法跳跃读取”解释；它来自这里采用的连续序号范围、有限缓冲、新旧帧区分与按序交付规则。
 
 <details>
 <summary>讨论例：发送 0、1、2、3，帧 1 丢失，能否直接改发 1、4、5、6？</summary>
 
 取 $M=8$、最大发送和接收窗口均为 4，按协议 6 的 **累计 ACK** 分析。
 
-1. 接收方收到 0，交付后期待 1；随后收到 2、3，先缓存。接收窗口为 `[1,2,3,4]`，累计确认仍只能到 0。
-2. 发送方收到 ACK0 后，发送范围也可以变为 `[1,2,3,4]`。可以新发 4；遇到有效 NAK 或相应超时，可以重传 1。
+1. 接收方收到 0，交付后期待 1；随后收到 2、3，先缓存。接收窗口为 `[1,2,3,4]`， **Cumulative ACK（累计确认）** 仍只能到 0。
+2. 发送方收到 ACK0 后，发送范围也可以变为 `[1,2,3,4]`。可以新发 4；遇到有效 **Negative Acknowledgement（否定确认，NAK）** 或相应超时，可以重传 1。
 3. 帧 1 尚未补齐并取得相应确认时，5、6 仍在允许发送范围之外。不能仅因 2、3 已经在对端缓存，就把固定的连续窗口替换成 `[1,4,5,6]`。
-4. 补到 1 后，接收方可以连续交付 1、2、3，随后发 ACK3。发送方收到它后，窗口才推进到 `[4,5,6,7]`。若 4 也已到达并缓存，接收方还可以继续交付 4，累计确认到 4。
+4. 补到 1 后，接收方可以连续交付 1、2、3，随后发 ACK3。发送方收到它后，窗口才推进到 `[4,5,6,7]`。若 4 也已到达并缓存，接收方还可以继续交付 4， **Cumulative ACK** 到 4。
 
 这里要区分： **对端已经收到某帧** ，与 **本端已经取得该帧的有效确认** 。
 
 </details>
 
-### A One-Bit Sliding Window Protocol
+### A One-Bit **Sliding Window** Protocol
 
-**协议 4 是双向停等协议** ：双方同时具有发送和接收职责，最大发送窗口与接收窗口均为 1，序号为 0、1。
+**协议 4 是双向Stop-and-Wait协议** ：双方同时具有发送和接收职责，最大发送窗口与接收窗口均为 1，序号为 0、1。
 
 每台机器维护两个相互独立的状态：
 
@@ -1145,7 +1145,7 @@ $$
 
 #### Two Independent Checks
 
-收到一个未损坏的帧后，需要分别处理其数据与捎带确认：
+收到一个未损坏的帧后，需要分别处理其数据与 **Piggybacking**：
 
 ```text
 if r.seq == frame_expected:
@@ -1210,18 +1210,18 @@ A → B：(0, 1, A2)
 
 ### Pipelining and Link Utilization
 
-**停等的主要效率问题是：传播时延较长时，链路的大量时间花在等待 ACK。** 窗口扩大后，可以在等待前面帧的确认期间继续发送后面的帧，形成 **流水线（Pipelining）** 。
+**Stop-and-Wait的主要效率问题是：Propagation Delay（传播时延）较长时，链路的大量时间花在等待 ACK。** 窗口扩大后，可以在等待前面帧的确认期间继续发送后面的帧，形成 **流水线（Pipelining）** 。
 
 #### Example
 
 **A Satellite Channel**
 
-速率 $R=50\,\mathrm{kbps}$；往返传播时延 $500\,\mathrm{ms}$；帧长 $L=1000\,\mathrm{bit}$。忽略 ACK 自身的发送时间和处理时间。
+速率 $R=50\,\mathrm{kbps}$；往返 **Propagation Delay** $500\,\mathrm{ms}$；帧长 $L=1000\,\mathrm{bit}$。忽略 ACK 自身的发送时间和处理时间。
 
-**停等利用率约为 3.85%；持续发送需要至少 26 帧的窗口。**
+**Stop-and-Wait利用率约为 3.85%；持续发送需要至少 26 帧的窗口。**
 
 <details>
-<summary>展开：停等利用率与时间线</summary>
+<summary>展开：<strong>Stop-and-Wait</strong>利用率与时间线</summary>
 
 发送一整帧所需时间：
 
@@ -1229,7 +1229,7 @@ $$
 T_f=\frac{L}{R}=\frac{1000}{50\times10^3}=20\,\mathrm{ms}
 $$
 
-单向传播时延 $T_p=250\,\mathrm{ms}$。于是：
+单向 **Propagation Delay** $T_p=250\,\mathrm{ms}$。于是：
 
 ```text
 t =   0 ms：发送方开始发送第一帧
@@ -1297,7 +1297,7 @@ $$
 
 ### A Protocol Using Go Back N
 
-**回退 N 帧（Go-Back-N，GBN）** 允许发送方连续发送多帧，但接收窗口仍为 1。接收方只接受当前期待的帧；中间有一帧丢失后，后续即使正确到达，也暂时不能交付并会被丢弃。
+**Go-Back-N（回退 N 帧，GBN）** 允许发送方连续发送多帧，但接收窗口仍为 1。接收方只接受当前期待的帧；中间有一帧丢失后，后续即使正确到达，也暂时不能交付并会被丢弃。
 
 发生超时时，发送方从 **最早未确认帧** 开始，把当前所有尚未确认的帧依次重传。
 
@@ -1313,30 +1313,30 @@ $$
 
 #### Cumulative Acknowledgement
 
-**累计确认（Cumulative ACK）** ：ACK$n$ 表示截至帧 $n$ 的分组已经连续正确收到，相应窗口内更早的帧也一并得到确认。
+**Cumulative ACK** ：ACK$n$ 表示截至帧 $n$ 的分组已经连续正确收到，相应窗口内更早的帧也一并得到确认。
 
 例如，A 连发 0、1、2、3，收到 ACK3 后可以一次释放这四帧，无须分别等 ACK0、ACK1、ACK2。
 
-如果接收方只连续收到 0、1，而 2 丢失，即使随后看见 3、4，也不能把累计确认推进到 4；最近连续正确接收的位置仍为 1。
+如果接收方只连续收到 0、1，而 2 丢失，即使随后看见 3、4，也不能把 **Cumulative ACK** 推进到 4；最近连续正确接收的位置仍为 1。
 
 不给被丢弃的帧发送确认表示不会把确认推进到这些被丢弃的新序号；这不妨碍反向帧继续捎带最近连续正确接收位置的 ACK。
 
 <details>
-<summary>捎带确认、累计确认、滑动窗口是不是同一件事？</summary>
+<summary><strong>Piggybacking</strong>、<strong>Cumulative ACK</strong>、<strong>Sliding Window</strong>是不是同一件事？</summary>
 
 它们是三个不同的设计维度：
 
-- **捎带确认** 决定 ACK 放在哪里：装进反向数据帧，还是单独成帧。
-- **累计确认** 决定 ACK 确认多少：ACK3 可以一次确认连续收到的 0–3。
+- **Piggybacking** 决定 ACK 放在哪里：装进反向数据帧，还是单独成帧。
+- **Cumulative ACK** 决定 ACK 确认多少：ACK3 可以一次确认连续收到的 0–3。
 - **窗口大小** 决定取得确认前，最多允许多大的发送范围。
 
-因此，采用独立 ACK 的协议也可以有多帧窗口、使用累计确认；不能由“没有捎带确认”推出发送窗口必须为 1。
+因此，采用独立 ACK 的协议也可以有多帧窗口、使用 **Cumulative ACK**；不能由“没有 **Piggybacking** ”推出发送窗口必须为 1。
 
 </details>
 
 #### Assumptions of Protocol 5
 
-协议 5 使用 **双向数据和捎带累计确认，不发送独立 ACK 帧** 。它允许有噪声，网络层也不必一直有分组，新的可发送分组通过 `network_layer_ready` 事件到来。
+协议 5 使用 **双向数据和捎带Cumulative ACK，不发送独立 ACK 帧** 。它允许有噪声，网络层也不必一直有分组，新的可发送分组通过 `network_layer_ready` 事件到来。
 
 仅捎带 ACK 这一条件下，若反向业务很少，确认会延迟；完全没有反向数据时，发送窗口可能一直无法释放。协议 6 将解除这一限制。
 
@@ -1433,7 +1433,7 @@ $$
 
 **B 再发 $B_1$，携带 `seq=1, ack=3`。** A 交付 $B_1$，但 ACK3 已经处理过，不会重复释放缓冲。A 变为 `(4,2,4)`。
 
-**A 发出 $A_4$，携带 `seq=4, ack=1`。** ACK1 累计确认 $B_0$、$B_1$。发送后 A 为 `(5,2,4)`，B 收到后为 `(2,5,2)`。
+**A 发出 $A_4$，携带 `seq=4, ack=1`。** ACK1 **Cumulative ACK** $B_0$、$B_1$。发送后 A 为 `(5,2,4)`，B 收到后为 `(2,5,2)`。
 
 **B 发出 $B_2$，携带 `seq=2, ack=4`。** A 收到后交付 $B_2$，确认并释放 $A_4$，状态变为 `(5,3,5)`。
 
@@ -1472,7 +1472,7 @@ A 重传结束后游标回到 4，但仍未收到这批数据的确认，状态�
 
 #### Maximum Sending Window
 
-使用 $k$ 位序号、接收窗口为 1 时，GBN 的最大发送窗口为：
+使用 $k$ 位序号、接收窗口为 1 时， **GBN** 的最大发送窗口为：
 
 $$
 \boxed{W_s\le M-1=2^k-1},\qquad W_r=1
@@ -1513,20 +1513,20 @@ $$
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261012212637.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
-### A Sliding Window Protocol Using Selective Repeat
+### A **Sliding Window** Protocol Using **Selective Repeat**
 
-**选择重传（Selective Repeat，SR）** 允许接收方把丢失帧之后正确到达的帧先缓存起来；需要恢复时，只重传具体缺失或超时的帧，避免 GBN 的整批重复发送。
+**SR** 允许接收方把丢失帧之后正确到达的帧先缓存起来；需要恢复时，只重传具体缺失或超时的帧，避免 **GBN** 的整批重复发送。
 
 发送方、接收方都维护窗口。接收端窗口大于 1 时，可以乱序接收，但仍须按序向网络层交付。
 
-**协议 6 仍使用累计 ACK，并加入 NAK 与独立 ACK 定时器。** “选择重传”主要体现在保留乱序帧、只重传具体需要恢复的帧；不能把它直接等同于“每个乱序帧都独立确认”。图中的 ACK5，要等帧 2 的缺口补齐后才发出。
+**协议 6 仍使用累计 ACK，并加入 NAK 与独立 ACK 定时器。** “ **SR** ”主要体现在保留乱序帧、只重传具体需要恢复的帧；不能把它直接等同于“每个乱序帧都独立确认”。图中的 ACK5，要等帧 2 的缺口补齐后才发出。
 
 #### Example
 
 **Buffering Out-of-Order Frames**
 
 <details>
-<summary>展开：同样丢失帧 2，SR 怎样节省重传？</summary>
+<summary>展开：同样丢失帧 2，<strong>SR</strong> 怎样节省重传？</summary>
 
 假设 0、1 正确到达，2 损坏，接下来的 3、4、5 正确到达且都在接收窗口内。
 
@@ -1536,11 +1536,11 @@ $$
 补到帧2后：           依次交付 2 → 3 → 4 → 5
 ```
 
-接收方可以用 NAK 请求补发 2；即使该请求未能生效，发送方最终仍可通过超时补发。
+接收方可以用 **NAK** 请求补发 2；即使该请求未能生效，发送方最终仍可通过超时补发。
 
 补到 2 后，连续缺口被填上，已经缓存的 3–5 无须重传。图中随后发出的 ACK5 表示连续收到 0–5， **从序号 0 开始计算，这里一共是六帧** 。
 
-“收到 5”与“可以累计确认到 5”有区别：只有 2 的缺口补齐后，累计确认才能越过该缺口。
+“收到 5”与“可以 **Cumulative ACK** 到 5”有区别：只有 2 的缺口补齐后， **Cumulative ACK** 才能越过该缺口。
 
 </details>
 
@@ -1585,7 +1585,7 @@ $$
 
 #### Separate ACKs and the ACK Timer
 
-为避免仅捎带确认造成的等待，协议 6 增加 **ACK 定时器** 。
+为避免仅 **Piggybacking** 造成的等待，协议 6 增加 **ACK 定时器** 。
 
 收到需要确认的数据后，先等待短时间，争取与反向数据捎带发送；若发生 `ack_timeout`，仍没有反向数据可用，就发送独立 ACK。
 
@@ -1595,18 +1595,18 @@ $$
 
 #### Negative Acknowledgements
 
-**否定确认（Negative Acknowledgement，NAK）** 用于主动报告发现的缺口或损坏，要求对端重传相应帧。
+**NAK** 用于主动报告发现的缺口或损坏，要求对端重传相应帧。
 
-接收方发现损坏帧，或收到不符合当前期待序号的数据帧时，可以发 NAK。为了避免对同一缺口反复请求，协议设置 `no_nak` 标志：
+接收方发现损坏帧，或收到不符合当前期待序号的数据帧时，可以发 **NAK**。为了避免对同一缺口反复请求，协议设置 `no_nak` 标志：
 
-- `true`：对当前缺口尚未发送过 NAK，可以发送。
-- 发出 NAK 后置为 `false`；等待同一缺口期间不重复发送。
+- `true`：对当前缺口尚未发送过 **NAK**，可以发送。
+- 发出 **NAK** 后置为 `false`；等待同一缺口期间不重复发送。
 - 期待帧到达并推动按序交付后，恢复为 `true`，可以报告后续新的缺口。
 
-**NAK 加快恢复，数据定时器仍负责兜底。** 即使 NAK 丢失，发送方还会因超时而重传。
+**NAK 加快恢复，数据定时器仍负责兜底。** 即使 **NAK** 丢失，发送方还会因超时而重传。
 
 <details>
-<summary>展开：协议 6 中的 ACK、NAK 字段约定</summary>
+<summary>展开：协议 6 中的 ACK、<strong>NAK</strong> 字段约定</summary>
 
 协议 6 继续使用 **累计 ACK** 。选择性体现在“缓存乱序数据”和“只重传指定帧”。
 
@@ -1622,13 +1622,13 @@ $$
 \text{requested sequence}=(\texttt{r.ack}+1)\bmod M
 $$
 
-例如，接收方缺少 2，NAK 帧可带 `ack=1`，发送方据此重传 2。时序图中的“NAK2”描述的是所请求的帧，并不要求代码中的 `ack` 字段直接填 2。
+例如，接收方缺少 2， **NAK** 帧可带 `ack=1`，发送方据此重传 2。时序图中的“NAK2”描述的是所请求的帧，并不要求代码中的 `ack` 字段直接填 2。
 
 </details>
 
 #### Maximum Window Size
 
-对 **发送、接收最大窗口相等** 的 SR 协议，窗口最多占序号空间的一半：
+对 **发送、接收最大窗口相等** 的 **SR** 协议，窗口最多占序号空间的一半：
 
 $$
 \boxed{W_s=W_r=W\le\frac M2=2^{k-1}}
@@ -1637,7 +1637,7 @@ $$
 原因是接收窗口推进以后，仍可能有上一批帧的旧副本重传过来。 **新窗口与可能重传的旧窗口需要避免序号重叠。**
 
 <details>
-<summary>展开：为什么 GBN 可以取 7，SR 在 8 个序号下最多取 4？</summary>
+<summary>展开：为什么 <strong>GBN</strong> 可以取 7，<strong>SR</strong> 在 8 个序号下最多取 4？</summary>
 
 **尝试 $M=8,W=7$。**
 
@@ -1678,8 +1678,8 @@ $$
 | 事件 | 核心处理 |
 | --- | --- |
 | `network_layer_ready` | 保存并发送一个新分组，启动其数据定时器，推进发送序号 |
-| `frame_arrival` | 根据 `kind` 区分数据、ACK、NAK；数据按窗口缓存并按序交付；处理有效累计 ACK；有效 NAK 请求只触发指定帧重传 |
-| `cksum_err` | 不交付损坏帧；若当前缺口尚未报告，可发 NAK |
+| `frame_arrival` | 根据 `kind` 区分数据、ACK、 **NAK**；数据按窗口缓存并按序交付；处理有效累计 ACK；有效 **NAK** 请求只触发指定帧重传 |
+| `cksum_err` | 不交付损坏帧；若当前缺口尚未报告，可发 **NAK** |
 | `timeout` | 只重传具体到期的那一帧，并重启它的定时器 |
 | `ack_timeout` | 发送独立 ACK，避免继续等待反向数据 |
 
@@ -1687,17 +1687,17 @@ $$
 
 最后仍根据 `nbuffered` 是否达到 `NR_BUFS`，决定是否允许网络层再交付新分组。
 
-### Comparison of Sliding Window Protocols
+### Comparison of **Sliding Window** Protocols
 
 $M=2^k$ 为序号空间，窗口大小均指最大允许值。
 
-| 项目 | One-Bit：协议 4 | Go-Back-N：协议 5 | Selective Repeat：协议 6 |
+| 项目 | One-Bit：协议 4 | **Go-Back-N**：协议 5 | **Selective Repeat**：协议 6 |
 | --- | --- | --- | --- |
 | 发送窗口 | 1 | $W_s\le M-1$ | $W_s=W\le M/2$ |
 | 接收窗口 | 1 | 1 | $W_r=W$ |
 | 乱序数据 | 不接收为新分组 | 丢弃 | 窗口内先缓存 |
 | 重传范围 | 当前帧 | 从最早未确认帧开始，重传全部未确认帧 | 指定缺失或超时帧 |
-| 确认方式 | 双向数据捎带 ACK | 捎带累计 ACK，无独立 ACK | 捎带／独立累计 ACK，加 NAK |
+| 确认方式 | 双向数据捎带 ACK | 捎带累计 ACK，无独立 ACK | 捎带／独立累计 ACK，加 **NAK** |
 | 缓冲与实现代价 | 最小 | 发送端需缓存多帧 | 双方都需缓存，接收端需重排与状态标志 |
 | 主要效率问题 | 长往返时延导致大量等待 | 出错时重传已正确到达过的后续帧 | 更多缓冲及控制复杂性 |
 
@@ -1708,43 +1708,43 @@ $M=2^k$ 为序号空间，窗口大小均指最大允许值。
 <details>
 <summary>延伸计算：卫星例题需要 26 帧窗口，序号至少要几位？</summary>
 
-GBN 要求：
+**GBN** 要求：
 
 $$
 26\le2^k-1\quad\Rightarrow\quad k\ge5
 $$
 
-相等窗口的 SR 要求：
+相等窗口的 **SR** 要求：
 
 $$
 26\le2^{k-1}\quad\Rightarrow\quad k\ge6
 $$
 
-所以在相同的持续发送需求下，GBN 至少需要 5 位序号，SR 至少需要 6 位序号。
+所以在相同的持续发送需求下， **GBN** 至少需要 5 位序号， **SR** 至少需要 6 位序号。
 
 </details>
 
 ## Examples of Data Link Protocols
 
-两种点对点场景是： **SONET 光纤链路连接运营商不同位置的路由器；ADSL 利用电话网本地环路连接用户与运营商。**
+两种点对点场景是： **Synchronous Optical Network（同步光网络，SONET） 光纤链路连接运营商不同位置的路由器；Asymmetric Digital Subscriber Line（非对称数字用户线，ADSL） 利用电话网Local Loop（本地环路）连接用户与运营商。**
 
-### Point-to-Point Protocol
+### **Point-to-Point Protocol（点对点协议，PPP）**
 
-**点对点协议（Point-to-Point Protocol，PPP）** 位于数据链路层，为两端设备提供承载多种网络层协议的框架，可以适配不同的下层传输技术。主要标准是 RFC 1661 和 RFC 1662。
+**PPP** 位于数据链路层，为两端设备提供承载多种网络层协议的框架，可以适配不同的下层传输技术。主要标准是 RFC 1661 和 RFC 1662。
 
 #### Three Main Features
 
 **成帧与检错。** 明确数据单元的边界，并加入校验字段，检测传输中发生的错误。
 
-**链路控制协议（Link Control Protocol，LCP）。** 建立、配置、测试 PPP 链路，协商选项，并在不再需要时终止链路。
+**Link Control Protocol（链路控制协议，LCP）。** 建立、配置、测试 **PPP** 链路，协商选项，并在不再需要时终止链路。
 
-**网络控制协议族（Network Control Protocols，NCPs）。** 为每一种需要支持的网络层协议配置相应的控制协议，协商该网络层协议所需的参数。
+**Network Control Protocols（网络控制协议族，NCPs）。** 为每一种需要支持的网络层协议配置相应的控制协议，协商该网络层协议所需的参数。
 
-#### LCP and NCP
+#### **LCP** and NCP
 
 **LCP 管理链路的共用配置；NCP 管理某个网络层协议的专属配置。**
 
-例如，双方需要约定能接收多大的数据单元、是否压缩某些 PPP 字段，属于链路配置；使用 IP 时需要配置 IP 相关参数，则交给对应的 NCP。更换或增加网络层协议时，可以使用相应 NCP，无须把它的全部配置逻辑塞进 LCP。
+例如，双方需要约定能接收多大的数据单元、是否压缩某些 **PPP** 字段，属于链路配置；使用 IP 时需要配置 IP 相关参数，则交给对应的 NCP。更换或增加网络层协议时，可以使用相应 NCP，无须把它的全部配置逻辑塞进 **LCP**。
 
 ```text
                       同一条 PPP 链路
@@ -1760,21 +1760,21 @@ $$
 **标准补充，用于具体化前面的讨论：** IPv4 对应 IPCP；IPv6 对应 IPv6CP，例如协商接口标识符。IPv6CP 不能简单等同于分配一个完整 IPv6 地址。
 
 <details>
-<summary>为什么要分成两类控制协议？LCP 协商完成后，是否立即就能传 IP？</summary>
+<summary>为什么要分成两类控制协议？<strong>LCP</strong> 协商完成后，是否立即就能传 IP？</summary>
 
-两端首先要在链路共用规则上取得一致，随后还要完成具体网络层协议的配置。LCP 协商成功，只说明链路配置这一关通过；若对应 NCP 尚未配置完成，该网络层协议还没有进入可传数据的状态。
+两端首先要在链路共用规则上取得一致，随后还要完成具体网络层协议的配置。 **LCP** 协商成功，只说明链路配置这一关通过；若对应 NCP 尚未配置完成，该网络层协议还没有进入可传数据的状态。
 
 例如，同一链路同时支持 IPv4 与 IPv6，它们的具体配置需求不同，可以分别由各自的 NCP 处理。这种分工减少链路管理与具体网络层协议之间的耦合。
 
-**LCP 与 NCP 的区别是管理对象和配置职责；不能把 NCP 理解成承载用户 IP 数据的另一个数据封装层。** 数据传输时，IP 分组直接作为 PPP 所承载的网络层分组；NCP 报文用于事先及必要时的配置管理。
+**LCP 与 NCP 的区别是管理对象和配置职责；不能把 NCP 理解成承载用户 IP 数据的另一个数据封装层。** 数据传输时，IP 分组直接作为 **PPP** 所承载的网络层分组；NCP 报文用于事先及必要时的配置管理。
 
 </details>
 
-### Packet over SONET
+### Packet over **SONET**
 
 #### Protocol Stack and Physical-Layer Role
 
-**同步光网络（Synchronous Optical Network，SONET）** 在这里承担光纤上的物理传输：规定传输速率、信号与复用等特性。PPP 在它之上提供分帧和协议识别。
+**SONET** 在这里承担光纤上的物理传输：规定传输速率、信号与复用等特性。 **PPP** 在它之上提供分帧和协议识别。
 
 ```text
 路由器 A                            路由器 B
@@ -1783,11 +1783,11 @@ $$
    SONET ─────────── 光纤 ──────────── SONET
 ```
 
-**四层模型与五层模型的归类。** 第一章的 TCP/IP 四层模型把物理层与数据链路层相关技术放在较宽泛的链路层范围内；本章分开讨论两层时，按图中的职责把 SONET 放在 PPP 下方的物理层。ADSL 也要结合这一层次区分理解。
+**四层模型与五层模型的归类。** 第一章的 TCP/IP 四层模型把物理层与数据链路层相关技术放在较宽泛的链路层范围内；本章分开讨论两层时，按图中的职责把 **SONET** 放在 **PPP** 下方的物理层。 **ADSL** 也要结合这一层次区分理解。
 
 #### Fixed-Rate Transmission and Frame Mapping
 
-SONET 提供规定速率的比特流，按固定大小的字节载荷组织，每隔：
+**SONET** 提供规定速率的比特流，按固定大小的字节载荷组织，每隔：
 
 $$
 125\ \mu\mathrm{s}
@@ -1795,17 +1795,17 @@ $$
 
 重复一次，即每秒 $8000$ 个周期。 **即使没有用户数据，同步传输结构也继续运行** ，填入空闲字节或约定模式；不要求空闲内容一定全为 0。
 
-PPP 数据帧是变长的，因此两种“帧”的边界不要求相同：
+**PPP** 数据帧是变长的，因此两种“帧”的边界不要求相同：
 
 ```text
 IP 分组 → PPP 帧 → 映射到连续的 SONET 载荷中
 ```
 
-**一份 PPP 帧可以跨越相邻 SONET 载荷。** 接收方从下层取得字节流，再按 PPP 自己的分隔规则恢复帧，不能把一个 SONET 载荷的结束位置直接当作 PPP 帧尾。
+**一份 PPP 帧可以跨越相邻 SONET 载荷。** 接收方从下层取得字节流，再按 **PPP** 自己的分隔规则恢复帧，不能把一个 **SONET** 载荷的结束位置直接当作 **PPP** 帧尾。
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261019140503.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
-### The PPP Frame Format
+### The **PPP** Frame Format
 
 ```text
 Flag | Address | Control | Protocol | Payload | FCS | Flag
@@ -1818,8 +1818,8 @@ Flag | Address | Control | Protocol | Payload | FCS | Flag
 | Address | 1 字节，`0xFF = 11111111` | 固定的全站地址形式，无须给这条点对点链路上的各站单独分配该字段 |
 | Control | 1 字节，`0x03 = 00000011` | 表示本节使用的无编号帧 |
 | Protocol | 默认 2 字节，可按相应选项压缩 | 告诉接收端载荷属于哪种协议 |
-| Payload | 可变长，默认最大接收长度为 1500 字节 | 承载 IP 分组、LCP 报文、NCP 报文等 |
-| FCS／Checksum | 通用格式通常 2 字节，也有 4 字节形式 | 利用 CRC 检测错误 |
+| Payload | 可变长，默认最大接收长度为 1500 字节 | 承载 IP 分组、 **LCP** 报文、NCP 报文等 |
+| **FCS** ／ **Checksum** | 通用格式通常 2 字节，也有 4 字节形式 | 利用 **CRC** 检测错误 |
 
 **1500 字节是默认上限，不是每帧固定长度。**
 
@@ -1829,13 +1829,13 @@ Flag | Address | Control | Protocol | Payload | FCS | Flag
 
 **以 0 位开头的编码用于 IPv4、IPv6 等网络层协议；以 1 位开头的编码用于 PPP 的配置／控制协议。**
 
-这个字段使接收方能够区分：当前收到的是用户 IP 数据，还是用于建立与配置链路的控制报文。LCP、NCP 报文也由 PPP 承载，不能把所有 PPP 载荷都当作 IP 分组。
+这个字段使接收方能够区分：当前收到的是用户 IP 数据，还是用于建立与配置链路的控制报文。 **LCP**、NCP 报文也由 **PPP** 承载，不能把所有 **PPP** 载荷都当作 IP 分组。
 
-例如，链路建立时收到一帧，其 Protocol 指向 LCP，接收端就把载荷交给 LCP 处理；进入正常 IP 传输后，Protocol 指向对应 IP 协议，再交给网络层。
+例如，链路建立时收到一帧，其 Protocol 指向 **LCP**，接收端就把载荷交给 **LCP** 处理；进入正常 IP 传输后，Protocol 指向对应 IP 协议，再交给网络层。
 
-#### Byte Stuffing
+#### **Byte Stuffing**
 
-本节的 PPP 字节成帧中，边界标志为 `0x7E`，转义字节为 `0x7D`。数据中出现需要转义的字节 $b$ 时，发送：
+本节的 **PPP** 字节成帧中，边界标志为 `0x7E`，转义字节为 `0x7D`。数据中出现需要转义的字节 $b$ 时，发送：
 
 $$
 \boxed{b\longrightarrow \mathtt{0x7D}\;\Vert\;(b\oplus\mathtt{0x20})}
@@ -1877,38 +1877,38 @@ $$
 
 </details>
 
-相邻 PPP 帧之间可以共用一个 Flag；空闲时也可以发送多个 Flag 填充链路。
+相邻 **PPP** 帧之间可以共用一个 Flag；空闲时也可以发送多个 Flag 填充链路。
 
 #### Error Detection and Service Model
 
-帧格式图把校验字段写成 **Checksum** ，这里使用的是 **CRC 型 FCS** ，与前面“16 位反码求和”的 Internet Checksum 算法要区分。校验失败说明检测到错误，不能据此认为 FCS 能直接修复全部错误。
+帧格式图把校验字段写成 **Checksum** ，这里使用的是 **CRC 型 FCS** ，与前面“16 位反码求和”的 Internet **Checksum** 算法要区分。校验失败说明检测到错误，不能据此认为 **FCS** 能直接修复全部错误。
 
-**无编号模式提供无连接、无确认的数据传送服务。** 它没有前面协议 4–6 中用来逐帧确认和重传的数据序号机制。PPP 具备 LCP 建链过程，并不自动意味着用户数据采用滑动窗口可靠传送。
+**无编号模式提供无连接、无确认的数据传送服务。** 它没有前面协议 4–6 中用来逐帧确认和重传的数据序号机制。 **PPP** 具备 **LCP** 建链过程，并不自动意味着用户数据采用 **Sliding Window** 可靠传送。
 
 <details>
-<summary>为什么 PPP 需要建立链路，却可以提供无确认的数据服务？</summary>
+<summary>为什么 <strong>PPP</strong> 需要建立链路，却可以提供无确认的数据服务？</summary>
 
 需要区分两个问题：
 
-**链路管理** ：双方建立运行关系、协商格式和选项、必要时认证、配置网络层；由 LCP 和相应 NCP 等完成。
+**链路管理** ：双方建立运行关系、协商格式和选项、必要时认证、配置网络层；由 **LCP** 和相应 NCP 等完成。
 
-**用户数据交付** ：是否为每份数据编号、确认、超时重传，并承诺可靠、有序交付；本节的 PPP 无编号模式没有提供前面滑动窗口那套数据可靠性交付机制。
+**用户数据交付** ：是否为每份数据编号、确认、超时重传，并承诺可靠、有序交付；本节的 **PPP** 无编号模式没有提供前面 **Sliding Window** 那套数据可靠性交付机制。
 
 </details>
 
-#### Scrambling for Synchronization
+#### **Scrambling（扰码）** for Synchronization
 
-PPP 数据映射进 SONET 载荷时，还会涉及 **扰码（Scrambling）** 。
+**PPP** 数据映射进 **SONET** 载荷时，还会涉及 **Scrambling** 。
 
-按这个概念模型，若数据为 $d$，扰码序列为 $p$：
+按这个概念模型，若数据为 $d$， **Scrambling** 序列为 $p$：
 
 $$
 x=d\oplus p,\qquad x\oplus p=d
 $$
 
-它与第二章的时钟恢复问题对应。 **字节填充负责数据透明性与帧边界；CRC 负责检错；扰码改善比特流特征。**
+它与第二章的时钟恢复问题对应。 **Byte Stuffing负责数据透明性与帧边界；CRC 负责检错；Scrambling改善比特流特征。**
 
-### PPP Link Up and Down
+### **PPP** Link Up and Down
 
 ```text
 DEAD
@@ -1932,7 +1932,7 @@ TERMINATE       终止链路
 DEAD
 ```
 
-**DEAD** 表示物理层尚未建立连接。物理连接可用后，才进入 LCP 所处理的建立阶段；LCP 自己不承担把断开的电缆接通这一物理工作。
+**DEAD** 表示物理层尚未建立连接。物理连接可用后，才进入 **LCP** 所处理的建立阶段； **LCP** 自己不承担把断开的电缆接通这一物理工作。
 
 **ESTABLISH** 阶段，两端可以提出选项、接受或拒绝选项，也可以提出替代方案。 **NETWORK** 阶段再配置具体的网络层协议。相应配置完成后，进入 **OPEN** ，开始承载用户数据。
 
@@ -1940,13 +1940,13 @@ DEAD
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261019140840.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
-### ADSL, ATM, and AAL5
+### **ADSL**, **Asynchronous Transfer Mode（异步传输模式，ATM）**, and AAL5
 
 #### Access Technology and Network Devices
 
-**非对称数字用户线（ADSL）** 利用电话双绞线本地环路提供数据接入，上下行容量通常不同。它的物理层采用第二章介绍的多载波调制思路，称为 OFDM，也称离散多音调制 DMT。
+**ADSL** 利用电话 **Twisted Pair（双绞线）**  **Local Loop** 提供数据接入，上下行容量通常不同。它的物理层采用第二章介绍的多载波调制思路，称为 **Orthogonal Frequency-Division Multiplexing（正交频分复用，OFDM）**，也称 **Discrete MultiTone（离散多音调制，DMT）**。
 
-**数字用户线接入复用器（DSLAM）** 是运营商侧汇聚、处理多条 DSL 用户线路的设备。
+**Digital Subscriber Line Access Multiplexer（数字用户线接入复用器，DSLAM）** 是运营商侧汇聚、处理多条 **Digital Subscriber Line（数字用户线，DSL）** 用户线路的设备。
 
 **ADSL 是传输技术，DSLAM 是使用这类技术的网络设备。** 两个名字相近，不能互换。
 
@@ -1959,7 +1959,7 @@ DEAD
                     DSLAM／关联路由器 ── ISP 网络
 ```
 
-接入线路上的数据到达 DSLAM 或与之连接的路由器后，提取 IP 分组，再交给 ISP 网络转发。
+接入线路上的数据到达 **DSLAM** 或与之连接的路由器后，提取 IP 分组，再交给 ISP 网络转发。
 
 #### The Protocol Stack
 
@@ -1973,27 +1973,27 @@ ATM
 ADSL
 ```
 
-PPP 继续负责链路配置与承载 IP；ADSL 负责底层调制和传输。中间为什么还需要 ATM 和 AAL5？关键是 **上层变长数据单元与 ATM 固定长度信元之间存在格式差异** 。
+**PPP** 继续负责链路配置与承载 IP； **ADSL** 负责底层调制和传输。中间为什么还需要 **ATM** 和 AAL5？关键是 **上层变长数据单元与 ATM 固定长度Cell（信元）之间存在格式差异** 。
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261019140920.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
-#### ATM Cells and Virtual Circuits
+#### **ATM** Cells and Virtual Circuits
 
-**异步传输模式（Asynchronous Transfer Mode，ATM）** 按固定长度的 **信元（Cell）** 传送信息，每个信元为：
+**ATM** 按固定长度的 **Cell** 传送信息，每个 **Cell** 为：
 
 $$
 \boxed{53\ \text{字节}=5\ \text{字节头部}+48\ \text{字节载荷}}
 $$
 
-这些载荷可以承载语音、数据、电视等信息。固定而较小的信元，使链路能按较细的单位在不同业务之间分配传输机会。
+这些载荷可以承载语音、数据、电视等信息。固定而较小的 **Cell**，使链路能按较细的单位在不同业务之间分配传输机会。
 
-**ATM 是面向连接的技术。** 每个信元的头部携带虚电路标识；设备根据已建立连接的转发信息，将信元沿相应路径传送。
+**ATM 是面向连接的技术。** 每个 **Cell** 的头部携带 **VC Identifier（虚电路标识）**；设备根据已建立连接的转发信息，将 **Cell** 沿相应路径传送。
 
-#### Segmentation and Reassembly
+#### **Segmentation and Reassembly（分段与重组）**
 
-每个 ATM 信元只能携带 48 字节载荷，上层交来的数据通常更长且长度不固定，因此需要适配层。
+每个 **ATM** **Cell** 只能携带 48 字节载荷，上层交来的数据通常更长且长度不固定，因此需要适配层。
 
-**ATM 适配层 5（ATM Adaptation Layer 5，AAL5）** 负责这类分组数据的 **分段与重组（Segmentation and Reassembly）** ：发送时把适配后的数据切成若干份 48 字节载荷；接收时再重组成上层数据单元。
+**ATM 适配层 5（ATM Adaptation Layer 5，AAL5）** 负责这类分组数据的 **Segmentation and Reassembly** ：发送时把适配后的数据切成若干份 48 字节载荷；接收时再重组成上层数据单元。
 
 ```text
 上层变长数据
@@ -2005,7 +2005,7 @@ $$
 [53 字节信元] [53 字节信元] [53 字节信元] ...
 ```
 
-接收端沿相反方向恢复；AAL5 的长度信息帮助区分真实载荷与填充，CRC 用于检查重组后的数据。
+接收端沿相反方向恢复；AAL5 的长度信息帮助区分真实载荷与填充， **CRC** 用于检查重组后的数据。
 
 #### AAL5 Frame Format
 
@@ -2017,29 +2017,29 @@ PPP Protocol | PPP Payload | Pad | Unused | Length | CRC
 └────── AAL5 Payload ──────┘         └── AAL5 Trailer：8字节 ──┘
 ```
 
-**尾部共 8 字节** ：由 2 字节 Unused、2 字节 Length 和 4 字节 CRC 组成。
+**尾部共 8 字节** ：由 2 字节 Unused、2 字节 Length 和 4 字节 **CRC** 组成。
 
-**没有额外的地址字段。** ATM 信元头部中的虚电路标识已经承担沿已建立路径转发的作用，AAL5 无须再次增加目的地址。
+**没有额外的地址字段。** **ATM** **Cell** 头部中的 **VC Identifier** 已经承担沿已建立路径转发的作用，AAL5 无须再次增加目的地址。
 
 **填充后的整体长度必须是 48 的整数倍。**
 
 <details>
-<summary>为什么 AAL5 中只保留 PPP 的 Protocol 和 Payload？</summary>
+<summary>为什么 AAL5 中只保留 <strong>PPP</strong> 的 Protocol 和 Payload？</summary>
 
-在这里的 PPP over ATM 映射中，AAL5 载荷放入的是 **PPP Protocol 和 PPP Payload** 。
+在这里的 **PPP** over **ATM** 映射中，AAL5 载荷放入的是 **PPP Protocol 和 PPP Payload** 。
 
-ATM／AAL5 已经提供分帧与适配，AAL5 尾部还提供 CRC，因此这一映射不再把完整 HDLC-like PPP 格式的 Flag、Address、Control 和独立 PPP FCS 全部重复封装进去。
+**ATM** ／AAL5 已经提供分帧与适配，AAL5 尾部还提供 **CRC**，因此这一映射不再把完整 HDLC-like **PPP** 格式的 Flag、Address、Control 和独立 **PPP** **FCS** 全部重复封装进去。
 
-PPP Protocol 仍有必要：它告诉对端重组出的内容是 IP 分组，还是 LCP 等控制报文。因此，即使外部成帧机制变化，PPP 的多协议承载和配置框架仍然有作用。
+**PPP** Protocol 仍有必要：它告诉对端重组出的内容是 IP 分组，还是 **LCP** 等控制报文。因此，即使外部成帧机制变化， **PPP** 的多协议承载和配置框架仍然有作用。
 
 **“两种链路都用 PPP”不等于“两种链路都原样携带同一套 PPP 头尾”。**
 
 </details>
 
 <details>
-<summary>例题：1000 字节数据经过 AAL5／ATM，需要多少个信元？</summary>
+<summary>例题：1000 字节数据经过 AAL5／<strong>ATM</strong>，需要多少个<strong>Cell</strong>？</summary>
 
-设 $L=1000$ 字节是 **整个 AAL5 载荷长度** ，已经包含本例中的 PPP Protocol 与 PPP Payload。
+设 $L=1000$ 字节是 **整个 AAL5 载荷长度** ，已经包含本例中的 **PPP** Protocol 与 **PPP** Payload。
 
 加入 8 字节尾部后：
 
@@ -2047,13 +2047,13 @@ $$
 L+8=1008=21\times48
 $$
 
-因此无需额外 Pad，需要 **21 个 ATM 信元** 。每个信元再加自己的 5 字节头部，ATM 层总发送长度为：
+因此无需额外 Pad，需要 **21 个 ATM Cell** 。每个 **Cell** 再加自己的 5 字节头部， **ATM** 层总发送长度为：
 
 $$
 \boxed{21\times53=1113\ \text{字节}}
 $$
 
-这里尚未计入 ADSL 物理层的编码等开销。
+这里尚未计入 **ADSL** 物理层的编码等开销。
 
 一般公式可由同样的格式推导：
 
@@ -2065,24 +2065,24 @@ $$
 
 其中 $0\le P\le47$。
 
-若“1000 字节”指 IP 分组，另外还要放入 2 字节 PPP Protocol，则 $L=1002$：
+若“1000 字节”指 IP 分组，另外还要放入 2 字节 **PPP** Protocol，则 $L=1002$：
 
 $$
 N_{\mathrm{cell}}=\left\lceil\frac{1002+8}{48}\right\rceil=22,\qquad
 P=1056-1010=46
 $$
 
-此时需要 22 个信元，ATM 层发送 $22\times53=1166$ 字节。
+此时需要 22 个 **Cell**， **ATM** 层发送 $22\times53=1166$ 字节。
 
 </details>
 
-### Data Over Cable Service Interface Specification
+### **Data Over Cable Service Interface Specification（有线电缆数据服务接口规范，DOCSIS）**
 
-**有线电缆数据服务接口规范（Data Over Cable Service Interface Specification，DOCSIS）** 用于通过有线电视接入基础设施提供数据业务。
+**DOCSIS** 用于通过有线电视接入基础设施提供数据业务。
 
-#### Cable Modem and CMTS
+#### Cable **Modem（调制解调器）** and **Cable Modem Termination System（电缆调制解调器终端系统，CMTS）**
 
-**Cable Modem** 位于用户侧； **电缆调制解调器终端系统（Cable Modem Termination System，CMTS）** 位于运营商侧，管理多个用户的接入与传输资源。
+**Cable Modem** 位于用户侧； **CMTS** 位于运营商侧，管理多个用户的接入与传输资源。
 
 ```text
 用户 A 的 Cable Modem ──┐
@@ -2094,20 +2094,20 @@ $$
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261019141232.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
-#### Shared Channels and MAC
+#### Shared Channels and **Medium Access Control（介质访问控制，MAC）**
 
-DOCSIS 的内容涉及 **物理层／物理介质相关子层（PMD）** 和 **介质访问控制子层（MAC）** 。
+**DOCSIS** 的内容涉及 **物理层／物理介质相关子层（PMD）** 和 **MAC** 。
 
-- **下行** ：CMTS → 用户终端。
-- **上行** ：用户终端 → CMTS。
+- **下行** ： **CMTS** → 用户终端。
+- **上行** ：用户终端 → **CMTS**。
 
-上下行资源由多个 Cable Modem 共享。因此除了成帧与纠错，还要解决 **带宽如何分配、用户如何使用共享信道** 的问题；
+上下行资源由多个 Cable **Modem** 共享。因此除了成帧与纠错，还要解决 **带宽如何分配、用户如何使用共享信道** 的问题；
 
-CMTS 不只传用户数据，还周期性发送管理信息，涉及 **测距、信道分配及其他资源分配任务** 。
+**CMTS** 不只传用户数据，还周期性发送管理信息，涉及 **测距、信道分配及其他资源分配任务** 。
 
-#### Framing before DOCSIS 3.1
+#### Framing before **DOCSIS** 3.1
 
-DOCSIS 3.1 之前的下行传输使用 MPEG 传输汇聚结构，单位长度为：
+**DOCSIS** 3.1 之前的下行传输使用 MPEG 传输汇聚结构，单位长度为：
 
 $$
 \boxed{188\ \text{字节}=4\ \text{字节头部}+184\ \text{字节载荷}}
@@ -2115,7 +2115,7 @@ $$
 
 #### Modulation Profiles and Error Correction
 
-DOCSIS 3.1 中
+**DOCSIS** 3.1 中
 
 ```text
 DOCSIS 分组
@@ -2127,16 +2127,16 @@ FEC 码字
 共享信道
 ```
 
-**调制配置（Modulation Profile）** 是对应 OFDM 各子载波的调制阶数／比特装载列表。它说明各子载波采用怎样的调制和承载能力。按相同配置组织缓冲，有助于把数据交给对应的码字构造与物理传输过程。
+**调制配置（Modulation Profile）** 是对应 **OFDM** 各子载波的调制阶数／比特装载列表。它说明各子载波采用怎样的调制和承载能力。按相同配置组织缓冲，有助于把数据交给对应的码字构造与物理传输过程。
 
-各配置的发送缓冲应保持较浅，避免形成明显排队时延。随后把 DOCSIS 帧映射为 **前向纠错（FEC）** 码字：下行采用 BCH 与 LDPC 保护，上行采用 LDPC 保护。
+各配置的发送缓冲应保持较浅，避免形成明显 **Queuing Delay（排队时延）**。随后把 **DOCSIS** 帧映射为 **Forward Error Correction（前向纠错，FEC）** 码字：下行采用 BCH 与 LDPC 保护，上行采用 LDPC 保护。
 
-#### Idle Filling and Channel Bonding
+#### Idle Filling and **Channel Bonding（信道绑定）**
 
-**空闲填充。** 没有下行 DOCSIS 数据帧时，通过相应空闲内容填充 OFDM／码字结构，例如全零比特填充内容或在码字中填入 1 序列。
+**空闲填充。** 没有下行 **DOCSIS** 数据帧时，通过相应空闲内容填充 **OFDM** ／码字结构，例如全零 **Bit Stuffing** 内容或在码字中填入 1 序列。
 
 这部分称为 **byte stuffing** 。
 
-**信道绑定（Channel Bonding）。** 自 DOCSIS 3.0 起，一个用户可以同时使用多条上行、下行信道。它把多条信道资源结合起来，提高用户可用的总传输能力。
+**Channel Bonding。** 自 **DOCSIS** 3.0 起，一个用户可以同时使用多条上行、下行信道。它把多条信道资源结合起来，提高用户可用的总传输能力。
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261019141355.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />

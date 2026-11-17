@@ -22,17 +22,17 @@ search-key    pointer
 - `search-key` 用于查找
 - `pointer` 指向数据记录、数据块，或者记录所在的 bucket
 
-### Search Key
+### **Search Key（搜索键）**
 
-**Search key（搜索键）** 是用于查找文件中记录的属性或属性集合。
+**Search Key** 是用于查找文件中记录的属性或属性集合。
 
-> search key 不一定是 primary key。
+> **search key** 不一定是 **primary key（主键）**。
 
 例如：
 
-- 按 `ID` 查 instructor，`ID` 是 search key
-- 按 `salary` 查 instructor，`salary` 也是 search key
-- 按 `(dept_name, salary)` 查 instructor，二者组成 composite search key
+- 按 `ID` 查 instructor，`ID` 是 **search key**
+- 按 `salary` 查 instructor，`salary` 也是 **search key**
+- 按 `(dept_name, salary)` 查 instructor，二者组成 **composite search key（复合搜索键）**
 
 ### Index Entry
 
@@ -62,7 +62,7 @@ search-key    pointer
 
 1. **Ordered Index**
 
-搜索键值按照排序顺序存储。
+**Search Key** 值按照排序顺序存储。
 
 适合：
 
@@ -72,7 +72,7 @@ search-key    pointer
 
 2. **Hash Index**
 
-搜索键值通过 hash function 均匀分配到 bucket 中。
+**Search Key** 值通过 hash function 均匀分配到 bucket 中。
 
 适合：
 
@@ -108,13 +108,13 @@ search-key    pointer
 
 典型例子：图书馆的作者目录。
 
-### Primary Index / Clustering Index
+### Primary Index / **Clustering Index（聚集索引）**
 
-**Primary index** 是建立在顺序文件上的索引，并且它的 search key 决定了数据文件本身的顺序。
+**Primary index** 是建立在顺序文件上的索引，并且它的 **search key** 决定了数据文件本身的顺序。
 
 它也叫：
 
-- **Clustering index（聚集索引）**
+- **Clustering Index**
 
 例如：
 
@@ -122,22 +122,22 @@ search-key    pointer
 - 在 `ID` 上建立的索引就是 primary index
 
 :::WARNING
-primary index 的 search key 通常是 primary key，但不一定必须是 primary key。
+primary index 的 **search key** 通常是 **primary key**，但不一定必须是 **primary key**。
 
 这里的 primary 主要强调：
 
-> 数据文件的物理顺序由这个 search key 决定。
+> 数据文件的物理顺序由这个 **search key** 决定。
 :::
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202605121332736.png" alt="primary index on ID attribute of instructor" style="width: 520px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
-### Secondary Index / Non-clustering Index
+### Secondary Index / **Non-clustering Index（非聚集索引）**
 
-**Secondary index** 的 search key 顺序和数据文件的顺序不同。
+**Secondary index** 的 **search key** 顺序和数据文件的顺序不同。
 
 它也叫：
 
-- **Non-clustering index（非聚集索引）**
+- **Non-Clustering Index**
 
 例如：
 
@@ -160,24 +160,24 @@ secondary index 的问题是：
 
 它的基本思想是：
 
-- 数据文件本身按 search key 排序
+- 数据文件本身按 **search key** 排序
 - 索引帮助快速定位文件中的位置
 - 定位后可以顺序扫描
 
 
-## Dense Index 与 Sparse Index
+## Dense Index 与 **Sparse Index（稀疏索引）**
 
 ### Dense Index
 
 **Dense index（稠密索引）** 中，每个 search-key value 都有一个 index record。
 
-如果 search key 是唯一的：
+如果 **search key** 是唯一的：
 
 ```text
 每条记录一个索引项
 ```
 
-如果 search key 不是唯一的：
+如果 **search key** 不是唯一的：
 
 ```text
 每个不同的 search-key value 一个索引项
@@ -199,17 +199,17 @@ secondary index 的问题是：
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202605121337153.png" alt="dense index on dept_name attribute of instructor" style="width: 520px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
-### Sparse Index
+### **Sparse Index**
 
-**Sparse index（稀疏索引）** 只为部分 search-key values 建立 index records。
+**Sparse Index** 只为部分 search-key values 建立 index records。
 
 它适用的前提是：
 
-> 数据记录必须按照 search key 顺序排列。
+> 数据记录必须按照 **search key** 顺序排列。
 
 查找 search-key value 为 `K` 的记录时：
 
-1. 在 sparse index 中找到最大且小于等于 `K` 的 search-key value
+1. 在 **sparse index** 中找到最大且小于等于 `K` 的 search-key value
 2. 从该索引项指向的位置开始，在数据文件中顺序扫描
 3. 找到目标记录，或者发现目标不存在
 
@@ -223,7 +223,7 @@ Dense index：
 - 占空间更多
 - 插入删除维护成本更高
 
-Sparse index：
+**Sparse index**：
 
 - 占空间更少
 - 插入删除维护成本更低
@@ -231,7 +231,7 @@ Sparse index：
 
 一个常用折中：
 
-> 每个数据块建立一个 sparse index entry，记录该块中的最小 search-key value。
+> 每个数据块建立一个 **sparse index** entry，记录该块中的最小 search-key value。
 
 这样：
 
@@ -242,25 +242,25 @@ Sparse index：
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202605121339175.png" alt="sparse index with one entry per data block" style="width: 320px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
 
-## Multilevel Index
+## **Multilevel Index（多级索引）**
 
 当 primary index 本身太大，不能放入内存时，每次查索引也会产生较高 I/O 成本。
 
 解决办法：
 
-> 把磁盘上的 primary index 当作一个顺序文件，再在它上面建立 sparse index。
+> 把磁盘上的 primary index 当作一个顺序文件，再在它上面建立 **sparse index**。
 
 于是形成两层：
 
 - **Inner index** ：原来的 primary index file
-- **Outer index** ：建立在 inner index 上的 sparse index
+- **Outer index** ：建立在 inner index 上的 **sparse index**
 
 如果 outer index 仍然太大，还可以继续往上加层。
 
-这就是 **multilevel index（多级索引）** 。
+这就是 **Multilevel Index** 。
 
 :::WARNING
-多级索引提高查询效率，但更新更复杂。
+**Multilevel Index** 提高查询效率，但更新更复杂。
 
 当数据文件插入或删除记录时，所有受影响层级的索引都可能要更新。
 :::
@@ -300,7 +300,7 @@ B+-tree 是一棵满足以下性质的有根树：
 1. 从 root 到所有 leaf 的路径长度相同
 2. 非 root、非 leaf 的 internal node 有$\lceil n/2 \rceil \sim n$个 children。
 
-3. Leaf node 有$\lceil (n-1)/2 \rceil \sim n-1$个 search-key values。
+3. **Leaf node（叶节点）** 有$\lceil (n-1)/2 \rceil \sim n-1$个 search-key values。
 
 4. 特殊情况：
 
@@ -321,8 +321,8 @@ P1 K1 P2 K2 ... Pn-1 Kn-1 Pn
 
 - `Ki` 是 search-key values
 - `Pi` 是 pointers
-  - 在 non-leaf node 中，`Pi` 指向子节点
-  - 在 leaf node 中，`Pi` 指向记录或记录 bucket
+  - 在 **non-leaf node（非叶节点）** 中，`Pi` 指向子节点
+  - 在 **leaf node** 中，`Pi` 指向记录或记录 bucket
 
 节点内 search-key 按升序排列：
 
@@ -330,30 +330,30 @@ $$
 K_1 < K_2 < \cdots < K_{n-1}
 $$
 
-### Leaf Node
+### **Leaf Node**
 
-Leaf node 保存真正用于定位记录的 entry。
+**Leaf node** 保存真正用于定位记录的 entry。
 
-对 leaf node：
+对 **leaf node**：
 
 - 对于 `i = 1, 2, ..., n-1`，`Pi` 指向 search-key value 为 `Ki` 的记录或 bucket
-- 如果 `Li` 和 `Lj` 是两个 leaf node，且 `i < j`，则 `Li` 中的 key 都小于等于 `Lj` 中的 key
-- `Pn` 指向 search-key 顺序中的下一个 leaf node
+- 如果 `Li` 和 `Lj` 是两个 **leaf node**，且 `i < j`，则 `Li` 中的 key 都小于等于 `Lj` 中的 key
+- `Pn` 指向 search-key 顺序中的下一个 **leaf node**
 
 最后一点很关键。
 
-因为 leaf node 之间有链表连接，所以 B+-tree 很适合做范围查询：
+因为 **leaf node** 之间有链表连接，所以 B+-tree 很适合做范围查询：
 
 1. 先从 root 查到范围起点所在的 leaf
 2. 再沿着 leaf-level linked list 顺序扫描
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202605121344146.png" alt="leaf nodes in B+-trees" style="width: 520px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
-### Non-leaf Node
+### **Non-leaf Node**
 
-Non-leaf nodes 组成 leaf nodes 上方的多级稀疏索引。
+**Non-leaf nodes** 组成 **leaf nodes** 上方的多级 **Sparse Index**。
 
-对于一个有 `m` 个 pointers 的 non-leaf node：
+对于一个有 `m` 个 pointers 的 **non-leaf node**：
 
 - `P1` 指向的子树中所有 key 都小于 `K1`
 - `Pi` 指向的子树中所有 key 满足：
@@ -364,31 +364,31 @@ $$
 
 - `Pm` 指向的子树中所有 key 都大于等于 `K_{m-1}`
 
-因此 non-leaf node 不直接保存完整数据记录，只负责导航。
+因此 **non-leaf node** 不直接保存完整数据记录，只负责导航。
 
 ### Observations about B+ Tree
 
 B+ 树的节点之间通过 pointer 连接，逻辑上相邻的节点不要求在磁盘上物理相邻。
 
-例如，某个父节点可以指向任意位置的子节点；叶节点之间也可以通过指针连成有序链表。  
-这使得插入和删除时不需要大规模移动磁盘块，只需要修改局部节点和指针。
+例如，某个 **Parent Node（父节点）** 可以指向任意位置的子节点； **Leaf Node** 之间也可以通过指针连成有序链表。  
+这使得插入和删除时不需要大规模移动 **Disk Block（磁盘块）**，只需要修改局部节点和指针。
 
 这也意味着：
 
-- 逻辑相邻的叶节点可能分布在磁盘不同位置
-- 范围查询虽然可以沿叶节点链表顺序扫描，但物理 I/O 未必完全连续
+- 逻辑相邻的 **Leaf Node** 可能分布在磁盘不同位置
+- 范围查询虽然可以沿 **Leaf Node** 链表顺序扫描，但物理 I/O 未必完全连续
 
-B+ 树的非叶节点可以看成是对下一层节点的索引，更准确地说是多级稀疏索引。
+B+ 树的 **Non-Leaf Node** 可以看成是对下一层节点的索引，更准确地说是多级 **Sparse Index**。
 
-叶节点保存完整的搜索键以及指向记录的指针；非叶节点只保存部分 search-key，用来指导查询进入哪个子树。
+**Leaf Node** 保存完整的 **Search Key** 以及指向记录的指针； **Non-Leaf Node** 只保存部分 search-key，用来指导查询进入哪个子树。
 
 若一个 B+ 树节点最多有 $n$ 个子指针，则除根节点外：
 
-- 非叶节点至少有 $\left\lceil \frac{n}{2} \right\rceil$ 个子指针
-- 叶节点至少有 $\left\lceil \frac{n - 1}{2} \right\rceil$ 个 search-key
-- 如果根节点不是叶节点，根节点至少有 2 个子指针
+- **Non-Leaf Node** 至少有 $\left\lceil \frac{n}{2} \right\rceil$ 个子指针
+- **Leaf Node** 至少有 $\left\lceil \frac{n - 1}{2} \right\rceil$ 个 search-key
+- 如果根节点不是 **Leaf Node**，根节点至少有 2 个子指针
 
-因此，B+ 树每增加一层，能够覆盖的搜索键数量都会乘上一个较大的 fan-out。
+因此，B+ 树每增加一层，能够覆盖的 **Search Key** 数量都会乘上一个较大的 fan-out。
 
 如果文件中有 $K$ 个 search-key，那么树高最多约为：
 
@@ -418,7 +418,7 @@ B+ 树的查找过程是：`root -> internal node -> ... -> leaf node -> record`
 
 插入和删除也只会沿着从根到叶的一条路径进行局部调整：
 
-- 插入时，如果叶节点满了，分裂节点，并可能向父节点传播
+- 插入时，如果 **Leaf Node** 满了，分裂节点，并可能向 **Parent Node** 传播
 - 删除时，如果节点太空，可以向兄弟节点借 entry，或者和兄弟节点合并
 - 最坏情况下，调整传播到根
 
@@ -449,7 +449,7 @@ function find(V):
         记录不存在
 ```
 
-这里 `V == Ki` 时走 `Pi+1`，是因为 non-leaf node 中的 `Ki` 是右侧子树的分界值。
+这里 `V == Ki` 时走 `Pi+1`，是因为 **non-leaf node** 中的 `Ki` 是右侧子树的分界值。
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202605121354968.png" alt="B+-tree query" style="width: 520px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
@@ -465,8 +465,8 @@ $$
 
 实际中：
 
-- 一个节点通常等于一个磁盘块
-- 磁盘块常见大小是 4KB
+- 一个节点通常等于一个 **Disk Block**
+- **Disk Block** 常见大小是 4KB
 - 如果每个 index entry 约 40 bytes，`n` 大约为 100
 
 例子：
@@ -507,18 +507,18 @@ B+-tree 牺牲的是节点内部的线性 / 二分查找成本，换来的是极
 
 过程：
 
-1. 找到 `v` 应该出现的 leaf node
-2. 如果 leaf node 有空间，直接插入 `(v, pr)`
-3. 如果 leaf node 已满，需要分裂 leaf node，并向父节点插入新的分隔项
+1. 找到 `v` 应该出现的 **leaf node**
+2. 如果 **leaf node** 有空间，直接插入 `(v, pr)`
+3. 如果 **leaf node** 已满，需要分裂 **leaf node**，并向 **Parent Node** 插入新的分隔项
 
-Leaf node split 的规则：
+**Leaf node** split 的规则：
 
 1. 把原节点中的 entries 加上新 entry，一共 `n` 个 `(key, pointer)`，按 key 排序
 2. 前 `ceil(n/2)` 个留在原 leaf
 3. 剩下的放入新 leaf
 4. 设新 leaf 为 `p`，新 leaf 中最小 key 为 `k`
-5. 向父节点插入 `(k, p)`
-6. 如果父节点也满，则继续向上分裂
+5. 向 **Parent Node** 插入 `(k, p)`
+6. 如果 **Parent Node** 也满，则继续向上分裂
 7. 最坏情况下 root 分裂，树高加 1
 
 **伪代码** ：
@@ -609,9 +609,9 @@ function split_internal(P, k, N2)
 
 基本过程：
 
-1. 从 leaf node 中删除 `(v, pr)`
-2. 如果 leaf node 仍满足最小 entry 数要求，结束
-3. 如果 leaf node underfull，分两种情况处理：
+1. 从 **leaf node** 中删除 `(v, pr)`
+2. 如果 **leaf node** 仍满足最小 entry 数要求，结束
+3. 如果 **leaf node** underfull，分两种情况处理：
 
 **情况一：可以和 sibling 合并**
 
@@ -619,8 +619,8 @@ function split_internal(P, k, N2)
 
 - 把两个节点内容合并到一个节点中
 - 删除另一个节点
-- 在父节点中删除指向被删节点的 pointer 及对应分隔 key
-- 父节点可能继续 underfull，因此递归处理
+- 在 **Parent Node** 中删除指向被删节点的 pointer 及对应分隔 key
+- **Parent Node** 可能继续 underfull，因此递归处理
 
 **情况二：不能合并，只能重新分配**
 
@@ -628,7 +628,7 @@ function split_internal(P, k, N2)
 
 - 在当前节点和 sibling 之间重新分配 entries
 - 让两个节点都满足最低占用要求
-- 更新父节点中对应的 search-key value
+- 更新 **Parent Node** 中对应的 search-key value
 
 如果 root 删除后只剩一个 child：
 
@@ -725,7 +725,7 @@ $$
 
 - internal nodes 往往缓存在 buffer 中
 - split / merge 不常发生
-- 大多数插入删除只影响 leaf node
+- 大多数插入删除只影响 **leaf node**
 
 平均节点占用率和插入顺序有关：
 
@@ -737,7 +737,7 @@ $$
 
 ### 手工插入例子
 
-给出一组整数 B+-tree 插入过程，用来理解节点分裂和父节点更新。
+给出一组整数 B+-tree 插入过程，用来理解节点分裂和 **Parent Node** 更新。
 
 初始 key 包括：
 
@@ -752,8 +752,8 @@ $$
 变化重点：
 
 - leaf 从原来的包含 `20, 60`，变成两个 leaf：`20, 30` 和 `60`
-- 父节点需要插入新的分隔 key
-- 如果父节点溢出，则继续 split
+- **Parent Node** 需要插入新的分隔 key
+- 如果 **Parent Node** 溢出，则继续 split
 
 <imgs src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202605121402988.png" alt="B+-tree insertion of 30" style="width: 520px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
@@ -828,7 +828,7 @@ $$
 
 B+-tree 索引中，假设：
 
-- search key `pid` 大小为 18 bytes
+- **search key** `pid` 大小为 18 bytes
 - pointer 大小为 4 bytes
 - 一个节点保留 4 bytes 额外空间
 
@@ -865,13 +865,13 @@ $$
 
 ### 与 B+-Tree Index 的区别
 
-**B+-Tree Index** 的 leaf node 保存：
+**B+-Tree Index** 的 **leaf node** 保存：
 
 ```text
 (search-key, pointer-to-record)
 ```
 
-**B+-Tree File Organization** 的 leaf node 直接保存：
+**B+-Tree File Organization** 的 **leaf node** 直接保存：
 
 ```text
 完整数据记录
@@ -884,20 +884,20 @@ $$
 好处：
 
 - 插入、删除、更新后仍能保持数据记录的 clustering
-- 支持按 search key 顺序访问数据
+- 支持按 **search key** 顺序访问数据
 - 不需要额外从 leaf pointer 再跳到数据文件
 
 代价：
 
-- leaf node 中记录比 pointer 大得多
-- 每个 leaf node 能容纳的记录数更少
+- **leaf node** 中记录比 pointer 大得多
+- 每个 **leaf node** 能容纳的记录数更少
 - leaf 层节点数量更多
 
 ### 空间利用率
 
-Leaf nodes 仍要求至少 half full。
+**Leaf nodes** 仍要求至少 half full。
 
-但因为 leaf node 直接存 records，空间利用率更重要。
+但因为 **leaf node** 直接存 records，空间利用率更重要。
 
 为提高空间利用率，可以在 split / merge 时涉及更多 sibling nodes。
 
@@ -927,7 +927,7 @@ person(
 - record size = 68 bytes
 - block size = 4096 bytes
 
-每个 leaf node 最多可放：
+每个 **leaf node** 最多可放：
 
 $$
 \lfloor (4096 - 4) / 68 \rfloor = 60
@@ -943,7 +943,7 @@ $$
 
 个 records。
 
-存储 100 万条记录需要 leaf nodes：
+存储 100 万条记录需要 **leaf nodes**：
 
 - 最少：
 
@@ -957,7 +957,7 @@ $$
 \lceil 1,000,000 / 30 \rceil = 33333
 $$
 
-non-leaf node fanout 仍是：
+**non-leaf node** fanout 仍是：
 
 $$
 (4096 - 4)/(18+4) + 1 = 187
@@ -981,14 +981,14 @@ $$
 
 B-tree 和 B+-tree 类似，但有一个关键区别：
 
-> B-tree 中 search-key value 只出现一次。B+ tree 中 search-key value 可能出现在 non-leaf node 和 leaf node 中，同时中间节点的索引值不一定会出现在叶子结点上，他只要能起到区分两路，不一定会作为叶子结点的值出现，就比如删除以后可能就不在了。
+> B-tree 中 search-key value 只出现一次。B+ tree 中 search-key value 可能出现在 **non-leaf node** 和 **leaf node** 中，同时中间节点的索引值不一定会出现在叶子结点上，他只要能起到区分两路，不一定会作为叶子结点的值出现，就比如删除以后可能就不在了。
 
 也就是说：
 
-- 如果某个 key 已经出现在 non-leaf node 中，它不会再出现在 leaf node 中
-- non-leaf node 除了导航 pointer，还要保存指向实际记录或 bucket 的 pointer
+- 如果某个 key 已经出现在 **non-leaf node** 中，它不会再出现在 **leaf node** 中
+- **non-leaf node** 除了导航 pointer，还要保存指向实际记录或 bucket 的 pointer
 
-因此 B-tree 可以减少 search key 的冗余存储。
+因此 B-tree 可以减少 **search key** 的冗余存储。
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202605121432457.png" alt="B-tree vs B+-tree" style="width: 520px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
@@ -997,12 +997,12 @@ B-tree 和 B+-tree 类似，但有一个关键区别：
 优点：
 
 - 相比对应的 B+-tree，可能使用更少节点
-- 有时在到达 leaf node 前就能找到目标 key
+- 有时在到达 **leaf node** 前就能找到目标 key
 
 缺点：
 
-- 只有少数 search-key values 能提前在 non-leaf node 找到
-- non-leaf node 更大，因为还要存记录指针
+- 只有少数 search-key values 能提前在 **non-leaf node** 找到
+- **non-leaf node** 更大，因为还要存记录指针
 - fanout 变小，树可能更深
 - 插入和删除更复杂
 - 实现难度比 B+-tree 高
@@ -1014,8 +1014,8 @@ B-tree 和 B+-tree 类似，但有一个关键区别：
 
 ## Secondary Index 的记录移动问题
 
-在 B+-Tree File Organization 中，leaf node 直接保存完整 records。  
-因此，当 leaf node 发生 split / merge / redistribution 时，某些 records 的物理位置可能改变。
+在 B+-Tree File Organization 中， **leaf node** 直接保存完整 records。  
+因此，当 **leaf node** 发生 split / merge / redistribution 时，某些 records 的物理位置可能改变。
 
 这会影响 secondary index 的设计。
 
@@ -1035,9 +1035,9 @@ person(
 数据文件按 `pid` 组织成 B+-Tree File Organization。  
 也就是说：
 
-- primary index 的 search key 是 `pid`
+- primary index 的 **search key** 是 `pid`
     
-- leaf node 中直接保存完整的 `person` records
+- **leaf node** 中直接保存完整的 `person` records
     
 同时，系统还建立了两个 secondary indices：
 
@@ -1072,7 +1072,7 @@ block 100, slot 3
 
 此时，两个 secondary indices 都直接指向这条记录的物理地址。
 
-现在向 B+-tree file 中插入新记录，导致某个 leaf node 分裂。
+现在向 B+-tree file 中插入新记录，导致某个 **leaf node** 分裂。
 
 分裂前：
 
@@ -1131,15 +1131,15 @@ Tom -> block 220, slot 2
 ```
 
 如果表上有很多 secondary indices，记录每移动一次，就可能触发大量索引更新。  
-所以在 B+-tree file organization 中，node split 会变得很昂贵。课件把这个问题概括为：如果记录移动，所有存储 record pointer 的 secondary indices 都必须更新；解决办法是在 secondary index 中保存 primary-index search key，而不是 record pointer。
+所以在 B+-tree file organization 中，node split 会变得很昂贵。课件把这个问题概括为：如果记录移动，所有存储 record pointer 的 secondary indices 都必须更新；解决办法是在 secondary index 中保存 primary-index **search key**，而不是 record pointer。
 
-### 使用 primary-index search key 的方案
+### 使用 primary-index **search key** 的方案
 
 更稳定的做法是：
 
-> Secondary index entry 不保存物理 record pointer，而保存 primary-index search key。
+> Secondary index entry 不保存物理 record pointer，而保存 primary-index **search key**。
 
-在这个例子中，primary-index search key 是 `pid`。
+在这个例子中，primary-index **search key** 是 `pid`。
 
 因此 secondary index 可以写成：
 
@@ -1199,13 +1199,13 @@ Tom -> 005
 |方案|Secondary index 保存内容|查询代价|记录移动代价|
 |---|---|---|---|
 |直接保存 record pointer|物理地址，如 `block 100, slot 3` |低|高，所有相关 secondary indices 都要更新|
-|保存 primary-index search key|主键，如 `pid = 005` |较高，需要再查 primary index|低，记录移动时 secondary index 不变|
+|保存 primary-index **search key** | **Primary Key**，如 `pid = 005` |较高，需要再查 primary index|低，记录移动时 secondary index 不变|
 
 所以：
 
-> 保存 record pointer 查询更直接，但对记录移动很敏感；保存 primary-index search key 查询多走一步，但对记录移动更稳定。
+> 保存 record pointer 查询更直接，但对记录移动很敏感；保存 primary-index **search key** 查询多走一步，但对记录移动更稳定。
 
-如果 primary-index search key 本身不唯一，还需要额外加上 `record-id` 来唯一定位记录。
+如果 primary-index **search key** 本身不唯一，还需要额外加上 `record-id` 来唯一定位记录。
 
 例如，如果 primary index 建在 `dept_name` 上：
 
@@ -1227,14 +1227,14 @@ age = 20 -> CS
 age = 20 -> (CS, record-id)
 ```
 
-其中 `record-id` 用来区分同一个 primary search key 下的不同记录。
+其中 `record-id` 用来区分同一个 primary **search key** 下的不同记录。
 
 
-## Variable Length Keys 与 Prefix Compression
+## Variable Length Keys 与 **Prefix Compression（前缀压缩）**
 
 ### Variable Length Strings as Keys
 
-如果 search key 是变长字符串，会带来两个问题：
+如果 **search key** 是变长字符串，会带来两个问题：
 
 - 每个节点能容纳的 entry 数不固定
 - fanout 变成 variable fanout
@@ -1245,9 +1245,9 @@ age = 20 -> (CS, record-id)
 
 也就是节点是否超过页大小，或者是否低于最低空间占用要求。
 
-### Prefix Compression
+### **Prefix Compression**
 
-对字符串索引，可以使用 **prefix compression（前缀压缩）** 。
+对字符串索引，可以使用 **Prefix Compression** 。
 
 Internal node 中不一定要保存完整 key，只要保存足够区分相邻子树的前缀即可。
 
@@ -1266,12 +1266,12 @@ Silb
 
 来区分对应子树。
 
-Leaf node 中也可以压缩共同前缀，减少空间。
+**Leaf node** 中也可以压缩共同前缀，减少空间。
 
 :::TIP
-prefix compression 的核心是：
+**prefix compression** 的核心是：
 
-> internal node 的 key 只用于导航，不一定需要等于完整 search key。
+> internal node 的 key 只用于导航，不一定需要等于完整 **search key**。
 
 只要能正确区分左右子树，就足够。
 :::
@@ -1311,9 +1311,9 @@ where dept_name = 'Finance'
 
 策略三要求索引能返回 record pointers。
 
-### Composite Search Key
+### **Composite Search Key**
 
-**Composite search key（复合搜索键）**   椏。前2. 由多个属性组成。
+**Composite Search Key**   椏。前2. 由多个属性组成。
 
 例如：
 
@@ -1334,7 +1334,7 @@ $$
 - `a1 < b1`，或
 - `a1 = b1` 且 `a2 < b2`
 
-### 复合索引能高效支持什么查询
+### **Composite Index（复合索引）** 能高效支持什么查询
 
 假设有索引：
 
@@ -1375,14 +1375,14 @@ where dept_name < 'Finance'
 - 所以会取出大量满足第一条件但不满足第二条件的记录
 
 :::WARNING
-复合索引的顺序非常重要。
+**Composite Index** 的顺序非常重要。
 
 `(dept_name, salary)` 和 `(salary, dept_name)` 支持的高效查询模式不一样。
 :::
 
-### 非唯一搜索键的处理
+### 非唯一 **Search Key** 的处理
 
-如果某个 search key `ai` 不唯一，可以建立唯一复合索引：
+如果某个 **search key** `ai` 不唯一，可以建立唯一 **Composite Index**：
 
 ```text
 (ai, Ap)
@@ -1390,7 +1390,7 @@ where dept_name < 'Finance'
 
 其中 `Ap` 可以是：
 
-- primary key
+- **primary key**
 - record ID
 - 其他能保证唯一性的属性
 
@@ -1416,8 +1416,8 @@ ai = v
 
 - key 更长，有额外存储开销
 - 获取实际记录可能需要更多 I/O
-  - clustering index：访问大多是顺序的
-  - non-clustering index：每条记录可能一次随机 I/O
+  - **clustering index**：访问大多是顺序的
+  - **non-clustering index**：每条记录可能一次随机 I/O
 
 
 ## Indexing in Main Memory
@@ -1471,7 +1471,7 @@ ai = v
 
 问题：
 
-- 许多 leaf nodes 最后只有 half full
+- 许多 **leaf nodes** 最后只有 half full
 - 空间利用率不一定好
 
 ### Bottom-Up B+-Tree Construction
@@ -1617,7 +1617,7 @@ LSM-tree 先只考虑 insert 和 query。
 LSM 的优势：
 
 - 插入主要转化为顺序 I/O
-- leaf nodes 通常是满的，空间浪费少
+- **leaf nodes** 通常是满的，空间浪费少
 - 相比普通 B+-tree，单条记录写入 I/O 更少
 
 LSM 的缺点：

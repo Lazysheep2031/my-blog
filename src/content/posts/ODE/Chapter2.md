@@ -42,7 +42,7 @@ $$
   y''=yy',\qquad y''+(y')^2+y^3=0.
   $$
 
-### Homogeneous and Nonhomogeneous Equations
+### **Homogeneous（齐次）** and **Nonhomogeneous Equations（非齐次方程）**
 
 若右端为零，
 
@@ -50,7 +50,7 @@ $$
 \boxed{y''+p(x)y'+q(x)y=0}
 $$
 
-则称为 **homogeneous equation** 。
+则称为 **homogeneous equation（齐次方程）** 。
 
 若右端不为零，
 
@@ -61,11 +61,11 @@ $$
 则称为 **nonhomogeneous equation** 。
 
 > [!TIP]
-> 对 linear equations 来说，所谓 homogeneous，最直接的判断标准就是： **right-hand side 是否等于 0** 。
+> 对 linear equations 来说，所谓 **homogeneous**，最直接的判断标准就是： **right-hand side 是否等于 0** 。
 
-### Initial Conditions
+### **Initial Conditions（初始条件）**
 
-一个典型的二阶线性初值问题（IVP）写成
+一个典型的二阶线性 **Initial Value Problem（初值问题，IVP）** 写成
 
 $$
 y''+p(x)y'+q(x)y=f(x),
@@ -73,13 +73,13 @@ y''+p(x)y'+q(x)y=f(x),
 \qquad y'(x_0)=y_1.
 $$
 
-因为二阶方程的通解通常含有两个任意常数，所以通常需要 **两个初始条件** 才能确定 particular solution。
+因为二阶方程的 **General Solution（通解）** 通常含有两个任意常数，所以通常需要 **两个Initial Condition** 才能确定 **particular solution（特解）**。
 
-## Superposition, Uniqueness, and General Solutions
+## Superposition, Uniqueness, and **General Solutions**
 
 ### Principle of Superposition
 
-对 homogeneous linear equation
+对 **homogeneous linear equation（齐次线性方程）**
 
 $$
 y''+p(x)y'+q(x)y=0,
@@ -104,11 +104,11 @@ $$
 $$
 
 > [!IMPORTANT]
-> **Superposition** 只对 **linear homogeneous equations** 直接成立。对 nonlinear equations 或一般的 nonhomogeneous equations，不能直接这样相加。
+> **Superposition** 只对 **linear homogeneous equations** 直接成立。对 nonlinear equations 或一般的 **nonhomogeneous equations**，不能直接这样相加。
 
 ### Existence and Uniqueness
 
-对初值问题
+对 **IVP**
 
 $$
 y''+p(x)y'+q(x)y=f(x),
@@ -116,17 +116,17 @@ y''+p(x)y'+q(x)y=f(x),
 \qquad y'(x_0)=y_1,
 $$
 
-如果 $p,q,f$ 在包含 $x_0$ 的开区间 $I$ 上连续，那么这个 IVP 在整个区间 $I$ 上存在且仅存在一个解。
+如果 $p,q,f$ 在包含 $x_0$ 的开区间 $I$ 上连续，那么这个 **IVP** 在整个区间 $I$ 上存在且仅存在一个解。
 
 可以记住三个直接推论：
 
-- 两个初始条件至多对应一个解；
+- 两个 **Initial Condition** 至多对应一个解；
 - 若两个解在某一点有相同的 $y$ 和 $y'$，那它们在该区间上其实就是同一个解；
-- 线性初值问题的行为通常比很多非线性方程更规则。
+- 线性 **IVP** 的行为通常比很多非线性方程更规则。
 
 ### Linear Independence and the Wronskian
 
-若两个函数 $y_1,y_2$ 互不是彼此的常数倍，就称它们在区间 $I$ 上 **linearly independent** 。
+若两个函数 $y_1,y_2$ 互不是彼此的常数倍，就称它们在区间 $I$ 上 **linearly independent（线性无关）** 。
 
 对于两个可微函数，它们的 **Wronskian** 定义为
 
@@ -141,10 +141,10 @@ y_1' & y_2'
 }
 $$
 
-对同一个二阶 homogeneous linear equation 的两个解来说：
+对同一个二阶 **homogeneous linear equation** 的两个解来说：
 
-- 若 $y_1,y_2$ 线性相关，则 $W(y_1,y_2)=0$；
-- 若 $y_1,y_2$ 线性无关，则 $W(y_1,y_2)\neq 0$。
+- 若 $y_1,y_2$ **Linearly Dependent（线性相关）**，则 $W(y_1,y_2)=0$；
+- 若 $y_1,y_2$ **Linearly Independent**，则 $W(y_1,y_2)\neq 0$。
 
 典型例子：
 
@@ -156,9 +156,9 @@ $$
 W(e^x,xe^x)=e^{2x}.
 $$
 
-所以这两组函数都是 linearly independent 的。
+所以这两组函数都是 **linearly independent** 的。
 
-### General Solution of a Homogeneous Second-Order Equation
+### **General Solution** of a **Homogeneous** Second-Order Equation
 
 若 $y_1,y_2$ 是方程
 
@@ -166,13 +166,13 @@ $$
 y''+p(x)y'+q(x)y=0
 $$
 
-的两个 linearly independent solutions，那么任意解都能写成
+的两个 **linearly independent** solutions，那么任意解都能写成
 
 $$
 \boxed{y=c_1y_1+c_2y_2.}
 $$
 
-这说明： **二阶 homogeneous linear equation 的解集是一个二维线性空间。**
+这说明： **二阶 homogeneous linear equation 的解集是一个二维Linear Space（线性空间）。**
 
 例如，对
 
@@ -183,7 +183,7 @@ $$
 <details>
 <summary>展开解答</summary>
 
-已知 $\cos x$ 和 $\sin x$ 是线性无关解，所以通解为
+已知 $\cos x$ 和 $\sin x$ 是 **Linearly Independent** 解，所以 **General Solution** 为
 
 $$
 \boxed{y=c_1\cos x+c_2\sin x.}
@@ -202,36 +202,36 @@ $$
 y^{(n)}+p_1(x)y^{(n-1)}+\cdots+p_{n-1}(x)y'+p_n(x)y=f(x).
 $$
 
-若 $f(x)\equiv 0$，则为 homogeneous；否则为 nonhomogeneous。
+若 $f(x)\equiv 0$，则为 **homogeneous**；否则为 **nonhomogeneous（非齐次）**。
 
-对应的 $n$ 阶 IVP 通常要给出
+对应的 $n$ 阶 **IVP** 通常要给出
 
 $$
 y(x_0),y'(x_0),\dots,y^{(n-1)}(x_0).
 $$
 
-### Homogeneous Solution Space
+### **Homogeneous Solution（齐次解）** Space
 
 二阶情形的结构会自然推广到更高阶：
 
-- homogeneous $n$ 阶 linear ODE 的解集构成线性空间；
-- 若 $y_1,\dots,y_n$ 是 $n$ 个 linearly independent solutions，则
+- **homogeneous** $n$ 阶 linear ODE 的解集构成 **Linear Space**；
+- 若 $y_1,\dots,y_n$ 是 $n$ 个 **linearly independent** solutions，则
 
 $$
 \boxed{y_c=c_1y_1+\cdots+c_ny_n}
 $$
 
-就是 homogeneous equation 的通解。
+就是 **homogeneous equation** 的 **General Solution**。
 
-### Structure of Nonhomogeneous Solutions
+### Structure of **Nonhomogeneous** Solutions
 
-对 nonhomogeneous equation
+对 **nonhomogeneous equation**
 
 $$
 L[y]=f(x),
 $$
 
-若 $y_p$ 是一个 particular solution，而 $y_c$ 是对应 homogeneous equation $L[y]=0$ 的通解，那么原方程的通解是
+若 $y_p$ 是一个 **particular solution**，而 $y_c$ 是对应 **homogeneous equation** $L[y]=0$ 的 **General Solution**，那么原方程的 **General Solution** 是
 
 $$
 \boxed{Y=y_c+y_p.}
@@ -240,7 +240,7 @@ $$
 
 > **总解 = complementary solution + particular solution** 。
 
-## Homogeneous Equations with Constant Coefficients
+## **Homogeneous Equations** with Constant Coefficients
 
 现在考虑
 
@@ -248,7 +248,7 @@ $$
 \boxed{ay''+by'+cy=0,\qquad a,b,c\in\mathbb R,\ a\neq 0.}
 $$
 
-### Characteristic Equation
+### **Characteristic Equation（特征方程）**
 
 尝试指数型解
 
@@ -278,7 +278,7 @@ $$
 
 ### Distinct Real Roots
 
-若 characteristic equation 有两个不同实根 $r_1\neq r_2$，则
+若 **characteristic equation** 有两个不同实根 $r_1\neq r_2$，则
 
 $$
 \boxed{y=c_1e^{r_1x}+c_2e^{r_2x}.}
@@ -293,13 +293,13 @@ $$
 <details>
 <summary>展开解答</summary>
 
-的特征方程为
+的 **Characteristic Equation** 为
 
 $$
 r^2-5r+6=(r-2)(r-3)=0,
 $$
 
-故通解为
+故 **General Solution** 为
 
 $$
 \boxed{y=c_1e^{2x}+c_2e^{3x}.}
@@ -310,7 +310,7 @@ $$
 
 ### Repeated Real Roots
 
-若 characteristic equation 有一个重实根 $r$，重数为 $m$，则对应解的结构为
+若 **characteristic equation** 有一个重实根 $r$，重数为 $m$，则对应解的结构为
 
 $$
 \boxed{(C_1+C_2x+\cdots+C_mx^{m-1})e^{rx}.}
@@ -331,7 +331,7 @@ $$
 <details>
 <summary>展开解答</summary>
 
-的特征方程是
+的 **Characteristic Equation** 是
 
 $$
 (r+1)^2=0,
@@ -347,22 +347,22 @@ $$
 
 
 > [!TIP]
-> 重根并不是“重复写同一个 $e^{rx}$”，而是会产生
+> **Repeated Root（重根）** 并不是“重复写同一个 $e^{rx}$”，而是会产生
 > $$
 > e^{rx},\ xe^{rx},\ x^2e^{rx},\dots
 > $$
-> 这样一串线性无关解。
+> 这样一串 **Linearly Independent** 解。
 
 ### Complex Roots
 
-若特征方程有一对共轭复根
+若 **Characteristic Equation** 有一对共轭复根
 
 $$
 r=\alpha\pm \beta i,
 \qquad \beta\neq 0,
 $$
 
-则对应的实通解可写为
+则对应的实 **General Solution** 可写为
 
 $$
 \boxed{y=e^{\alpha x}(c_1\cos \beta x+c_2\sin \beta x).}
@@ -383,7 +383,7 @@ $$
 <details>
 <summary>展开解答</summary>
 
-的特征方程是
+的 **Characteristic Equation** 是
 
 $$
 r^2-4r+5=0,
@@ -395,7 +395,7 @@ $$
 r=2\pm i,
 $$
 
-所以通解为
+所以 **General Solution** 为
 
 $$
 \boxed{y=e^{2x}(c_1\cos x+c_2\sin x).}
@@ -416,9 +416,9 @@ $$
 
 这就是“重复复根”的版本，本质上仍然是“重数带来额外的 $x^p$”。
 
-### Polynomial Differential Operators
+### Polynomial **Differential Operators（微分算子）**
 
-为了更系统地理解重根现象，可以引入微分算子
+为了更系统地理解 **Repeated Root** 现象，可以引入 **Differential Operator**
 
 $$
 D=\frac{d}{dx}.
@@ -430,7 +430,7 @@ $$
 Ly=(aD^2+bD+c)y=0.
 $$
 
-更一般地，$n$ 阶常系数方程对应算子
+更一般地，$n$ 阶 **Constant-Coefficient Equation（常系数方程）** 对应算子
 
 $$
 L=a_nD^n+a_{n-1}D^{n-1}+\cdots+a_1D+a_0.
@@ -445,9 +445,9 @@ $$
 
 ### Standard Workflow
 
-求解常系数 homogeneous linear ODE 的标准步骤可以记成：
+求解常系数 **homogeneous** linear ODE 的标准步骤可以记成：
 
-**Step 1.** 写 characteristic equation。  
+**Step 1.** 写 **characteristic equation**。  
 **Step 2.** 求根。  
 **Step 3.** 判断根的类型：
 
@@ -456,8 +456,8 @@ $$
 - complex conjugate roots；
 - repeated complex roots。
 
-**Step 4.** 按对应模板写 general solution。  
-**Step 5.** 若有 initial conditions，再解常数。
+**Step 4.** 按对应模板写 **general solution**。  
+**Step 5.** 若有 **initial conditions**，再解常数。
 
 ## Bonus: Euler Equations
 
@@ -471,7 +471,7 @@ $$
 
 它最核心的特征是：$x$ 的幂次和导数阶数恰好匹配。
 
-二阶 homogeneous Euler equation 写成
+二阶 **homogeneous** Euler equation 写成
 
 $$
 \boxed{a_0x^2y''+a_1xy'+a_2y=0.}
@@ -509,7 +509,7 @@ $$
 \boxed{x^k\frac{d^k y}{dx^k}=D(D-1)\cdots(D-k+1)y.}
 $$
 
-所以 Euler equation 可以通过变量代换变成 constant-coefficient equation。
+所以 Euler equation 可以通过变量代换变成 **constant-coefficient equation**。
 
 例如
 
@@ -529,15 +529,15 @@ $$
 a_0\frac{d^2y}{dt^2}+(a_1-a_0)\frac{dy}{dt}+a_2y=0.
 $$
 
-### Euler Characteristic Equation
+### Euler **Characteristic Equation**
 
-对二阶 homogeneous Euler equation
+对二阶 **homogeneous** Euler equation
 
 $$
 a_0x^2y''+a_1xy'+a_2y=0,
 $$
 
-代入试探解 $y=x^\lambda$，可得到 characteristic equation
+代入试探解 $y=x^\lambda$，可得到 **characteristic equation**
 
 $$
 \boxed{a_0\lambda(\lambda-1)+a_1\lambda+a_2=0.}
@@ -545,13 +545,13 @@ $$
 
 ### Solution Forms
 
-Euler equation 的解型和常系数方程非常平行，只是把 $e^{rx}$ 换成了 $x^\lambda$ 或带 $\ln x$ 的形式。
+Euler equation 的解型和 **Constant-Coefficient Equation** 非常平行，只是把 $e^{rx}$ 换成了 $x^\lambda$ 或带 $\ln x$ 的形式。
 
 - 若有两个不同实根 $\lambda_1,\lambda_2$，则
   $$
   y=c_1x^{\lambda_1}+c_2x^{\lambda_2};
   $$
-- 若有重根 $\lambda$，则
+- 若有 **Repeated Root** $\lambda$，则
   $$
   y=x^\lambda(c_1+c_2\ln x);
   $$
@@ -560,13 +560,13 @@ Euler equation 的解型和常系数方程非常平行，只是把 $e^{rx}$ 换�
   y=x^\alpha\bigl(c_1\cos(\beta\ln x)+c_2\sin(\beta\ln x)\bigr).
   $$
 
-因此 Euler equation 的本质是：经过 $x=e^t$ 的代换后，它就是一个 disguised constant-coefficient equation。
+因此 Euler equation 的本质是：经过 $x=e^t$ 的代换后，它就是一个 disguised **constant-coefficient equation**。
 
 ## Bonus: Reduction of Order
 
 ### Basic Idea
 
-考虑标准形式的 homogeneous second-order linear equation
+考虑标准形式的 **homogeneous** second-order linear equation
 
 $$
 y''+p(x)y'+q(x)y=0.
@@ -591,7 +591,7 @@ $$
 }
 $$
 
-只要这个积分结果不是 $y_1$ 的常数倍，就得到一个与 $y_1$ 线性无关的第二个解。
+只要这个积分结果不是 $y_1$ 的常数倍，就得到一个与 $y_1$ **Linearly Independent** 的第二个解。
 
 **Reduction of order** 特别适用于以下情形：
 
@@ -605,37 +605,37 @@ $$
 > y''+p(x)y'+q(x)y=0.
 > $$
 
-## Nonhomogeneous Equations and Particular Solutions
+## **Nonhomogeneous Equations** and **Particular Solutions**
 
 $$
 L[y]=f(x)
 $$
 
-对应的 homogeneous equation
+对应的 **homogeneous equation**
 
 $$
 L[y]=0
 $$
 
-的 general solution 为 $y_c$，再找到原方程的一个 **particular solution** $y_p$，那么总解就是
+的 **general solution** 为 $y_c$，再找到原方程的一个 **particular solution** $y_p$，那么总解就是
 
 $$
 \boxed{y=y_c+y_p.}
 $$
 
-因此求解非齐次方程始终是两步：
+因此求解 **Nonhomogeneous Equation** 始终是两步：
 
 1. **先求 complementary solution** $y_c$；
 2. **再求一个 particular solution** $y_p$。
 
 本节主要有两种思路：
 
-- **Method of Undetermined Coefficients** ；
-- **Variation of Parameters** 。
+- **Method of Undetermined Coefficients（待定系数法）** ；
+- **Variation of Parameters（参数变易法）** 。
 
 前者适用于 **constant-coefficient linear ODE** 且右端 $f(x)$ 属于某些“封闭”的特殊类型；后者更理论。
 
-### Method of Undetermined Coefficients
+### **Method of Undetermined Coefficients**
 
 这一方法只适用于 **constant-coefficient nonhomogeneous linear ODE** ，并且右端必须是有限组合的“好函数”：
 
@@ -690,7 +690,7 @@ $$
 <details>
 <summary>展开解答</summary>
 
-先解对应齐次方程：
+先解对应 **Homogeneous Equation**：
 
 $$
 r^3+r^2=0\quad\Longrightarrow\quad r=0,0,-1,
@@ -708,7 +708,7 @@ $$
 (Ae^x)+(B+Cx+Dx^2).
 $$
 
-其中 $Ae^x$ 与 $y_c$ **不重合** ；但 polynomial 部分中的 $1,x$ 已经出现在 $y_c$ 里，因为 $r=0$ 是 **double root** ，所以这一整块要乘 $x^2$：
+其中 $Ae^x$ 与 $y_c$ **不重合** ；但 polynomial 部分中的 $1,x$ 已经出现在 $y_c$ 里，因为 $r=0$ 是 **double root（二重根）** ，所以这一整块要乘 $x^2$：
 
 $$
 y_p=Ae^x+Bx^2+Cx^3+Dx^4.
@@ -716,7 +716,7 @@ $$
 
 再代回方程可以解出系数。这里最重要的不是最后的数字，而是这个判断：
 
-> **只对发生重合的那一块乘 $x^s$，并且 $s$ 由相应特征根的重数决定。**
+> **只对发生重合的那一块乘 $x^s$，并且 $s$ 由相应Characteristic Root（特征根）的重数决定。**
 
 </details>
 
@@ -732,7 +732,7 @@ $$
 <details>
 <summary>展开解答</summary>
 
-其 characteristic equation 为
+其 **characteristic equation** 为
 
 $$
 r^3+9r=0\quad\Longrightarrow\quad r=0,\pm 3i,
@@ -755,7 +755,7 @@ $$
   e^{2x},\ xe^{2x},\ x^2e^{2x}.
   $$
 
-并且这些项都与 $y_c$ 不重复，因此 particular solution 的一般形式可取
+并且这些项都与 $y_c$ 不重复，因此 **particular solution** 的一般形式可取
 
 $$
 \boxed{
@@ -768,9 +768,9 @@ $$
 </details>
 
 
-### Variation of Parameters
+### **Variation of Parameters**
 
-当右端 $f(x)$ 不再属于待定系数法可处理的“有限封闭类型”时，就需要更一般的方法。比如
+当右端 $f(x)$ 不再属于 **Method of Undetermined Coefficients** 可处理的“有限封闭类型”时，就需要更一般的方法。比如
 
 $$
 y''+y=\tan x
@@ -778,23 +778,23 @@ $$
 
 中，$\tan x$ 的导数会不断产生新组合，无法用有限项试解处理，所以 **method of undetermined coefficients** 失效。这时就要用 **variation of parameters** 。
 
-设已知 homogeneous equation
+设已知 **homogeneous equation**
 
 $$
 y''+p(x)y'+q(x)y=0
 $$
 
-的两个 linearly independent solutions 为 $y_1(x),y_2(x)$，则
+的两个 **linearly independent** solutions 为 $y_1(x),y_2(x)$，则
 
 $$
 y_c=c_1y_1+c_2y_2.
 $$
 
-参数变易法的想法是：
+**Variation of Parameters** 的想法是：
 
 > 不把 $c_1,c_2$ 当成常数，而是把它们“变成函数”。
 
-于是设 particular solution 为
+于是设 **particular solution** 为
 
 $$
 \boxed{y_p=u_1(x)y_1(x)+u_2(x)y_2(x).}
@@ -827,7 +827,7 @@ u_1'y_1'+u_2'y_2'=f(x).
 \end{cases}
 $$
 
-其系数矩阵正是 Wronskian matrix。因为 $y_1,y_2$ 线性无关，所以
+其系数矩阵正是 Wronskian matrix。因为 $y_1,y_2$ **Linearly Independent**，所以
 
 $$
 W(y_1,y_2)=y_1y_2'-y_1'y_2\neq 0,
@@ -854,7 +854,7 @@ $$
 这就是二阶情形的 **variation of parameters formula** 。
 
 > [!TIP]
-> 求 $u_1,u_2$ 时通常不写积分常数，因为这些常数最终只会回到 $C_1y_1+C_2y_2$，本质上属于齐次解部分。
+> 求 $u_1,u_2$ 时通常不写积分常数，因为这些常数最终只会回到 $C_1y_1+C_2y_2$，本质上属于 **Homogeneous Solution** 部分。
 
 ### Example:
 **Example 1**
@@ -865,7 +865,7 @@ $$
 <details>
 <summary>展开解答</summary>
 
-先解 homogeneous equation：
+先解 **homogeneous equation**：
 
 $$
 y''+y=0
@@ -904,7 +904,7 @@ u_1=\sin x-\ln|\sec x+\tan x|,
 u_2=-\cos x.
 $$
 
-代回后，中间有两项会抵消，得到 particular solution
+代回后，中间有两项会抵消，得到 **particular solution**
 
 $$
 \boxed{y_p(x)=-(\cos x)\ln|\sec x+\tan x|.}
@@ -924,7 +924,7 @@ $$
 <details>
 <summary>展开解答</summary>
 
-先解齐次方程：
+先解 **Homogeneous Equation**：
 
 $$
 (r-1)^2=0,
@@ -970,7 +970,7 @@ $$
 u_1=-\frac{2}{3}x^3,u_2=x^2.
 $$
 
-于是 particular solution 可取为
+于是 **particular solution** 可取为
 
 $$
 y_p=u_1y_1+u_2y_2
@@ -984,7 +984,7 @@ $$
 \boxed{y=(c_1+c_2x)e^x+\frac{1}{3}x^3e^x.}
 $$
 
-这里也能顺便看出：因为右端 $2xe^x$ 与齐次解中的 $e^x,xe^x$ 发生重合，所以若用 undetermined coefficients，trial form 需要从 $x^2e^x$ 再往上乘到三次，最终也会得到 $x^3e^x$ 这一型。
+这里也能顺便看出：因为右端 $2xe^x$ 与 **Homogeneous Solution** 中的 $e^x,xe^x$ 发生重合，所以若用 **undetermined coefficients**，trial form 需要从 $x^2e^x$ 再往上乘到三次，最终也会得到 $x^3e^x$ 这一型。
 
 </details>
 
@@ -998,19 +998,19 @@ $$
 <details>
 <summary>展开解答</summary>
 
-这是一道 **Euler equation 的非齐次版本** 。先化成标准形式：
+这是一道 **Euler equation 的Nonhomogeneous版本** 。先化成标准形式：
 
 $$
 y''-\frac{3}{x}y'+\frac{4}{x^2}y=\ln x.
 $$
 
-对应 homogeneous equation 为
+对应 **homogeneous equation** 为
 
 $$
 x^2y''-3xy'+4y=0.
 $$
 
-代入 $y=x^\lambda$，得到特征方程
+代入 $y=x^\lambda$，得到 **Characteristic Equation**
 
 $$
 \lambda(\lambda-1)-3\lambda+4=0
@@ -1102,8 +1102,8 @@ $$
 这道题最能体现三种方法之间的配合：
 
 1. 先化标准形式；
-2. 用观察法 + reduction of order 求 homogeneous equation 的两个基本解；
-3. 再用 variation of parameters 求 particular solution。
+2. 用观察法 + reduction of order 求 **homogeneous equation** 的两个基本解；
+3. 再用 **variation of parameters** 求 **particular solution**。
 
 先把方程除以 $1-x$（默认在不跨过 $x=1$ 的区间上讨论）：
 
@@ -1121,7 +1121,7 @@ q(x)=-\frac{1}{1-x},
 f(x)=-(1-x).
 $$
 
-先看 homogeneous equation：
+先看 **homogeneous equation**：
 
 $$
 (1-x)y''+xy'-y=0.
@@ -1187,13 +1187,13 @@ $$
 y_2=e^x.
 $$
 
-于是 homogeneous part 的通解为
+于是 **homogeneous** part 的 **General Solution** 为
 
 $$
 y_c=c_1x+c_2e^x.
 $$
 
-现在开始做 variation of parameters。先算 Wronskian：
+现在开始做 **variation of parameters**。先算 Wronskian：
 
 $$
 W=y_1y_2'-y_1'y_2
@@ -1261,9 +1261,9 @@ $$
 </details>
 
 
-## Endpoint Problems and Eigenvalues
+## Endpoint Problems and **Eigenvalues（特征值）**
 
-前面大部分内容都建立在 **initial value problem (IVP)** 的唯一性之上。一个典型二阶 IVP 是
+前面大部分内容都建立在 **IVP** 的唯一性之上。一个典型二阶 **IVP** 是
 
 $$
 y''+p(x)y'+q(x)y=0,
@@ -1271,7 +1271,7 @@ y''+p(x)y'+q(x)y=0,
 \qquad y'(a)=0,
 $$
 
-此时唯一解是平凡解 $y\equiv 0$。但如果把两个附加条件分开放在区间两端：
+此时唯一解是 **Trivial Solution（平凡解）** $y\equiv 0$。但如果把两个附加条件分开放在区间两端：
 
 $$
 y''+p(x)y'+q(x)y=0,
@@ -1279,9 +1279,9 @@ y''+p(x)y'+q(x)y=0,
 \qquad y(b)=0,
 $$
 
-那么问题就变成 **endpoint problem** 或 **boundary value problem (BVP)** 。这时情形和 IVP 非常不同：它可能没有非平凡解，也可能有无穷多个非平凡解。
+那么问题就变成 **endpoint problem** 或 **boundary value problem（边值问题，BVP）** 。这时情形和 **IVP** 非常不同：它可能没有 **Nontrivial Solution（非平凡解）**，也可能有无穷多个 **Nontrivial Solution**。
 
-### IVP and BVP
+### **IVP** and **BVP**
 
 可以这样对比记忆：
 
@@ -1302,7 +1302,7 @@ $$
 <details>
 <summary>展开解答</summary>
 
-通解为
+**General Solution** 为
 
 $$
 y(x)=A\cos(\sqrt3\,x)+B\sin(\sqrt3\,x).
@@ -1320,7 +1320,7 @@ $$
 B\sin(\pi\sqrt3)=0.
 $$
 
-由于 $\sin(\pi\sqrt3)\neq 0$，只能有 $B=0$，所以此 BVP 只有平凡解：
+由于 $\sin(\pi\sqrt3)\neq 0$，只能有 $B=0$，所以此 **BVP** 只有 **Trivial Solution**：
 
 $$
 \boxed{y(x)\equiv 0.}
@@ -1342,7 +1342,7 @@ $$
 <details>
 <summary>展开解答</summary>
 
-通解为
+**General Solution** 为
 
 $$
 y(x)=A\cos 2x+B\sin 2x.
@@ -1366,15 +1366,15 @@ $$
 \boxed{y(x)=B\sin 2x}
 $$
 
-都是解。只要 $B\neq 0$，就是非平凡解，因此这里有 **无穷多个** 非平凡解。
+都是解。只要 $B\neq 0$，就是 **Nontrivial Solution**，因此这里有 **无穷多个** **Nontrivial Solution**。
 
 
-> **边值问题并不自动唯一，参数稍微变化，就可能在“无解”和“无穷多解”之间切换。**
+> **BVP并不自动唯一，参数稍微变化，就可能在“无解”和“无穷多解”之间切换。**
 
 </details>
 
 
-### Eigenvalues and Eigenfunctions
+### **Eigenvalues** and Eigenfunctions
 
 把上述问题统一写成
 
@@ -1384,12 +1384,12 @@ y''+p(x)y'+\lambda q(x)y=0,
 \qquad y(b)=0,
 $$
 
-其中 $\lambda$ 是参数。我们关心的是： **哪些 $\lambda$ 会让这个 BVP 有非平凡解？**
+其中 $\lambda$ 是参数。我们关心的是： **哪些 $\lambda$ 会让这个 BVP 有Nontrivial Solution？**
 
 若某个 $\lambda=\lambda_*$ 使问题存在非零解，则称 $\lambda_*$ 为一个 **eigenvalue** ；对应的非零解称为 **eigenfunction** 。
 
 > [!IMPORTANT]
-> 对同一个 eigenvalue，eigenfunction 的任意非零常数倍仍然是 eigenfunction，所以真正重要的是它的“形状”，而不是倍数。
+> 对同一个 **eigenvalue**，eigenfunction 的任意非零常数倍仍然是 eigenfunction，所以真正重要的是它的“形状”，而不是倍数。
 
 ### Classical Model
 $$
@@ -1409,13 +1409,13 @@ $$
 y''=0,
 $$
 
-通解为
+**General Solution** 为
 
 $$
 y(x)=Ax+B.
 $$
 
-由边值条件 $y(0)=0$、$y(L)=0$ 立刻推出 $A=B=0$，所以只有平凡解，即
+由 **Boundary Condition（边值条件）** $y(0)=0$、$y(L)=0$ 立刻推出 $A=B=0$，所以只有 **Trivial Solution**，即
 
 $$
 \lambda=0\ \text{不是 eigenvalue。}
@@ -1436,7 +1436,7 @@ $$
 y''-\alpha^2y=0,
 $$
 
-通解可写成
+**General Solution** 可写成
 
 $$
 y(x)=A\cosh(\alpha x)+B\sinh(\alpha x).
@@ -1454,7 +1454,7 @@ $$
 B\sinh(\alpha L)=0.
 $$
 
-由于 $\sinh(\alpha L)\neq 0$，只能 $B=0$。因此 $\lambda<0$ 也不会产生非平凡解。
+由于 $\sinh(\alpha L)\neq 0$，只能 $B=0$。因此 $\lambda<0$ 也不会产生 **Nontrivial Solution**。
 
 **Case 3: $\lambda>0$**
 
@@ -1471,7 +1471,7 @@ $$
 y''+\alpha^2y=0,
 $$
 
-通解为
+**General Solution** 为
 
 $$
 y(x)=A\cos(\alpha x)+B\sin(\alpha x).
@@ -1483,7 +1483,7 @@ $$
 y(x)=B\sin(\alpha x).
 $$
 
-若要有非平凡解，就必须 $B\neq 0$，所以
+若要有 **Nontrivial Solution**，就必须 $B\neq 0$，所以
 
 $$
 \sin(\alpha L)=0.
@@ -1515,7 +1515,7 @@ $$
 
 **Example 4: Changing Boundary Conditions Changes the Spectrum**
 
-若把边界条件改成
+若把 **Boundary Condition** 改成
 
 $$
 y''+\lambda y=0,
@@ -1545,7 +1545,7 @@ $$
 B\alpha\cos(\alpha L)=0.
 $$
 
-若要有非平凡解，必须 $B\neq 0$，因此
+若要有 **Nontrivial Solution**，必须 $B\neq 0$，因此
 
 $$
 \cos(\alpha L)=0
@@ -1566,7 +1566,7 @@ $$
 \boxed{y_n(x)=\sin\frac{(2n-1)\pi x}{2L},\qquad n=1,2,3,\dots}
 $$
 
-这说明： **边界条件一变，允许的模态和对应的 spectrum 也会跟着改变。**
+这说明： **Boundary Condition一变，允许的模态和对应的 spectrum 也会跟着改变。**
 
 </details>
 
@@ -1575,13 +1575,13 @@ $$
 
 一种统一 procedure。
 
-先把 general solution 写成
+先把 **general solution** 写成
 
 $$
 y=A\,y_1(x,\lambda)+B\,y_2(x,\lambda).
 $$
 
-代入两个 boundary conditions 后，总会得到关于 $A,B$ 的齐次线性方程组：
+代入两个 **boundary conditions** 后，总会得到关于 $A,B$ 的 **Homogeneous Linear Equation** 组：
 
 $$
 \alpha_1(\lambda)A+\beta_1(\lambda)B=0,
@@ -1591,7 +1591,7 @@ $$
 \alpha_2(\lambda)A+\beta_2(\lambda)B=0.
 $$
 
-要有 nontrivial solution $(A,B)\neq (0,0)$，充要条件就是系数行列式为 0：
+要有 **nontrivial solution** $(A,B)\neq (0,0)$，充要条件就是系数行列式为 0：
 
 $$
 \boxed{
@@ -1606,7 +1606,7 @@ $$
 
 > **eigenvalues 正是 determinant equation 的实根。**
 
-这和 linear algebra 中“齐次线性方程组有非零解当且仅当行列式为 0”完全一致。
+这和 linear algebra 中“ **Homogeneous Linear Equation** 组有非零解当且仅当行列式为 0”完全一致。
 
 
 ## Bonus: Additional Examples and Applications
@@ -1682,7 +1682,7 @@ $$
 \boxed{f''+f=e^{-x}.}
 $$
 
-现在还需要初始条件。由原 integral equation 在 $x=0$ 处的取值，
+现在还需要 **Initial Condition**。由原 integral equation 在 $x=0$ 处的取值，
 
 $$
 f(0)=e^0-0=1.
@@ -1706,7 +1706,7 @@ $$
 f'(0)=-1.
 $$
 
-因此要解的是 IVP：
+因此要解的是 **IVP**：
 
 $$
 \begin{cases}
@@ -1716,13 +1716,13 @@ $$
 \end{cases}
 $$
 
-先解齐次方程：
+先解 **Homogeneous Equation**：
 
 $$
 f_h=c_1\cos x+c_2\sin x.
 $$
 
-对右端 $e^{-x}$ 取 particular solution 形如 $Ae^{-x}$，代入得
+对右端 $e^{-x}$ 取 **particular solution** 形如 $Ae^{-x}$，代入得
 
 $$
 2Ae^{-x}=e^{-x},
@@ -1734,7 +1734,7 @@ $$
 A=\frac12.
 $$
 
-故通解为
+故 **General Solution** 为
 
 $$
 f(x)=c_1\cos x+c_2\sin x+\frac12 e^{-x}.
@@ -1877,7 +1877,7 @@ $$
 G'(a)=\int_0^\infty \frac{-x\sin(ax)}{x^2+1}\,dx.
 $$
 
-这里把 integrand 改写成
+这里把 **integrand（被积函数）** 改写成
 
 $$
 \frac{x}{x^2+1}
@@ -1962,7 +1962,7 @@ $$
 \boxed{G''-G=0\qquad (a>0).}
 $$
 
-通解为
+**General Solution** 为
 
 $$
 G(a)=C_1e^a+C_2e^{-a}.
@@ -2205,7 +2205,7 @@ $$
 u''+u=1.
 $$
 
-于是得到一个非常熟悉的常系数二阶方程，其通解为
+于是得到一个非常熟悉的常系数二阶方程，其 **General Solution** 为
 
 $$
 u=1+A\cos(\theta+\varphi),
@@ -2219,7 +2219,7 @@ $$
 \boxed{r=\frac{p}{1+A\cos(\theta+\varphi)}.}
 $$
 
-这正是一个 **conic section** （圆锥曲线）在焦点为原点时的极坐标方程。
+这正是一个 **conic section（圆锥曲线）** 在焦点为原点时的极坐标方程。
 
 - 当 $A=0$ 时，是圆；
 - 当 $0<A<1$ 时，是椭圆；

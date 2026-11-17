@@ -7,11 +7,11 @@ category: 笔记
 draft: false
 ---
 
-## Physical Storage Media
+## Physical **Storage Media（存储介质）**
 
-数据库系统管理的是数据，但数据最终一定存放在某种 **storage media（存储介质）** 上。
+数据库系统管理的是数据，但数据最终一定存放在某种 **Storage Media** 上。
 
-不同存储介质的差异决定了：
+不同 **Storage Media** 的差异决定了：
 
 - 一次查询读数据有多慢
 - 一次事务提交要等多久
@@ -19,9 +19,9 @@ draft: false
 - 数据丢失后能不能恢复
 - 系统需要多少 buffer / cache
 
-### 评价存储介质的三个维度
+### 评价 **Storage Media** 的三个维度
 
-通常从三个方面评价存储介质：
+通常从三个方面评价 **Storage Media**：
 
 1. **Speed** ：访问数据有多快
 2. **Cost per unit of data** ：单位容量成本有多高
@@ -33,35 +33,35 @@ draft: false
 
 ### Volatile vs Non-volatile
 
-#### Volatile storage
+#### **Volatile storage（易失存储）**
 
-**易失存储（volatile storage）** 的特点是：
+**Volatile Storage** 的特点是：
 
 - 断电后内容丢失
 - 速度通常很快
 - 典型例子：cache、main memory
 
-数据库运行时会把数据读入内存处理，但不能只放在 volatile storage 中。
+数据库运行时会把数据读入内存处理，但不能只放在 **volatile storage** 中。
 
 原因很直接：
 
 - 系统崩溃后，内存内容会丢
 - 数据库必须保证持久性
-- 所以关键数据最终要写入 non-volatile storage
+- 所以关键数据最终要写入 **non-volatile storage（非易失存储）**
 
-#### Non-volatile storage
+#### **Non-volatile storage**
 
-**非易失存储（non-volatile storage）** 的特点是：
+**Non-Volatile Storage** 的特点是：
 
 - 断电后内容仍然保留
 - 速度通常慢于内存
 - 典型例子：flash memory、magnetic disk、optical disk、magnetic tape
 
-数据库的持久数据主要依赖非易失存储。
+数据库的持久数据主要依赖 **Non-Volatile Storage**。
 
-### 常见存储介质
+### 常见 **Storage Media**
 
-| 存储介质 | 特点 | 数据库中的作用 |
+| **Storage Media** | 特点 | 数据库中的作用 |
 |---|---|---|
 | Cache | 最快、最贵、容量小、易失 | 由硬件管理，影响查询算法的 cache behavior |
 | Main Memory | 快、易失 | 查询执行、buffer pool、临时数据 |
@@ -201,7 +201,7 @@ magnetic tape
 
 - 通过网络提供文件系统接口
 - 使用网络文件系统协议
-- 对上层暴露的是文件接口，不是裸磁盘块接口
+- 对上层暴露的是文件接口，不是裸 **Disk Block（磁盘块）** 接口
 
 核心区别：
 
@@ -286,9 +286,9 @@ cylinder i = all ith tracks of all platters
 - 为 sector 计算并保存 checksum
 - 读回数据时重新计算 checksum，检测数据是否损坏
 - 写入后读回验证，确认写入成功
-- remapping of bad sectors（坏扇区重映射）
+- **remapping of bad sectors（坏扇区重映射）**
 
-坏扇区重映射的思路：
+**Bad-Sector Remapping** 的思路：
 
 - 如果某个 sector 损坏
 - controller 从预留的 spare sectors 中找一个新位置
@@ -370,9 +370,9 @@ access time = seek time + rotational latency
 
 随机访问慢主要慢在前者。
 
-### Disk Block
+### **Disk Block**
 
-**Disk block（磁盘块）** 是数据库和操作系统进行存储分配、数据传输的逻辑单位。
+**Disk Block** 是数据库和操作系统进行存储分配、数据传输的逻辑单位。
 
 典型大小：
 
@@ -394,14 +394,14 @@ block size 有权衡：
 
 **Sequential access pattern（顺序访问模式）** ：
 
-- 连续请求相邻 disk blocks
+- 连续请求相邻 **disk blocks**
 - 第一个 block 可能需要 seek
 - 后续 blocks 很可能在同一 track 或相邻 track
 - 平均每个 block 分摊到的 seek / rotational latency 很小
 
 适合：
 
-- 全表扫描
+- **Full Table Scan（全表扫描）**
 - 顺序日志写入
 - 大文件读取
 - 批处理分析
@@ -496,7 +496,7 @@ NAND flash 的特点：
 也就是说：
 
 - 上层仍然像访问磁盘一样读写 blocks
-- 内部由 SSD controller 管理 flash page、erase block、映射表和磨损均衡
+- 内部由 SSD controller 管理 flash page、erase block、映射表和 **Wear Leveling（磨损均衡）**
 
 HDD 与 SSD 对比：
 
@@ -552,9 +552,9 @@ Flash 写入的难点来自两个限制：
 - 上层以为自己在原地更新
 - 底层实际是在重映射
 
-### Wear Leveling
+### **Wear Leveling**
 
-**Wear leveling（磨损均衡）** 的目标是：
+**Wear Leveling** 的目标是：
 
 > 让 erase 操作尽量均匀分布到不同 physical blocks 上。
 
@@ -574,7 +574,7 @@ Flash 写入的难点来自两个限制：
 
 ## Storage Class Memory and NVM
 
-**Storage Class Memory（SCM）** 指介于 main memory 和 SSD 之间的一类非易失存储。
+**Storage Class Memory（SCM）** 指介于 main memory 和 SSD 之间的一类 **Non-Volatile Storage**。
 
 它的目标是同时接近：
 
@@ -841,7 +841,7 @@ rebuild 时间越长，系统处于降级状态的时间越长，风险越高。
 
 - 用 RAID 冗余信息恢复数据
 - 写回到正常 sector
-- 必要时触发坏扇区重映射
+- 必要时触发 **Bad-Sector Remapping**
 
 #### Hot Swapping
 
@@ -862,7 +862,7 @@ rebuild 时间越长，系统处于降级状态的时间越长，风险越高。
 
 ### Buffering
 
-**Buffering** 指把读入的 disk blocks 暂存在内存 buffer 中。
+**Buffering** 指把读入的 **disk blocks** 暂存在内存 buffer 中。
 
 好处：
 
@@ -890,7 +890,7 @@ rebuild 时间越长，系统处于降级状态的时间越长，风险越高。
 
 例子：
 
-- 查询执行器准备做 full table scan
+- 查询执行器准备做 **full table scan**
 - 系统读第一个 block 时预取后续 blocks
 - 后面扫描时数据已经在内存中
 
@@ -979,13 +979,13 @@ rebuild 时间越长，系统处于降级状态的时间越长，风险越高。
 - 普通易失内存不能随意用来确认持久写入
 - 数据库 recovery 依赖写入顺序和持久性保证
 
-### Log Disk
+### **Log Disk（日志磁盘）**
 
-**Log disk（日志磁盘）** 是专门用于写 block updates sequential log 的磁盘。
+**Log Disk** 是专门用于写 block updates sequential log 的磁盘。
 
 它和 non-volatile write buffer 的作用类似：
 
-- 先把更新顺序写入日志磁盘
+- 先把更新顺序写入 **Log Disk**
 - 因为是顺序写，所以不需要频繁 seek
 - 写入很快
 - 不需要特殊 NVRAM 硬件

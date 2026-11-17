@@ -12,9 +12,9 @@ draft: false
 ### 脉络
 
 - **pipelining** ：通过重叠不同指令的执行过程提高吞吐率；
-- **pipeline hazards** ：结构冲突、数据相关与控制相关如何限制流水；
+- **pipeline hazards** ：结构冲突、 **Data Dependence（数据相关）** 与 **Control Dependence（控制相关）** 如何限制流水；
 - **memory hierarchy** ：存储系统对整体性能的影响；
-- **ILP** ：通过动态调度、乱序执行等手段挖掘指令级并行。
+- **ILP** ：通过 **Dynamic Scheduling（动态调度）**、 **Out-of-Order Execution（乱序执行）** 等手段挖掘指令级并行。
 
 这些技术主要仍然围绕单个处理器内部的执行效率展开。而并行层次：
 
@@ -35,37 +35,37 @@ $$
 
 2. **Thread-Level Parallelism**
 
-程序能够划分为多个相对独立的线程或任务，每个执行实体运行自己的指令流，并在需要时通信或同步。
+程序能够划分为多个相对独立的线程或任务，每个执行实体运行自己的 **Instruction Stream（指令流）**，并在需要时通信或同步。
 
 
 ## Flynn Classification
 
-Flynn 分类法按照 **instruction stream（指令流）** 与 **data stream（数据流）** 的数量，将计算机体系结构划分为四类：
+Flynn 分类法按照 **Instruction Stream** 与 **data stream（数据流）** 的数量，将计算机体系结构划分为四类：
 
 | 类型 | 全称 | 基本含义 | 本课程对应内容 |
 | --- | --- | --- | --- |
-| SISD | Single Instruction Stream, Single Data Stream | 单指令流、单数据流 | 普通标量处理器、流水线、ILP |
-| SIMD | Single Instruction Stream, Multiple Data Streams | 单指令流、多数据流 | 向量处理机、阵列处理机 |
-| MISD | Multiple Instruction Streams, Single Data Stream | 多指令流、单数据流 | 实际较少使用 |
-| MIMD | Multiple Instruction Streams, Multiple Data Streams | 多指令流、多数据流 | shared memory、message passing 等多处理器结构 |
+| SISD | Single **Instruction Stream**, Single **Data Stream** | 单 **Instruction Stream**、单 **Data Stream** | 普通 **Scalar Processor（标量处理器）**、流水线、ILP |
+| SIMD | Single **Instruction Stream**, Multiple Data Streams | 单 **Instruction Stream**、多 **Data Stream** | **Vector Processor（向量处理机）**、 **Array Processor（阵列处理机）** |
+| MISD | Multiple Instruction Streams, Single **Data Stream** | 多 **Instruction Stream**、单 **Data Stream** | 实际较少使用 |
+| MIMD | Multiple Instruction Streams, Multiple Data Streams | 多 **Instruction Stream**、多 **Data Stream** | shared memory、message passing 等多处理器结构 |
 
 SIMD 的核心特点是：
 
-- 只有一条控制指令流；
+- 只有一条控制 **Instruction Stream**；
 - 同一条指令作用于多个数据元素；
 - 特别适合规则的数据并行任务。
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260526202132.png"  style="width: 520px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
-## SIMD: Vector Processor
+## SIMD: **Vector Processor**
 
-### Vector Processor 与 Scalar Processor
+### **Vector Processor** 与 **Scalar Processor**
 
-1. **Vector processor（向量处理机）**
+1. **Vector Processor**
 
 具有向量数据表示与对应向量指令的流水处理器。它可以用一条向量指令处理一整个向量中的多个元素。
 
-2. **Scalar processor（标量处理器）**
+2. **Scalar Processor**
 
 没有专门的向量数据表示与向量指令，只能把各个元素的运算展开为标量指令逐项处理。
 
@@ -75,7 +75,7 @@ $$
 C = A + B
 $$
 
-向量处理机可以从结构上把它视为一次向量运算；标量处理器通常需要通过循环逐项执行：
+**Vector Processor** 可以从结构上把它视为一次向量运算； **Scalar Processor** 通常需要通过循环逐项执行：
 
 ```text
 C[0] = A[0] + B[0]
@@ -86,7 +86,7 @@ C[N-1] = A[N-1] + B[N-1]
 
 ### 为什么向量特别适合流水线
 
-向量运算的重要特点是： **同一向量运算中的不同元素之间通常没有数据相关性** 。
+向量运算的重要特点是： **同一向量运算中的不同元素之间通常没有Data Dependence** 。
 
 例如：
 
@@ -109,11 +109,11 @@ $$
 
 但如果向量处理方式选择不当，仍然可能引入：
 
-- 数据相关；
+- **Data Dependence**；
 - 频繁的功能切换；
 - 向量寄存器或功能部件冲突。
 
-因此，向量处理机设计的核心问题是： **怎样组织向量运算，使流水线真正保持高吞吐率** 。
+因此， **Vector Processor** 设计的核心问题是： **怎样组织向量运算，使流水线真正保持高吞吐率** 。
 
 
 ## Vector Processing Methods
@@ -130,9 +130,9 @@ $$
 D_i = A_i \times (B_i + C_i), \quad i=1,2,\ldots,N
 $$
 
-### Horizontal Processing Method
+### **Horizontal Processing（横向处理）** Method
 
-**Horizontal processing（横向处理）** 按元素从左到右完成整个表达式：
+**Horizontal Processing** 按元素从左到右完成整个表达式：
 
 ```text
 D1 = A1 × (B1 + C1)
@@ -152,7 +152,7 @@ Di = Ai × Ki
 
 | 指标 | 次数 |
 | --- | ---: |
-| 数据相关 | $N$ 次 |
+| **Data Dependence** | $N$ 次 |
 | 功能切换 | $2N$ 次 |
 
 问题在于：
@@ -166,11 +166,11 @@ $$
 2. 若使用静态多功能流水线，每处理一个元素都要在加法与乘法功能之间切换，甚至需要先排空已有流水；
 3. 流水线不断被相关和切换打断，吞吐率很低，性能可能接近顺序执行。
 
-因此： **横向处理不适合向量处理机** 。
+因此： **Horizontal Processing不适合Vector Processor** 。
 
-### Vertical Processing Method
+### **Vertical Processing（纵向处理）** Method
 
-**Vertical processing（纵向处理）** 先对整个向量执行一种运算，再切换到下一种运算：
+**Vertical Processing** 先对整个向量执行一种运算，再切换到下一种运算：
 
 $$
 K \leftarrow B + C
@@ -198,7 +198,7 @@ DN = AN × KN
 
 | 指标 | 次数 |
 | --- | ---: |
-| 向量指令之间的数据相关 | 1 次 |
+| 向量指令之间的 **Data Dependence** | 1 次 |
 | 功能切换 | 2 次 |
 
 优点非常明显：
@@ -207,7 +207,7 @@ DN = AN × KN
 - 做 $A\times K$ 时，乘法流水线持续工作；
 - 功能切换从每个元素都发生，下降到每个向量运算阶段才发生。
 
-但它要求保存完整的中间向量 $K$。早期纵向处理常使用 **memory-memory structure** ：
+但它要求保存完整的中间向量 $K$。早期 **Vertical Processing** 常使用 **memory-memory structure** ：
 
 - 源向量和目标向量都存放在 memory 中；
 - 中间结果 $K$ 也需要写回 memory；
@@ -220,7 +220,7 @@ DN = AN × KN
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260526202300.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
-### Vertical and Horizontal Processing Method
+### Vertical and **Horizontal Processing** Method
 
 如果向量长度 $N$ 很大，硬件无法一次容纳整个向量，就需要使用 **vertical and horizontal processing（纵横处理 / 分组处理）** 。
 
@@ -241,14 +241,14 @@ $$
 
 处理原则是：
 
-- **组内纵向处理** ：一组内部先完成 $B+C$，再完成 $A\times K$；
+- **组内Vertical Processing** ：一组内部先完成 $B+C$，再完成 $A\times K$；
 - **组间横向推进** ：第一组处理完后，再处理第二组，直到最后一组。
 
 在 $r>0$ 的情况下：
 
 | 指标 | 次数 |
 | --- | ---: |
-| 数据相关 | $S+1$ 次 |
+| **Data Dependence** | $S+1$ 次 |
 | 功能切换 | $2(S+1)$ 次 |
 
 这种方式对应于 **register-register structure** ：
@@ -263,14 +263,14 @@ $$
 - CRAY-1；
 - 银河一号（YH-1）；
 - GRAP-3；
-- Earth Simulator 中的 SX-8 vector processor。
+- Earth Simulator 中的 SX-8 **vector processor**。
 
 
-## Register-Register Vector Processor: CRAY-1
+## Register-Register **Vector Processor**: CRAY-1
 
 ### CRAY-1 的基本结构
 
-CRAY-1 是经典的寄存器型向量处理机，也是课堂用于说明向量流水结构的主要例子。
+CRAY-1 是经典的寄存器型 **Vector Processor**，也是课堂用于说明向量流水结构的主要例子。
 
 结构特征包括：
 
@@ -360,13 +360,13 @@ CRAY-1 中的主要向量操作分为四类：
 </div>
 
 
-## Improving Vector Processor Performance
+## Improving **Vector Processor** Performance
 
 四类向量性能优化方法：
 
 1. 设置多个能够并行工作的功能部件；
-2. 使用 **vector chaining** 加速存在依赖关系的向量指令串；
-3. 当向量长度超过硬件可容纳长度时，使用 **segmented vector** ；
+2. 使用 **vector chaining（向量链接）** 加速存在依赖关系的向量指令串；
+3. 当向量长度超过硬件可容纳长度时，使用 **segmented vector（分段向量）** ；
 4. 引入多个向量处理器，构成多处理器系统。
 
 ### Multiple Functional Units
@@ -385,17 +385,17 @@ CRAY-1 中的主要向量操作分为四类：
 
 - 没有 Vi conflict；
 - 没有 functional conflict；
-- 不存在必须等待的数据相关；
+- 不存在必须等待的 **Data Dependence**；
 
 就可以同时占用不同的功能部件，提高吞吐率。
 
 这种方法本质上是： **通过叠加硬件并行度换取更高性能** 。
 
-### Vector Chaining
+### **Vector Chaining**
 
 #### 基本思想
 
-**Vector chaining（向量链接）** 用于处理存在 RAW 相关、但可以由不同功能部件完成的向量指令。
+**Vector Chaining** 用于处理存在 RAW 相关、但可以由不同功能部件完成的向量指令。
 
 普通纵向执行需要等待前一条向量指令把全部 $N$ 个元素算完，后一条指令才开始。链接技术则允许：
 
@@ -434,7 +434,7 @@ $$
 - 指令 (1) 与指令 (2) 互相独立，可以并行执行；
 - 指令 (3) 同时依赖指令 (1) 的 $V3$ 与指令 (2) 的 $V2$；
 - 指令 (3) 使用乘法部件，而前两条分别使用 memory pipeline 与加法部件，因此不存在 functional conflict；
-- 所以指令 (3) 可以与前两条建立向量链接。
+- 所以指令 (3) 可以与前两条建立 **Vector Chaining**。
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260526202544.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
@@ -471,7 +471,7 @@ $$
 T_{parallel}=2N+15
 $$
 
-##### 使用 vector chaining
+##### 使用 **vector chaining**
 
 指令 (1) 与 (2) 的第一个结果都在第 $8$ 拍后到达。此时，不需要等待完整的 $V2$ 和 $V3$ 生成，就可以立即送入乘法流水线。
 
@@ -493,7 +493,7 @@ $$
 | --- | ---: |
 | 三条指令顺序执行 | $3N+22$ |
 | 前两条并行，第三条等待完整向量 | $2N+15$ |
-| Vector chaining | $N+16$ |
+| **Vector chaining** | $N+16$ |
 
 关键结论是：
 
@@ -507,9 +507,9 @@ $$
   <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260526202701.png" style="width: 420px; max-width: 32%; height: auto;" />
 </div>
 
-### Segmented Vector
+### **Segmented Vector**
 
-当向量长度大于向量寄存器能够一次处理的最大长度时，需要使用 **segmented vector（分段向量）** 技术。
+当向量长度大于向量寄存器能够一次处理的最大长度时，需要使用 **Segmented Vector** 技术。
 
 核心做法是：
 
@@ -596,7 +596,7 @@ vdisable                 # Disable vector regs
 
 但这种大幅压缩指令数并不是无条件成立的。能否向量化取决于：
 
-> **不同循环迭代之间是否不存在数据相关性。**
+> **不同循环迭代之间是否不存在Data Dependence。**
 
 对 DAXPY 而言，每个 $Y[i]$ 只依赖对应的 $X[i]$ 与原 $Y[i]$，不同 $i$ 之间互不依赖，因此可以安全地向量化。
 
@@ -656,13 +656,13 @@ vdisable                 # Disable vector registers
 - 向量结构不只适用于连续内存，也可以用于带索引的数据访问模式。
 
 
-## SIMD: Array Processor
+## SIMD: **Array Processor**
 
-### 阵列处理机的基本概念
+### **Array Processor** 的基本概念
 
-SIMD 的另一种实现方式是 **array processor（阵列处理机）** 。
+SIMD 的另一种实现方式是 **Array Processor** 。
 
-阵列处理机由多个 processing element 构成：
+**Array Processor** 由多个 processing element 构成：
 
 $$
 PE_0, PE_1, \ldots, PE_{N-1}
@@ -674,42 +674,42 @@ $$
 - 这些 PE 以某种互联方式组成阵列；
 - 在单个控制单元控制下，多个 PE 对各自数据并行执行同一条指令；
 - 因此它也属于 SIMD；
-- 阵列处理机有时也称为 parallel processor。
+- **Array Processor** 有时也称为 parallel processor。
 
 典型历史机器是 **ILLIAC IV** 。
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260526202913.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
-### Vector Processor 与 Array Processor 的侧重点
+### **Vector Processor** 与 **Array Processor** 的侧重点
 
 比较了两者的出发点：
 
 | 结构 | 更依赖什么 | 核心直觉 |
 | --- | --- | --- |
-| Vector processor | 程序中的向量化机会 | 循环迭代无相关时，用少量向量指令表达大量并行操作 |
-| Array processor | 硬件本身的 PE 与互联组织 | 构造大量 processing elements，让它们在统一控制下同时执行 |
+| **Vector processor** | 程序中的向量化机会 | 循环迭代无相关时，用少量向量指令表达大量并行操作 |
+| **Array processor** | 硬件本身的 PE 与互联组织 | 构造大量 processing elements，让它们在统一控制下同时执行 |
 
 因此：
 
-- 向量处理机首先要求程序具有适合向量化的数据并行模式；
-- 阵列处理机首先要解决大量 PE 如何连接、如何访问数据的问题。
+- **Vector Processor** 首先要求程序具有适合向量化的数据并行模式；
+- **Array Processor** 首先要解决大量 PE 如何连接、如何访问数据的问题。
 
 
 ## Memory Organization of Array Processors
 
-按照系统中 memory 的组织方式，阵列处理机可以分为两类基本结构：
+按照系统中 memory 的组织方式， **Array Processor** 可以分为两类基本结构：
 
 1. **Distributed memory（分布式存储器）** ；
 2. **Centralized shared memory（集中共享存储器）** 。
 
-### Distributed Memory
+### **Distributed Memory**
 
-在 distributed memory 结构中：
+在 **distributed memory** 结构中：
 
 - 系统包含 $N$ 个 processing elements；
 - 通常每个 PE 对应一个自己的 local memory；
 - 本地 PE 访问自己的 local memory 最直接、速度最快；
-- 当 PE 需要访问其他节点保存的数据时，需要通过内部互联网络进行通信。
+- 当 PE 需要访问其他节点保存的数据时，需要通过内部 **Interconnection Network（互联网络，ICN）** 进行通信。
 
 其抽象结构为：
 
@@ -725,14 +725,14 @@ slides 说明： **distributed memory configuration 是 SIMD array processor 的
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260526202957.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
-### Centralized Shared Memory
+### **Centralized Shared Memory**
 
-在 centralized shared memory 结构中：
+在 **centralized shared memory** 结构中：
 
 - 系统包含 $N$ 个 processing elements；
 - 系统集中设置 $K$ 个 memory modules；
-- 多个 PE 通过内部互联网络共同访问这些 memory modules；
-- ICN 既要连接处理器，也要连接共享存储器模块。
+- 多个 PE 通过内部 **ICN** 共同访问这些 memory modules；
+- **ICN** 既要连接处理器，也要连接共享存储器模块。
 
 其抽象结构为：
 
@@ -744,13 +744,13 @@ PE0, PE1, ..., PEN-1
 MM0, MM1, ..., MMK-1
 ```
 
-与 distributed memory 相比：
+与 **distributed memory** 相比：
 
-| 对比点 | Distributed Memory | Centralized Shared Memory |
+| 对比点 | **Distributed Memory** | **Centralized Shared Memory** |
 | --- | --- | --- |
 | 存储器位置 | 每个 PE 具有自己的 local memory | 多个 PE 共享 $K$ 个 memory modules |
-| 常见快速访问 | 访问自身 local memory | 通过 ICN 访问共享 memory |
-| ICN 任务 | 连接 PE，使 PE 可以访问远程节点数据 | 在 PE 与 memory modules 之间提供访问通路 |
+| 常见快速访问 | 访问自身 local memory | 通过 **ICN** 访问共享 memory |
+| **ICN** 任务 | 连接 PE，使 PE 可以访问远程节点数据 | 在 PE 与 memory modules 之间提供访问通路 |
 
 <div style="display: flex; gap: 16px; justify-content: center; align-items: flex-start; flex-wrap: wrap; margin: 12px 0;">
   <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260526203043.png" style="width: 420px; max-width: 48%; height: auto;" />
@@ -758,25 +758,25 @@ MM0, MM1, ..., MMK-1
 </div>
 
 
-## Interconnection Network
+## **Interconnection Network**
 
-### 为什么需要 ICN
+### 为什么需要 **ICN**
 
-无论是 distributed memory 还是 centralized shared memory，阵列处理机都需要解决一个核心问题：
+无论是 **distributed memory** 还是 **centralized shared memory**， **Array Processor** 都需要解决一个核心问题：
 
 > 多个 PE 之间，或 PE 与 memory 之间，怎样以可实现的硬件成本建立数据通信路径？
 
-并行计算机的 **communication architecture（通信体系结构）** 是系统设计的核心，它既包括底层互联网络，也与高层语言、软件工具、编译器和操作系统提供的通信支持有关。因此，并行计算机设计不仅要讨论互联网络，还要讨论由互联带来的性能与软件问题。
+并行计算机的 **communication architecture（通信体系结构）** 是系统设计的核心，它既包括底层 **ICN**，也与高层语言、软件工具、编译器和操作系统提供的通信支持有关。因此，并行计算机设计不仅要讨论 **ICN**，还要讨论由互联带来的性能与软件问题。
 
-**ICN（Interconnection Network，互联网络）** 位于并行计算机内部，用来连接：
+**ICN** 位于并行计算机内部，用来连接：
 
 - 不同 processing elements；
 - processing elements 与 memory modules；
 - 相关的控制与数据通路。
 
-从结构上看，ICN 是按照一定的 **topology（拓扑）** 与 **control mode（控制方式）** 组织 switching units，从而完成计算机内部多个处理器或功能部件之间互联的网络。
+从结构上看， **ICN** 是按照一定的 **topology（拓扑）** 与 **control mode（控制方式）** 组织 switching units，从而完成计算机内部多个处理器或功能部件之间互联的网络。
 
-ICN 与普通计算机网络具有相似的术语和工作原理，但这里关注的是并行机器内部节点之间的高效数据交换；部分并行系统也可能直接采用高速 Ethernet 或 ATM 等网络技术作为互联基础。
+**ICN** 与普通计算机网络具有相似的术语和工作原理，但这里关注的是并行机器内部节点之间的高效数据交换；部分并行系统也可能直接采用高速 Ethernet 或 ATM 等网络技术作为互联基础。
 
 ### 直接连接路径的代价
 
@@ -790,23 +790,23 @@ $$
 
 例如，当 PE 数量达到几万级别时，完整直接连接所需的通路数量会极其庞大，几乎无法实际实现。
 
-因此，阵列处理机必须考虑：
+因此， **Array Processor** 必须考虑：
 
 - 能否通过间接通路完成节点间通信；
-- 怎样设计互联网络拓扑，使连接数可控；
+- 怎样设计 **ICN** 拓扑，使连接数可控；
 - 怎样在硬件成本、通信能力与性能之间折中。
 
-### ICN 的组成与设计因素
+### **ICN** 的组成与设计因素
 
-Interconnection network 一般由五类部分构成：
+**Interconnection network** 一般由五类部分构成：
 
 1. **CPU / PE** ：发起计算与通信请求的处理单元；
 2. **memory** ：被访问的数据存储单元，可以是 PE 的 local memory，也可以是 shared memory module；
 3. **interface** ：从 CPU 或 memory 获取信息，并把信息发送到其他 CPU 或 memory 的接口设备，典型形式是 network interface card；
 4. **link** ：传输 bit 的物理通道，可以是线缆、双绞线或光纤，也可以是串行或并行通路；
-5. **switch node** ：互联网络中的交换与控制节点，具有多个输入端口和多个输出端口，可以进行数据缓冲与路径选择。
+5. **switch node** ： **ICN** 中的交换与控制节点，具有多个输入端口和多个输出端口，可以进行数据缓冲与路径选择。
 
-设计 ICN 时需要同时考虑四类问题：
+设计 **ICN** 时需要同时考虑四类问题：
 
 | 设计因素 | 典型分类 | 含义 |
 | --- | --- | --- |
@@ -815,11 +815,11 @@ Interconnection network 一般由五类部分构成：
 | exchange method | circuit switching / packet switching | 数据交换采用电路交换还是分组交换 |
 | control strategy | centralized / distributed | 是否有全局控制器统一管理网络状态 |
 
-其中 SIMD array processor 通常属于同步系统：多个 PE 在统一控制下执行同一条指令，因此更容易采用统一时钟。更一般的多处理器系统中，各处理器可能独立运行，此时就需要异步通信和更复杂的同步机制。
+其中 SIMD **array processor** 通常属于同步系统：多个 PE 在统一控制下执行同一条指令，因此更容易采用统一时钟。更一般的多处理器系统中，各处理器可能独立运行，此时就需要异步通信和更复杂的同步机制。
 
-### ICN 的分类与目标
+### **ICN** 的分类与目标
 
-按照连接路径是否在程序运行过程中变化，互联网络可以分为两类。
+按照连接路径是否在程序运行过程中变化， **ICN** 可以分为两类。
 
 1. **Static network**
 
@@ -833,30 +833,30 @@ Interconnection network 一般由五类部分构成：
 - crossbar switch；
 - multi-stage switching network。
 
-互联网络的目标可以概括为：
+**ICN** 的目标可以概括为：
 
 > 用有限数量的连接方式，使任意两个 PE 能够在一步或少数几步内完成信息传输，从而支持并行算法执行。
 
 如果只使用一个层次的连接来完成任意两个处理单元之间的传输，称为 **single-stage interconnection network** ；如果把多个单级网络串联起来，称为 **multi-stage interconnection network** 。
 
-### Interconnection Function
+### **Interconnection Function（互联函数）**
 
-设互联网络有 $N$ 个输入端：
+设 **ICN** 有 $N$ 个输入端：
 
 $$
 0,1,\ldots,j,\ldots,N-1
 $$
 
-如果输入端 $j$ 与输出端 $f(j)$ 存在对应关系，那么 $f$ 就描述了该互联网络的连接规律，称为 **interconnection function（互联函数）** 。
+如果输入端 $j$ 与输出端 $f(j)$ 存在对应关系，那么 $f$ 就描述了该 **ICN** 的连接规律，称为 **Interconnection Function** 。
 
-通常把输入编号和输出编号都写成二进制。根据二进制位之间的变化规律，就可以写出对应的互联函数。
+通常把输入编号和输出编号都写成二进制。根据二进制位之间的变化规律，就可以写出对应的 **Interconnection Function**。
 
 
-## Single-Stage Interconnection Network
+## Single-Stage **Interconnection Network**
 
-单级互联网络在一个网络层次上给出固定或有限的连接方式。它的结构简单、规则性强、成本低，适合构造大规模阵列的基本连接单元。
+单级 **ICN** 在一个网络层次上给出固定或有限的连接方式。它的结构简单、规则性强、成本低，适合构造大规模阵列的基本连接单元。
 
-### Cube Single-Stage Interconnection Network
+### Cube Single-Stage **Interconnection Network**
 
 对于 $N$ 个输入和输出，令：
 
@@ -870,7 +870,7 @@ $$
 P_{n-1}\cdots P_i\cdots P_1P_0
 $$
 
-cube 网络有 $n$ 个互联函数。第 $i$ 个 cube 函数翻转编号中的第 $i$ 位，其余位保持不变：
+cube 网络有 $n$ 个 **Interconnection Function**。第 $i$ 个 cube 函数翻转编号中的第 $i$ 位，其余位保持不变：
 
 $$
 Cube_i(P_{n-1}\cdots P_i\cdots P_1P_0)
@@ -887,7 +887,7 @@ $$
 X_2X_1X_0
 $$
 
-三个互联函数分别翻转不同 bit。
+三个 **Interconnection Function** 分别翻转不同 bit。
 
 | 函数 | 翻转位 | 连接关系 |
 | --- | --- | --- |
@@ -915,7 +915,7 @@ $$
 
 当 $n>3$ 时，图形已经很难在三维空间直观画出，但二进制翻转 bit 的规律仍然成立。
 
-### PM2I Single-Stage Interconnection Network
+### PM2I Single-Stage **Interconnection Network**
 
 PM2I 的含义是 **Plus Minus $2^i$** 。它包括加 $2^i$ 与减 $2^i$ 两类连接。
 
@@ -1046,9 +1046,9 @@ $$
 
 也就是最多需要 $n$ 次 exchange 和 $n-1$ 次 shuffle。例如从全 0 编号节点到全 1 编号节点，需要经过 3 次 exchange 和 2 次 shuffle。
 
-### 单级互联网络的特点
+### 单级 **ICN** 的特点
 
-单级互联网络的优点主要有：
+单级 **ICN** 的优点主要有：
 
 - 结构简单，硬件成本低；
 - 连接规则灵活，可以配合算法需求；
@@ -1061,7 +1061,7 @@ $$
 
 ## Static Network Topologies
 
-除了 cube、PM2I、shuffle exchange 这些互联函数，slides 还总结了常见的静态拓扑。它们可以从以下几个指标比较：
+除了 cube、PM2I、shuffle exchange 这些 **Interconnection Function**，slides 还总结了常见的静态拓扑。它们可以从以下几个指标比较：
 
 - **scale** ：节点规模；
 - **degree** ：节点度数，即一个节点直接连接多少条边；
@@ -1208,9 +1208,9 @@ Cube with loop 则在 cube 结构上加入环形结构，使每个节点组内�
 | Cube with loop | $N=k2^k$ | $3$ | $2k-1+\lfloor k/2 \rfloor$ | $N/2^k$ | Yes | $3N/2$ |
 
 
-## Dynamic Interconnection Network
+## Dynamic **Interconnection Network**
 
-动态互联网络的连接关系可以在程序运行期间改变。它依靠主动的 switching elements，通过设置开关状态重构链路。
+动态 **ICN** 的连接关系可以在程序运行期间改变。它依靠主动的 switching elements，通过设置开关状态重构链路。
 
 动态网络主要包括三类：
 
@@ -1259,9 +1259,9 @@ Crosspoint switch 在输入和输出之间布置交叉开关点。
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260601195851.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
-### Multi-Stage Interconnection Network
+### Multi-Stage **Interconnection Network**
 
-Multi-stage interconnection network 通过多个 switch stage 串联来降低全交叉开关的硬件成本。
+Multi-stage **interconnection network** 通过多个 switch stage 串联来降低全交叉开关的硬件成本。
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260601200102.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
@@ -1312,7 +1312,7 @@ $$
 - multi-stage PM2I；
 - 上述网络的组合。
 
-### Multi-Stage Cube Interconnection Network
+### Multi-Stage Cube **Interconnection Network**
 
 multi-stage cube 网络的特征是：
 
@@ -1396,7 +1396,7 @@ multi-stage shuffle exchange network 又称为 **Omega network** 。
 
 | 对比项 | Omega Network | n-cube Network |
 | --- | --- | --- |
-| 数据流 stage 顺序 | $n-1,n-2,\ldots,1,0$ | $0,1,\ldots,n-1$ |
+| **Data Stream** stage 顺序 | $n-1,n-2,\ldots,1,0$ | $0,1,\ldots,n-1$ |
 | switch unit | four-function switch | two-function switch |
 | broadcast | 可以实现一定的一对多广播 | 不支持广播 |
 
@@ -1413,9 +1413,9 @@ slides 中给出的 $N=8$ 例子强调了多级网络的一个重要特点：
   <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260601201421.png" style="width: 420px; max-width: 48%; height: auto;" />
 </div>
 
-### 动态互联网络比较
+### 动态 **ICN** 比较
 
-slides 从带宽、链路复杂度、开关复杂度和寻路能力比较了三种动态互联网络。
+slides 从带宽、链路复杂度、开关复杂度和寻路能力比较了三种动态 **ICN**。
 
 | 网络 | 带宽 | Link 复杂度 | Switch 复杂度 | 连接能力 |
 | --- | --- | --- | --- | --- |
@@ -1472,7 +1472,7 @@ GPU 的硬件特征是：
 - 适合大规模并行；
 - 典型应用包括 graphics 和 deep learning。
 
-从体系结构脉络看，GPU 可以理解为从 SIMD 进一步扩展到 **SIMT（Single Instruction Multiple Thread）** 。在 vector processor 中，最小并行单元可以看成向量元素；在 GPU 编程模型中，最小执行抽象是 thread。thread 除了数据元素，还包含寄存器、上下文等执行状态。
+从体系结构脉络看，GPU 可以理解为从 SIMD 进一步扩展到 **SIMT（Single Instruction Multiple Thread）** 。在 **vector processor** 中，最小并行单元可以看成向量元素；在 GPU 编程模型中，最小执行抽象是 thread。thread 除了数据元素，还包含寄存器、上下文等执行状态。
 
 ### CUDA 与 SIMT
 
@@ -1624,7 +1624,7 @@ GPU 同样需要 memory hierarchy。
 - GPU thread 数量巨大；
 - global memory 延迟较高；
 - 如果没有 cache / shared memory，访存会成为严重瓶颈；
-- GPU 通过多线程隐藏内存延迟，同时仍需要利用空间局部性和时间局部性。
+- GPU 通过多线程隐藏内存延迟，同时仍需要利用 **Spatial Locality（空间局部性）** 和 **Temporal Locality（时间局部性）**。
 
 常见结构是 two-level cache：
 
@@ -1674,7 +1674,7 @@ NVIDIA GPU 与传统 vector machine 有许多相似点：
 | 对比项 | Vector Machine | NVIDIA GPU |
 | --- | --- | --- |
 | 执行抽象 | 向量指令作用于多个元素 | CUDA thread / warp / block |
-| 标量处理器 | 通常有 scalar processor 配合 vector unit | GPU 中没有传统向量机意义上的 scalar processor |
+| **Scalar Processor** | 通常有 **scalar processor** 配合 vector unit | GPU 中没有传统向量机意义上的 **scalar processor** |
 | 隐藏延迟方式 | 深流水 vector functional units | 大量 multithreading 隐藏 memory latency |
 | 功能部件组织 | 少数深流水功能部件 | 很多较小的 functional units |
 
@@ -1700,11 +1700,11 @@ Loop-level parallelism 的核心问题是：
 | 类型 | 含义 | 对并行化的影响 |
 | --- | --- | --- |
 | iteration-internal dependence | 同一次迭代内部语句之间存在相关 | 仍可能跨迭代并行，只要每次迭代内部保持顺序 |
-| loop-carried dependence | 第 $i+1$ 次迭代依赖第 $i$ 次迭代的结果 | 可能迫使迭代顺序执行，限制向量化和并行化 |
+| **loop-carried dependence** | 第 $i+1$ 次迭代依赖第 $i$ 次迭代的结果 | 可能迫使迭代顺序执行，限制向量化和并行化 |
 
 循环计数变量 `i` 本身也跨迭代变化，但它属于 induction variable，编译器通常可以识别和消除，不构成主要限制。
 
-### Example 1：无 loop-carried dependence
+### Example 1：无 **loop-carried dependence**
 
 ```c
 for (i = 999; i >= 0; i = i - 1)
@@ -1719,7 +1719,7 @@ for (i = 999; i >= 0; i = i - 1)
 
 这类循环是最典型的数据级并行来源。
 
-### Example 2：存在循环携带相关，难以并行
+### Example 2：存在 **Loop-Carried Dependence**，难以并行
 
 ```c
 for (i = 0; i < 100; i = i + 1) {
@@ -1765,7 +1765,7 @@ S1(i) -> S2(i)
 
 这也是老师强调的点：如果循环体之间存在跨迭代相关，就不能简单地把每一次迭代拆开并行执行；硬件再强，也必须服从程序语义。
 
-### Example 3：有 loop-carried dependence，但可以改写为并行
+### Example 3：有 **loop-carried dependence**，但可以改写为并行
 
 原始循环为：
 
@@ -1784,7 +1784,7 @@ S2(i) -> S1(i+1)
 
 原因是第 $i$ 次迭代的 `S2` 产生 `B[i+1]`，第 $i+1$ 次迭代的 `S1` 需要使用 `B[i+1]`。
 
-这个相关是 loop-carried dependence，但它没有形成环：
+这个相关是 **loop-carried dependence**，但它没有形成环：
 
 - `S1` 依赖前一次迭代的 `S2`；
 - `S2` 本身不依赖 `S1`；
@@ -1816,17 +1816,17 @@ B[100] = C[99] + D[99];
 
 这一例子说明：
 
-- 出现 loop-carried dependence 后，不能立刻判断一定无法并行；
+- 出现 **loop-carried dependence** 后，不能立刻判断一定无法并行；
 - 需要看 dependence graph 中是否存在环；
 - 没有环的依赖可以通过语句重排、循环剥离、循环重写等方式暴露并行性；
-- 有些循环携带相关无法消除，此时必须保留顺序执行。
+- 有些 **Loop-Carried Dependence** 无法消除，此时必须保留顺序执行。
 
 
 
 
 ## MIMD: Thread-Level Parallelism
 
-前面 SIMD 讨论的是 **一个指令流控制多个数据流** ，适合向量、阵列处理器和 GPU 中大量同构数据运算。本节开始进入 **MIMD（Multiple Instruction streams, Multiple Data streams）** ，也就是多个处理器或多个核各自执行自己的指令流，并处理自己的数据流。
+前面 SIMD 讨论的是 **一个Instruction Stream控制多个Data Stream** ，适合向量、阵列处理器和 GPU 中大量同构数据运算。本节开始进入 **MIMD（Multiple Instruction streams, Multiple Data streams）** ，也就是多个处理器或多个核各自执行自己的 **Instruction Stream**，并处理自己的 **Data Stream**。
 
 这一节解决的问题是： **当单核 ILP 和 SIMD/DLP 的收益受限后，怎样通过多个线程、多个处理器、多个节点继续提高系统吞吐量** 。
 
@@ -1842,7 +1842,7 @@ MIMD 不是简单地“堆很多 CPU”。只要多个执行实体之间需要�
 
 TLP 与前面 ILP/DLP 的区别在于：
 
-- **ILP** ：同一个指令流内部挖掘指令间并行性，主要由硬件和编译器隐式完成；
+- **ILP** ：同一个 **Instruction Stream** 内部挖掘指令间并行性，主要由硬件和编译器隐式完成；
 - **DLP / SIMD** ：一个控制流对多个数据元素做相同操作；
 - **TLP / MIMD** ：多个线程拥有不同的控制流，因此系统中需要多个 PC。
 
@@ -1886,7 +1886,7 @@ Processor A  --message-->  Processor B
 - RAM；
 - disk / I/O device；
 - communication processor 或 NIC；
-- 通过互联网络与其他节点通信。
+- 通过 **ICN** 与其他节点通信。
 
 共享内存和消息传递的核心区别如下：
 
@@ -1989,7 +1989,7 @@ COMA 的核心思想是：数据一开始可以放在任意位置，运行时会
 
 #### 挑战一：程序可用并行性有限
 
-并不是处理器越多，加速比就越高。程序中总有一部分必须串行执行，或者并行度不足以填满所有处理器。
+并不是处理器越多， **Speedup（加速比）** 就越高。程序中总有一部分必须串行执行，或者并行度不足以填满所有处理器。
 
 用小组分工做类比：一个任务从 1 个人变成 8 个人，并不意味着速度一定提升 8 倍。因为：
 
@@ -1998,7 +1998,7 @@ COMA 的核心思想是：数据一开始可以放在任意位置，运行时会
 - 多人之间需要沟通、同步和协调；
 - 协调开销会抵消一部分并行收益。
 
-这可以用 Amdahl 定律量化。
+这可以用 **Amdahl's Law（Amdahl 定律）** 量化。
 
 若并行比例为 $f$，处理器数为 $N$，则：
 
@@ -2008,7 +2008,7 @@ $$
 
 ##### 例子：100 个处理器达到 80 倍加速
 
-题目：假设有 100 个处理器，希望整体加速比达到 80，原始计算中最多允许多少比例是串行的？
+题目：假设有 100 个处理器，希望整体 **Speedup** 达到 80，原始计算中最多允许多少比例是串行的？
 
 设串行比例为 $s$，并行比例为 $1-s$：
 
@@ -2040,7 +2040,7 @@ $$
 
 ##### 例子：100 处理器中部分时间只能用 50 个处理器
 
-题目：一个应用运行在 100 处理器系统上。假设 95% 的时间可以完美使用全部 100 个处理器，剩下 5% 的时间只能选择使用 50 个处理器或串行执行。若希望整体加速比为 80，剩余 5% 中有多少必须使用 50 个处理器？
+题目：一个应用运行在 100 处理器系统上。假设 95% 的时间可以完美使用全部 100 个处理器，剩下 5% 的时间只能选择使用 50 个处理器或串行执行。若希望整体 **Speedup** 为 80，剩余 5% 中有多少必须使用 50 个处理器？
 
 设使用 50 个处理器的比例为 $x$，串行比例为 $0.05-x$。
 
@@ -2075,11 +2075,11 @@ $$
 - 约 **4.8%** 的原始执行时间必须能使用 50 个处理器；
 - 只剩 **0.2%** 可以串行执行。
 
-这个例子说明：高加速比不仅要求“大部分程序可以并行”，还要求并行部分能使用足够多的处理器。
+这个例子说明：高 **Speedup** 不仅要求“大部分程序可以并行”，还要求并行部分能使用足够多的处理器。
 
 #### 挑战二：通信成本高
 
-即使程序并行性足够，处理器之间也需要通信。通信会导致额外延迟，降低有效加速比。
+即使程序并行性足够，处理器之间也需要通信。通信会导致额外延迟，降低有效 **Speedup**。
 
 ##### 例子：远程访存通信对 CPI 的影响
 
@@ -2191,7 +2191,7 @@ Memory Consistency 规定不同地址读写的全局可见顺序。
 
 #### Write Invalidate Protocol
 
-写无效协议的思想是： **一个处理器写某个块时，让其他 cache 中该块的副本失效** 。
+**Write-Invalidate Protocol（写无效协议）** 的思想是： **一个处理器写某个块时，让其他 cache 中该块的副本失效** 。
 
 这样写入者获得该块的独占修改权，后续其他处理器若要读这个块，就会 miss，并通过一致性协议获得新值。
 
@@ -2205,19 +2205,19 @@ Memory Consistency 规定不同地址读写的全局可见顺序。
 
 #### Write Update / Write Broadcast Protocol
 
-写更新协议的思想是： **一个处理器写某个块时，把新值广播给所有持有该块副本的 cache** 。
+**Write-Update Protocol（写更新协议）** 的思想是： **一个处理器写某个块时，把新值广播给所有持有该块副本的 cache** 。
 
 优点：其他处理器的副本可以保持有效。
 
 缺点：每次写都需要广播新数据，带宽开销大。老师强调，更新策略和无效策略没有绝对优劣，需要看访问模式和系统设计。
 
-#### Write-through 与 Write-back
+#### **Write-through（写直达）** 与 Write-back
 
 Snoopy protocol 还要结合 cache 写策略理解。
 
 1. **Write-through**
 
-每次写 cache line 的同时，也写入对应内存。因此内存始终保持最新。
+每次写 **cache line（缓存行）** 的同时，也写入对应内存。因此内存始终保持最新。
 
 2. **Write-back**
 
@@ -2225,9 +2225,9 @@ Snoopy protocol 还要结合 cache 写策略理解。
 
 Write-back 能减少内存写流量，但一致性协议更复杂。
 
-#### Write-through + No-write Allocation 的基本行为
+#### **Write-through** + **No-write Allocation（写不分配）** 的基本行为
 
-对于 write-through cache with no-write allocation，可以按本地请求和远程请求理解：
+对于 **write-through** cache with **no-write allocation**，可以按本地请求和远程请求理解：
 
 | 请求 | 行为 |
 |---|---|
@@ -2255,12 +2255,12 @@ MSI 的关键规则：
 - 写 invalid block：先获得该块和独占权，再写入，进入 M；
 - 其他处理器读到本地 M block：本地需要提供或写回最新数据，状态通常降级为 S。
 
-#### 例子：4-line direct-mapped write-back cache
+#### 例子：4-line **direct-mapped（直接映射）** write-back cache
 
 题目设定：
 
 - 3 个 core：Core 0、Core 1、Core 2；
-- 每个 core 有 4 行 direct-mapped write-back cache；
+- 每个 core 有 4 行 **direct-mapped** write-back cache；
 - 使用 basic write invalidation snooping protocol；
 - `I/S/M` 分别表示 Invalid / Shared / Modified。
 
@@ -2329,7 +2329,7 @@ C0.3 (S, A10C, 020C)
 
 C1 line 1 中已有 `A104`，状态为 S，因此这是 write hit on shared block。
 
-写无效协议要求 C1 写入前使其他副本失效。C0 line 1 和 C2 line 1 都有 `A104` 的 S 副本，因此都被 invalidated。
+**Write-Invalidate Protocol** 要求 C1 写入前使其他副本失效。C0 line 1 和 C2 line 1 都有 `A104` 的 S 副本，因此都被 invalidated。
 
 处理过程：
 
@@ -2361,7 +2361,7 @@ C0.2 (M, A118, 0118)
 C0.2 (M, A118, 0308)
 ```
 
-要点：写 miss 需要替换本地 cache line；如果被替换行是 M，必须先 write back。
+要点：写 miss 需要替换本地 **cache line**；如果被替换行是 M，必须先 write back。
 
 ### MESI 与 MOESI
 
@@ -2414,7 +2414,7 @@ P0 的 Block 0 已经是 M，写命中后仍然保持 M。
 
 2. **If P1 writes to Block 1, is Block 1 on P0 invalidated?**
 
-不一定看 cache line 编号，要看是否是同一个 memory block。图中 P1 的 Block 1 tag 为 `8000`，P0 的 Block 1 tag 为 `4000`，不是同一个块，因此 P0 的 Block 1 不会被 invalidated。
+不一定看 **cache line** 编号，要看是否是同一个 memory block。图中 P1 的 Block 1 tag 为 `8000`，P0 的 Block 1 tag 为 `4000`，不是同一个块，因此 P0 的 Block 1 不会被 invalidated。
 
 3. **If P1 brings in Block M for reading, and no other cache has a copy, what state is it cached in?**
 
@@ -2437,7 +2437,7 @@ MOESI 可以减少某些共享读场景下的写回开销，但状态机更复�
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260608232759.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
-Snoopy protocol 适合 UMA / SMP，因为所有处理器都能监听共享总线。但在 NUMA / distributed shared memory 中，节点数更多、互联网络更复杂，不可能让所有请求都广播到所有节点。
+Snoopy protocol 适合 UMA / SMP，因为所有处理器都能监听共享总线。但在 NUMA / distributed shared memory 中，节点数更多、 **ICN** 更复杂，不可能让所有请求都广播到所有节点。
 
 因此 NUMA 通常使用 **directory protocol（目录协议）** 。
 
@@ -2480,7 +2480,7 @@ Snoopy protocol 适合 UMA / SMP，因为所有处理器都能监听共享总线
 - **Data write back** ：owner 写回后，block 变为 Uncached，sharer set 清空。
 - **Write miss** ：directory 通知旧 owner invalidate 并把数据交给 directory；请求者成为新 owner，block 保持 Exclusive/Modified。
 
-Directory protocol 的核心收益是可扩展性更好，代价是：
+**Directory protocol** 的核心收益是可扩展性更好，代价是：
 
 - 每个内存块都需要目录状态；
 - 目录查找和消息交互会增加延迟；
@@ -2488,9 +2488,9 @@ Directory protocol 的核心收益是可扩展性更好，代价是：
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260608232921.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
-### False Sharing
+### **False Sharing（伪共享）**
 
-**False sharing（伪共享）** 指多个线程访问的是不同变量，但这些变量落在同一个 cache line 中，导致 coherence protocol 把它们当成同一个共享块来维护。
+**False Sharing** 指多个线程访问的是不同变量，但这些变量落在同一个 **cache line** 中，导致 coherence protocol 把它们当成同一个共享块来维护。
 
 典型代码如下：
 
@@ -2501,19 +2501,19 @@ class Pointer {
 }
 ```
 
-如果线程 1 不断写 `x`，线程 2 不断写 `y`，从程序语义看二者没有共享变量。但如果 `x` 和 `y` 位于同一个 cache line，那么：
+如果线程 1 不断写 `x`，线程 2 不断写 `y`，从程序语义看二者没有共享变量。但如果 `x` 和 `y` 位于同一个 **cache line**，那么：
 
-- 线程 1 写 `x` 会使线程 2 所在核中的该 cache line 失效；
-- 线程 2 写 `y` 又会使线程 1 所在核中的该 cache line 失效；
+- 线程 1 写 `x` 会使线程 2 所在核中的该 **cache line** 失效；
+- 线程 2 写 `y` 又会使线程 1 所在核中的该 **cache line** 失效；
 - 两个核不断互相 invalidate，产生大量 coherence traffic。
 
-这就是“假共享”：变量层面没有共享，cache line 粒度上发生了共享。
+这就是“假共享”：变量层面没有共享， **cache line** 粒度上发生了共享。
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260608233011.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
-#### 避免 false sharing 的方法
+#### 避免 **false sharing** 的方法
 
-常见方法是让频繁被不同线程写入的变量落在不同 cache line 中。
+常见方法是让频繁被不同线程写入的变量落在不同 **cache line** 中。
 
 1. **手动 padding**
 
@@ -2525,7 +2525,7 @@ class Pointer {
 }
 ```
 
-在 `x` 和 `y` 中间插入填充字段，使它们分离到不同 cache line。
+在 `x` 和 `y` 中间插入填充字段，使它们分离到不同 **cache line**。
 
 2. **封装并 padding 每个对象**
 
@@ -2557,9 +2557,9 @@ class MyLong {
 
 Memory consistency model 规定多处理器系统中，不同处理器对不同地址执行读写操作时，哪些顺序必须被其他处理器观察到。
 
-### Sequential Consistency
+### **Sequential Consistency（顺序一致性）**
 
-**Sequential consistency（顺序一致性）** 是最容易理解的模型。
+**Sequential Consistency** 是最容易理解的模型。
 
 它要求执行结果等价于某个全局串行顺序，并且：
 
@@ -2567,7 +2567,7 @@ Memory consistency model 规定多处理器系统中，不同处理器对不同�
 - 不同处理器之间的访存可以任意交错；
 - 所有处理器看到的是同一个交错顺序。
 
-顺序一致性直观、容易编程，但会限制硬件优化。
+**Sequential Consistency** 直观、容易编程，但会限制硬件优化。
 
 例如：
 
@@ -2579,11 +2579,11 @@ A = 1                 B = 1
 if (B == 0) ...       if (A == 0) ...
 ```
 
-如果处理器允许 store buffer、乱序执行、写读重排，就可能出现程序员直觉之外的结果。Memory consistency model 就是用来明确这些行为是否合法。
+如果处理器允许 store buffer、 **Out-of-Order Execution**、写读重排，就可能出现程序员直觉之外的结果。Memory consistency model 就是用来明确这些行为是否合法。
 
-### Relaxed Consistency Models
+### **Relaxed Consistency（放松一致性）** Models
 
-放松一致性模型的核心思想是： **允许普通读写乱序完成，但用同步操作显式建立顺序约束** 。
+**Relaxed Consistency** 模型的核心思想是： **允许普通读写乱序完成，但用同步操作显式建立顺序约束** 。
 
 记号：
 
@@ -2593,7 +2593,7 @@ X -> Y
 
 表示操作 X 必须在操作 Y 之前完成。
 
-顺序一致性要求四类顺序都保持：
+**Sequential Consistency** 要求四类顺序都保持：
 
 ```text
 R -> W
@@ -2610,32 +2610,32 @@ W -> W
 | Partial Store Order | 放松 `W -> W` 和 `W -> R` | 允许不同写之间也重排 |
 | Weak Ordering / Release Consistency | 放松 `R -> W`、`R -> R`、`W -> W`、`W -> R` | 普通读写可高度重排，用 acquire/release 等同步操作约束 |
 
-放松一致性的意义是提高性能，但程序员必须通过锁、barrier、atomic、fence 等同步原语明确建立 happens-before 关系。
+**Relaxed Consistency** 的意义是提高性能，但程序员必须通过锁、barrier、atomic、fence 等同步原语明确建立 happens-before 关系。
 
 
-## MIMD: MPP / COW / WSC
+## MIMD: **Massively Parallel Processor（大规模并行处理机，MPP）** / **Cluster of Workstations（工作站集群，COW）** / **Warehouse-Scale Computer（仓库级计算机，WSC）**
 
 除了 UMA / NUMA / COMA 这类共享内存多处理器，MIMD 还包括更大规模、更松耦合的系统组织。
 
-### MPP：Massively Parallel Processor
+### **MPP**： **Massively Parallel Processor**
 
-**MPP（Massively Parallel Processor，大规模并行处理机）** 是由数百个甚至更多处理器组成的大规模并行计算系统。
+**MPP** 是由数百个甚至更多处理器组成的大规模并行计算系统。
 
 特点：
 
 - 通常使用标准商用 CPU 作为处理器；
-- 使用高性能专用互联网络，追求低延迟和高带宽；
+- 使用高性能专用 **ICN**，追求低延迟和高带宽；
 - 具有较强 I/O 能力；
 - 支持专门的容错处理；
 - 过去主要用于科学计算、工程仿真等计算密集场景，也逐渐用于商业和网络应用。
 
-MPP 的开发难度高、价格高、市场相对有限，常被视为高性能计算能力的体现。
+**MPP** 的开发难度高、价格高、市场相对有限，常被视为高性能计算能力的体现。
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260608233043.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
-### COW：Cluster of Workstations
+### **COW**： **Cluster of Workstations**
 
-**COW（Cluster of Workstations，工作站集群）** 由大量 PC 或工作站通过商用网络连接而成。
+**COW** 由大量 PC 或工作站通过商用网络连接而成。
 
 特点：
 
@@ -2645,17 +2645,17 @@ MPP 的开发难度高、价格高、市场相对有限，常被视为高性能�
 - 节点之间通常通过 Ethernet、Myrinet、ATM 等 commodity network 连接；
 - 可分为 centralized 和 decentralized 两类。
 
-COW 相比 MPP 更松耦合，硬件专用性较低，但成本优势明显。
+**COW** 相比 **MPP** 更松耦合，硬件专用性较低，但成本优势明显。
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260608233052.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
-### WSC：Warehouse-Scale Computer
+### **WSC**： **Warehouse-Scale Computer**
 
-**WSC（Warehouse-Scale Computer，仓库级计算机）** 可以理解为超大规模 cluster。大量服务器通过网络连接，在软件系统协调下共同对外提供服务。
+**WSC** 可以理解为超大规模 cluster。大量服务器通过网络连接，在软件系统协调下共同对外提供服务。
 
-典型例子是 Google WSC。
+典型例子是 Google **WSC**。
 
-从体系结构角度看，WSC 的重点已经不只是单个处理器性能，而是：
+从体系结构角度看， **WSC** 的重点已经不只是单个处理器性能，而是：
 
 - 大规模请求级并行；
 - 网络与存储系统；
@@ -2666,9 +2666,9 @@ COW 相比 MPP 更松耦合，硬件专用性较低，但成本优势明显。
 
 ## Domain-Specific Architectures
 
-**DSA（Domain-Specific Architecture，领域专用架构）** 。
+**Domain-Specific Architecture（领域专用架构，DSA）** 。
 
-DSA 的背景是：Moore’s Law 和 Dennard Scaling 放缓后，通用处理器很难继续依靠单核频率和复杂微结构获得高性能。因此，体系结构开始更多转向特定领域专用加速。
+**DSA** 的背景是：Moore’s Law 和 Dennard Scaling 放缓后，通用处理器很难继续依靠单核频率和复杂微结构获得高性能。因此，体系结构开始更多转向特定领域专用加速。
 
 ### 通用处理器过去依赖的复杂机制
 
@@ -2677,17 +2677,17 @@ Moore’s Law 曾经让通用处理器可以不断加入复杂硬件：
 - deep memory hierarchy；
 - wide SIMD units；
 - deep pipelines；
-- branch prediction；
-- out-of-order execution；
-- speculative prefetching；
+- **branch prediction（分支预测）**；
+- **out-of-order execution**；
+- speculative **prefetching（预取）**；
 - multithreading；
 - multiprocessing。
 
 这些机制的目标是：在软件不太关心底层架构的情况下，尽可能从程序中自动提取性能。
 
-### DSA 的设计原则
+### **DSA** 的设计原则
 
-DSA 的设计更强调让硬件结构匹配领域特征。基本原则包括：
+**DSA** 的设计更强调让硬件结构匹配领域特征。基本原则包括：
 
 1. 使用 dedicated memories，减少数据移动；
 2. 把资源投入到更多 arithmetic units 或更大的专用存储；
@@ -2697,7 +2697,7 @@ DSA 的设计更强调让硬件结构匹配领域特征。基本原则包括：
 
 ### CNN 与 TPU 例子
 
-神经网络是 DSA 的典型应用场景。
+神经网络是 **DSA** 的典型应用场景。
 
 CNN 中常见的关键计算包括：
 
@@ -2716,7 +2716,7 @@ Google TPU 是典型 DNN ASIC：
 - 作为 PCIe bus 上的 coprocessor；
 - 通过 TensorFlow 等软件栈暴露给上层程序。
 
-TPU ISA 中的典型操作包括：
+TPU **Instruction Set Architecture（指令集体系结构，ISA）** 中的典型操作包括：
 
 - `Read_Host_Memory`：从 CPU memory 读入 unified buffer；
 - `Read_Weights`：把权重读入 Weight FIFO；
@@ -2724,9 +2724,9 @@ TPU ISA 中的典型操作包括：
 - `Activate`：计算激活函数；
 - `Write_Host_Memory`：把结果写回 host memory。
 
-TPU 与 DSA 原则的对应关系：
+TPU 与 **DSA** 原则的对应关系：
 
-| DSA 原则 | TPU 中的体现 |
+| **DSA** 原则 | TPU 中的体现 |
 |---|---|
 | 使用专用存储 | 24 MiB dedicated buffer，4 MiB accumulator buffers |
 | 投入算术单元和专用存储 | 相比 server-class CPU 有大量矩阵乘硬件 |

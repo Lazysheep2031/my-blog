@@ -132,11 +132,11 @@ int foo(int x) {
 > **persistent storage：状态可以在整个程序运行期间持续保存。**
 
 
-## 编译单元、声明、定义与 linkage
+## **Translation Unit（编译单元）**、声明、定义与 linkage
 
-### 编译单元
+### **Translation Unit**
 
-一个 `.cpp` 文件连同它 `#include` 展开的头文件内容，构成一个 **translation unit（编译单元）** 。
+一个 `.cpp` 文件连同它 `#include` 展开的头文件内容，构成一个 **Translation Unit** 。
 
 所以如果工程里有：
 
@@ -144,12 +144,12 @@ int foo(int x) {
 - `b.cpp`
 - `main.cpp`
 
-那通常就有三个编译单元。它们会：
+那通常就有三个 **Translation Unit**。它们会：
 
 1. 先分别编译
 2. 再由链接器把它们拼起来
 
-因此“跨编译单元共享”这个说法，基本就可以先理解成：
+因此“跨 **Translation Unit** 共享”这个说法，基本就可以先理解成：
 
 > **跨 `.cpp` 文件共享。**
 
@@ -184,7 +184,7 @@ int global_f(int);     // function declaration
 
 声明的作用是：
 
-> 告诉当前编译单元：有这么个名字、这么个类型/签名，真正的定义在别处。
+> 告诉当前 **Translation Unit**：有这么个名字、这么个类型/签名，真正的定义在别处。
 
 ### `extern`
 
@@ -260,7 +260,7 @@ static int f(int);
 
 这里的 `static` 的含义是：
 
-- 这个名字只能在当前编译单元里被使用
+- 这个名字只能在当前 **Translation Unit** 里被使用
 - 它具有 **internal linkage（内部链接）**
 
 可以近似理解成：
@@ -301,13 +301,13 @@ static int x = 10;
 
 然后多个 `.cpp` 都 `#include` 这个头文件，那么结果通常不是“全工程共享一个 x”，而是：
 
-> **每个包含该头文件的编译单元，各自得到一份独立的 `x`。**
+> **每个包含该头文件的Translation Unit，各自得到一份独立的 `x`。**
 
 原因在于：
 
 - 头文件本质上是文本展开
 - `static` 又赋予它 internal linkage
-- 所以每个编译单元都有自己私有的一份定义
+- 所以每个 **Translation Unit** 都有自己私有的一份定义
 
 这通常不适合做“跨文件共享变量”，因为它们看起来名字一样，但根本不是同一个对象。
 :::
@@ -338,7 +338,7 @@ private:
 
 这个写法体现了单例模式的几个核心点：
 
-1. **构造函数私有** ：外部不能随便构造对象
+1. **Constructor（构造函数）私有** ：外部不能随便构造对象
 2. **拷贝/赋值删除** ：防止复制出第二个实例
 3. **通过 `instance()` 提供访问入口**
 4. **函数内 `static` 局部对象保证只初始化一次**
@@ -355,9 +355,9 @@ private:
 但也要注意：它本质上仍然是一种全局状态管理手段，不能滥用。
 
 
-## Dynamic Memory Allocation
+## **Dynamic Memory（动态内存）** Allocation
 
-### 为什么需要动态内存
+### 为什么需要 **Dynamic Memory**
 
 有些对象在编译时无法确定大小，或者生命周期不适合跟随当前函数作用域，此时就需要在运行时动态申请内存。
 
@@ -406,7 +406,7 @@ delete p2;
 
 > **`malloc/free` 管理的是原始内存；`new/delete` 管理的是对象生命周期。**
 
-特别是当类型有构造函数/析构函数时，`new/delete` 会自动触发正确的构造与析构，而 `malloc/free` 不会。
+特别是当类型有 **Constructor** / **Destructor（析构函数）** 时，`new/delete` 会自动触发正确的构造与析构，而 `malloc/free` 不会。
 
 ### 数组版本：`new[]` 与 `delete[]`
 
@@ -436,7 +436,7 @@ delete r;      // only one Student is destructed
 // 正确应为 delete[] r;
 ```
 
-对于类对象数组，`delete[]` 的意义尤其重要，因为它要对数组中每个元素正确调用析构函数。
+对于类对象数组，`delete[]` 的意义尤其重要，因为它要对数组中每个元素正确调用 **Destructor**。
 
 :::TIP
 **关于 `delete[]` 前的隐藏信息**
@@ -458,7 +458,7 @@ size_t *pc = (size_t*) pa;
 - 为什么 `delete[]` 和 `delete` 不一样
 - 为什么数组释放必须使用 `delete[]`
 
-### 动态内存的几个基本原则
+### **Dynamic Memory** 的几个基本原则
 
 1. **Never mix-use `new/delete` and `malloc/free`**
 2. **Never forget to delete**
@@ -529,7 +529,7 @@ void print(const Student* p);       // 轻量级间接访问
 void swap(int *p1, int *p2);        // 外部参数，允许函数修改外部对象
 ```
 
-1. **管理动态内存**
+1. **管理Dynamic Memory**
 2. **间接访问对象，避免拷贝大对象**
 3. **让函数有能力修改外部对象**
 
@@ -648,8 +648,8 @@ int& bar() {
 
 局部变量在函数返回后就已经销毁，因此：
 
-- `foo()` 返回的是悬空指针
-- `bar()` 返回的是悬空引用
+- `foo()` 返回的是 **Dangling Pointer（悬空指针）**
+- `bar()` 返回的是 **Dangling Reference（悬空引用）**
 
 这也说明：
 
@@ -665,7 +665,7 @@ func(i);      // OK
 func(i * 3);  // Error
 ```
 
-也就是说，非常量左值引用必须绑定到一个真正“有名字、可持续存在”的对象上。
+也就是说， **Non-Const Lvalue Reference（非常量左值引用）** 必须绑定到一个真正“有名字、可持续存在”的对象上。
 
 2. **No reference to reference**
 3. **No pointer to reference** ，但可以有 **reference to pointer**
@@ -717,7 +717,7 @@ const int MY_CONSTANT = 42;
 
 这也是为什么 C++ 里的非局部 `const` 和普通全局变量的 linkage 行为不完全一样。
 
-### 编译期常量与运行期常量
+### **Compile-Time Constant（编译期常量）** 与 **Run-Time Constant（运行期常量）**
 
 **Contrast**
 
@@ -738,7 +738,7 @@ double classAverage[size2]; // error, but ok in C99
 
 所以：
 
-> `const` 不自动等于“编译期常量”。
+> `const` 不自动等于“ **Compile-Time Constant** ”。
 
 这和以后会学到的 `constexpr` 是不同概念。
 
@@ -821,14 +821,14 @@ cip = &i;    // ok
 
 > **从 non-const 绑到 const 视角是安全收紧；反过来是不安全放宽。**
 
-### 字符串字面量
+### **String Literal（字符串字面量）**
 
 ```cpp
 char* s = "Hello, world!";
 char a[] = "Hello, world!";
 ```
 
-1. 字符串字面量通常放在 **代码/只读数据区**
+1. **String Literal** 通常放在 **代码/只读数据区**
 2. 所以 `s` 更合理的类型应该是：
 
 ```cpp

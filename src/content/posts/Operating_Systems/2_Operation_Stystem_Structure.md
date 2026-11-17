@@ -13,7 +13,7 @@ draft: false
 
 从用户角度需要提供的服务：
 
-**User interface** : CLI, GUI
+**User interface** : **Command-Line Interface（命令行接口，CLI）**, **Graphical User Interface（图形用户界面，GUI）**
 
 **Program execution** : 能够跑第三方的应用程序。
 
@@ -21,13 +21,13 @@ draft: false
 
 **File-system manipulation** : 创建、删除、读写文件，创建目录。
 
-**Communication** : 进程间通信，网络通信。
+**Communication** : **Interprocess Communication（进程间通信）**，网络通信。
 
 **Error detection** : 检测硬件错误，软件错误。
 
 **I/O 关注数据输入输出，文件系统操作还关注文件的命名、组织、属性与权限。** 一次读取 U 盘文件可以同时涉及两类服务。
 
-通信的两种基本方式是 **共享内存（Shared Memory）** 和 **消息传递（Message Passing）** ：前者让进程访问共同的内存区域，后者通过发送和接收消息交换信息。
+通信的两种基本方式是 **Shared Memory（共享内存）** 和 **Message Passing（消息传递）** ：前者让进程访问共同的内存区域，后者通过发送和接收消息交换信息。
 
 错误检测之后，系统可能返回错误状态、终止出错进程，严重时也可能停止系统。
 
@@ -48,9 +48,9 @@ draft: false
 
 ## User Operating System Interface
 
-### Command-Line Interface and Shell
+### **Command-Line Interface** and Shell
 
-**命令行接口（Command-Line Interface，CLI）** 允许用户直接输入命令。 **命令解释器** 负责读取、解释并执行命令；不同的命令解释器通常称为不同的 **Shell** 。
+**CLI** 允许用户直接输入命令。 **命令解释器** 负责读取、解释并执行命令；不同的命令解释器通常称为不同的 **Shell** 。
 
 ```text
 读取用户命令 → 确定命令及参数 → 执行相应操作 → 继续接收命令
@@ -65,9 +65,9 @@ draft: false
 | **内置命令** | 命令解释器中包含相应代码，必要时请求系统服务 | 增加这类功能通常需要修改解释器 |
 | **外部程序** | 命令名指向一个程序文件，由该程序实现具体功能 | 增加程序即可扩展命令集合，不必修改解释器 |
 
-### GUI and Batch Processing
+### **GUI** and Batch Processing
 
-**图形用户界面（Graphical User Interface，GUI）** 以桌面、窗口、图标和菜单等形式组织交互。
+**GUI** 以桌面、窗口、图标和菜单等形式组织交互。
 
 **同一个操作系统可以同时提供 CLI 和 GUI。** 
 
@@ -77,17 +77,17 @@ draft: false
 | 图形界面 | 用可视对象和菜单表达操作，便于浏览与直接选择 |
 | 批处理（Batch） | 预先提供一组命令，由系统按约定执行，减少逐步交互 |
 
-用户接口描述的是 **用户怎样表达请求** 。后面的系统调用接口描述的是 **程序怎样请求操作系统服务** 。
+用户接口描述的是 **用户怎样表达请求** 。后面的 **System Call（系统调用）** 接口描述的是 **程序怎样请求操作系统服务** 。
 
 ## System Calls
 
-### System Call Interface
+### **System Call** Interface
 
-**系统调用（System Call）** 是程序使用操作系统服务的编程接口，例如请求文件读写、创建进程或建立通信。
+**System Call** 是程序使用操作系统服务的编程接口，例如请求文件读写、创建进程或建立通信。
 
-应用开发通常先使用 **应用程序编程接口（Application Programming Interface，API）** ，再由库或运行时组织相应系统调用。
+应用开发通常先使用 **Application Programming Interface（应用程序编程接口，API）** ，再由库或运行时组织相应 **System Call**。
 
-### System Call Declarations
+### **System Call** Declarations
 
 ```c
 #include <sys/socket.h>
@@ -102,7 +102,7 @@ int connect(int sockfd, const struct sockaddr *addr, socklen_t addrlen);
 
 ### Example
 
-复制一个文件需要哪些系统调用？
+复制一个文件需要哪些 **System Call**？
 
 假设程序需要获取源文件名和目标文件名，然后把源文件内容复制到目标文件。
 
@@ -178,11 +178,11 @@ BOOL ReadFile(
 
 </details>
 
-### System Call Numbers and Dispatch
+### **System Call** Numbers and Dispatch
 
-程序发起系统调用时，操作系统需要知道： **请求哪一种服务，以及用什么参数完成它。**
+程序发起 **System Call** 时，操作系统需要知道： **请求哪一种服务，以及用什么参数完成它。**
 
-操作系统会维护一张表，里面存放 number 和指针，指针指向处理这个 system call 的代码。
+操作系统会维护一张表，里面存放 number 和指针，指针指向处理这个 **system call** 的代码。
 
 ```text
 用户程序调用 API
@@ -203,9 +203,9 @@ BOOL ReadFile(
 调用者不需要知道内核处理函数的全部实现，但必须遵守接口约定：传入正确参数，理解操作含义，并检查返回结果。
 
 <details>
-<summary>系统调用、软中断与进程切换</summary>
+<summary><strong>System Call</strong>、软中断与进程切换</summary>
 
-系统调用可认为是“软中断”：程序主动触发受控的内核入口，CPU 转入内核执行服务。
+**System Call** 可认为是“软中断”：程序主动触发受控的内核入口，CPU 转入内核执行服务。
 
 进入内核改变了执行权限和代码路径， **不必然切换到另一个进程** 。当前进程可以进入内核完成服务后再返回；若期间需要等待 I/O 等事件，系统也可能安排其他进程运行。
 
@@ -229,7 +229,7 @@ BOOL ReadFile(
 结果返回库函数与用户程序
 ```
 
-C 语言的 Printf 对应到 system call 的 write 要对应到像素级别的操作。所以每一个简单操作都有可能需要多个 system call 来完成。
+C 语言的 Printf 对应到 **system call** 的 write 要对应到像素级别的操作。所以每一个简单操作都有可能需要多个 **system call** 来完成。
 
 ### Parameter Passing
 
@@ -250,7 +250,7 @@ C 语言的 Printf 对应到 system call 的 write 要对应到像素级别的�
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260919002105.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
 <details>
-<summary>展开分析：系统调用编号与参数表地址分别解决什么问题？</summary>
+<summary>展开分析：<strong>System Call</strong>编号与参数表地址分别解决什么问题？</summary>
 
 假设用户程序已在内存位置 `X` 保存好某次调用需要的参数。
 
@@ -274,7 +274,7 @@ C 语言的 Printf 对应到 system call 的 write 要对应到像素级别的�
 
 ## Types of System Calls
 
-### System Call Categories
+### **System Call** Categories
 
 
 | 类型 | 典型操作 | 理解重点 |
@@ -283,18 +283,18 @@ C 语言的 Printf 对应到 system call 的 write 要对应到像素级别的�
 | **文件管理（File Management）** | 创建、删除、打开、关闭、读写、调整文件位置、获取／设置文件属性 | 文件内容与文件属性都需要管理 |
 | **设备管理（Device Management）** | 请求与释放设备，读写，获取／设置设备属性，逻辑连接与分离 | 处理设备使用权和设备操作 |
 | **信息维护（Information Maintenance）** | 获取／设置时间日期、系统数据，以及进程、文件、设备的信息 | 查询状态、维护属性、支持统计与调试 |
-| **通信（Communications）** | 建立与关闭通信连接，发送与接收消息，传递状态，建立与附接共享内存 | 为不同执行者交换信息提供接口 |
+| **通信（Communications）** | 建立与关闭通信连接，发送与接收消息，传递状态，建立与附接 **Shared Memory** | 为不同执行者交换信息提供接口 |
 
-现在目前大概有200多个 system call 支持操作系统的全部功能，操作系统也有其他的手段，比如发送信号，来实现一些功能。
+现在目前大概有200多个 **system call** 支持操作系统的全部功能，操作系统也有其他的手段，比如发送信号，来实现一些功能。
 
 ### Communication Models
 
 | 模型 | 系统提供什么？ | 进程怎样交换信息？ |
 | --- | --- | --- |
-| 消息传递 | 建立通信关系、发送与接收消息等能力 | 通过消息操作传递信息，可用于本机或跨机器通信 |
-| 共享内存 | 创建、附接共享内存区域等能力 | 访问共同的内存区域，直接读写其中的数据 |
+| **Message Passing** | 建立通信关系、发送与接收消息等能力 | 通过消息操作传递信息，可用于本机或跨机器通信 |
+| **Shared Memory** | 创建、附接 **Shared Memory** 区域等能力 | 访问共同的内存区域，直接读写其中的数据 |
 
-共享内存建立后，进程还要协调谁在什么时候读写，避免不当的并发更新。 **获得共享区域，与正确使用共享数据，是两个需要分别解决的问题。** 
+**Shared Memory** 建立后，进程还要协调谁在什么时候读写，避免不当的并发更新。 **获得共享区域，与正确使用共享数据，是两个需要分别解决的问题。** 
 
 ### Example
 
@@ -340,7 +340,7 @@ fork()：建立子进程
 
 ### Program Development and Execution
 
-**系统程序（System Programs）** 把基础服务组织成便于使用的工具，为程序开发、执行和系统管理提供环境。部分工具只是系统调用的简单用户接口，另一些则包含复杂逻辑。
+**系统程序（System Programs）** 把基础服务组织成便于使用的工具，为程序开发、执行和系统管理提供环境。部分工具只是 **System Call** 的简单用户接口，另一些则包含复杂逻辑。
 
 | 类别 | 典型功能或工具 |
 | --- | --- |
@@ -352,18 +352,18 @@ fork()：建立子进程
 | **通信** | 用户间发送消息、浏览网页、电子邮件、远程登录、跨机器传送文件 |
 | **应用程序** | 系统提供的软件环境； |
 
-**文件管理** 侧重文件对象及目录组织； **文件修改** 侧重文件内部的内容。状态工具通常还会把取得的数据整理、格式化后显示出来；一些系统通过 **注册表（Registry）** 存储和检索配置。
+**文件管理** 侧重文件对象及目录组织； **文件修改** 侧重文件内部的内容。状态工具通常还会把取得的数据整理、格式化后显示出来；一些系统通过 **Registry（注册表）** 存储和检索配置。
 
 <details>
 <summary>系统自带的软件与自己安装的软件，怎样区分？</summary>
 
-系统程序侧重提供开发、执行、管理环境，应用程序侧重完成用户的具体任务。两者都可能通过系统调用使用内核服务，系统程序这一名称本身也不表示它必然在内核态运行。
+系统程序侧重提供开发、执行、管理环境，应用程序侧重完成用户的具体任务。两者都可能通过 **System Call** 使用内核服务，系统程序这一名称本身也不表示它必然在 **Kernel Mode（内核态）** 运行。
 
 </details>
 
 ### Example
 
-用 DTrace 观察系统调用路径
+用 DTrace 观察 **System Call** 路径
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260919002846.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
@@ -388,7 +388,7 @@ XEventsQueued             U
 
 `U` 标记用户侧执行，`K` 标记内核侧执行；`->` 与 `<-` 展示函数进入和返回，缩进体现调用嵌套。图中可看到用户侧 `ioctl` 进入内核处理，之后又逐层返回。
 
-**内核中出现多行函数名，不等于应用发起了同样多次系统调用。** 一次系统调用的内核实现可以继续调用多个内部函数。顶部的 `matched 52377 probes` 是匹配到的探针数量。
+**内核中出现多行函数名，不等于应用发起了同样多次System Call。** 一次 **System Call** 的内核实现可以继续调用多个内部函数。顶部的 `matched 52377 probes` 是匹配到的探针数量。
 
 </details>
 
@@ -411,7 +411,7 @@ XEventsQueued             U
 
 #### Example
 
-**改变时间片，需要重新设计定时器吗？**
+**改变Time Quantum（时间片），需要重新设计定时器吗？**
 
 <details>
 <summary>展开分析</summary>
@@ -472,13 +472,13 @@ MS-DOS 的设计目标是在很小的空间内提供尽可能多的功能。它�
 应用程序 ：使用系统和底层设备提供的功能
 常驻系统程序 ：提供系统运行所需的基本服务
 MS-DOS 设备驱动 ：与具体设备交互
-ROM BIOS 设备服务 ： 固件中的基本输入输出能力
+ROM **Basic Input/Output System（基本输入输出系统，BIOS）** 设备服务 ： 固件中的基本输入输出能力
 
 箭头允许跨过中间部分直接访问底层。因此， **没有实现严格的层间边界。**
 
-### Layered Approach
+### **Layered Approach（分层结构）**
 
-**分层结构（Layered Approach）** 把系统划分成若干层。
+**Layered Approach** 把系统划分成若干层。
 
 最低层 `layer 0` 是硬件，最高层 `layer N` 是用户接口；每层使用较低层提供的操作与服务。
 
@@ -506,12 +506,12 @@ ROM BIOS 设备服务 ： 固件中的基本输入输出能力
 
 ### Monolithic Structure: Traditional UNIX
 
-**单体内核（Monolithic Kernel，也称宏内核）** 将大量内核功能放在同一内核地址空间中实现。
+**Monolithic Kernel（单体内核，也称宏内核）** 将大量内核功能放在同一内核地址空间中实现。
 传统 UNIX 分为两大部分： **系统程序与内核** 。
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260920162438.png" alt="传统 UNIX 的系统调用接口、内核与硬件" style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
-图中 **系统调用接口以下、物理硬件以上** 的区域属于内核，包含文件系统、CPU 调度、内存管理、终端处理和设备驱动等功能。
+图中 **System Call接口以下、物理硬件以上** 的区域属于内核，包含文件系统、CPU 调度、内存管理、终端处理和设备驱动等功能。
 
 | 特点 | 影响 |
 | --- | --- |
@@ -519,11 +519,11 @@ ROM BIOS 设备服务 ： 固件中的基本输入输出能力
 | 功能联系紧密 | 修改某一部分可能影响其他部分 |
 | 大量代码具有内核权限 | 错误的影响范围可能较大 |
 
-Linux 既具有单体内核的特点，也支持可加载模块。
+Linux 既具有 **Monolithic Kernel** 的特点，也支持可加载模块。
 
-### Microkernel System Structure
+### **Microkernel（微内核）** System Structure
 
-**微内核（Microkernel）** 尽量缩小内核中的功能集合，将其他服务放入用户空间，并通过消息传递协作。
+**Microkernel** 尽量缩小内核中的功能集合，将其他服务放入用户空间，并通过 **Message Passing** 协作。
 
 | 留在内核的核心机制 | 可以移到用户空间的服务 |
 | --- | --- |
@@ -536,7 +536,7 @@ Linux 既具有单体内核的特点，也支持可加载模块。
 **Application Reading a File**
 
 <details>
-<summary>微内核中的文件请求怎样完成？</summary>
+<summary><strong>Microkernel</strong>中的文件请求怎样完成？</summary>
 
 ```text
 用户态应用提出文件请求
@@ -554,14 +554,14 @@ Linux 既具有单体内核的特点，也支持可加载模块。
 
 ### Modules
 
-**可加载内核模块（Loadable Kernel Module）** 将内核的一部分功能组织成独立组件，按需要在启动时或运行期间加载。各组件通过已定义的接口协作。
+**Loadable Kernel Module（可加载内核模块）** 将内核的一部分功能组织成独立组件，按需要在启动时或运行期间加载。各组件通过已定义的接口协作。
 
 这具有面向对象思想：核心组件各自封装功能，通过接口联系。
 
 | 与其他结构比较 | 区别 |
 | --- | --- |
 | 与严格分层比较 | 模块之间可按接口直接调用，依赖关系更灵活 |
-| 与典型微内核比较 | 内核模块仍在内核空间工作，模块间可直接调用，不必统一通过跨进程消息传递 |
+| 与典型 **Microkernel** 比较 | 内核模块仍在内核空间工作，模块间可直接调用，不必统一通过跨进程 **Message Passing** |
 | 与固定编入全部功能比较 | 可以把不常用、当前不需要的功能留在磁盘，需要时再加载 |
 
 #### Example
@@ -581,12 +581,12 @@ Linux 既具有单体内核的特点，也支持可加载模块。
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260920163432.png" alt="Solaris 核心内核与不同类型的可加载模块" style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
-图中核心 Solaris 内核周围包含： **调度类、文件系统、可加载系统调用、可执行文件格式、STREAMS 模块、其他模块，以及设备与总线驱动** 。
+图中核心 Solaris 内核周围包含： **调度类、文件系统、可加载System Call、可执行文件格式、STREAMS 模块、其他模块，以及设备与总线驱动** 。
 
 
 ### Mac OS X Structure
 
-**混合结构（Hybrid Structure）** 结合不同组织方式，在性能、功能、可维护性和隔离之间进行取舍。
+**Hybrid Structure（混合结构）** 结合不同组织方式，在性能、功能、可维护性和隔离之间进行取舍。
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260920163457.png" alt="Mac OS X 的 Mach、BSD 与上层应用环境" style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
@@ -598,13 +598,13 @@ Mach 提供调度、内存和通信等基础能力，BSD 提供相应 UNIX/POSIX
 | 结构 | 核心组织方式 | 主要收益 | 主要限制 |
 | --- | --- | --- | --- |
 | 简单结构 | 功能边界与接口分离较弱 | 在有限条件下实现功能 | 耦合强，维护和保护困难 |
-| 分层结构 | 按较低层到较高层组织依赖 | 便于分工、理解、逐层验证 | 层次难划分，逐层交互有开销 |
-| 单体内核 | 多种服务在同一内核空间实现 | 内部交互直接、效率较高 | 功能联系紧密，错误影响可能较广 |
-| 微内核 | 核心保留基本机制，其他服务移至用户空间 | 有利于隔离、扩展、移植 | 服务间通信与切换有开销 |
+| **Layered Approach** | 按较低层到较高层组织依赖 | 便于分工、理解、逐层验证 | 层次难划分，逐层交互有开销 |
+| **Monolithic Kernel** | 多种服务在同一内核空间实现 | 内部交互直接、效率较高 | 功能联系紧密，错误影响可能较广 |
+| **Microkernel** | 核心保留基本机制，其他服务移至用户空间 | 有利于隔离、扩展、移植 | 服务间通信与切换有开销 |
 | 可加载模块 | 核心加按需加载的组件 | 灵活扩展并减少不必要的驻留 | 内核模块仍具有较高权限 |
-| 混合结构 | 结合不同组织方式 | 根据目标综合取舍 | 实际结构复杂，需具体分析 |
+| **Hybrid Structure** | 结合不同组织方式 | 根据目标综合取舍 | 实际结构复杂，需具体分析 |
 
-**这些分类并非全部互斥。** 例如，单体内核可以具有模块化设计；一个系统也可以局部采用分层，在其他部分使用不同组织方式。
+**这些分类并非全部互斥。** 例如， **Monolithic Kernel** 可以具有模块化设计；一个系统也可以局部采用分层，在其他部分使用不同组织方式。
 
 ## Virtual Machines
 
@@ -612,13 +612,13 @@ Mach 提供调度、内存和通信等基础能力，BSD 提供相应 UNIX/POSIX
 
 **虚拟机（Virtual Machine，VM）** 把一台物理计算机的硬件能力抽象成多个执行环境。每个环境可运行自己的操作系统，使其中的程序看到独立的处理器、内存和设备视图。
 
-**虚拟机监控器（Virtual Machine Monitor，VMM，也称 Hypervisor）** 负责建立、运行和管理这些虚拟机，并协调它们对真实资源的使用。
+**Virtual Machine Monitor（虚拟机监控器，VMM，也称 Hypervisor）** 负责建立、运行和管理这些虚拟机，并协调它们对真实资源的使用。
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260920163954.png" alt="非虚拟机系统与多个虚拟机的结构对比" style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
 左图是一套内核管理多个进程；右图在物理硬件之上加入虚拟化实现，每个虚拟机拥有自己的内核和进程。
 
-**分时系统为进程提供执行机会，系统虚拟机进一步提供可供客户操作系统使用的机器环境。**
+**分时系统为进程提供执行机会，系统虚拟机进一步提供可供Guest OS（客户操作系统）使用的机器环境。**
 
 ### How the Illusion of a Dedicated Machine Is Created
 
@@ -628,7 +628,7 @@ Mach 提供调度、内存和通信等基础能力，BSD 提供相应 UNIX/POSIX
 | --- | --- |
 | CPU | 通过调度，使不同环境获得自己的执行机会 |
 | 内存 | 向各环境提供其可使用的内存视图 |
-| 文件系统与假脱机 | 提供虚拟读卡机、虚拟行式打印机 |
+| 文件系统与 **Spooling（假脱机）** | 提供虚拟读卡机、虚拟行式打印机 |
 | 分时终端 | 作为虚拟机操作者的控制台 |
 
 这些虚拟资源最终仍需映射到物理资源。 **逻辑上独立，物理硬件数量不增加。**
@@ -641,8 +641,8 @@ Mach 提供调度、内存和通信等基础能力，BSD 提供相应 UNIX/POSIX
 
 | 名称 | 含义 |
 | --- | --- |
-| **宿主操作系统（Host OS）** | 运行虚拟化软件并管理底层资源的系统 |
-| **客户操作系统（Guest OS）** | 虚拟机内部运行的系统 |
+| **Host OS（宿主操作系统）** | 运行虚拟化软件并管理底层资源的系统 |
+| **Guest OS** | 虚拟机内部运行的系统 |
 | 虚拟化层 | 为客户系统提供虚拟硬件环境并协调资源 |
 
 ### Example
@@ -679,12 +679,12 @@ Mach 提供调度、内存和通信等基础能力，BSD 提供相应 UNIX/POSIX
 ### Why Virtual Machines Are Difficult to Implement
 
 客户系统既要看到类似真实硬件的接口，又不能不受限制地控制整台物理机器。
-**虚拟用户态与虚拟内核态** 也要得到正确处理。
+**虚拟User Mode（用户态）与虚拟Kernel Mode** 也要得到正确处理。
 
 <details>
 <summary>客户内核想执行特权操作时怎么办？</summary>
 
-在一种传统双模式模型中，客户系统的“虚拟内核态”仍不能等同于物理机器的最高管理权限。客户内核执行受保护操作时，可以由 VMM 获得控制，再代表客户执行或模拟相应效果。
+在一种传统双模式模型中，客户系统的“虚拟 **Kernel Mode** ”仍不能等同于物理机器的最高管理权限。客户内核执行受保护操作时，可以由 **VMM** 获得控制，再代表客户执行或模拟相应效果。
 
 这样，客户系统保留“自己有内核”的视图，真实资源仍由虚拟化层管理。
 
@@ -758,17 +758,17 @@ Java 源程序
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260920164751.png" alt="Java 字节码、类加载器、解释器与宿主系统" style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
-图中， **类加载器（Class Loader）** 装入程序和 Java API 的 `.class` 文件，再交给执行部分处理，没有直接产生特定 CPU 的本地机器码。不同平台具有对应的 JVM 实现，字节码与统一接口使程序不必直接处理全部平台差异。
+图中， **Class Loader（类加载器）** 装入程序和 Java **API** 的 `.class` 文件，再交给执行部分处理，没有直接产生特定 CPU 的本地机器码。不同平台具有对应的 JVM 实现，字节码与统一接口使程序不必直接处理全部平台差异。
 
 
 <details>
 <summary>JVM 只会逐条解释执行吗？</summary>
 
-**即时编译（Just-in-Time Compilation，JIT）** ：把相应字节码编译为宿主机器的本地指令，再使用编译后的代码执行。
+**Just-in-Time Compilation（即时编译，JIT）** ：把相应字节码编译为宿主机器的本地指令，再使用编译后的代码执行。
 
 字节码验证：检查装入的字节码是否满足相应要求
 
-垃圾回收：回收不再使用的对象所占空间。
+**Garbage Collection（垃圾回收）**：回收不再使用的对象所占空间。
 
 因此，“Java 编译为字节码”与“运行时还可以编译成本地代码”属于不同阶段，可以同时成立。跨平台也需要相应 JVM 与依赖支持，不是完全不受版本和外部库约束。
 
@@ -783,11 +783,11 @@ Java 源程序
 | JVM | Java 字节码与语言运行时环境 | 没有 |
 | Python 虚拟环境 | 独立的 Python 包及相关环境配置 | 没有 |
 
-## Operating System Generation
+## Operating **System Generation（系统生成，SYSGEN）**
 
 ### Configuring the System for Specific Hardware
 
-**系统生成（System Generation，SYSGEN）** 关注怎样使一套操作系统适合具体机器。操作系统可能面向一类机器设计，但实际机器的设备与配置各不相同，需要取得相应硬件信息并选择功能。
+**SYSGEN** 关注怎样使一套操作系统适合具体机器。操作系统可能面向一类机器设计，但实际机器的设备与配置各不相同，需要取得相应硬件信息并选择功能。
 
 ```text
 取得或编写操作系统代码
@@ -811,7 +811,7 @@ Java 源程序
 | 选择已有目标模块再链接 | 链接时 | 不必全部重新编译，但灵活性受模块划分影响 |
 | 模块化系统按参数选择功能 | 运行时 | 便于适应配置变化，需要相应动态机制 |
 
-系统生成决定 **系统包含什么、怎样适应机器** ；系统启动决定 **机器如何找到并开始执行它** 。
+**SYSGEN** 决定 **系统包含什么、怎样适应机器** ；系统启动决定 **机器如何找到并开始执行它** 。
 
 ## System Boot
 
@@ -839,21 +839,21 @@ Java 源程序
 
 ### Multistage Boot Process
 
-一种分阶段方式：位于固定存储位置的 **引导块（Boot Block）** 先装入更完整的引导程序，再由它装入内核。
+一种分阶段方式：位于固定存储位置的 **Boot Block（引导块）** 先装入更完整的引导程序，再由它装入内核。
 > 初始代码空间有限，因此可以逐步装入功能更完整的后续代码。
 
 | 对象 | 主要职责 |
 | --- | --- |
 | 固件中的初始代码 | 在操作系统运行前开始执行，准备并定位后续启动阶段 |
-| 引导块中的代码 | 在相应启动方案中，衔接到后续引导程序 |
+| **Boot Block** 中的代码 | 在相应启动方案中，衔接到后续引导程序 |
 | 引导程序 | 定位、装入并启动内核 |
-| **内核映像（Kernel Image）** | 内核本身的可装入表示 |
+| **Kernel Image（内核映像）** | 内核本身的可装入表示 |
 | 已运行的内核 | 完成后续初始化并建立系统服务 |
 
 <details>
-<summary>引导扇区、MBR 与内核映像</summary>
+<summary>引导扇区、<strong>Master Boot Record（主引导记录，MBR）</strong> 与<strong>Kernel Image</strong></summary>
 
-**引导扇区／引导块中的代码负责启动衔接；内核映像保存内核代码。** 
+**引导扇区／Boot Block中的代码负责启动衔接；Kernel Image保存内核代码。** 
 
 </details>
 

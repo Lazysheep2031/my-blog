@@ -29,7 +29,7 @@ draft: false
 - 多个事务可以同时读同一个数据项
 - 某事务持有 `X` 锁时，其他事务不能在该数据项上持有任何锁
 
-### 锁相容矩阵
+### **Lock-Compatibility Matrix（锁相容矩阵）**
 
 | 已持有 \ 请求 | S | X |
 |---|---:|---:|
@@ -59,7 +59,7 @@ unlock(B);
 display(A+B);
 ```
 
-这个事务每次访问前都加锁，但仍然不能保证可串行化。
+这个事务每次访问前都加锁，但仍然不能保证 **Serializability（可串行化）**。
 
 问题在于：
 
@@ -72,7 +72,7 @@ display(A+B);
 > 什么时候申请锁？什么时候释放锁？所有事务遵循什么共同规则？
 
 **Locking protocol** 就是一组事务申请和释放锁的规则。  
-锁协议通过限制可能产生的调度来保证 serializability。
+锁协议通过限制可能产生的调度来保证 **serializability**。
 
 ### Lock-Based Protocols 的陷阱
 
@@ -113,15 +113,15 @@ lock-S(B);      // 需要等待 T3 释放 B
 并发控制管理器需要设计公平的等待队列和 victim 选择策略，避免 starvation。
 
 
-## Two-Phase Locking
+## **Two-Phase Locking（两阶段封锁协议，2PL）**
 
-**Two-Phase Locking Protocol，2PL，两阶段封锁协议** 是本章最重要的锁协议。
+**2PL** 是本章最重要的锁协议。
 
 它保证产生的调度是 **conflict-serializable** 。
 
 ### 两个阶段
 
-2PL 将事务的加锁 / 解锁过程分成两个阶段：
+**2PL** 将事务的加锁 / 解锁过程分成两个阶段：
 
 | 阶段 | 英文 | 允许行为 | 禁止行为 |
 |---|---|---|---|
@@ -144,7 +144,7 @@ unlock(B);
 display(A+B);
 ```
 
-这个事务符合 2PL：
+这个事务符合 **2PL**：
 
 - `lock-S(A)`、`lock-S(B)` 属于 growing phase
 - `unlock(A)`、`unlock(B)` 属于 shrinking phase
@@ -156,24 +156,24 @@ display(A+B);
 
 **Lock Point，LP** 是事务获得最后一个锁的时间点。
 
-它是 2PL 证明中的关键概念：
+它是 **2PL** 证明中的关键概念：
 
 - `LP(Ti)` 之前，`Ti` 仍可能继续获得新锁
 - `LP(Ti)` 之后，`Ti` 只能释放锁
 - 所有事务可以按照 lock point 的先后顺序串行化
 
 
-## Two-Phase Locking 的证明
+## **Two-Phase Locking** 的证明
 
 要证明：
 
-> 如果所有事务都遵循 2PL，则任意产生的调度都是 conflict-serializable，并且可以按照事务 lock point 的先后顺序串行化。
+> 如果所有事务都遵循 **2PL**，则任意产生的调度都是 conflict-serializable，并且可以按照事务 lock point 的先后顺序串行化。
 
-证明使用 **precedence graph** 。
+证明使用 **precedence graph（前驱图）** 。
 
 ### 关键引理
 
-设某个调度的 precedence graph 中存在边：
+设某个调度的 **precedence graph** 中存在边：
 
 ```text
 Ti -> Tj
@@ -198,7 +198,7 @@ Tj: OPj(D)
 
 `Tj` 能获得 `D` 上的锁，说明 `Ti` 已经释放了 `D` 上的不相容锁。
 
-根据 2PL：
+根据 **2PL**：
 
 - `Ti` 已经执行 `unlock(D)`，说明 `Ti` 已进入 shrinking phase
 - 因此 `LP(Ti)` 必然早于 `Ti` 的 `unlock(D)`
@@ -213,13 +213,13 @@ LP(Ti) < LP(Tj)
 
 结论：
 
-> precedence graph 中只要有边 `Ti -> Tj`，就必然有 `LP(Ti) < LP(Tj)`。
+> **precedence graph** 中只要有边 `Ti -> Tj`，就必然有 `LP(Ti) < LP(Tj)`。
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260609134755.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />。
 
-### 推出 precedence graph 无环
+### 推出 **precedence graph** 无环
 
-如果 precedence graph 中存在环：
+如果 **precedence graph** 中存在环：
 
 ```text
 T1 -> T2 -> ... -> Tk -> T1
@@ -233,7 +233,7 @@ LP(T1) < LP(T2) < ... < LP(Tk) < LP(T1)
 
 这要求一个时间点小于自身，矛盾。
 
-所以 precedence graph 无环，调度是 conflict-serializable。
+所以 **precedence graph** 无环，调度是 conflict-serializable。
 
 ### 另一种证明角度：最小 Lock Point
 
@@ -252,29 +252,29 @@ LP(Tj) < LP(Ti)
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260609134805.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
 
-## 2PL 的变种
+## **2PL** 的变种
 
-### Basic 2PL
+### **Basic 2PL（基本两阶段封锁）**
 
-**Basic 2PL，基本两阶段封锁** 只要求事务遵循两个阶段：
+**Basic 2PL** 只要求事务遵循两个阶段：
 
 - 释放锁前可以不断申请锁
 - 一旦释放锁，就不能再申请新锁
 
-它保证 conflict serializability，但对恢复性要求不足：
+它保证 **conflict serializability（冲突可串行化）**，但对恢复性要求不足：
 
 - 可能产生不可恢复调度
 - 可能导致 cascading rollback
 
-### Strict Two-Phase Locking
+### **Strict Two-Phase Locking（严格两阶段封锁，Strict 2PL）**
 
-**Strict 2PL，严格两阶段封锁** ：
+**Strict 2PL** ：
 
 > 事务必须一直持有所有 `X` 锁，直到 commit 或 abort。
 
 作用：
 
-- 保证 recoverability
+- 保证 **recoverability（可恢复性）**
 - 避免 cascading rollback
 
 原因：
@@ -282,9 +282,9 @@ LP(Tj) < LP(Ti)
 - 其他事务无法读到未提交事务写过的数据
 - 如果写事务最后 abort，不会导致已经读到脏数据的事务跟着回滚
 
-### Rigorous Two-Phase Locking
+### **Rigorous Two-Phase Locking（强两阶段封锁，Rigorous 2PL）**
 
-**Rigorous 2PL，强两阶段封锁** ：
+**Rigorous 2PL** ：
 
 > 事务必须一直持有所有锁，包括 `S` 锁和 `X` 锁，直到 commit 或 abort。
 
@@ -292,11 +292,11 @@ LP(Tj) < LP(Ti)
 
 - 更强，更简单
 - 事务可以按照 commit 顺序串行化
-- 很多数据库实现的“2PL”实际更接近 rigorous 2PL
+- 很多数据库实现的“ **2PL** ”实际更接近 **rigorous 2PL**
 
-### 2PL 是充分条件，非必要条件
+### **2PL** 是充分条件，非必要条件
 
-2PL 保证冲突可串行化，但存在 conflict-serializable 调度无法由 2PL 产生。
+**2PL** 保证 **Conflict Serializability**，但存在 conflict-serializable 调度无法由 **2PL** 产生。
 
 例子：
 
@@ -314,7 +314,7 @@ T1 -> T2      // 二者都写 C，T1 在前
 T3 -> T1      // 二者都写 A，T3 在前
 ```
 
-precedence graph 无环，等价串行顺序可以是：
+**precedence graph** 无环，等价串行顺序可以是：
 
 ```text
 T3 -> T1 -> T2
@@ -322,7 +322,7 @@ T3 -> T1 -> T2
 
 所以该调度是 conflict-serializable。
 
-但它无法由 2PL 产生。对应 lock / unlock 调度为：
+但它无法由 **2PL** 产生。对应 lock / unlock 调度为：
 
 ```text
 T1:
@@ -346,13 +346,13 @@ write(A);
 unlock(A);
 ```
 
-`T1` 释放 `C` 后又申请 `A`，违反 2PL 的“释放锁后不能再加锁”。
+`T1` 释放 `C` 后又申请 `A`，违反 **2PL** 的“释放锁后不能再加锁”。
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260609134858.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
 ### Lock Conversion
 
-2PL 可以允许锁转换。
+**2PL** 可以允许锁转换。
 
 在 growing phase：
 
@@ -369,7 +369,7 @@ unlock(A);
 - 前半段只能增强锁权限
 - 后半段只能削弱锁权限
 
-因此仍然保证 serializability。
+因此仍然保证 **serializability**。
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260609134919.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
@@ -419,7 +419,7 @@ write(D):
 - 如果事务已有 `S` 锁，需要做 lock upgrade
 - 如果其他事务在 `D` 上持有任何锁，当前事务都要等待
 
-在严格 / 强 2PL 中，所有锁通常在 commit 或 abort 后统一释放。
+在严格 / 强 **2PL** 中，所有锁通常在 commit 或 abort 后统一释放。
 
 ### Lock Table
 
@@ -459,7 +459,7 @@ transaction -> list of locks held by transaction
 
 如果存在一组事务，使得集合中的每个事务都在等待集合中另一个事务释放锁，则系统进入 **deadlock** 。
 
-2PL 能保证 conflict serializability，但不能保证无死锁。
+**2PL** 能保证 **conflict serializability**，但不能保证无死锁。
 
 课件例子：
 
@@ -535,12 +535,12 @@ T2: wait for lock-X(A)
 
 ### Wait-Die 与 Wound-Wait
 
-这两种协议只用时间戳做死锁预防。
+这两种协议只用 **Timestamp（时间戳）** 做死锁预防。
 
 设：
 
-- older transaction：时间戳更小
-- younger transaction：时间戳更大
+- older transaction： **Timestamp** 更小
+- younger transaction： **Timestamp** 更大
 
 #### Wait-Die
 
@@ -550,7 +550,7 @@ T2: wait for lock-X(A)
 
 - 老事务可以等待新事务释放数据项
 - 新事务请求老事务持有的数据项时，新事务回滚
-- 回滚后重启事务仍使用原来的时间戳
+- 回滚后重启事务仍使用原来的 **Timestamp**
 
 表格：
 
@@ -567,7 +567,7 @@ T2: wait for lock-X(A)
 
 - 老事务请求新事务持有的数据项时，强制新事务回滚
 - 新事务请求老事务持有的数据项时，新事务等待
-- 回滚后重启事务仍使用原来的时间戳
+- 回滚后重启事务仍使用原来的 **Timestamp**
 
 表格：
 
@@ -578,7 +578,7 @@ T2: wait for lock-X(A)
 
 二者共同点：
 
-> 被回滚事务重启时保留原时间戳，所以事务变老后优先级升高，可以避免 starvation。
+> 被回滚事务重启时保留原 **Timestamp**，所以事务变老后优先级升高，可以避免 starvation。
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260609143700.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
 ### Deadlock Detection
@@ -629,7 +629,7 @@ Ti -> Tj
 | 方式 | 含义 |
 |---|---|
 | Total rollback | 整个事务 abort，然后重启 |
-| Partial rollback | 只回滚到足以打破死锁的位置 |
+| **Partial rollback（局部回滚）** | 只回滚到足以打破死锁的位置 |
 
 为了避免 starvation，需要把“事务已经被回滚的次数”加入 victim 选择成本。
 
@@ -681,7 +681,7 @@ transaction -> list of locks held by transaction
 
 ## Graph-Based Protocols
 
-Graph-based protocols 是 2PL 的替代方案。
+Graph-based protocols 是 **2PL** 的替代方案。
 
 基本思想：
 
@@ -699,13 +699,13 @@ Graph-based protocols 是 2PL 的替代方案。
 
 1. 只允许 `X` 锁
 2. 事务的第一个锁可以加在任意数据项上
-3. 后续事务只有在持有父节点锁时，才能锁子节点
+3. 后续事务只有在持有 **Parent Node（父节点）** 锁时，才能锁子节点
 4. 数据项可以在任意时间解锁
 5. 一个事务释放过某个数据项后，不能再次锁该数据项
 
 它保证：
 
-- conflict serializability
+- **conflict serializability**
 - deadlock freedom
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260609145055.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
@@ -714,27 +714,27 @@ Graph-based protocols 是 2PL 的替代方案。
 
 优点：
 
-- 可以比 2PL 更早释放锁
+- 可以比 **2PL** 更早释放锁
 - 等待时间可能更短
 - 协议无死锁，不需要 deadlock rollback
 
 缺点：
 
-- 不保证 recoverability
+- 不保证 **recoverability**
 - 不保证 cascade freedom
-- 需要额外引入 commit dependency 来保证 recoverability
+- 需要额外引入 commit dependency 来保证 **recoverability**
 - 事务可能为了访问某个节点而锁住一些并不真正需要的数据项
 - 锁开销和等待时间可能增加
 
 补充：
 
-- 有些调度可以由 tree protocol 产生，但不能由 2PL 产生
-- 有些调度可以由 2PL 产生，但不能由 tree protocol 产生
+- 有些调度可以由 tree protocol 产生，但不能由 **2PL** 产生
+- 有些调度可以由 **2PL** 产生，但不能由 tree protocol 产生
 
 
 ## Multiple Granularity
 
-### 为什么需要多粒度封锁
+### 为什么需要 **Multiple-Granularity Locking（多粒度封锁）**
 
 如果所有锁都加在 record 级别：
 
@@ -766,11 +766,11 @@ database
 | fine granularity | 层次树较低处 | 并发度高 | 锁开销大 |
 | coarse granularity | 层次树较高处 | 锁开销小 | 并发度低 |
 
-### Intention Locks
+### **Intention Locks（意向锁）**
 
 只用 `S` 和 `X` 不够，因为高层节点需要知道低层是否已经被锁。
 
-多粒度封锁引入三种意向锁：
+**Multiple-Granularity Locking** 引入三种 **Intention Lock**：
 
 | 锁模式 | 含义 |
 |---|---|
@@ -778,7 +778,7 @@ database
 | `IX` | intention-exclusive，表示事务将在更低层显式加 `X` 或 `S` 锁 |
 | `SIX` | shared and intention-exclusive，当前子树被显式 `S` 锁住，同时事务还会在更低层加 `X` 锁 |
 
-意向锁的作用：
+**Intention Lock** 的作用：
 
 > 让系统在高层节点判断能否加 `S` 或 `X` 锁时，不必扫描所有后代节点。
 
@@ -788,7 +788,7 @@ database
 - 如果有事务正在表内某些 record 上写，需要在 table 或其祖先上持有 `IX`
 - `S` 与 `IX` 不相容，系统在 table 层就能发现冲突
 
-### 多粒度锁相容矩阵
+### 多粒度 **Lock-Compatibility Matrix**
 
 | 已持有 \ 请求 | IS | IX | S | SIX | X |
 |---|---:|---:|---:|---:|---:|
@@ -806,15 +806,15 @@ database
 - `X` 与任何锁都不相容
 
 
-### 多粒度封锁协议
+### **Multiple-Granularity Locking** 协议
 
 事务 `Ti` 给节点 `Q` 加锁时必须遵守：
 
-1. 遵守锁相容矩阵
+1. 遵守 **Lock-Compatibility Matrix**
 2. 必须先锁 root，root 可以用任意模式
-3. 如果要对 `Q` 加 `S` 或 `IS`，则 `Q` 的父节点必须已由 `Ti` 持有 `IS` 或 `IX`
-4. 如果要对 `Q` 加 `X`、`IX` 或 `SIX`，则 `Q` 的父节点必须已由 `Ti` 持有 `IX` 或 `SIX`
-5. `Ti` 必须遵循 2PL：释放过任何节点后，不能再获得新锁
+3. 如果要对 `Q` 加 `S` 或 `IS`，则 `Q` 的 **Parent Node** 必须已由 `Ti` 持有 `IS` 或 `IX`
+4. 如果要对 `Q` 加 `X`、`IX` 或 `SIX`，则 `Q` 的 **Parent Node** 必须已由 `Ti` 持有 `IX` 或 `SIX`
+5. `Ti` 必须遵循 **2PL**：释放过任何节点后，不能再获得新锁
 6. 只有当 `Ti` 不再持有 `Q` 的任何子节点锁时，才能释放 `Q`
 
 所以：
@@ -824,7 +824,7 @@ database
 解锁顺序：leaf -> root
 ```
 
-### 多粒度封锁例子
+### **Multiple-Granularity Locking** 例子
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260609164812.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
 对应锁模式：
@@ -865,14 +865,14 @@ database
 
 ### Insert / Delete 的基本规则
 
-在 2PL 下：
+在 **2PL** 下：
 
 - 删除 tuple：事务必须持有该 tuple 的 `X` 锁
 - 插入 tuple：事务会获得新 tuple 的 `X` 锁
 
-但只锁 tuple 仍会导致一个特殊问题： **phantom phenomenon** 。
+但只锁 tuple 仍会导致一个特殊问题： **phantom phenomenon（幽灵现象）** 。
 
-### Phantom Phenomenon
+### **Phantom Phenomenon**
 
 课件例子：
 
@@ -890,7 +890,7 @@ T2: insert a new account at Perryridge
 
 如果只对已有 tuple 加锁，`T1` 无法阻止 `T2` 插入新的满足条件的 tuple。
 
-这就是幽灵现象。
+这就是 **Phantom Phenomenon**。
 
 直观例子：
 
@@ -926,16 +926,16 @@ T2: insert a new account at Perryridge
 
 1. 每个 relation 至少有一个 index
 2. 事务只能通过 index 找 tuple
-3. 事务执行 lookup 时，必须对访问过的 index leaf nodes 加 `S` 锁
-4. 即使 leaf node 中没有满足条件的 tuple，只要范围查询访问到它，也要加锁
+3. 事务执行 lookup 时，必须对访问过的 index **leaf nodes（叶节点）** 加 `S` 锁
+4. 即使 **leaf node** 中没有满足条件的 tuple，只要范围查询访问到它，也要加锁
 5. 插入 / 更新 / 删除 tuple 时，必须更新该 relation 上所有 index
-6. 插入 / 更新 / 删除必须对受影响的 index leaf nodes 加 `X` 锁
-7. 仍然遵守 2PL
+6. 插入 / 更新 / 删除必须对受影响的 index **leaf nodes** 加 `X` 锁
+7. 仍然遵守 **2PL**
 
 这样：
 
-- 范围查询锁住相关 leaf nodes
-- 插入 / 删除要修改 leaf nodes
+- 范围查询锁住相关 **leaf nodes**
+- 插入 / 删除要修改 **leaf nodes**
 - 二者会产生冲突
 - phantom 得到避免
 
@@ -981,11 +981,11 @@ Index 与普通数据项不同。
 
 普通数据项是用户关心的数据内容；index 的作用是帮助定位数据。
 
-索引结构访问频率极高，尤其是 B+-tree 的根节点和内部节点。如果对索引节点严格使用 2PL，会导致很低的并发度。
+索引结构访问频率极高，尤其是 B+-tree 的根节点和内部节点。如果对索引节点严格使用 **2PL**，会导致很低的并发度。
 
 课件强调：
 
-> 只要索引结构保持正确，并且能把访问引导到正确 leaf node，索引内部节点上的并发访问本身不必满足严格 serializability。
+> 只要索引结构保持正确，并且能把访问引导到正确 **leaf node**，索引内部节点上的并发访问本身不必满足严格 **serializability**。
 
 ### Crabbing Protocol
 
@@ -1000,7 +1000,7 @@ B+-tree 常用思想是 **crabbing** ，也叫 **latch coupling** 。
 5. 插入 / 删除时，将 leaf lock 升级为 exclusive mode
 6. 如果 split 或 coalesce 需要修改 parent，再对 parent 加 exclusive lock
 
-这个过程提前释放 parent lock，因此不严格遵循 2PL。
+这个过程提前释放 parent lock，因此不严格遵循 **2PL**。
 
 但它对索引是可以接受的，因为：
 
@@ -1033,9 +1033,9 @@ B+-tree 常用思想是 **crabbing** ，也叫 **latch coupling** 。
 Q: <Q1, 1>, <Q2, 2>, <Q3, 3>
 ```
 
-其中第二个字段通常是版本时间戳。
+其中第二个字段通常是版本 **Timestamp**。
 
-事务执行 `read(Q)` 时，系统根据事务时间戳选择合适版本。
+事务执行 `read(Q)` 时，系统根据事务 **Timestamp** 选择合适版本。
 
 好处：
 
@@ -1044,12 +1044,12 @@ Q: <Q1, 1>, <Q2, 2>, <Q3, 3>
 代价：
 
 - 保存多个版本带来额外 tuple
-- tuple 中需要保存版本元数据
+- tuple 中需要保存版本 **Metadata（元数据）**
 - 旧版本需要 garbage collection
 
-### Multiversion Two-Phase Locking
+### Multiversion **Two-Phase Locking**
 
-多版本 2PL 区分两类事务：
+多版本 **2PL** 区分两类事务：
 
 ```sql
 SET TRANSACTION READ ONLY;
@@ -1062,9 +1062,9 @@ SET TRANSACTION READ WRITE;
 
 - 获取读锁和写锁
 - 持有所有锁直到事务结束
-- 遵循 rigorous 2PL
+- 遵循 **rigorous 2PL**
 - 每次成功写入创建新版本
-- 每个版本有一个时间戳，来自全局计数器 `ts-counter`
+- 每个版本有一个 **Timestamp**，来自全局计数器 `ts-counter`
 
 更新事务读数据项时：
 
@@ -1109,7 +1109,7 @@ Q: <Q1, 1>, <Q2, 2>, <Q3, 3>, <Q4, 4>
 只读事务：
 
 - 开始前读取当前 `ts-counter` 作为 `TS(Ti)`
-- 执行 `read(Q)` 时，返回时间戳不超过 `TS(Ti)` 的最新版本
+- 执行 `read(Q)` 时，返回 **Timestamp** 不超过 `TS(Ti)` 的最新版本
 - 不需要等待更新事务
 
 例子：
@@ -1118,8 +1118,8 @@ Q: <Q1, 1>, <Q2, 2>, <Q3, 3>, <Q4, 4>
 Q: <Q1,1>, <Q2,2>, <Q3,3>, <Q4,4>
 ```
 
-如果只读事务时间戳为 `3`，则读 `Q` 返回 `Q3`。  
-如果只读事务时间戳为 `4`，则读 `Q` 返回 `Q4`。
+如果只读事务 **Timestamp** 为 `3`，则读 `Q` 返回 `Q3`。  
+如果只读事务 **Timestamp** 为 `4`，则读 `Q` 返回 `Q4`。
 
 因此：
 
@@ -1136,7 +1136,7 @@ Q: <Q1,1>, <Q2,2>, <Q3,3>, <Q4,4>
 
 规则：
 
-> 找到系统中最老 active read-only transaction 的时间戳 `Told`。对每个数据项，保留所有版本中时间戳 `<= Told` 的最新版本，以及所有更新版本；更老版本可以删除。
+> 找到系统中最老 active read-only transaction 的 **Timestamp** `Told`。对每个数据项，保留所有版本中 **Timestamp** `<= Told` 的最新版本，以及所有更新版本；更老版本可以删除。
 
 例子：
 
@@ -1144,7 +1144,7 @@ Q: <Q1,1>, <Q2,2>, <Q3,3>, <Q4,4>
 Q: <Q1,1>, <Q2,2>, <Q3,3>, <Q4,4>
 ```
 
-如果当前最老活跃只读事务时间戳为 `3`，那么：
+如果当前最老活跃只读事务 **Timestamp** 为 `3`，那么：
 
 - `Q3` 仍可能被该事务读取
 - `Q4` 是更新版本，需要保留
@@ -1152,7 +1152,7 @@ Q: <Q1,1>, <Q2,2>, <Q3,3>, <Q4,4>
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260609164936.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
-### Multiversion Timestamp Ordering
+### Multiversion **Timestamp** Ordering
 
 每个数据项 `Q` 有一组版本：
 
@@ -1165,8 +1165,8 @@ Q: <Q1,1>, <Q2,2>, <Q3,3>, <Q4,4>
 | 字段 | 含义 |
 |---|---|
 | content | 该版本的值 |
-| `W-timestamp(Qk)` | 创建该版本的事务时间戳 |
-| `R-timestamp(Qk)` | 成功读过该版本的最大事务时间戳 |
+| `W-timestamp(Qk)` | 创建该版本的事务 **Timestamp** |
+| `R-timestamp(Qk)` | 成功读过该版本的最大事务 **Timestamp** |
 
 当事务 `Ti` 创建新版本 `Qk` 时：
 
@@ -1216,18 +1216,18 @@ Qk = W-timestamp <= TS(Ti) 的最新版本
 解释：
 
 - 如果某个更年轻事务已经读过 `Qk`
-- 按时间戳顺序，它本应看到 `Ti` 写出的版本
+- 按 **Timestamp** 顺序，它本应看到 `Ti` 写出的版本
 - 但它已经读了旧版本
 - 所以 `Ti` 的写不能再接受
 
-该协议保证 serializability。
+该协议保证 **serializability**。
 
 
 ## Timestamp-Based Protocols
 
 ### 基本思想
 
-每个事务进入系统时获得一个时间戳 `TS(Ti)`。
+每个事务进入系统时获得一个 **Timestamp** `TS(Ti)`。
 
 如果 `Ti` 比 `Tj` 更早进入系统，则：
 
@@ -1237,14 +1237,14 @@ TS(Ti) < TS(Tj)
 
 Timestamp-ordering protocol 要求：
 
-> 并发执行效果等价于按照事务时间戳顺序串行执行。
+> 并发执行效果等价于按照事务 **Timestamp** 顺序串行执行。
 
-对每个数据项 `Q`，系统维护两个时间戳：
+对每个数据项 `Q`，系统维护两个 **Timestamp**：
 
 | 字段 | 含义 |
 |---|---|
-| `W-timestamp(Q)` | 成功执行 `write(Q)` 的事务中的最大时间戳 |
-| `R-timestamp(Q)` | 成功执行 `read(Q)` 的事务中的最大时间戳 |
+| `W-timestamp(Q)` | 成功执行 `write(Q)` 的事务中的最大 **Timestamp** |
+| `R-timestamp(Q)` | 成功执行 `read(Q)` 的事务中的最大 **Timestamp** |
 
 ### Read Rule
 
@@ -1275,7 +1275,7 @@ R-timestamp(Q) = max(R-timestamp(Q), TS(Ti))
 TS(Ti) < R-timestamp(Q)
 ```
 
-说明已有更年轻事务读过旧值。若现在允许 `Ti` 写入，会破坏时间戳顺序。  
+说明已有更年轻事务读过旧值。若现在允许 `Ti` 写入，会破坏 **Timestamp** 顺序。  
 所以 `Ti` 回滚。
 
 2. 如果：
@@ -1295,7 +1295,7 @@ W-timestamp(Q) = TS(Ti)
 
 ### 例子
 
-设事务时间戳：
+设事务 **Timestamp**：
 
 ```text
 TS(T1)=1, TS(T2)=2, TS(T3)=3, TS(T4)=4, TS(T5)=5
@@ -1328,13 +1328,13 @@ T5: write(Z)      // T5 时间戳最大，一般可以继续写
 
 ### 正确性
 
-Timestamp-ordering protocol 保证 serializability。
+Timestamp-ordering protocol 保证 **serializability**。
 
 原因：
 
-> 所有冲突边都从较小时间戳事务指向较大时间戳事务。
+> 所有冲突边都从较小 **Timestamp** 事务指向较大 **Timestamp** 事务。
 
-因此 precedence graph 不可能有环。
+因此 **precedence graph** 不可能有环。
 
 它也保证 deadlock freedom，因为事务不会等待锁；冲突时直接回滚。
 
@@ -1345,7 +1345,7 @@ Timestamp-ordering protocol 保证 serializability。
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260609165004.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
-### Recoverability 问题
+### **Recoverability** 问题
 
 如果：
 
@@ -1369,7 +1369,7 @@ Ti abort
 
 1. 事务把所有写操作放在处理末尾，并以原子方式执行
 2. 使用有限形式的 locking：读数据前等待写事务提交
-3. 使用 commit dependencies 保证可恢复性
+3. 使用 commit dependencies 保证 **Recoverability**
 
 ### Thomas' Write Rule
 
@@ -1405,7 +1405,7 @@ Validation-based protocol 也称 **optimistic concurrency control** 。
 
 核心思想：
 
-> 先让事务自由执行，提交前再检查是否会破坏 serializability。
+> 先让事务自由执行，提交前再检查是否会破坏 **serializability**。
 
 ### 三个阶段
 
@@ -1423,7 +1423,7 @@ Validation-based protocol 也称 **optimistic concurrency control** 。
 
 > validation phase 和 write phase 原子地、串行地执行，即同一时刻只有一个事务在验证 / 写回。
 
-### 三个时间戳
+### 三个 **Timestamp**
 
 每个事务 `Ti` 有三个时间：
 
@@ -1548,7 +1548,7 @@ write(A)
 read-write transactions 使用普通 locking
 ```
 
-这就是 multiversion 2PL 的思路。
+这就是 multiversion **2PL** 的思路。
 
 问题：
 
@@ -1565,7 +1565,7 @@ read-write transactions 使用普通 locking
 
 问题：
 
-- 可能出现 lost update 等异常
+- 可能出现 **lost update（丢失修改）** 等异常
 - snapshot isolation 使用 first-committer-wins 作为部分补救
 
 ### Snapshot Isolation 的规则
@@ -1718,7 +1718,7 @@ Snapshot Isolation 的读操作：
 它可以避免常见异常：
 
 - dirty read
-- lost update
+- **lost update**
 - non-repeatable read
 - predicate-based phantom
 
@@ -1734,7 +1734,7 @@ Snapshot Isolation 并不总能产生 serializable execution。
 两个并发事务可能都只看到启动时的旧 snapshot
 ```
 
-所以二者可能互相看不到对方结果，破坏某些完整性约束。
+所以二者可能互相看不到对方结果，破坏某些 **Integrity Constraint（完整性约束）**。
 
 ### Write Skew
 
@@ -1786,7 +1786,7 @@ x = 17, y = 3
 
 ### SI 的实践注意点
 
-SI 破坏 serializability 的典型模式：
+SI 破坏 **serializability** 的典型模式：
 
 > 两个事务修改不同数据项，但各自基于对方所修改数据项的旧状态做决定。
 
@@ -1797,16 +1797,16 @@ SI 破坏 serializability 的典型模式：
 另外：
 
 - read-only transaction anomaly 也可能发生
-- 使用 snapshot 检查 primary key / foreign key 可能导致不一致
-- 完整性约束检查通常需要在 snapshot 外部处理
+- 使用 snapshot 检查 **primary key（主键）** / **foreign key（外键）** 可能导致不一致
+- **Integrity Constraint** 检查通常需要在 snapshot 外部处理
 
 ### 数据库实现提示
 
-- Oracle 的 `serializable` 隔离级别使用 SI 变体
+- Oracle 的 `serializable` **Isolation Level（隔离级别）** 使用 SI 变体
 - PostgreSQL 9.1 之前的 `serializable` 也接近 SI
 - Oracle 使用 first-updater-wins
 - PostgreSQL 9.1 引入 **Serializable Snapshot Isolation, SSI**
-- SSI 能保证真正 serializability，包括 predicate reads
+- SSI 能保证真正 **serializability**，包括 predicate reads
 
 ### Select For Update
 
@@ -1831,21 +1831,21 @@ for update;
 
 局限：
 
-- 不能总是保证 serializability
-- phantom phenomenon 仍可能出现
+- 不能总是保证 **serializability**
+- **phantom phenomenon** 仍可能出现
 - 对范围 / 谓词查询仍需要 key-range locking 或 predicate locking
 
 > [插图占位｜slid
 
 ## Weak Levels of Consistency
 
-实践中并不总是要求 serializability。
+实践中并不总是要求 **serializability**。
 
 有些场景更重视吞吐量和响应时间，只需要较弱一致性。
 
 ### Degree-Two Consistency
 
-Degree-two consistency 与 2PL 的区别：
+Degree-two consistency 与 **2PL** 的区别：
 
 - `S` 锁可以随时释放
 - 后续仍可以继续获得新锁
@@ -1853,7 +1853,7 @@ Degree-two consistency 与 2PL 的区别：
 
 结果：
 
-- 不保证 serializability
+- 不保证 **serializability**
 - 程序员需要保证不会产生错误数据库状态
 
 ### Cursor Stability
@@ -1870,13 +1870,13 @@ unlock tuple immediately
 
 写锁仍然持有到事务结束。
 
-它可以避免部分 lost update，但隔离性弱于 serializable。
+它可以避免部分 **lost update**，但隔离性弱于 serializable。
 
-### SQL Isolation Levels
+### SQL **Isolation Levels**
 
 SQL 允许非串行化执行。
 
-| 隔离级别 | 含义 |
+| **Isolation Level** | 含义 |
 |---|---|
 | Serializable | 最强，目标是串行化执行 |
 | Repeatable Read | 只能读已提交记录；重复读同一记录应返回相同值；phantom 可以不防止 |

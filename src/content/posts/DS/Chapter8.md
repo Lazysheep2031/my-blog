@@ -9,9 +9,9 @@ draft: false
 
 ## Why Complex Data Types
 
-### 为什么关系模型会遇到限制
+### 为什么 **Relational Model（关系模型）** 会遇到限制
 
-关系模型很强，但它有一个默认前提：
+**Relational Model** 很强，但它有一个默认前提：
 
 - 每个属性值都应该是 **atomic**
 - 表结构通常比较稳定
@@ -24,7 +24,7 @@ draft: false
 - 用户 profile 经常加新字段
 - 一个属性本身就是一个集合或嵌套结构
 - 前后端之间需要交换复杂对象
-- 应用代码本身是面向对象写的，数据库却是关系模型
+- 应用代码本身是面向对象写的，数据库却是 **Relational Model**
 - 文本检索和地图查询，本身就不是普通等值匹配问题
 
 所以， **严格的原子属性 + 固定 schema** 在这些场景里会显得过于僵硬。
@@ -37,10 +37,10 @@ draft: false
 
 2. **ORDB（Object-Relational Database）**
    - 在关系数据库上加对象特性
-   - 保留关系模型基础，同时支持复杂类型、继承、引用等
+   - 保留 **Relational Model** 基础，同时支持复杂类型、继承、引用等
 
 3. **ORM（Object-Relational Mapping）**
-   - 数据库内部仍是关系模型
+   - 数据库内部仍是 **Relational Model**
    - 由中间层自动做对象和元组之间的映射
 
 简单理解：
@@ -64,7 +64,7 @@ draft: false
 books(title, author-set, publisher(name, branch), keyword-set)
 ```
 
-它显然不是 1NF，因为：
+它显然不是 **First Normal Form（第一范式，1NF）**，因为：
 
 - `author-set` 是集合
 - `publisher` 是复合结构
@@ -83,13 +83,13 @@ books(title, author-set, publisher(name, branch), keyword-set)
 
 从建模直觉看，这个设计很好懂。
 
-但从经典关系模型看，它违反了原子性要求。
+但从经典 **Relational Model** 看，它违反了原子性要求。
 
-#### 1NF 版本为什么 awkward
+#### **1NF** 版本为什么 awkward
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202604211351334.png" alt="1NF version" style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
-如果强行改成 1NF，通常会变成：
+如果强行改成 **1NF**，通常会变成：
 
 ```text
 flat-books(title, author, pub-name, pub-branch, keyword)
@@ -105,13 +105,13 @@ flat-books(title, author, pub-name, pub-branch, keyword)
 - 作者和关键词之间本来没有直接关系，却被硬绑在同一行
 - 更新、维护都很 awkward
 
-这是为了满足 1NF 而牺牲语义直观性
+这是为了满足 **1NF** 而牺牲语义直观性
 
 #### 用 4NF 分解来缓解
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202604211351360.png" alt="4NF decomposition" style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
-继续假设以下 **multivalued dependencies（MVD）** ：
+继续假设以下 **multivalued dependencies（多值依赖）（MVD）** ：
 
 - `title ->-> author`
 - `title ->-> keyword`
@@ -130,7 +130,7 @@ flat-books(title, author, pub-name, pub-branch, keyword)
 :::TIP
 **这组例子其实在说明两个层面的“好坏”**
 
-- 从 **关系规范化** 角度，`flat-books` 有明显冗余
+- 从 **Relational Normalization（关系规范化）** 角度，`flat-books` 有明显冗余
 - 从 **建模表达力** 角度，`books(title, author-set, publisher, keyword-set)` 又更贴近现实对象
 
 所以
@@ -150,7 +150,7 @@ SQL 扩展方向包括：
 - **Object orientation**
   - object identifiers
   - references
-- **Large object types**
+- **Large object（大对象） types**
   - `BLOB`
   - `CLOB`
 
@@ -174,7 +174,7 @@ Collection type 就是“一个属性里放多个值”。
 - `array`
 - `table type`
 
-#### Example：array + multiset
+#### Example：array + **multiset（多重集）**
 
 ```sql
 create type Publisher as
@@ -196,11 +196,11 @@ create table books of Book;
 
 - `author_array`：作者用数组表示
 - `publisher`：是一个结构化类型 `Publisher`
-- `keyword_set`：关键词是 multiset
+- `keyword_set`：关键词是 **multiset**
 
 和前面的 nested relation 类似，只不过这里作者是数组而不是集合。
 
-#### set / multiset / array 的区别
+#### set / **multiset** / array 的区别
 
 - **set** ：无重复、通常无顺序
 - **multiset** ：允许重复、通常不强调顺序
@@ -217,7 +217,7 @@ Structured type 本质上就是“属性里再嵌一个 record”。
 
 例如：
 
-#### User-defined type
+#### **User-defined type（用户自定义类型）**
 ```sql
 create type Person as
 (
@@ -286,9 +286,9 @@ create type Teacher under Person
 
 - `degree`
 
-#### 表继承
+#### **Table Inheritance（表继承）**
 
-表继承语法（PostgreSQL / Oracle 风格略有不同）：
+**Table Inheritance** 语法（PostgreSQL / Oracle 风格略有不同）：
 
 ```sql
 create table students
@@ -319,7 +319,7 @@ create table teachers of Teacher under people;
 
 ### Object Identity / References
 
-关系数据库里通常靠主键关联。
+关系数据库里通常靠 **Primary Key（主键）** 关联。
 
 对象模型里则喜欢直接“引用某个对象”。
 
@@ -347,7 +347,7 @@ create table departments of Department;
 - `Department.head` 存的是一个指向 `Person` 对象的引用
 - `scope people` 表示这个引用的作用域来自表 `people`
 
-#### 路径表达式（path expression）
+#### **Path Expression（路径表达式）**
 
 引用的价值在于能直接沿对象路径访问：
 
@@ -358,11 +358,11 @@ from departments;
 
 这和程序语言里的 `dept.head.name` 非常像。
 
-比起传统外键 + join，这种写法更对象化。
+比起传统 **Foreign Key（外键）** + join，这种写法更对象化。
 
 不过底层实现还是数据库系统负责。
 
-### Large Objects
+### **Large Objects**
 
 复杂应用里还有一类常见数据：
 
@@ -373,10 +373,10 @@ from departments;
 
 所以数据库通常提供：
 
-- **BLOB** ：Binary Large Object
-- **CLOB** ：Character Large Object
+- **BLOB** ：Binary **Large Object**
+- **CLOB** ：Character **Large Object**
 
-它们处理的是“大对象存储”问题，不是对象模型问题。
+它们处理的是“ **Large Object** 存储”问题，不是对象模型问题。
 
 但也属于“复杂数据类型”的重要一支。
 
@@ -416,7 +416,7 @@ public class Student {
 含义：
 
 - `@Entity`：这个类映射到数据库关系
-- `@Id`：`ID` 是主键
+- `@Id`：`ID` 是 **Primary Key**
 - 默认情况下，类名映射成表名，字段映射成列名
 - 也可以用 `@Table`、`@Column` 覆盖默认映射
 
@@ -453,7 +453,7 @@ List students = session.createQuery("from Student as s order by s.ID asc").list(
 - “对象世界”和“关系世界”并不天然一一对应
 
 :::TIP
-**ORM 不是把关系模型消灭了，只是把它包起来了。**
+**ORM 不是把Relational Model消灭了，只是把它包起来了。**
 
 底层表、键、索引、事务，依然都在。
 
@@ -478,7 +478,7 @@ List students = session.createQuery("from Student as s order by s.ID asc").list(
 - 配置文件
 - 知识图谱
 
-在这些场景下，关系模型里“每个元组必须有同样列”的限制会比较重。
+在这些场景下， **Relational Model** 里“每个元组必须有同样列”的限制会比较重。
 
 ### Flexible Schema
 
@@ -507,7 +507,7 @@ schema 仍然是固定的大集合，但每条记录只存其中一部分。
 - wide column 更偏“逻辑上字段可变”
 - sparse column 更偏“物理上允许大而稀疏的列集合”
 
-这两种方法本质上都在缓解传统关系模型“列太刚性”的问题。
+这两种方法本质上都在缓解传统 **Relational Model** “列太刚性”的问题。
 
 ### Multivalued / Nested Data Types
 
@@ -653,9 +653,9 @@ PurchaseOrder
 
 - `purchaser` 和 `supplier` 这类“复合属性”在 XML 里天然就是子树。
 - `itemlist` 是“多值属性”，在 XML 里天然对应多个 `<item>` 子节点。
-- 如果用纯 1NF 平铺成关系表，通常要拆多张表（订单头、订单行、客户、供应商）再 join；但 XML 可以把它作为一份完整业务文档一起传输。
+- 如果用纯 **1NF** 平铺成关系表，通常要拆多张表（订单头、订单行、客户、供应商）再 join；但 XML 可以把它作为一份完整业务文档一起传输。
 
-#### XPath / path expressions
+#### XPath / **path expressions**
 
 ```xml
 <bookstore>
@@ -744,7 +744,7 @@ PurchaseOrder
 - 可以带谓词过滤
 - 可以取文本内容
 
-这和后来 JSON 的路径表达式思路是相通的。
+这和后来 JSON 的 **Path Expression** 思路是相通的。
 
 #### Tree model of XML documents
 
@@ -827,7 +827,7 @@ DTD 的作用是：
 
 按语句拆开看：
 
-- `for $a ... , $b ...`：把每本书和每本书做两两组合（可理解为自连接）。
+- `for $a ... , $b ...`：把每本书和每本书做两两组合（可理解为 **Self Join（自连接）**）。
 - `$a/author[1] = $b/author[1]`：只保留“第一作者相同”的组合。
 - `$a/price > $b/price`：在同一作者内部，保留价格更高的那本作为 `a`。
 - `return <book_pair> ...`：输出配对结果，包含：
@@ -959,7 +959,7 @@ RDF 的思想和 E-R 模型很像：
 
 **图化、极简化、更加灵活的 E-R 表达。**
 
-#### Graph view 与 triple view
+#### Graph view 与 **triple** view
 
 1. **Graph view**
    - 实体和值是节点
@@ -975,7 +975,7 @@ RDF 的思想和 E-R 模型很像：
 这两个视角本质等价：
 
 - 图方便理解结构
-- triple 方便存储与查询
+- **triple** 方便存储与查询
 
 
 ### SPARQL
@@ -1010,7 +1010,7 @@ where {
 
 ### RDF 如何表示 n-ary relationship
 
-RDF 三元组只能直接表示二元关系。
+RDF **Triple** 只能直接表示二元关系。
 
 那四元、五元关系怎么办？
 
@@ -1033,7 +1033,7 @@ RDF 三元组只能直接表示二元关系。
 (e1, president-till, 2016)
 ```
 
-本质上和 E-R 里“把 n 元联系变成一个实体集”是同一个思路。
+本质上和 E-R 里“把 n 元联系变成一个 **Entity Set（实体集）** ”是同一个思路。
 
 #### 使用 quads
 
@@ -1061,7 +1061,7 @@ RDF 三元组只能直接表示二元关系。
 所以 **Information Retrieval（IR）** 和数据库查询最大的差别之一是：
 
 - 传统关系查询追求 **精确匹配**
-- 文本检索追求 **相关性排序（relevance ranking）**
+- 文本检索追求 **Relevance Ranking（相关性排序）**
 
 #### 简单 keyword query
 
@@ -1171,7 +1171,7 @@ $$
 - anchor text 里的关键词
 - 用户点击行为
 
-所以现实中的 relevance ranking 通常是多信号融合的。
+所以现实中的 **relevance ranking** 通常是多信号融合的。
 
 ### Precision / Recall
 
@@ -1386,14 +1386,14 @@ POLYGON((1 1, 2 3, 4 4, 1 1))
 
 所以它不是“只有几何”，而是“几何 + 工程语义”。
 
-#### 空间完整性约束
+#### **Spatial Integrity Constraint（空间完整性约束）**
 
 空间对象之间常有特殊约束：
 
 - 管道不能相交
 - 电线不能过近
 
-这类约束不是普通主键 / 外键能表达的。
+这类约束不是普通 **Primary Key** / **Foreign Key** 能表达的。
 
 它们是 **spatial integrity constraints** 。
 

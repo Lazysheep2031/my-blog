@@ -7,7 +7,7 @@ category: 笔记
 draft: false
 ---
 
-## 为什么需要智能指针
+## 为什么需要 **Smart Pointer（智能指针）**
 
 ### raw pointer 的问题
 
@@ -46,9 +46,9 @@ int main() {
 
 RAII（Resource Acquisition Is Initialization）的核心是：
 
-> 在构造函数中获得资源，在析构函数中释放资源。
+> 在 **Constructor（构造函数）** 中获得资源，在 **Destructor（析构函数）** 中释放资源。
 
-智能指针就是典型的 RAII wrapper。动态资源交给智能指针对象管理后，当智能指针离开作用域时，它的析构函数会自动释放资源。
+**Smart Pointer** 就是典型的 RAII wrapper。动态资源交给 **Smart Pointer** 对象管理后，当 **Smart Pointer** 离开作用域时，它的 **Destructor** 会自动释放资源。
 
 ```cpp
 #include <iostream>
@@ -76,15 +76,15 @@ int main() {
 ```
 
 :::TIP
-`unique_ptr` 的析构函数负责 `delete` 它所管理的对象。只要智能指针对象本身能正常析构，资源释放就会自动发生，包括提前返回和异常栈展开的情况。
+`unique_ptr` 的 **Destructor** 负责 `delete` 它所管理的对象。只要 **Smart Pointer** 对象本身能正常析构，资源释放就会自动发生，包括提前返回和异常 **Stack Unwinding（栈展开）** 的情况。
 :::
 
 
-## `unique_ptr`：独占所有权
+## `unique_ptr`： **Unique Ownership（独占所有权）**
 
 ### 基本使用
 
-`unique_ptr<T>` 表示对一个 `T` 对象的 **unique ownership（独占所有权）** 。
+`unique_ptr<T>` 表示对一个 `T` 对象的 **Unique Ownership** 。
 
 ```cpp
 #include <iostream>
@@ -119,11 +119,11 @@ unique_ptr<Resource> p(new Resource(7));  // OK
 unique_ptr<Resource> p = new Resource(7); // Error
 ```
 
-原因是 `unique_ptr` 从 raw pointer 构造的构造函数是 `explicit` 的。`=` 初始化形式带有隐式转换 / 拷贝初始化语义，标准库不允许这样把 raw pointer 隐式转成 `unique_ptr`。
+原因是 `unique_ptr` 从 raw pointer 构造的 **Constructor** 是 `explicit` 的。`=` 初始化形式带有 **Implicit Conversion（隐式转换）** / 拷贝初始化语义，标准库不允许这样把 raw pointer 隐式转成 `unique_ptr`。
 
 ### 像指针一样使用
 
-智能指针不仅要管理资源，还应该使用起来像普通指针。因此 `unique_ptr` 重载了指针相关运算符：
+**Smart Pointer** 不仅要管理资源，还应该使用起来像普通指针。因此 `unique_ptr` 重载了指针相关运算符：
 
 ```cpp
 unique_ptr<Resource> p(new Resource(7));
@@ -133,7 +133,7 @@ cout << (*p).data;   // operator*
 cout << p.get();     // 返回内部 raw pointer，只观察，不转移所有权
 ```
 
-`get()` 返回的是智能指针内部保存的 raw pointer。它通常只用于观察地址或与旧接口交互，不能拿到后手动 `delete`。
+`get()` 返回的是 **Smart Pointer** 内部保存的 raw pointer。它通常只用于观察地址或与旧接口交互，不能拿到后手动 `delete`。
 
 ### 不能拷贝
 
@@ -153,9 +153,9 @@ p1 ---> Resource
 p2 ---^
 ```
 
-这会破坏 unique ownership，并可能导致重复释放。因此 `unique_ptr` 删除了 copy constructor 和 copy assignment。
+这会破坏 **unique ownership**，并可能导致重复释放。因此 `unique_ptr` 删除了 **copy constructor（拷贝构造函数）** 和 **copy assignment（拷贝赋值）**。
 
-### 移动语义
+### **Move Semantics（移动语义）**
 
 虽然不能拷贝，但可以移动。移动表示 **转移所有权** 。
 
@@ -199,7 +199,7 @@ int main() {
 
 1. `p1` 原来管理的 `Resource(0)` 被释放；
 2. `p2` 原来管理的 `Resource(7)` 的所有权转移给 `p1`；
-3. `p2` 变成空智能指针，`p2.get() == nullptr`。
+3. `p2` 变成空 **Smart Pointer**，`p2.get() == nullptr`。
 
 所以移动后访问 `p2->data` 会产生空指针解引用错误。
 
@@ -211,13 +211,13 @@ int main() {
 左值 p2  ->  右值引用
 ```
 
-真正执行所有权转移的是 `unique_ptr` 的 move assignment operator。也就是说：
+真正执行所有权转移的是 `unique_ptr` 的 **move assignment operator（移动赋值运算符）**。也就是说：
 
 ```cpp
 p1 = std::move(p2);
 ```
 
-含义是：把 `p2` 转换成可以被移动的对象，然后调用 `p1` 的移动赋值函数。
+含义是：把 `p2` 转换成可以被移动的对象，然后调用 `p1` 的 **Move Assignment（移动赋值）** 函数。
 
 ### 管理动态数组
 
@@ -249,10 +249,10 @@ int main() {
 }
 ```
 
-`unique_ptr<Resource[]>` 的析构函数会使用 `delete[]`，所以 10 个对象的析构函数都会被调用。
+`unique_ptr<Resource[]>` 的 **Destructor** 会使用 `delete[]`，所以 10 个对象的 **Destructor** 都会被调用。
 
 :::WARNING
-`new T` 要配 `delete`，`new T[n]` 要配 `delete[]`。智能指针的类型也必须区分 `unique_ptr<T>` 和 `unique_ptr<T[]>`。
+`new T` 要配 `delete`，`new T[n]` 要配 `delete[]`。 **Smart Pointer** 的类型也必须区分 `unique_ptr<T>` 和 `unique_ptr<T[]>`。
 :::
 
 
@@ -333,9 +333,9 @@ private:
 
 `operator->` 的返回值必须是指针。编译器会继续对返回的指针执行 `->`，直到最终访问到真实对象成员。
 
-### 管理数组的偏特化版本
+### 管理数组的 **Partial Specialization（偏特化）** 版本
 
-单对象版本不能直接管理数组，因为析构和 `reset()` 使用的是 `delete`。数组版本需要对 `T[]` 做 partial specialization。
+单对象版本不能直接管理数组，因为析构和 `reset()` 使用的是 `delete`。数组版本需要对 `T[]` 做 **partial specialization**。
 
 ```cpp
 #include <cstddef>
@@ -387,7 +387,7 @@ private:
 
 数组版本和单对象版本的主要差别：
 
-- 析构函数使用 `delete[]`；
+- **Destructor** 使用 `delete[]`；
 - `reset()` 使用 `delete[]`；
 - 提供 `operator[]`；
 - 不提供 `operator*` 和 `operator->`，因为管理的是一组对象。
@@ -420,11 +420,11 @@ int main() {
 ```
 
 
-## `shared_ptr`：共享所有权
+## `shared_ptr`： **Shared Ownership（共享所有权）**
 
 ### 基本使用
 
-`shared_ptr<T>` 允许多个智能指针共同管理同一个对象。
+`shared_ptr<T>` 允许多个 **Smart Pointer** 共同管理同一个对象。
 
 ```cpp
 #include <iostream>
@@ -472,12 +472,12 @@ int main() {
 }
 ```
 
-### reference count 的变化
+### **reference count（引用计数）** 的变化
 
 上面代码中，`p2 = p1` 会产生两组变化：
 
-1. `p2` 原来管理的 `Resource(7)` 的引用计数减 1，变成 0，于是释放；
-2. `p2` 改为和 `p1` 共享 `Resource(0)`，该对象引用计数加 1，变成 2。
+1. `p2` 原来管理的 `Resource(7)` 的 **Reference Count** 减 1，变成 0，于是释放；
+2. `p2` 改为和 `p1` 共享 `Resource(0)`，该对象 **Reference Count** 加 1，变成 2。
 
 作用域变化过程：
 
@@ -505,7 +505,7 @@ p2 析构，Resource(0) count = 0，被释放
 
 ### 移动 `shared_ptr`
 
-`shared_ptr` 也支持移动。移动时转移 control block 指针，不增加引用计数。
+`shared_ptr` 也支持移动。移动时转移 control block 指针，不增加 **Reference Count**。
 
 ```cpp
 shared_ptr<Resource> p1(new Resource(0));
@@ -518,14 +518,14 @@ cout << p1.use_count() << endl; // 0
 cout << p2.use_count() << endl; // 1
 ```
 
-如果自己实现的 `shared_ptr` 没写 move constructor 和 move assignment，那么 `std::move(p1)` 可能仍然会绑定到 copy constructor / copy assignment 上，最后表现成“拷贝共享”，引用计数会增加。要得到真正的移动语义，就必须显式实现移动版本。
+如果自己实现的 `shared_ptr` 没写 **move constructor（移动构造函数）** 和 **move assignment**，那么 `std::move(p1)` 可能仍然会绑定到 **copy constructor** / **copy assignment** 上，最后表现成“拷贝共享”， **Reference Count** 会增加。要得到真正的 **Move Semantics**，就必须显式实现移动版本。
 
 
 ## 实现一个简化版 `shared_ptr`
 
 ### ControlBlock
 
-`shared_ptr` 不能只保存 raw pointer。它还需要一份和资源绑定的引用计数。
+`shared_ptr` 不能只保存 raw pointer。它还需要一份和资源绑定的 **Reference Count**。
 
 简化实现中，可以把二者放进 `ControlBlock`：
 
@@ -652,19 +652,19 @@ s_ptr& operator=(const s_ptr& other) {
 
 执行过程：
 
-1. `s_ptr(other)` 复制一份临时对象，引用计数加 1；
+1. `s_ptr(other)` 复制一份临时对象， **Reference Count** 加 1；
 2. 临时对象和当前对象交换 `cb_`；
-3. 函数结束，临时对象析构，它现在拿着当前对象原来的 `cb_`，所以原资源引用计数减 1；
-4. 若原资源引用计数变成 0，则释放原资源。
+3. 函数结束，临时对象析构，它现在拿着当前对象原来的 `cb_`，所以原资源 **Reference Count** 减 1；
+4. 若原资源 **Reference Count** 变成 0，则释放原资源。
 
 这种写法的优点：
 
 - 自赋值安全；
-- 逻辑集中在 copy constructor、destructor、swap；
+- 逻辑集中在 **copy constructor**、 **destructor**、swap；
 - 异常安全性更好；
 - assignment 代码更短。
 
-移动构造中只拿走 `cb_`，不改变引用计数：
+移动构造中只拿走 `cb_`，不改变 **Reference Count**：
 
 ```cpp
 s_ptr(s_ptr&& other) noexcept
@@ -676,15 +676,15 @@ s_ptr(s_ptr&& other) noexcept
 因为移动只是换一个管理者，不是新增管理者。
 
 :::WARNING
-`operator*` 和 `operator->` 没有检查空指针。空智能指针的解引用和 raw pointer 一样是错误行为。调用前应保证 `get() != nullptr` 或 `operator bool()` 为真。
+`operator*` 和 `operator->` 没有检查空指针。空 **Smart Pointer** 的解引用和 raw pointer 一样是错误行为。调用前应保证 `get() != nullptr` 或 `operator bool()` 为真。
 :::
 
 
-## `shared_ptr` 的循环引用问题
+## `shared_ptr` 的 **Circular Reference（循环引用）** 问题
 
-### 循环引用为什么释放不了
+### **Circular Reference** 为什么释放不了
 
-`shared_ptr` 的问题是可能形成 circular reference（循环引用）。例如两个对象互相保存对方的 `shared_ptr`：
+`shared_ptr` 的问题是可能形成 **Circular Reference**。例如两个对象互相保存对方的 `shared_ptr`：
 
 ```cpp
 #include <iostream>
@@ -723,8 +723,8 @@ A --shared_ptr--> B
 
 结果是：
 
-- `A` 的引用计数无法降到 0，因为 `B::a` 还指向它；
-- `B` 的引用计数无法降到 0，因为 `A::b` 还指向它；
+- `A` 的 **Reference Count** 无法降到 0，因为 `B::a` 还指向它；
+- `B` 的 **Reference Count** 无法降到 0，因为 `A::b` 还指向它；
 - 两个对象都不会析构，资源泄露。
 
 这类似一种“互相等待”的状态。
@@ -735,7 +735,7 @@ A --shared_ptr--> B
 
 - 可以观察 `shared_ptr` 管理的对象；
 - 不拥有对象；
-- 不增加 shared reference count；
+- 不增加 shared **reference count**；
 - 需要访问对象时，用 `lock()` 临时获得一个 `shared_ptr`。
 
 把其中一条边改成 `weak_ptr`：
@@ -770,7 +770,7 @@ int main() {
 }
 ```
 
-此时 `B::a` 不增加 `A` 的引用计数，循环被打破。外部 `shared_ptr` 释放后，资源可以正常析构。
+此时 `B::a` 不增加 `A` 的 **Reference Count**，循环被打破。外部 `shared_ptr` 释放后，资源可以正常析构。
 
 :::TIP
 `weak_ptr` 表达的是“我可以看这个对象，但我不负责延长它的生命周期”。常见用法是 parent-child 结构中的反向指针、缓存、观察者列表等。
@@ -781,9 +781,9 @@ int main() {
 
 从更传统的 reference counting 设计讲起，用四个类展示如何让自定义 `String` 共享内部表示。
 
-### `UCObject`：把引用计数放进被共享对象
+### `UCObject`：把 **Reference Count** 放进被共享对象
 
-`UCObject` 是 use-counted object，负责保存和维护引用计数。
+`UCObject` 是 use-counted object，负责保存和维护 **Reference Count**。
 
 ```cpp
 #include <cassert>
@@ -827,9 +827,9 @@ StringRep* p = new StringRep("abc"); // 可以由引用计数最终 delete this
 StringRep r("abc");                  // 栈对象不能让 decr() delete this
 ```
 
-### `UCPointer`：引用计数智能指针
+### `UCPointer`： **Reference Count**  **Smart Pointer**
 
-`UCPointer<T>` 是指向 `UCObject` 派生类的智能指针。它不自己保存引用计数，而是调用被管理对象的 `incr()` / `decr()`。
+`UCPointer<T>` 是指向 `UCObject` **Derived Class（派生类）** 的 **Smart Pointer**。它不自己保存 **Reference Count**，而是调用被管理对象的 `incr()` / `decr()`。
 
 ```cpp
 template <class T>
@@ -883,7 +883,7 @@ public:
 };
 ```
 
-引用计数操作规律：
+**Reference Count** 操作规律：
 
 ```cpp
 p = q;
@@ -897,7 +897,7 @@ p = q;
 p->increment(); // 新对象多一个管理者
 ```
 
-也就是：指针赋值不仅是地址赋值，还必须维护引用计数。
+也就是：指针赋值不仅是地址赋值，还必须维护 **Reference Count**。
 
 ### String / StringRep：Envelope and Letter
 
@@ -906,14 +906,14 @@ p->increment(); // 新对象多一个管理者
 - `String` 是 envelope：对用户暴露的外壳，提供干净接口；
 - `StringRep` 是 letter：真正保存字符串数据的内部表示；
 - `UCPointer<StringRep>` 负责共享和释放 `StringRep`；
-- `StringRep` 继承 `UCObject`，获得引用计数能力。
+- `StringRep` 继承 `UCObject`，获得 **Reference Count** 能力。
 
 四个类的关系：
 
 | 类 | 作用 |
 |---|---|
-| `UCObject` | 实现引用计数 |
-| `UCPointer<T>` | 智能指针模板，维护 `UCObject` 的引用计数 |
+| `UCObject` | 实现 **Reference Count** |
+| `UCPointer<T>` | **Smart Pointer** 模板，维护 `UCObject` 的 **Reference Count** |
 | `StringRep` | 字符串内部表示，保存 `char*`，继承 `UCObject` |
 | `String` | 对外接口，内部 has-a `UCPointer<StringRep>` |
 
@@ -1021,14 +1021,14 @@ int String::length() const {
 }
 ```
 
-这里体现了智能指针的两个作用：
+这里体现了 **Smart Pointer** 的两个作用：
 
-- `m_rep = s.m_rep` 时自动维护引用计数；
+- `m_rep = s.m_rep` 时自动维护 **Reference Count**；
 - `m_rep->equal(...)` 和 `*s.m_rep` 使用起来像普通指针。
 
 ### copy-on-write
 
-用字符串例子展示 reference count 的变化：
+用字符串例子展示 **reference count** 的变化：
 
 ```cpp
 String x("abcdef");
@@ -1062,7 +1062,7 @@ y ---+
 x = "Hello world"; // copy on write
 ```
 
-为了不影响 `y`，`x` 会创建新的 `StringRep`，原来的共享表示引用计数减 1：
+为了不影响 `y`，`x` 会创建新的 `StringRep`，原来的共享表示 **Reference Count** 减 1：
 
 ```text
 x ---> [count = 1 | "Hello world"]
@@ -1079,15 +1079,15 @@ y ---> [count = 1 | "abcdef"]
 
 - `String` 类非常干净，拷贝构造和赋值基本交给 `UCPointer`；
 - `StringRep` 只关心字符串存储和字符串操作；
-- `UCObject` 和 `UCPointer` 可以复用到其他需要引用计数的类；
-- 通过 shallow copy 减少不必要的数据复制。
+- `UCObject` 和 `UCPointer` 可以复用到其他需要 **Reference Count** 的类；
+- 通过 **shallow copy（浅拷贝）** 减少不必要的数据复制。
 
 缺点：
 
-- 比 raw pointer 慢，需要维护引用计数；
+- 比 raw pointer 慢，需要维护 **Reference Count**；
 - 属于 invasive design（侵入式设计）：被管理对象必须继承 `UCObject`；
 - `delete this` 对对象创建方式有要求，不能用于栈对象；
-- 所有被共享的类型都要配合这一套基类设计。
+- 所有被共享的类型都要配合这一套 **Base Class（基类）** 设计。
 
-标准库 `std::shared_ptr` 使用的是 non-intrusive design：引用计数放在 control block 中，被管理类不需要继承特殊基类，所以适用范围更广。
+标准库 `std::shared_ptr` 使用的是 non-intrusive design： **Reference Count** 放在 control block 中，被管理类不需要继承特殊 **Base Class**，所以适用范围更广。
 

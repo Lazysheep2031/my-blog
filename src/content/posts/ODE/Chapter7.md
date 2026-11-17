@@ -7,7 +7,7 @@ category: 笔记
 draft: false
 ---
 
-## Equilibrium Solutions and Stability
+## Equilibrium Solutions and **Stability（稳定性）**
 
 ### Autonomous first-order equations
 
@@ -41,7 +41,7 @@ $$
 - $c$ 叫做 **critical point** ；
 - $x(t)\equiv c$ 叫做 **equilibrium solution** 。
 
-所以一维自治方程的第一步永远是：
+所以一维 **Autonomous Equation（自治方程）** 的第一步永远是：
 
 $$
 \boxed{f(x)=0}
@@ -49,7 +49,7 @@ $$
 
 先把所有 critical points 找出来。
 
-### Stability in Lyapunov’s sense
+### **Stability** in Lyapunov’s sense
 
 设 $x=c$ 是一个 critical point。
 
@@ -121,7 +121,7 @@ $$
 x=0,\qquad x=M.
 $$
 
-#### Phase line and stability
+#### Phase line and **stability**
 
 设
 
@@ -140,7 +140,7 @@ $$
 - $x=0$ 是 **unstable** ；
 - $x=M$ 是 **stable** ，实际上还是 **asymptotically stable** 。
 
-#### Explicit solution and long-time behavior
+#### **Explicit solution（显式解）** and long-time behavior
 
 若 $x(0)=x_0$，则
 
@@ -191,7 +191,7 @@ $$
 - $x=0$ 是 **stable** ；
 - $x=M$ 是 **unstable** 。
 
-若用显式解
+若用 **Explicit Solution**
 
 $$
 x(t)=\frac{Mx_0}{x_0+(M-x_0)e^{kMt}},
@@ -203,7 +203,7 @@ $$
 - 若 $x_0=M$，则恒等于 $M$；
 - 若 $x_0>M$，则在有限时间 blow up 到 $+\infty$。
 
-> **同样是两个 critical points，稳定性可能因为一个符号变化而完全翻转。**
+> **同样是两个 critical points，Stability可能因为一个符号变化而完全翻转。**
 
 ### Logistic population with harvesting
 
@@ -389,14 +389,14 @@ $$
 
 这是一条抛物线，给出了所有“参数 $h$ 与对应 equilibrium $c$”的关系，这张图就叫 **bifurcation diagram** 。
 
-> **critical points 的位置、数目与稳定性都可能依赖于参数；当参数穿过某个临界值时，系统结构会突然改变。**
+> **critical points 的位置、数目与Stability都可能依赖于参数；当参数穿过某个临界值时，系统结构会突然改变。**
 
 
-## Stability and the Phase Plane
+## **Stability** and the Phase Plane
 
 ### From one-dimensional phase line to phase plane
 
-二维自治系统写成
+二维 **Autonomous System（自治系统）** 写成
 
 $$
 \dot x=F(x,y),\qquad \dot y=G(x,y).
@@ -412,7 +412,7 @@ $$
 4. 螺旋地靠近或远离；
 5. 甚至趋向某个 closed orbit / limit cycle。
 
-> 通过 phase portrait 来判断 trajectories 在 critical points 附近如何运动。
+> 通过 **phase portrait（相图）** 来判断 trajectories 在 critical points 附近如何运动。
 
 #### Critical points in the plane
 
@@ -434,7 +434,7 @@ $$
 
 ### Stable vs. asymptotically stable
 
-对二维系统，Lyapunov stability 的定义和一维本质相同，只是现在的距离要用二维向量来理解。
+对二维系统，Lyapunov **stability** 的定义和一维本质相同，只是现在的距离要用二维向量来理解。
 
 几何上：
 
@@ -505,7 +505,7 @@ $$
 \omega=\theta',
 $$
 
-则可改写为二维自治系统
+则可改写为二维 **Autonomous System**
 
 $$
 \begin{cases}
@@ -521,13 +521,13 @@ $$
 - $\theta$：摆角；
 - $\omega$：角速度。
 
-**相图的三类典型轨道**
+**Phase Portrait的三类典型轨道**
 
 1. **小振幅闭轨道** ：对应来回摆动；
 2. **外侧开轨道** ：对应连续转圈；
 3. **经过 saddle 的 separatrix** ：分隔“摆动”和“转圈”两类行为。
 
-因此 simple pendulum 是理解 phase portrait 的极好例子：  
+因此 simple pendulum 是理解 **phase portrait** 的极好例子：  
 **同一个系统里，closed orbit、saddle、separatrix 都会同时出现。**
 
 ![image.png](https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202604241624956.png)
@@ -538,7 +538,7 @@ $$
 
 ## Linear and Almost Linear Systems
 
-### Linear systems and linearization
+### Linear systems and **linearization（线性化）**
 
 先看二维线性系统
 
@@ -566,7 +566,7 @@ $$
 \mathbf u=\mathbf x-\mathbf c,
 $$
 
-把 critical point 移到原点，再在原点附近用 Jacobian 做 linearization：
+把 critical point 移到原点，再在原点附近用 Jacobian 做 **linearization**：
 
 $$
 \dot{\mathbf u}=J(\mathbf c)\mathbf u+\text{higher-order terms}.
@@ -574,7 +574,7 @@ $$
 
 因此：
 
-> **研究 nonlinear system 在 isolated critical point 附近的行为，第一步往往就是看 Jacobian 的 eigenvalues。**
+> **研究 nonlinear system 在 isolated critical point 附近的行为，第一步往往就是看 Jacobian 的 eigenvalues（特征值）。**
 
 ### Three canonical cases
 
@@ -588,13 +588,13 @@ $$
 \end{pmatrix}
 $$
 
-对应两个实特征值。轨道满足
+对应两个 **Real Eigenvalue（实特征值）**。轨道满足
 
 $$
 y=Cx^{\mu/\lambda}
 $$
 
-以及坐标轴方向上的特解。
+以及坐标轴方向上的 **Particular Solution（特解）**。
 
 **Case II**
 $$
@@ -604,7 +604,7 @@ $$
 \end{pmatrix}
 $$
 
-对应重特征值但只有一个 eigenvector 的 Jordan block。  
+对应 **Repeated Eigenvalue（重特征值）** 但只有一个 **eigenvector（特征向量）** 的 Jordan block。  
 典型轨道会表现为 **improper node** 。
 
 **Case III**
@@ -616,15 +616,15 @@ $$
 \qquad \beta\neq 0
 $$
 
-对应共轭复特征值
+对应 **Complex-Conjugate Eigenvalue（共轭复特征值）**
 
 $$
 \alpha\pm i\beta.
 $$
 
-此时相图是 center 或 spiral。
+此时 **Phase Portrait** 是 center 或 spiral。
 
-### Classification by eigenvalues
+### Classification by **eigenvalues**
 
 对
 
@@ -636,7 +636,7 @@ c&d
 \end{pmatrix},
 $$
 
-特征值为
+**Eigenvalue** 为
 
 $$
 \lambda_{1,2}=\frac{(a+d)\pm\sqrt{(a+d)^2-4(ad-bc)}}{2}.
@@ -644,26 +644,26 @@ $$
 
 因此 classification 完全取决于：
 
-- 特征值是 real 还是 complex；
+- **Eigenvalue** 是 real 还是 complex；
 - 是否 equal；
 - real part 的 sign 是 positive 还是 negative。
 
 #### Summary of Common Classifications
 
-1. 两个实特征值，异号
+1. 两个 **Real Eigenvalue**，异号
 $$
 \lambda_1\lambda_2<0
 $$
 则是 **saddle point** ，一定 unstable。
 
-2. 两个实特征值，同号
+2. 两个 **Real Eigenvalue**，同号
 - 都负：stable node；
 - 都正：unstable node。
 
-distinct same-sign real eigenvalues 常表现为 **improper node** ；  
-若 repeated eigenvalue 且有两条独立特征方向，则常表现为 **proper node / star** 。
+distinct same-sign **real eigenvalues** 常表现为 **improper node** ；  
+若 **repeated eigenvalue** 且有两条独立特征方向，则常表现为 **proper node / star** 。
 
-3. 一对复共轭特征值
+3. 一对 **Complex-Conjugate Eigenvalue**
 $$
 \lambda=\alpha\pm i\beta,\qquad \beta\neq 0
 $$
@@ -681,7 +681,7 @@ $$
 \Delta=\det(A)=ad-bc.
 $$
 
-则特征值满足
+则 **Eigenvalue** 满足
 
 $$
 \lambda^2-\tau\lambda+\Delta=0.
@@ -719,20 +719,20 @@ A=
 \end{pmatrix}.
 $$
 
-特征方程为
+**Characteristic Equation（特征方程）** 为
 
 $$
 \lambda^2+2\lambda-15=0
 =(\lambda-3)(\lambda+5).
 $$
 
-所以特征值是
+所以 **Eigenvalue** 是
 
 $$
 \lambda_1=3,\qquad \lambda_2=-5.
 $$
 
-两特征值异号，因此原点是 **saddle point** ，而且是 **unstable** 。
+两 **Eigenvalue** 异号，因此原点是 **saddle point** ，而且是 **unstable** 。
 
 这个例子很适合记住：
 
@@ -758,11 +758,11 @@ $$
 - 线性部分 $A\mathbf u$ 决定主要局部结构；
 - nonlinear remainder 只是在足够靠近 critical point 时做“小修正”。
 
-因此， **多数情况下** ，nonlinear system 与 linearization 具有相同的局部 type 和 stability。
+因此， **多数情况下** ，nonlinear system 与 **linearization** 具有相同的局部 type 和 **stability**。
 
 #### Two tricky scenarios
 
-线性化并不是在所有情况下都完全决定局部行为。真正麻烦的是两类：
+**Linearization** 并不是在所有情况下都完全决定局部行为。真正麻烦的是两类：
 
 1. **equal real eigenvalues** ；
 2. **pure imaginary eigenvalues** 。
@@ -775,8 +775,8 @@ $$
 
 所以：
 
-> 若 eigenvalues 已经清楚地落在 “real parts both negative / both positive / opposite signs” 这些非边界区域，线性化结论通常最可靠。  
-> 真正要警惕的是 repeated root 和 pure imaginary 这两类 borderline cases。
+> 若 **eigenvalues** 已经清楚地落在 “real parts both negative / both positive / opposite signs” 这些非边界区域， **Linearization** 结论通常最可靠。  
+> 真正要警惕的是 **repeated root（重根）** 和 pure imaginary 这两类 borderline cases。
 
 
 ## Ecological Models: Predators and Competitors
@@ -841,9 +841,9 @@ $$
 - $(0,0)$：两种 species 同时灭绝；
 - $(1,1)$：非零共存 equilibrium。
 
-对 $(0,0)$ 的 Jacobian 线性化会得到一正一负两个特征值，所以它是 **saddle** 。
+对 $(0,0)$ 的 Jacobian **Linearization** 会得到一正一负两个 **Eigenvalue**，所以它是 **saddle** 。
 
-对 $(1,1)$ 的 Jacobian 线性化会得到纯虚特征值，所以线性化提示它像 **center** 。  
+对 $(1,1)$ 的 Jacobian **Linearization** 会得到 **Purely Imaginary Eigenvalue（纯虚特征值）**，所以 **Linearization** 提示它像 **center** 。  
 而对标准 Lotka-Volterra model，实际上第一象限中的 trajectories 是包围 $(1,1)$ 的 **closed orbits** ，对应周期振荡。
 
 #### Oscillating populations
@@ -921,14 +921,14 @@ $$
 (0,0),\qquad (0,32),\qquad (28,0),\qquad (12,8).
 $$
 
-线性化分析给出：
+**Linearization** 分析给出：
 
 - $(0,0)$：unstable nodal source；
 - $(0,32)$：stable nodal sink；
 - $(28,0)$：stable nodal sink；
 - $(12,8)$：unstable saddle。
 
-于是 phase portrait 的关键结构是：
+于是 **phase portrait** 的关键结构是：
 
 - 第一象限内部的 saddle $(12,8)$；
 - 经过 saddle 的两条特殊轨道形成 **separatrix** ；
@@ -1050,7 +1050,7 @@ J(0,0)=
 \end{pmatrix}
 $$
 
-两个负特征值，所以是 **stable node** 。
+两个负 **Eigenvalue**，所以是 **stable node** 。
 
 2. 在 $(0,4)$
 $$
@@ -1061,7 +1061,7 @@ J(0,4)=
 \end{pmatrix}
 $$
 
-特征值异号，所以是 **saddle** 。
+**Eigenvalue** 异号，所以是 **saddle** 。
 
 3. 在 $(2,0)$
 $$
@@ -1072,7 +1072,7 @@ J(2,0)=
 \end{pmatrix}
 $$
 
-特征值异号，所以也是 **saddle** 。
+**Eigenvalue** 异号，所以也是 **saddle** 。
 
 4. 在 $(3,1)$
 $$
@@ -1083,7 +1083,7 @@ J(3,1)=
 \end{pmatrix}
 $$
 
-特征方程为
+**Characteristic Equation** 为
 
 $$
 \lambda^2-4\lambda+6=0,
@@ -1107,7 +1107,7 @@ $$
 
 这比前面的 textbook competition / predator-prey 图更复杂，也更能说明：
 
-> 2D nonlinear system 的 global phase portrait 往往由多个 critical points 及其 separatrix 共同拼出来。
+> 2D nonlinear system 的 global **phase portrait** 往往由多个 critical points 及其 separatrix 共同拼出来。
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202604241635775.png" alt="phase portrait" style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 

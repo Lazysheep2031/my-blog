@@ -7,19 +7,19 @@ category: 笔记
 draft: true
 ---
 
-本文系统介绍了 C++ STL 中的容器（Containers），包括三大类：顺序容器（Sequence Containers）如 `vector` 和 `deque`、容器适配器（Container Adapters）如 `stack`、`queue` 和 `priority_queue`，以及关联容器（Associative Containers）如 `map`、`set`、`multimap` 及其无序版本。重点讲解了各容器的底层实现、时间复杂度、适用场景和常见陷阱，详细说明了 `multimap` 的一对多映射特性和 `equal_range` 的用法，并通过词频统计实例展示了 `std::map` 的实际应用。
+本文系统介绍了 C++ STL 中的容器（Containers），包括三大类： **Sequence Container（顺序容器）** 如 `vector` 和 `deque`、 **Container Adapter（容器适配器）** 如 `stack`、`queue` 和 `priority_queue`，以及 **Associative Container（关联容器）** 如 `map`、`set`、`multimap` 及其无序版本。重点讲解了各容器的底层实现、时间复杂度、适用场景和常见陷阱，详细说明了 `multimap` 的一对多映射特性和 `equal_range` 的用法，并通过词频统计实例展示了 `std::map` 的实际应用。
 
 ## 目录
 
-- [Sequence Containers](#sequence-containers)
+- [**Sequence Containers**](#sequence-containers)
   - [std::vector](#stdvector)
   - [std::deque](#stddeque)
-- [Container Adapters](#container-adapters)
+- [**Container Adapters**](#container-adapters)
   - [std::stack](#stdstack)
   - [std::queue](#stdqueue)
   - [std::priority_queue](#stdpriority_queue)
   - [Using Environment](#using-environment)
-- [Associative Containers](#associative-containers)
+- [**Associative Containers**](#associative-containers)
   - [有序版本](#有序版本)
   - [无序版本](#无序版本)
   - [map vs unordered_map](#map-vs-unordered_map)
@@ -29,14 +29,14 @@ draft: true
   - [选择原则](#选择原则)
   - [Examples——词频统计](#examples词频统计)
 
-## Sequence Containers
+## **Sequence Containers**
 
 | 容器           | 底层结构     | 特点             |
 | -------------- | ------------ | ---------------- |
-| `vector`       | 动态数组     | 最常用、连续内存 |
+| `vector`       | **Dynamic Array（动态数组）**     | 最常用、连续内存 |
 | `deque`        | 分段数组     | 两端高效         |
-| `list`         | 双向链表     | 插入删除快       |
-| `forward_list` | 单向链表     | 更轻量           |
+| `list`         | **Doubly Linked List（双向链表）**     | 插入删除快       |
+| `forward_list` | **Singly Linked List（单向链表）**     | 更轻量           |
 | `array`        | 固定大小数组 | 编译期大小       |
 | `string`       | 类似 vector  | 特化版           |
 
@@ -44,7 +44,7 @@ draft: true
 
 ### std:: vector
 
-可以自动扩容的动态数组容器
+可以自动扩容的 **Dynamic Array** 容器
 
 ```cpp
 std::vector<int> vecInt;
@@ -192,7 +192,7 @@ int main() {
 
 `std::deque<T>` = Double Ended Queue
 
-> 支持在前端和后端都高效插入删除的序列容器。
+> 支持在前端和后端都高效插入删除的 **Sequence Container**。
 
 ---
 
@@ -263,14 +263,14 @@ deque：
 
 #### 典型使用场景
 
-- BFS
-- 滑动窗口算法
+- **Breadth-First Search（广度优先搜索，BFS）**
+- **Sliding Window（滑动窗口）** 算法
 - 实现队列（std::queue 默认使用 deque）
 
-## Container Adapters
+## **Container Adapters**
 
 > [!NOTE]
-> Container Adapter（容器适配器）是对已有容器进行“功能限制包装”的类。
+> **Container Adapter** 是对已有容器进行“功能限制包装”的类。
 > Adapter 是“限制功能”而不是“增加功能”。
 
 **Express ideas and intent directly in code.**
@@ -282,7 +282,7 @@ deque：
 - 限制接口，表达特定抽象语义
 
 > [!IMPORTANT]
-> Why Container Adapter？
+> Why **Container Adapter**？
 
 1. 表达意图（intent）
 2. 限制接口（防止误用）
@@ -291,9 +291,9 @@ deque：
 
 | Adapter             | 抽象结构         | 默认底层容器 |
 | ------------------- | ---------------- | ------------ |
-| std::stack          | LIFO（后进先出） | deque        |
-| std::queue          | FIFO（先进先出） | deque        |
-| std::priority_queue | 优先级队列（堆） | vector       |
+| std::stack          | **Last In First Out（后进先出，LIFO）** | deque        |
+| std::queue          | **First In First Out（先进先出，FIFO）** | deque        |
+| std::priority_queue | **Priority Queue（优先级队列）** （堆） | vector       |
 
 ---
 
@@ -360,7 +360,7 @@ q.size();
 
 **特性**
 
-- FIFO 结构
+- **FIFO** 结构
 - 只能访问两端
 
 **底层实现**
@@ -383,7 +383,7 @@ std::priority_queue<int> pq;
 
 **特点**
 
-- 默认是“大顶堆”
+- 默认是“ **Max-Heap（大顶堆）** ”
 - 最大值总在顶部
 
 **操作**
@@ -456,12 +456,12 @@ Adapter 的作用：
 
 使用 stack：
 
-- 深度优先搜索（DFS）
+- **Depth-First Search（深度优先搜索，DFS）**
 - 函数调用栈模拟
 
 使用 queue：
 
-- 广度优先搜索（BFS）
+- **BFS**
 - 任务调度
 
 使用 priority_queue：
@@ -472,9 +472,9 @@ Adapter 的作用：
 
 ---
 
-## Associative Containers
+## **Associative Containers**
 
-Associative containers：不按顺序存储元素，而是通过 key 访问元素。
+**Associative containers**：不按顺序存储元素，而是通过 key 访问元素。
 
 特点：
 
@@ -486,14 +486,14 @@ Associative containers：不按顺序存储元素，而是通过 key 访问元�
 
 ### 有序版本
 
-（基于红黑树）
+（基于 **Red-Black Tree（红黑树）**）
 
 - std::map<T1, T2>
 - std:: set < T >
 
 ### 无序版本
 
-（基于哈希表）
+（基于 **Hash Table（哈希表）**）
 
 - std::unordered_map<T1, T2>
 - std::unordered_set< T >
@@ -507,7 +507,7 @@ Associative containers：不按顺序存储元素，而是通过 key 访问元�
 特点：
 
 - 自动按 key 排序
-- 底层：红黑树
+- 底层： **Red-Black Tree**
 - 查找：O (log n)
 - 支持范围查找
 - 遍历是有序的
@@ -525,7 +525,7 @@ Associative containers：不按顺序存储元素，而是通过 key 访问元�
 特点：
 
 - 无排序
-- 底层：哈希表
+- 底层： **Hash Table**
 - 平均 O (1) 查找
 - 遍历无序
 
@@ -554,7 +554,7 @@ Associative containers：不按顺序存储元素，而是通过 key 访问元�
 
 ### Brief Recap
 
-- **关联容器的分类**
+- **Associative Container的分类**
   - 有序：`map / set / multimap / multiset`（按 key 排序）
   - 无序：`unordered_map / unordered_set / unordered_multimap / unordered_multiset`（哈希）
 - **核心差异**
@@ -594,7 +594,7 @@ Associative containers：不按顺序存储元素，而是通过 key 访问元�
 | 查找复杂度 | O (log n) | 平均 O (1)        |
 | 范围查询   | 支持      | 不支持            |
 | 遍历顺序   | 有序      | 无序              |
-| 底层结构   | 红黑树    | 哈希表            |
+| 底层结构   | **Red-Black Tree**    | **Hash Table**            |
 
 ---
 
@@ -664,7 +664,7 @@ while (stream >> word) {
 }
 ```
 
-- `istringstream` 把字符串当作输入流
+- `istringstream` 把字符串当作 **Input Stream（输入流）**
 - `stream >> word` 会按空白分隔单词
 - 自动跳过空格
 
@@ -692,7 +692,7 @@ std::map<string, int> frequencyMap;
 
 - key：string（单词）
 - value：int（出现次数）
-- key 自动排序（基于红黑树）
+- key 自动排序（基于 **Red-Black Tree**）
 
 ---
 

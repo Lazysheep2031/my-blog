@@ -15,7 +15,7 @@ draft: false
 - 它没有通用语言那样完整的表达能力
 - 像 打印报表、和用户交互、把结果发给 GUI、走网络请求 这些操作，SQL 本身做不了
 
-所以数据库程序员必须把 **SQL** 和 **宿主语言** （Java、C、C++、Python 等）结合起来。
+所以数据库程序员必须把 **SQL** 和 **Host Language（宿主语言）** （Java、C、C++、Python 等）结合起来。
 
 - **SQL 擅长描述要什么数据**
 - **通用语言擅长控制流程、组织交互、处理外部资源**
@@ -42,7 +42,7 @@ draft: false
 
 **2. Embedded SQL 方式**
 
-把 SQL 直接嵌进宿主语言源码里。
+把 SQL 直接嵌进 **Host Language** 源码里。
 
 - 编译时先由预处理器把嵌入式 SQL 翻译成函数调用
 - 运行时再通过底层 API 连库并执行
@@ -185,16 +185,16 @@ X'; update instructor set salary = salary + 10000;(这太爽了)
 所以经验规则非常简单：
 
 - **不要把用户输入直接拼成 SQL 字符串**
-- **要用 prepared statement / 参数绑定**
+- **要用 prepared statement（预处理语句） / 参数绑定**
 
 它不仅能防攻击，也能避免名字里带引号这种正常输入把 SQL 搞坏。比如 `D'Souza`。
 
 
-#### 元数据 `metadata`
+#### **Metadata（元数据）** `metadata`
 
 JDBC 不只是 查数据 ，它还能 查数据库自己的结构信息 。
 
-这类信息叫 **metadata（元数据）** ，也就是 关于数据的数据 。
+这类信息叫 **Metadata** ，也就是 关于数据的数据 。
 
 **1. `ResultSetMetaData`**
 
@@ -233,7 +233,7 @@ ResultSet rs = dbmd.getColumns(null, "univdb", "department", "%");
 
 #### JDBC 中的事务控制
 
-默认情况下，JDBC **每执行一条 SQL 就自动提交一次** 。
+默认情况下，JDBC **每执行一条 SQL 就Autocommit（自动提交）一次** 。
 
 这叫 `auto commit`。
 
@@ -244,7 +244,7 @@ conn.commit();
 // 或者 conn.rollback();
 ```
 
-为什么默认自动提交有时不好？
+为什么默认 **Autocommit** 有时不好？
 
 因为很多业务操作不是 一条 SQL 就结束的，而是多步更新必须一起成功。
 
@@ -253,17 +253,17 @@ conn.commit();
 - A 扣钱
 - B 加钱
 
-如果只执行完第一步就自动提交，而第二步失败，就会把数据库留在不一致状态。
+如果只执行完第一步就 **Autocommit**，而第二步失败，就会把数据库留在不一致状态。
 
 所以：
 
-- 单条独立语句，自动提交问题不大
-- 多步逻辑更新，通常要关闭自动提交，自己控制 `commit/rollback`
+- 单条独立语句， **Autocommit** 问题不大
+- 多步逻辑更新，通常要关闭 **Autocommit**，自己控制 `commit/rollback`
 
 
-#### 调用函数 / 过程与大对象
+#### 调用函数 / 过程与 **Large Object（大对象）**
 
-JDBC 还能调用数据库里的函数和存储过程，用 `CallableStatement`：
+JDBC 还能调用数据库里的函数和 **Stored Procedure（存储过程）**，用 `CallableStatement`：
 
 ```java
 CallableStatement cStmt1 = conn.prepareCall("{? = call some_function(?)}");
@@ -275,10 +275,10 @@ CallableStatement cStmt2 = conn.prepareCall("{call some_procedure(?,?)}");
 - 数据库内部不只有表
 - 还可以有 可调用逻辑单元 
 
-另外，JDBC 对大对象也有支持：
+另外，JDBC 对 **Large Object** 也有支持：
 
-- `Blob`：二进制大对象
-- `Clob`：字符大对象
+- `Blob`：二进制 **Large Object**
+- `Clob`：字符 **Large Object**
 
 可以通过：
 
@@ -372,10 +372,10 @@ ODBC 的程序结构，和 JDBC 的逻辑其实很像，只是它更底层、更
 
 常见步骤：
 
-1. 分配环境句柄
-2. 分配连接句柄
+1. 分配 **Environment Handle（环境句柄）**
+2. 分配 **Connection Handle（连接句柄）**
 3. `SQLConnect()` 建立连接
-4. 分配语句句柄
+4. 分配 **Statement Handle（语句句柄）**
 5. `SQLExecDirect()` 执行 SQL
 6. `SQLBindCol()` 绑定输出列
 7. `SQLFetch()` 逐行取结果
@@ -426,10 +426,10 @@ while (SQLFetch(stmt) == SQL_SUCCESS) {
 
 ODBC 程序通常会维护多层句柄：
 
-- **环境句柄** ：整个 ODBC 运行环境
-- **连接句柄** ：某个具体数据源连接
-- **语句句柄** ：某条 SQL 语句的执行上下文
-- **描述符句柄** ：参数/结果集元数据描述
+- **Environment Handle** ：整个 ODBC 运行环境
+- **Connection Handle** ：某个具体数据源连接
+- **Statement Handle** ：某条 SQL 语句的执行上下文
+- **Descriptor Handle（描述符句柄）** ：参数/结果集 **Metadata** 描述
 
 它们是分层的：
 
@@ -448,7 +448,7 @@ SQLAllocHandle(SQL_HANDLE_DBC,  hEnv, &hDBC);
 SQLAllocHandle(SQL_HANDLE_STMT, hDBC, &hSTMT);
 ```
 
-这里先设置 ODBC 版本，再逐层申请环境、连接、语句句柄。
+这里先设置 ODBC 版本，再逐层申请环境、连接、 **Statement Handle**。
 
 **2. ODBC 有自己的标准数据类型**
 
@@ -523,10 +523,10 @@ while (SQLFetch(hSTMT) == SQL_SUCCESS) {
 
 ODBC 的资源释放顺序也很重要，通常是：
 
-1. 释放语句句柄
+1. 释放 **Statement Handle**
 2. 断开连接
-3. 释放连接句柄
-4. 释放环境句柄
+3. 释放 **Connection Handle**
+4. 释放 **Environment Handle**
 
 例如：
 
@@ -544,9 +544,9 @@ SQLFreeHandle(SQL_HANDLE_ENV, hEnv);
 - 最后释放整个 ODBC 环境
 
 
-#### ODBC 的预处理语句
+#### ODBC 的 **Prepared Statement**
 
-ODBC 也支持 prepared statement：
+ODBC 也支持 **prepared statement**：
 
 - `SQLPrepare()`：先准备 SQL 模板
 - `SQLBindParameter()`：再绑定参数
@@ -568,7 +568,7 @@ slides 也专门用 ODBC 再次强调了 SQL injection 的风险，所以要记�
 
 ### Embedded SQL
 
-Embedded SQL 是另一条非常经典的路线： **不是在程序里手工调用一堆 API，而是把 SQL 直接嵌入宿主语言源码中。**
+Embedded SQL 是另一条非常经典的路线： **不是在程序里手工调用一堆 API，而是把 SQL 直接嵌入Host Language源码中。**
 
 - **SQL 是 computation incomplete（计算不完备）**
 - **SQL 是 resource incomplete（资源不完备）**
@@ -578,14 +578,14 @@ Embedded SQL 是另一条非常经典的路线： **不是在程序里手工调�
 - 它不擅长表达一般性的控制流程与复杂算法
 - 它也不擅长直接管理输入输出、文件、界面、系统资源
 
-所以需要 宿主语言 + SQL 联合工作。
+所以需要 **Host Language** + SQL 联合工作。
 
 
-### 宿主语言与宿主变量
+### **Host Language** 与 **Host Variable（宿主变量）**
 
 嵌入式 SQL 的核心是：
 
-- 在宿主语言里直接写 SQL
+- 在 **Host Language** 里直接写 SQL
 - 用专门语法标出 这里是 SQL 
 
 例如：
@@ -600,14 +600,14 @@ EXEC SQL <embedded SQL statement>;
 - Java
 - Cobol
 
-这些语言就叫 **host language（宿主语言）** 。
+这些语言就叫 **Host Language** 。
 
 不同语言的标记方式略有差异：
 
 - C 风格常写成 `EXEC SQL ... ;`
 - Java 的某些嵌入形式会写成 `#sql { ... }`
 
-SQL 用到宿主语言里的变量时，要在变量名前加冒号 `:`。
+SQL 用到 **Host Language** 里的变量时，要在变量名前加冒号 `:`。
 
 例如：
 
@@ -623,13 +623,13 @@ EXEC SQL END DECLARE SECTION;
 where tot_cred > :credit_amount
 ```
 
-这里 `:credit_amount` 不是 SQL 变量，而是宿主语言变量。
+这里 `:credit_amount` 不是 SQL 变量，而是 **Host Language** 变量。
 
 嵌入式 SQL 真正难的地方，不只是 语法怎么写 ，而是三类接口问题：
 
 1. **如何标记 SQL 片段的起止**
-2. **数据库和宿主语言如何通信**
-3. **SQL 类型系统与宿主语言类型系统如何对接**
+2. **数据库和Host Language如何通信**
+3. **SQL 类型系统与Host Language类型系统如何对接**
 
 
 ### SQLCA 与 SQLDA：程序和数据库怎么交换状态
@@ -673,8 +673,8 @@ else printf("Success!\n");
 - 变量地址
 - 长度
 - 类型
-- 指示变量
-- 名字等元数据
+- **Indicator Variable（指示变量）**
+- 名字等 **Metadata**
 
 直觉上可以把它理解成：
 
@@ -706,9 +706,9 @@ EXEC SQL insert into account
 
 意思就是：
 
-- 在声明段里先声明宿主变量
+- 在声明段里先声明 **Host Variable**
 - 连到数据库
-- 把宿主变量里的值插入到表里
+- 把 **Host Variable** 里的值插入到表里
 
 #### `delete`
 
@@ -717,7 +717,7 @@ EXEC SQL delete from account
 where account_number = :account_no;
 ```
 
-就是用宿主变量给删除条件赋值。
+就是用 **Host Variable** 给删除条件赋值。
 
 #### `update`
 
@@ -727,7 +727,7 @@ set balance = balance + :balance
 where account_number = :account_no;
 ```
 
-这里的 `:balance` 还是宿主变量，不是列名。
+这里的 `:balance` 还是 **Host Variable**，不是列名。
 
 #### `select ... into`
 
@@ -740,14 +740,14 @@ where account_number = :account_no;
 这说明在 Embedded SQL 里：
 
 - 单行查询常用 `select ... into`
-- 查询结果直接装入宿主变量
+- 查询结果直接装入 **Host Variable**
 
 不过这类写法通常要求查询结果是单行或至少逻辑上应当只有一行。
 
 
-### 指示变量（indicator variable）
+### **Indicator Variable**
 
-**null 怎么传到宿主语言里？**
+**null 怎么传到Host Language里？**
 
 因为像 C 里的 `int balance;` 本身没有 SQL null 这个概念，所以通常要再配一个 **indicator variable** ：
 
@@ -765,9 +765,9 @@ where account_number = :account_no;
 - `mask < 0`：该列为 `null`
 - `mask > 0`：可能发生截断之类情况
 
-所以 indicator variable 的本质作用是：
+所以 **indicator variable** 的本质作用是：
 
-> 补上 宿主语言原生类型无法直接表达 SQL null / 截断状态 的那部分语义。
+> 补上 **Host Language** 原生类型无法直接表达 SQL null / 截断状态 的那部分语义。
 
 
 ### 为什么需要 cursor
@@ -813,7 +813,7 @@ EXEC SQL fetch c into :si, :sn;
 每次 `fetch`：
 
 - 取一行
-- 把该行列值放到宿主变量里
+- 把该行列值放到 **Host Variable** 里
 
 多次 `fetch` 就会依次取后面的行。
 
@@ -898,7 +898,7 @@ else
 
 它体现出 `where current of` 的最大价值：
 
-- 不需要再写一遍主键条件
+- 不需要再写一遍 **Primary Key（主键）** 条件
 - 直接更新 刚刚 fetch 到的当前行 即可
 
 对于逐行扫描 + 条件更新，这种写法非常自然。
@@ -950,7 +950,7 @@ EXEC SQL execute dynprog using :account;
 
 这里的 `?` 就是占位符。
 
-这个模式和 JDBC/ODBC 里的 prepared statement 是同一个思想：
+这个模式和 JDBC/ODBC 里的 **prepared statement** 是同一个思想：
 
 - SQL 结构先准备好
 - 运行时再绑定参数值
@@ -1013,7 +1013,7 @@ where dept_count(dept_name) > 1;
 - SQL 变得更像 用已有组件拼装业务语义 
 
 
-### 表值函数 `returns table`
+### **Table-Valued Function（表值函数）** `returns table`
 
 SQL:2003 还支持返回一张关系表的函数。
 
@@ -1044,14 +1044,14 @@ from table(instructors_of('Music'));
 这个思想很重要：
 
 - 普通函数返回一个值
-- 表值函数返回 一整张结果表 
+- **Table-Valued Function** 返回 一整张结果表 
 
 它相当于 带参数的 view 。
 
-普通 `view` 没参数，而表值函数可以吃参数，所以更灵活。
+普通 `view` 没参数，而 **Table-Valued Function** 可以吃参数，所以更灵活。
 
 
-### 存储过程 `procedure`
+### **Stored Procedure** `procedure`
 
 前面的 `dept_count` 也可以写成过程：
 
@@ -1354,13 +1354,13 @@ end;
 
 所以它更适合：
 
-- 根据主键查单行
+- 根据 **Primary Key** 查单行
 - 明确知道结果只应有一行的场景
 
 这和 Embedded SQL 里的 `select ... into :host_var` 在思想上是一致的，只是这里变量已经在数据库过程语言内部。
 
 
-#### 显式游标与游标属性
+#### **Explicit Cursor（显式游标）** 与游标属性
 
 除了 单行查出放进变量 ，PL/SQL 也大量使用 cursor 处理多行结果。
 
@@ -1378,7 +1378,7 @@ end;
 
 它和前面 Embedded SQL 的 `open / fetch / close` 逻辑完全一致，只不过这里变量直接是数据库内部变量。
 
-此外，PL/SQL 还给了若干 **显式游标属性** ：
+此外，PL/SQL 还给了若干 **Explicit Cursor属性** ：
 
 - `c%ISOPEN`：游标是否打开
 - `c%FOUND`：最近一次 `fetch` 是否成功返回一行
@@ -1394,7 +1394,7 @@ end;
 
 除了显式 cursor，PL/SQL 还有一个经常出现在工程代码里的东西： **隐式 SQL cursor 属性** 。
 
-每次执行完一条 SQL 语句后，系统其实都自动维护了一个隐式游标，可以通过下面这些属性查看：
+每次执行完一条 SQL 语句后，系统其实都自动维护了一个 **Implicit Cursor（隐式游标）**，可以通过下面这些属性查看：
 
 - `SQL%ROWCOUNT`
 - `SQL%FOUND`
@@ -1493,7 +1493,7 @@ end;
 - 外部应用不必自己重复实现
 - 业务约束更靠近数据，更统一
 
-也就是说，存储过程/函数的真正价值，不只是 省几行代码 ，而是把业务规则封装成数据库服务接口。
+也就是说， **Stored Procedure** /函数的真正价值，不只是 省几行代码 ，而是把业务规则封装成数据库服务接口。
 
 
 ### 外部语言函数 / 过程
@@ -1621,11 +1621,11 @@ end;
 所以 trigger 天然很适合做 比较新旧状态 的工作。
 
 
-### Example2：用 trigger 补足外键约束表达不了的完整性
+### Example2：用 trigger 补足 **Foreign Key（外键）** 约束表达不了的完整性
 
 一个很有代表性的例子。
 
-`time_slot_id` 不是 `time_slot` 的主键，因此没法直接从 `section` 建一个标准外键过去。
+`time_slot_id` 不是 `time_slot` 的 **Primary Key**，因此没法直接从 `section` 建一个标准 **Foreign Key** 过去。
 
 这时就用 trigger 做约束补充。
 
@@ -1672,7 +1672,7 @@ end;
 
 这说明 trigger 可以补足这样一类问题：
 
-> 标准外键语法表达不了，
+> 标准 **Foreign Key** 语法表达不了，
 > 但业务上又必须保证的数据一致性。
 
 
@@ -1803,10 +1803,10 @@ trigger 里只要有 bug，就可能让本来重要的更新失败。
 
 所以一些旧时代常拿 trigger 做的事，现在有更好的专门机制：
 
-- 维护汇总数据：现在可用 materialized view
+- 维护汇总数据：现在可用 **materialized view（物化视图）**
 - 复制：现在数据库往往有内建 replication
 
-另外，很多业务逻辑也可以通过封装方法/存储过程来做，而不是直接放 trigger 里。
+另外，很多业务逻辑也可以通过封装方法/ **Stored Procedure** 来做，而不是直接放 trigger 里。
 
 所以经验上：
 
@@ -1832,7 +1832,7 @@ trigger 里只要有 bug，就可能让本来重要的更新失败。
 这时就需要递归查询。
 
 
-### 先修课的传递闭包
+### 先修课的 **Transitive Closure（传递闭包）**
 
 
 ```sql
@@ -1879,7 +1879,7 @@ where rec_prereq.prereq_id = prereq.course_id
 
 不断重复，直到不再产生新元组为止。
 
-这个结果就叫 **transitive closure（传递闭包）** 。
+这个结果就叫 **Transitive Closure** 。
 
 
 ### 为什么非递归 SQL 做不好这类问题
@@ -1946,7 +1946,7 @@ from empl;
 - 员工对经理的经理
 - 员工对更高层经理
 
-本质上仍然是传递闭包。
+本质上仍然是 **Transitive Closure**。
 
 所以要建立一个统一直觉：
 
@@ -2015,7 +2015,7 @@ order by s_rank;
 - 一个人前面有多少人比他 GPA 高
 - 他的排名就是那个数量加 1
 
-但它很低效，因为每一行都要再做一次子查询统计。
+但它很低效，因为每一行都要再做一次 **Subquery（子查询）** 统计。
 
 这正好说明窗口函数的价值：
 
@@ -2078,11 +2078,11 @@ from student_grades;
 
 ### Windowing
 
-### 移动窗口
+### **Sliding Window（移动窗口）**
 
 窗口函数不只做排名，也能做 滑动聚合 。
 
-经典例子是 **移动平均** 。
+经典例子是 **Moving Average（移动平均）** 。
 
 给定：
 
@@ -2130,7 +2130,7 @@ from sales;
 - `range 10 preceding` 是所有排序值在当前值减 10 到当前值之间的行
 
 
-### 分区内累计和
+### 分区内 **Running Total（累计和）**
 
 另一个特别实用的例子是 账户余额流水 。
 
@@ -2164,7 +2164,7 @@ order by account_number, date_time;
 - 在该账户内部按时间排序
 - 从第一笔到当前笔全部累加
 
-这就是 **running total（累计和）** 。
+这就是 **Running Total** 。
 
 
 ### OLAP
@@ -2185,17 +2185,17 @@ OLAP = **Online Analytical Processing** 。
 > 而是 从海量数据里快速看规律 。
 
 
-### 维度属性与度量属性
+### **Dimension Attribute（维度属性）** 与 **Measure Attribute（度量属性）**
 
 分析型数据分成两类：
 
-**1. 度量属性（measure）**
+**1. Measure Attribute**
 
 - 用来度量某个值
 - 可以聚合
 - 例如销量 `quantity`
 
-**2. 维度属性（dimension）**
+**2. Dimension Attribute**
 
 - 用来决定 从哪个角度看 
 - 例如：`item_name`、`color`、`clothes_size`
@@ -2205,7 +2205,7 @@ OLAP = **Online Analytical Processing** 。
 - `item_name/color/size` 回答 按什么分类看 
 
 
-### 交叉表 `cross-tab` / `pivot-table`
+### **Cross-Tab（交叉表）** `cross-tab` / `pivot-table`
 
 销售关系：
 
@@ -2213,7 +2213,7 @@ OLAP = **Online Analytical Processing** 。
 sales(item_name, color, clothes_size, quantity)
 ```
 
-交叉表的特征是：
+**Cross-Tab** 的特征是：
 
 - 一个维度做行头
 - 一个维度做列头
@@ -2225,14 +2225,14 @@ sales(item_name, color, clothes_size, quantity)
 
 ### Data Cube
 
-交叉表其实只是多维数据立方体的一个二维视图。
+**Cross-Tab** 其实只是多维数据立方体的一个二维视图。
 
 **Data Cube** 可以理解为：
 
 - 对多个维度同时做聚合
 - 得到多种不同粒度的汇总结果
 
-2D 的交叉表只是 cube 的一个切面。
+2D 的 **Cross-Tab** 只是 cube 的一个切面。
 
 
 ### Hierarchy、roll up、drill down、slice、dice、pivot
@@ -2273,13 +2273,13 @@ sales(item_name, color, clothes_size, quantity)
 
 **Pivot**
 
-- 改变交叉表的观察维度
+- 改变 **Cross-Tab** 的观察维度
 - 例如原来按 商品 × 颜色 ，改成 商品 × 尺码 
 
 
-### 把交叉表表示成关系
+### 把 **Cross-Tab** 表示成关系
 
-**交叉表可以重新表示成普通关系。**
+**Cross-Tab可以重新表示成普通关系。**
 
 为了表示 汇总 ，有时会引入一个像 `all` 这样的值。
 
@@ -2428,11 +2428,11 @@ group by rollup(item_name), rollup(color, clothes_size);
 
 - 第一个 `rollup(item_name)` 生成 `{(item_name), ()}`
 - 第二个 `rollup(color, clothes_size)` 生成 `{(color, clothes_size), (color), ()}`
-- 两者做笛卡尔积
+- 两者做 **Cartesian Product（笛卡尔积）**
 
 最终得到多个组合层级。
 
-这个思想和关系代数其实是连得上的：
+这个思想和 **Relational Algebra（关系代数）** 其实是连得上的：
 
 > 每个 rollup 都在生成一组 group-by 列表，
 > 多个 rollup/cube 组合时，本质上就是这些分组集合的组合。
@@ -2478,7 +2478,7 @@ OLAP 系统实现上也分路线：
 **ROLAP**
 
 - 基于关系数据库实现 OLAP
-- 靠 SQL、聚合、索引、物化视图等能力做分析
+- 靠 SQL、聚合、索引、 **Materialized View** 等能力做分析
 
 **HOLAP**
 

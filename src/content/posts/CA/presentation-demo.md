@@ -12,7 +12,7 @@ draft: false
 ## Demo Links
 
 1. [Victim Cache 简单 ABAB 冲突演示](/demos/victim-abab/)
-2. [Victim Cache / Direct-Mapped / 2-Way 综合交互演示](/demos/victim-mix/)
+2. [Victim Cache / **Direct-Mapped（直接映射）** / 2-Way 综合交互演示](/demos/victim-mix/)
 
 ## 使用说明
 

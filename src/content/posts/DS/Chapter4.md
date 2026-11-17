@@ -34,7 +34,7 @@ where instructor.ID = teaches.ID;
 > 匹配不上的行要不要保留？
 
 
-### 自然连接 `natural join`
+### **Natural Join（自然连接）** `natural join`
 
 `natural join` 会：
 
@@ -85,7 +85,7 @@ from instructor natural join teaches natural join course;
 - `natural join` 会自动要求它们相等
 - 但这里真正想用来连接 `teaches` 和 `course` 的关键属性其实是 `course_id`
 
-所以自然连接虽然方便，但不能无脑使用。
+所以 **Natural Join** 虽然方便，但不能无脑使用。
 
 
 ### `join ... using(...)`
@@ -132,11 +132,11 @@ from instructor join teaches
 因此在真实开发里，`join ... on` 往往比 `natural join` 更稳妥。
 
 
-### 外连接 `outer join`
+### **Outer Join（外连接）** `outer join`
 
-普通的连接（inner join）只保留匹配成功的元组。
+普通的连接（**inner join（内连接）**）只保留匹配成功的元组。
 
-但有时我们不希望丢掉那些“没有匹配上”的数据，这时就需要外连接。
+但有时我们不希望丢掉那些“没有匹配上”的数据，这时就需要 **Outer Join**。
 
 #### 1. `left outer join`
 
@@ -154,23 +154,23 @@ from instructor join teaches
 左右两边的元组都尽量保留，匹配不上的部分补 `null`。
 
 
-**为什么需要外连接**
+**为什么需要Outer Join**
 
 假设：
 
 - 有些课程没有 prerequisite
 - 有些 prerequisite 信息记录得不完整
 
-如果只用 inner join，这些“不匹配”的行会被直接丢掉。
+如果只用 **inner join**，这些“不匹配”的行会被直接丢掉。
 
-而 outer join 的作用就是：
+而 **outer join** 的作用就是：
 
 > 尽量保留信息，而不是因为没有匹配就让数据消失。
 
 
 ## SQL Data Types and Schemas
 
-### 用户自定义类型 `create type`
+### **User-Defined Type（用户自定义类型）** `create type`
 
 例如：
 
@@ -251,12 +251,12 @@ create domain student_id varchar(10) not null;
 要注意的是：
 
 - 共用同一个 domain 表示“取值规则一致”
-- 但 **不代表自动形成外键关系**
+- 但 **不代表自动形成Foreign Key（外键）关系**
 
-外键仍然要单独写。
+**Foreign Key** 仍然要单独写。
 
 
-### 大对象 `blob / clob`
+### **Large Object（大对象）** `blob / clob`
 
 数据库里有些数据不是小字符串或小数字，而是很大的对象，例如：
 
@@ -270,7 +270,7 @@ create domain student_id varchar(10) not null;
 
 #### `blob`
 
-`blob` = binary large object
+`blob` = binary **large object**
 
 适合存：
 
@@ -282,7 +282,7 @@ create domain student_id varchar(10) not null;
 
 #### `clob`
 
-`clob` = character large object
+`clob` = character **large object**
 
 适合存：
 
@@ -296,9 +296,9 @@ create domain student_id varchar(10) not null;
 - `clob` 偏大文本
 
 
-**大对象查询时常常返回“引用”而不是直接返回全部内容**
+**Large Object查询时常常返回“引用”而不是直接返回全部内容**
 
-因为大对象可能非常大。
+因为 **Large Object** 可能非常大。
 
 如果每查一行就把整张图片、整段视频都完整搬出来，代价会很高。
 
@@ -308,9 +308,9 @@ create domain student_id varchar(10) not null;
 - 真正需要时再取具体内容
 
 
-## Integrity Constraints
+## **Integrity Constraints（完整性约束）**
 
-完整性约束的目标是：
+**Integrity Constraint** 的目标是：
 
 - 防止不合法数据进入数据库
 - 防止合法操作把数据库改得不一致
@@ -374,7 +374,7 @@ unique(course_id, sec_id, semester, year)
 
 例如学生表里：
 
-- `ID` 是 primary key
+- `ID` 是 **primary key（主键）**
 - `email` 可以设置为 unique
 :::
 
@@ -408,9 +408,9 @@ check (year > 1759 and year < 2100)
 - 同一行内部字段之间的逻辑关系
 
 
-### `foreign key` 与参照完整性
+### `foreign key` 与 **Referential Integrity（参照完整性）**
 
-外键表达的是：
+**Foreign Key** 表达的是：
 
 > 一张表中的某些值，必须引用另一张表中真实存在的值。
 
@@ -429,7 +429,7 @@ create table course (
 
 - `course.dept_name` 的取值必须能在 `department.dept_name` 中找到
 
-这就是参照完整性。
+这就是 **Referential Integrity**。
 
 它能防止出现这种脏数据：
 
@@ -458,14 +458,14 @@ foreign key (dept_name) references department(dept_name)
 可以理解为：
 
 - `cascade`：跟着删 / 跟着改
-- `set null`：把外键列改成 `null`
+- `set null`：把 **Foreign Key** 列改成 `null`
 - `set default`：改成默认值
 - `restrict`：不允许这样删除或修改
 
 
-### 自引用外键
+### **Self-Referencing Foreign Key（自引用外键）**
 
-外键不一定引用别的表，也可以引用自己这张表。
+**Foreign Key** 不一定引用别的表，也可以引用自己这张表。
 
 例如：
 
@@ -483,7 +483,7 @@ create table person (
 
 这里：
 
-- `person.ID` 是主键
+- `person.ID` 是 **Primary Key**
 - `father` 和 `mother` 也都是某个人的 `ID`
 - 它们引用的仍然是 `person` 表本身
 
@@ -494,14 +494,14 @@ create table person (
 - 树结构中的 `parent_id`
 
 :::WARNING
-自引用外键带来的插入顺序问题
+**Self-Referencing Foreign Key** 带来的插入顺序问题
 
 因为如果你先插入孩子：
 
 - `father = 'F001'`
 - `mother = 'M001'`
 
-而 `F001`、`M001` 还没插入表中，那么外键约束就会失败。
+而 `F001`、`M001` 还没插入表中，那么 **Foreign Key** 约束就会失败。
 
 常见解决办法有：
 
@@ -509,7 +509,7 @@ create table person (
 2. 先把 `father`、`mother` 设为 `null`，之后再更新
 3. 把约束检查延迟到事务结束时统一检查
 
-这说明完整性约束不仅影响“能不能这么写”，还影响“应该按什么顺序操作数据”。
+这说明 **Integrity Constraint** 不仅影响“能不能这么写”，还影响“应该按什么顺序操作数据”。
 :::
 
 ### 复杂约束、`assertion` 与 `trigger`
@@ -528,7 +528,7 @@ create table person (
 这种约束往往需要跨表检查。
 
 
-#### 带子查询的 `check`
+#### 带 **Subquery（子查询）** 的 `check`
 
 理论上 SQL 标准里可以写：
 
@@ -547,11 +547,11 @@ check ((course_id, sec_id, semester, year) in (
 ))
 ```
 
-但实际主流数据库几乎都不支持在 `check` 中写子查询。
+但实际主流数据库几乎都不支持在 `check` 中写 **Subquery**。
 
 所以这部分更重要的是理解思想：
 
-> 有些完整性约束是跨表的，普通 `check` 不够表达。
+> 有些 **Integrity Constraint** 是跨表的，普通 `check` 不够表达。
 
 
 #### `assertion`
@@ -582,7 +582,7 @@ check <predicate>;
 
 既然：
 
-- 带子查询的 `check` 通常不支持
+- 带 **Subquery** 的 `check` 通常不支持
 - `assertion` 也通常不支持
 
 现实中常见替代方案就是 **trigger（触发器）** 。
@@ -863,7 +863,7 @@ values ('69987', 'White', 'Taylor');
 2. `select` 子句中只出现该表的属性名，不出现表达式
 3. 没有 `group by`
 4. 没有 `having`
-5. 没有聚合函数
+5. 没有 **Aggregate Function（聚合函数）**
 6. 没有 `distinct`
 7. 没出现在 view 中的底层列必须允许填 `null`
 
@@ -922,7 +922,7 @@ with check option;
 - 不允许你通过 view 引入“改完后不再属于该 view”的数据
 
 
-### Materialized View
+### **Materialized View（物化视图）**
 
 普通 view 通常只保存定义，不保存结果。
 
@@ -957,7 +957,7 @@ where total_salary > (
 就不需要每次都重新对 `instructor` 做 `group by + sum`。
 
 
-### 普通 view vs materialized view
+### 普通 view vs **materialized view**
 
 #### 普通 view
 
@@ -966,7 +966,7 @@ where total_salary > (
 - 总能反映底层表最新状态
 - 但复杂查询可能慢
 
-#### materialized view
+#### **materialized view**
 
 - 存的是结果
 - 查询时直接读结果
@@ -974,7 +974,7 @@ where total_salary > (
 - 但结果可能过期，需要维护
 
 
-### Materialized view 的维护问题
+### **Materialized view** 的维护问题
 
 如果底层关系被更新：
 
@@ -982,9 +982,9 @@ where total_salary > (
 - 工资变了
 - 旧老师被删除了
 
-那么物化视图中的结果就可能变旧。
+那么 **Materialized View** 中的结果就可能变旧。
 
-因此需要做 **materialized view maintenance** 。
+因此需要做 **materialized view maintenance（物化视图维护）** 。
 
 维护方式可能包括：
 
@@ -992,10 +992,10 @@ where total_salary > (
 - 查询时再刷新
 - 周期性刷新
 
-所以 materialized view 是一个典型的“性能换维护成本”的机制。
+所以 **materialized view** 是一个典型的“性能换维护成本”的机制。
 
 
-### View 与 Logical Data Independence
+### View 与 **Logical Data Independence（逻辑数据独立性）**
 
 这是 view 的一个更高层作用。
 
@@ -1031,11 +1031,11 @@ from S1 natural join S2;
 - 底层逻辑结构已经变了
 - 但外层程序仍然可以像以前一样使用 `S`
 
-这就体现了 **logical data independence（逻辑数据独立性）** ：
+这就体现了 **Logical Data Independence** ：
 
 > 修改逻辑模式时，尽量不影响用户看到的外部接口。
 
-所以 view 不只是“方便查询”，还是数据库模式演化时的重要兼容层。
+所以 view 不只是“方便查询”，还是 **Database Schema（数据库模式）** 演化时的重要兼容层。
 
 
 ## Indexes
@@ -1077,7 +1077,7 @@ where ID = '12345';
 
 - 把整张 `student` 表一行一行看过去
 
-这叫全表扫描。
+这叫 **Full Table Scan（全表扫描）**。
 
 而有索引后，系统可以利用索引快速定位到：
 
@@ -1175,7 +1175,7 @@ COMMIT;
 
 这里：
 
-- 先关闭自动提交
+- 先关闭 **Autocommit（自动提交）**
 - 两条 `UPDATE` 共同组成一次转账事务
 - 最后统一 `COMMIT`
 
@@ -1184,7 +1184,7 @@ COMMIT;
 
 `AUTOCOMMIT`
 
-- 每条 SQL 语句都会自动提交
+- 每条 SQL 语句都会 **Autocommit**
 
 这意味着：
 
@@ -1214,8 +1214,8 @@ COMMIT;
 
 例如：
 
-- 主键仍然唯一
-- 外键仍然合法
+- **Primary Key** 仍然唯一
+- **Foreign Key** 仍然合法
 - 业务规则仍然成立
 
 
@@ -1475,7 +1475,7 @@ grant references (dept_name) on department to Mariano;
 这个权限的含义是：
 
 - 允许 Mariano 引用 `department.dept_name`
-- 例如拿它作为别的表中的外键参照目标
+- 例如拿它作为别的表中的 **Foreign Key** 参照目标
 
 也就是说：
 
@@ -1503,7 +1503,7 @@ grant select on department to Amit with grant option;
 这就让权限可以继续传播。
 
 
-### 权限传播图
+### **Authorization Graph（权限传播图）**
 
 一旦允许转授，就会形成：
 

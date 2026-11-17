@@ -16,13 +16,13 @@ draft: true
 这一讲的逻辑主线：
 
 - 先理解 **数字图像的本质** ：图像在计算机里不是“画面”，而是矩阵或张量；
-- 再理解 **图像预处理** ：为什么要先灰度化、归一化、增强对比度、做几何变换；
+- 再理解 **Image Preprocessing（图像预处理）** ：为什么要先 **Grayscale Conversion（灰度化）**、 **Normalization（归一化）**、增强对比度、做几何变换；
 - 接着按照视觉理解能力从浅到深，依次学习四类任务：
-  - **图像分类（image classification）** ：整张图属于哪一类；
-  - **图像识别 / 目标检测（image recognition / object detection）** ：图里有哪些物体，它们大致在哪里；
-  - **图像分割（image segmentation）** ：每个像素属于哪个物体或区域；
-  - **图像描述（image captioning）** ：把图像内容转化为自然语言；
-- 最后通过 **猫狗分类器实训** 串起完整流程：数据准备、特征选择、模型选择、模型训练、模型评估和模型使用。
+  - **Image Classification（图像分类）** ：整张图属于哪一类；
+  - **图像识别 / Object Detection（目标检测）（image recognition / object detection）** ：图里有哪些物体，它们大致在哪里；
+  - **Image Segmentation（图像分割）** ：每个像素属于哪个物体或区域；
+  - **Image Captioning（图像描述）** ：把图像内容转化为自然语言；
+- 最后通过 **猫狗分类器实训** 串起完整流程：数据准备、 **Feature Selection（特征选择）**、模型选择、模型训练、模型评估和模型使用。
 
 > **图像理解 = 把像素矩阵转化为语义信息。**
 
@@ -32,13 +32,13 @@ draft: true
 
 - [概述](#概述)
 - [数字图像基本概念](#数字图像基本概念)
-- [图像预处理](#图像预处理)
-- [从手工特征到深层特征](#从手工特征到深层特征)
-- [图像分类](#图像分类)
+- [**Image Preprocessing**](#image-preprocessing)
+- [从 **Handcrafted Features（手工特征）** 到 **Deep Features（深层特征）**](#从-handcrafted-features-到-deep-features)
+- [**Image Classification**](#image-classification)
 - [图像识别：从类别到位置](#图像识别从类别到位置)
-- [图像分割：从边界框到像素级理解](#图像分割从边界框到像素级理解)
-- [图像描述：从视觉到语言](#图像描述从视觉到语言)
-- [模型训练实战：猫狗图像分类器](#模型训练实战猫狗图像分类器)
+- [**Image Segmentation**：从 **Bounding Box（边界框）** 到像素级理解](#image-segmentation从-bounding-box-到像素级理解)
+- [**Image Captioning**：从视觉到语言](#image-captioning从视觉到语言)
+- [模型训练实战：猫狗 **Image Classifier（图像分类器）**](#模型训练实战猫狗图像分类器)
 - [四类图像理解任务对比](#四类图像理解任务对比)
 - [这一讲最该记住的内容](#这一讲最该记住的内容)
 - [参考文献](#参考文献)
@@ -113,11 +113,11 @@ $$
 
 这也是图像模型常常要先统一图像大小的原因。
 
-### 色彩空间
+### **Color Space（色彩空间）**
 
-**色彩空间（color space）** 是对颜色进行数学表示的方式。
+**Color Space** 是对颜色进行数学表示的方式。
 
-常见色彩空间包括三类。
+常见 **Color Space** 包括三类。
 
 #### 1. RGB
 
@@ -128,7 +128,7 @@ RGB 使用红、绿、蓝三个通道表示颜色。
 - 手机屏幕；
 - 电脑显示器；
 - 摄像头图像；
-- 深度学习模型输入。
+- **Deep Learning（深度学习）** 模型输入。
 
 对大多数图像理解任务来说，RGB 是最常见的输入格式。
 
@@ -155,9 +155,9 @@ CMYK 分别表示：
 
 ---
 
-## 图像预处理
+## **Image Preprocessing**
 
-图像预处理是图像分析和识别流程中的第一步。
+**Image Preprocessing** 是图像分析和识别流程中的第一步。
 
 它的目标是：
 
@@ -174,9 +174,9 @@ CMYK 分别表示：
 
 如果直接把这些图像输入模型，模型会把大量无关差异也当成学习对象，训练效果可能变差。
 
-### 灰度化
+### **Grayscale Conversion**
 
-**灰度化（grayscale conversion）** 是把彩色图像转换为灰度图像。
+**Grayscale Conversion** 是把彩色图像转换为灰度图像。
 
 它的作用是：
 
@@ -187,11 +187,11 @@ CMYK 分别表示：
 
 例如手写数字识别通常不关心颜色，只关心笔画形状，因此灰度图就足够。
 
-但如果任务需要颜色信息，例如识别水果成熟度、区分红绿灯、识别皮肤病变，则不应随意灰度化。
+但如果任务需要颜色信息，例如识别水果成熟度、区分红绿灯、识别皮肤病变，则不应随意 **Grayscale Conversion**。
 
-### 归一化
+### **Normalization**
 
-**归一化（normalization）** 是把像素值缩放到统一范围。
+**Normalization** 是把像素值缩放到统一范围。
 
 常见做法是把 $[0,255]$ 缩放到 $[0,1]$：
 
@@ -199,22 +199,22 @@ $$
 x' = \frac{x}{255}
 $$
 
-也可以标准化为均值为 0、方差为 1：
+也可以 **Standardization（标准化）** 为均值为 0、方差为 1：
 
 $$
 x' = \frac{x - \mu}{\sigma}
 $$
 
-归一化的意义是：
+**Normalization** 的意义是：
 
 - 避免像素值尺度过大；
 - 让梯度优化更稳定；
 - 加快模型收敛；
 - 减少不同图像之间数值尺度差异带来的影响。
 
-### 直方图均衡化
+### **Histogram Equalization（直方图均衡化）**
 
-**直方图均衡化（histogram equalization）** 是一种增强图像对比度的方法。
+**Histogram Equalization** 是一种增强图像对比度的方法。
 
 它通过调整像素值分布，让图像的亮暗层次更加均匀。
 
@@ -249,13 +249,13 @@ $$
 
 ---
 
-## 从手工特征到深层特征
+## 从 **Handcrafted Features** 到 **Deep Features**
 
-### 手工特征
+### **Handcrafted Features**
 
 早期图像理解依赖人类设计特征。
 
-常见手工特征包括：
+常见 **Handcrafted Features** 包括：
 
 - 像素值；
 - 边缘；
@@ -275,31 +275,31 @@ $$
 - SIFT 关注尺度不变的局部关键点，适合做图像匹配；
 - 颜色直方图关注颜色分布，适合粗略区分图像风格或物体颜色。
 
-手工特征的优点：
+**Handcrafted Features** 的优点：
 
-- 可解释性较强；
+- **Explainability（可解释性）** 较强；
 - 计算量通常较小；
 - 在小数据、规则明确的任务中仍有价值。
 
-手工特征的局限：
+**Handcrafted Features** 的局限：
 
 - 依赖专家经验；
 - 很难覆盖复杂视觉变化；
 - 对光照、遮挡、姿态变化敏感；
 - 特征设计和任务强绑定，迁移能力有限。
 
-### 深层特征
+### **Deep Features**
 
-深度学习出现后，特征可以由模型自动学习。
+**Deep Learning** 出现后，特征可以由模型自动学习。
 
-以 CNN 为例：
+以 **Convolutional Neural Network（卷积神经网络，CNN）** 为例：
 
-- 底层卷积层学习边缘、线条、颜色变化；
+- 底层 **Convolutional Layer（卷积层）** 学习边缘、线条、颜色变化；
 - 中间层学习纹理、局部形状；
 - 高层学习物体部件和整体语义；
 - 最后输出分类、检测或分割结果。
 
-这类由神经网络自动学习出的特征，称为 **深层特征（deep features）** 。
+这类由 **Neural Network（神经网络）** 自动学习出的特征，称为 **Deep Features** 。
 
 它的核心优势是：
 
@@ -307,30 +307,30 @@ $$
 
 ### 两者的关系
 
-手工特征和深层特征不是完全对立的。
+**Handcrafted Features** 和 **Deep Features** 不是完全对立的。
 
-| 维度 | 手工特征 | 深层特征 |
+| 维度 | **Handcrafted Features** | **Deep Features** |
 |---|---|---|
-| 特征来源 | 人类专家设计 | 神经网络自动学习 |
-| 代表方法 | SIFT、HOG、颜色直方图、像素值 | CNN、ViT、深度检测/分割模型 |
-| 可解释性 | 通常更强 | 通常较弱 |
+| 特征来源 | 人类专家设计 | **Neural Network** 自动学习 |
+| 代表方法 | SIFT、HOG、颜色直方图、像素值 | **CNN**、ViT、深度检测/分割模型 |
+| **Explainability** | 通常更强 | 通常较弱 |
 | 表达能力 | 受人工设计限制 | 更强，能学习复杂模式 |
 | 数据需求 | 较低 | 通常更高 |
 | 典型用途 | 小规模任务、传统视觉任务、教学入门 | 大规模分类、检测、分割、描述 |
 
 ---
 
-## 图像分类
+## **Image Classification**
 
-### 图像分类解决什么问题
+### **Image Classification** 解决什么问题
 
-**图像分类（image classification）** 的目标是：
+**Image Classification** 的目标是：
 
 > **输入一张图像，输出一个类别标签。**
 
-### 图像分类的基本流程
+### **Image Classification** 的基本流程
 
-图像分类通常包含三步：
+**Image Classification** 通常包含三步：
 
 #### 1. 输入
 
@@ -344,10 +344,10 @@ $$
 
 常见模型包括：
 
-- KNN；
-- CNN；
+- **K-Nearest Neighbors（K 近邻，KNN）**；
+- **CNN**；
 - ViT；
-- 其他预训练图像分类模型。
+- 其他 **Pretrained Image Classification Model（预训练图像分类模型）**。
 
 #### 3. 输出
 
@@ -363,19 +363,19 @@ $$
 
 最终取概率最高的类别作为预测结果。
 
-### CNN：局部观察者
+### **CNN**：局部观察者
 
-**卷积神经网络（Convolutional Neural Network, CNN）** 是最经典的图像分类模型之一。
+**CNN** 是最经典的 **Image Classification** 模型之一。
 
-CNN 的核心思想是：
+**CNN** 的核心思想是：
 
-> **用卷积核在图像上滑动，自动提取局部视觉特征。**
+> **用Convolution Kernel（卷积核）在图像上滑动，自动提取局部视觉特征。**
 
-CNN 有两个关键设计。
+**CNN** 有两个关键设计。
 
 #### 1. 局部连接
 
-一个卷积核只观察图像的一小块区域。
+一个 **Convolution Kernel** 只观察图像的一小块区域。
 
 这适合图像任务，因为图像中的很多特征本来就是局部的：
 
@@ -386,20 +386,20 @@ CNN 有两个关键设计。
 - 狗的耳朵；
 - 椅子的边缘。
 
-#### 2. 权重共享
+#### 2. **Weight Sharing（权重共享）**
 
-同一个卷积核会在整张图像上重复使用。
+同一个 **Convolution Kernel** 会在整张图像上重复使用。
 
 这意味着：
 
-> **同一种特征不管出现在图像左边还是右边，都可以被同一个卷积核识别。**
+> **同一种特征不管出现在图像左边还是右边，都可以被同一个Convolution Kernel识别。**
 
-因此 CNN 特别适合处理具有局部结构和空间平移特征的数据。
+因此 **CNN** 特别适合处理具有局部结构和空间平移特征的数据。
 
-在 CNN 中：
+在 **CNN** 中：
 
-- 卷积层负责提取特征；
-- 池化层负责降低维度、压缩信息；
+- **Convolutional Layer** 负责提取特征；
+- **Pooling Layer（池化层）** 负责降低维度、压缩信息；
 - 多层卷积逐步把低级特征组合成高级特征；
 - 最后的分类层输出类别概率。
 
@@ -409,7 +409,7 @@ CNN 有两个关键设计。
 
 它的关键做法是：
 
-> **把图像切成许多小块，把每个图像块当作类似语言中的 token，再用 Transformer 处理这些图像块之间的关系。**
+> **把图像切成许多小块，把每个图像块当作类似语言中的 token（词元），再用 Transformer 处理这些图像块之间的关系。**
 
 例如一张图片可以被切成多个 patch：
 
@@ -421,20 +421,20 @@ $$
 
 ViT 的优势在于：
 
-- 通过自注意力机制建模图像块之间的全局关系；
+- 通过 **Self-Attention（自注意力机制）** 建模图像块之间的全局关系；
 - 更适合捕捉整体结构；
-- 在大规模数据预训练后效果很强。
+- 在大规模数据 **Pretraining（预训练）** 后效果很强。
 
-CNN 和 ViT 的对比：
+**CNN** 和 ViT 的对比：
 
-- CNN 像 **局部观察者** ，擅长看局部细节；
+- **CNN** 像 **局部观察者** ，擅长看局部细节；
 - ViT 像 **全局观察者** ，擅长看图像块之间的整体关系。
 
-| 维度 | CNN | ViT |
+| 维度 | **CNN** | ViT |
 |---|---|---|
-| 基本单元 | 卷积核 | 图像 patch |
+| 基本单元 | **Convolution Kernel** | 图像 patch |
 | 关注方式 | 局部区域 | 全局关系 |
-| 核心机制 | 卷积、池化、权重共享 | 自注意力、多头注意力 |
+| 核心机制 | 卷积、池化、 **Weight Sharing** | **Self-Attention**、 **Multi-Head Attention（多头注意力）** |
 | 优势 | 局部细节、边缘、纹理 | 长距离依赖、整体结构 |
 | 典型问题 | 大范围关系建模较弱 | 通常依赖较大数据规模 |
 
@@ -450,7 +450,7 @@ CNN 和 ViT 的对比：
 
 这类工具适合用来理解：
 
-> **图像分类模型可以从研究算法走向实际可交互应用。**
+> **Image Classification模型可以从研究算法走向实际可交互应用。**
 
 ---
 
@@ -462,11 +462,11 @@ CNN 和 ViT 的对比：
 
 > **不仅判断图像里有什么物体，还要指出物体大致在哪里。**
 
-图像分类只输出一个整体标签：
+**Image Classification** 只输出一个整体标签：
 
 - 客厅。
 
-图像识别 / 目标检测会输出：
+图像识别 / **Object Detection** 会输出：
 
 - 椅子：位置框；
 - 茶几：位置框；
@@ -475,12 +475,12 @@ CNN 和 ViT 的对比：
 也就是说，它的输出通常包括：
 
 - 类别标签；
-- 边界框（bounding box）；
-- 置信度（confidence score）。
+- **Bounding Box**；
+- **Confidence Score（置信度）**。
 
 例如：
 
-| 物体 | 边界框 | 置信度 |
+| 物体 | **Bounding Box** | **Confidence Score** |
 |---|---|---:|
 | 椅子 | $(x_1,y_1,x_2,y_2)$ | 0.93 |
 | 茶几 | $(x_1,y_1,x_2,y_2)$ | 0.88 |
@@ -499,29 +499,29 @@ CNN 和 ViT 的对比：
 
 输出是一张带标注的图像：
 
-- 物体被边界框框出；
-- 边界框旁边标注类别名称；
-- 有时还会显示置信度。
+- 物体被 **Bounding Box** 框出；
+- **Bounding Box** 旁边标注类别名称；
+- 有时还会显示 **Confidence Score**。
 
-### R-CNN：先找候选区域，再分类
+### R-CNN：先找 **Region Proposal（候选区域）**，再分类
 
-**R-CNN（Region-based Convolutional Neural Networks）** 是目标检测中的重要模型。
+**R-CNN（Region-based Convolutional Neural Networks）** 是 **Object Detection** 中的重要模型。
 
 它的核心思想是：
 
-> **先从图像中找出可能包含物体的候选区域，再对每个候选区域使用 CNN 提取特征并分类。**
+> **先从图像中找出可能包含物体的Region Proposal，再对每个Region Proposal使用 CNN 提取特征并分类。**
 
 传统的全图滑动窗口方法效率较低，因为需要对大量位置和尺度重复扫描。
 
-R-CNN 引入 **区域候选（region proposal）** ，先缩小搜索范围。
+R-CNN 引入 **Region Proposal** ，先缩小搜索范围。
 
 工作流程可以概括为：
 
 1. 输入一张图像；
-2. 提取若干可能包含物体的候选区域；
-3. 对每个候选区域用 CNN 计算特征；
-4. 对候选区域进行分类；
-5. 输出物体类别和边界框。
+2. 提取若干可能包含物体的 **Region Proposal**；
+3. 对每个 **Region Proposal** 用 **CNN** 计算特征；
+4. 对 **Region Proposal** 进行分类；
+5. 输出物体类别和 **Bounding Box**。
 
 ### Fast R-CNN 与 Faster R-CNN
 
@@ -529,29 +529,29 @@ R-CNN 的主要问题是速度慢。
 
 原因是：
 
-- 每个候选区域都要单独送入 CNN；
+- 每个 **Region Proposal** 都要单独送入 **CNN**；
 - 重复计算很多；
 - 训练和推理成本都较高。
 
 **Fast R-CNN** 的改进方向是：
 
-- 先对整张图像计算一次卷积特征图；
-- 再在特征图上对候选区域进行分类和回归；
+- 先对整张图像计算一次卷积 **Feature Map（特征图）**；
+- 再在 **Feature Map** 上对 **Region Proposal** 进行分类和回归；
 - 减少重复卷积计算。
 
-**Faster R-CNN** 进一步引入 **区域建议网络（Region Proposal Network, RPN）** ：
+**Faster R-CNN** 进一步引入 **Region Proposal Network（区域建议网络，RPN）** ：
 
-- 用神经网络自动生成候选区域；
+- 用 **Neural Network** 自动生成 **Region Proposal**；
 - 与检测网络共享特征；
-- 使候选区域生成更快、更端到端。
+- 使 **Region Proposal** 生成更快、更端到端。
 
 可以这样理解三者关系：
 
 | 模型 | 核心思想 | 主要改进 |
 |---|---|---|
-| R-CNN | 候选区域 + CNN 分类 | 深度学习目标检测的早期重要框架 |
+| R-CNN | **Region Proposal** + **CNN** 分类 | **Deep Learning**  **Object Detection** 的早期重要框架 |
 | Fast R-CNN | 整图共享卷积特征 | 减少重复计算，提高速度 |
-| Faster R-CNN | 用 RPN 自动生成候选区域 | 进一步接近实时检测 |
+| Faster R-CNN | 用 **RPN** 自动生成 **Region Proposal** | 进一步接近实时检测 |
 
 ### RTOD 实时检测工具
 
@@ -561,10 +561,10 @@ R-CNN 的主要问题是速度慢。
 
 - 上传图像或调用摄像头；
 - 实时检测行人、车辆等物体；
-- 用边界框标出目标；
-- 显示类别和置信度。
+- 用 **Bounding Box** 标出目标；
+- 显示类别和 **Confidence Score**。
 
-这类工具体现了目标检测的工程价值：
+这类工具体现了 **Object Detection** 的工程价值：
 
 - 自动驾驶要实时识别行人和车辆；
 - 安防系统要实时检测异常目标；
@@ -573,11 +573,11 @@ R-CNN 的主要问题是速度慢。
 
 ---
 
-## 图像分割：从边界框到像素级理解
+## **Image Segmentation**：从 **Bounding Box** 到像素级理解
 
-### 图像分割解决什么问题
+### **Image Segmentation** 解决什么问题
 
-图像识别只能给出物体的大致位置，通常用矩形边界框表示。
+图像识别只能给出物体的大致位置，通常用矩形 **Bounding Box** 表示。
 
 但很多任务需要更精确的边界。
 
@@ -588,20 +588,20 @@ R-CNN 的主要问题是速度慢。
 - 图像编辑要把人物从背景中抠出来；
 - 艺术分析要计算人物和背景的面积比例。
 
-这时就需要 **图像分割（image segmentation）** 。
+这时就需要 **Image Segmentation** 。
 
-图像分割的目标是：
+**Image Segmentation** 的目标是：
 
 > **为图像中的每个像素分配类别或实例标签。**
 
-与目标检测相比：
+与 **Object Detection** 相比：
 
-- 目标检测输出边界框；
-- 图像分割输出像素级区域。
+- **Object Detection** 输出 **Bounding Box**；
+- **Image Segmentation** 输出像素级区域。
 
-### 图像分割的基本流程
+### **Image Segmentation** 的基本流程
 
-图像分割通常包含三步。
+**Image Segmentation** 通常包含三步。
 
 #### 1. 输入
 
@@ -621,17 +621,17 @@ R-CNN 的主要问题是速度慢。
 - 不同类别或实例用不同颜色显示；
 - 物体边界比检测框更精确。
 
-### 三类图像分割
+### 三类 **Image Segmentation**
 
 三种分割方式：
 
-- 语义分割；
-- 实例分割；
-- 全景分割。
+- **Semantic Segmentation（语义分割）**；
+- **Instance Segmentation（实例分割）**；
+- **Panoptic Segmentation（全景分割）**。
 
-#### 1. 语义分割
+#### 1. **Semantic Segmentation**
 
-**语义分割（semantic segmentation）** 给每个像素分配类别标签。
+**Semantic Segmentation** 给每个像素分配类别标签。
 
 例如图像中所有猫的像素都标成“猫”。
 
@@ -648,11 +648,11 @@ R-CNN 的主要问题是速度慢。
 - 医学组织区域分割；
 - 场景理解。
 
-代表模型： **FCN** 。
+代表模型： **Fully Convolutional Network（全卷积网络，FCN）** 。
 
-#### 2. 实例分割
+#### 2. **Instance Segmentation**
 
-**实例分割（instance segmentation）** 不仅识别类别，还区分同一类别中的不同个体。
+**Instance Segmentation** 不仅识别类别，还区分同一类别中的不同个体。
 
 它关心的是：
 
@@ -667,9 +667,9 @@ R-CNN 的主要问题是速度慢。
 
 代表模型： **Mask R-CNN** 。
 
-#### 3. 全景分割
+#### 3. **Panoptic Segmentation**
 
-**全景分割（panoptic segmentation）** 结合语义分割和实例分割。
+**Panoptic Segmentation** 结合 **Semantic Segmentation** 和 **Instance Segmentation**。
 
 它希望图像中每个像素都有完整解释：
 
@@ -689,39 +689,39 @@ R-CNN 的主要问题是速度慢。
 
 | 分割类型 | 是否逐像素分类 | 是否区分实例 | 典型例子 | 代表模型 |
 |---|---|---|---|---|
-| 语义分割 | 是 | 否 | 所有道路像素标为“道路” | FCN |
-| 实例分割 | 是 | 是 | 区分每一个人、每一辆车 | Mask R-CNN |
-| 全景分割 | 是 | 对可数物体区分实例 | 同时理解道路、天空、人、车 | Panoptic FPN |
+| **Semantic Segmentation** | 是 | 否 | 所有道路像素标为“道路” | **FCN** |
+| **Instance Segmentation** | 是 | 是 | 区分每一个人、每一辆车 | Mask R-CNN |
+| **Panoptic Segmentation** | 是 | 对可数物体区分实例 | 同时理解道路、天空、人、车 | Panoptic FPN |
 
 
-### FCN
+### **FCN**
 
-**FCN（Fully Convolutional Network，全卷积网络）** 是语义分割中的经典模型。
+**FCN** 是 **Semantic Segmentation** 中的经典模型。
 
 它的核心思想是：
 
 > **把分类网络改造成可以输出空间位置预测的网络，让模型对每个像素做分类。**
 
-传统 CNN 分类模型最后通常输出一个类别标签。
+传统 **CNN** 分类模型最后通常输出一个类别标签。
 
-FCN 则输出一张与图像空间相关的预测图，让每个位置都有类别结果。
+**FCN** 则输出一张与图像空间相关的预测图，让每个位置都有类别结果。
 
-这使得深度学习可以从“整图分类”扩展到“像素级分类”。
+这使得 **Deep Learning** 可以从“整图分类”扩展到“像素级分类”。
 
 ### Mask R-CNN
 
-**Mask R-CNN** 是实例分割中的经典模型。
+**Mask R-CNN** 是 **Instance Segmentation** 中的经典模型。
 
 它可以看作在 Faster R-CNN 的基础上增加了一个 mask 分支。
 
 原来的 Faster R-CNN 主要输出：
 
 - 类别；
-- 边界框。
+- **Bounding Box**。
 
 Mask R-CNN 进一步输出：
 
-- 每个实例的分割掩码。
+- 每个实例的 **Segmentation Mask（分割掩码）**。
 
 所以它能够做到：
 
@@ -731,12 +731,12 @@ Mask R-CNN 进一步输出：
 
 ### Panoptic FPN
 
-**Panoptic FPN** 是全景分割的重要模型。
+**Panoptic FPN** 是 **Panoptic Segmentation** 的重要模型。
 
 它的目标是统一两类任务：
 
-- 实例分割：处理人、车、动物等可数对象；
-- 语义分割：处理天空、道路、墙壁等背景区域。
+- **Instance Segmentation**：处理人、车、动物等可数对象；
+- **Semantic Segmentation**：处理天空、道路、墙壁等背景区域。
 
 它适合更完整的场景理解。
 
@@ -750,7 +750,7 @@ Mask R-CNN 进一步输出：
 
 ### Segment Anything
 
-**Segment Anything Model（SAM）** 是 Meta AI 提出的图像分割基础模型。
+**Segment Anything Model（SAM）** 是 Meta AI 提出的 **Image Segmentation** 基础模型。
 
 特点：
 
@@ -758,7 +758,7 @@ Mask R-CNN 进一步输出：
 - 支持用户指定目标；
 - 不需要针对每个新物体重新训练；
 - 具有较强的零样本泛化能力；
-- 可用于图片编辑、内容创作、目标检测辅助、视觉研究等场景。
+- 可用于图片编辑、内容创作、 **Object Detection** 辅助、视觉研究等场景。
 
 可以把 SAM 理解为：
 
@@ -766,11 +766,11 @@ Mask R-CNN 进一步输出：
 
 ---
 
-## 图像描述：从视觉到语言
+## **Image Captioning**：从视觉到语言
 
-### 图像描述解决什么问题
+### **Image Captioning** 解决什么问题
 
-**图像描述（image captioning）** 的目标是：
+**Image Captioning** 的目标是：
 
 > **输入一张图像，输出一段自然语言描述。**
 
@@ -778,7 +778,7 @@ Mask R-CNN 进一步输出：
 
 > 这是一张现代风格的客厅照片，左右两边分别有木制椅子，中间有一个茶几。
 
-图像描述比分类、识别、分割更进一步，因为它需要跨模态能力：
+**Image Captioning** 比分类、识别、分割更进一步，因为它需要跨模态能力：
 
 - 先理解视觉内容；
 - 再组织语言；
@@ -787,26 +787,26 @@ Mask R-CNN 进一步输出：
 它连接了两个领域：
 
 - 计算机视觉；
-- 自然语言处理。
+- **Natural Language Processing（自然语言处理）**。
 
-### 图像描述的基本流程
+### **Image Captioning** 的基本流程
 
-图像描述通常包括：
+**Image Captioning** 通常包括：
 
 1. 输入一张图像；
 2. 视觉模型提取图像特征；
-3. 语言模型根据视觉特征生成文字；
+3. **Language Model（语言模型）** 根据视觉特征生成文字；
 4. 输出一句或一段描述。
 
 在早期经典模型中，常见结构是：
 
-- CNN 负责“看图”；
-- RNN / LSTM 负责“说话”；
-- 注意力机制负责“决定描述每个词时该看图中的哪里”。
+- **CNN** 负责“看图”；
+- **Recurrent Neural Network（循环神经网络，RNN）** / LSTM 负责“说话”；
+- **Attention Mechanism（注意力机制）** 负责“决定描述每个词时该看图中的哪里”。
 
 ### Show, Attend and Tell
 
-它的核心创新是引入 **注意力机制（attention mechanism）** 。
+它的核心创新是引入 **Attention Mechanism** 。
 
 直观理解：
 
@@ -814,12 +814,12 @@ Mask R-CNN 进一步输出：
 
 例如生成“椅子”这个词时，模型应关注椅子所在区域；生成“茶几”这个词时，应关注茶几所在区域。
 
-这使图像描述更细致、更准确。
+这使 **Image Captioning** 更细致、更准确。
 
 它通常结合：
 
-- CNN：提取图像特征；
-- RNN：生成文字序列；
+- **CNN**：提取图像特征；
+- **RNN**：生成文字序列；
 - Attention：在生成过程中选择关注区域。
 
 可以把它理解为一个“会看图的讲解员”：
@@ -828,7 +828,7 @@ Mask R-CNN 进一步输出：
 - 一边关注关键部分；
 - 一边组织语言描述。
 
-### Image Caption Generator
+### Image Caption **Generator（生成器）**
 
 它的功能是：
 
@@ -845,9 +845,9 @@ Mask R-CNN 进一步输出：
 - 辅助新闻、广告、创意内容生产；
 - 为多模态模型提供图文对齐数据。
 
-### 图像描述的局限
+### **Image Captioning** 的局限
 
-图像描述模型也有明显局限。
+**Image Captioning** 模型也有明显局限。
 
 #### 1. 容易停留在显性物体
 
@@ -883,13 +883,13 @@ Mask R-CNN 进一步输出：
 
 ---
 
-## 猫狗图像分类器
+## 猫狗 **Image Classifier**
 
 这个案例使用的是比较基础的方案：
 
 - 数据：猫狗图片；
 - 特征：图像像素值；
-- 模型：KNN；
+- 模型： **KNN**；
 - 任务：二分类。
 
 它适合作为入门案例，因为流程清晰，但性能不一定高。
@@ -907,17 +907,17 @@ Mask R-CNN 进一步输出：
 - 图片质量是否可靠；
 - 是否有错误标签；
 - 是否覆盖不同光线、角度、姿态和背景；
-- 训练集和测试集是否严格分开。
+- **Training Set（训练集）** 和 **Test Set（测试集）** 是否严格分开。
 
 例如：
 
-- 训练集中猫的图片全是白天拍摄；
+- **Training Set** 中猫的图片全是白天拍摄；
 - 测试时出现夜晚拍摄的猫；
 - 模型可能因为分布变化而分类错误。
 
 这就是数据分布偏差带来的泛化问题。
 
-### 第二步：特征选择
+### 第二步： **Feature Selection**
 
 使用图像的像素值作为特征。
 
@@ -945,78 +945,78 @@ $$
 
 - SIFT；
 - HOG；
-- CNN 深层特征；
+- **CNN** **Deep Features**；
 - ViT 特征；
-- 预训练模型 embedding。
+- **Pretrained Model（预训练模型）** embedding。
 
 ### 第三步：模型选择
 
-选择 **KNN（K-Nearest Neighbors, K 近邻）** 分类器。
+选择 **KNN** 分类器。
 
-KNN 的思想非常直观：
+**KNN** 的思想非常直观：
 
-> **要判断一张新图属于哪一类，就看训练集中和它最像的 $k$ 张图大多数属于哪一类。**
+> **要判断一张新图属于哪一类，就看Training Set中和它最像的 $k$ 张图大多数属于哪一类。**
 
 流程如下：
 
 1. 给定一张待分类图片；
-2. 计算它与训练集中每张图片的距离；
+2. 计算它与 **Training Set** 中每张图片的距离；
 3. 找到距离最近的 $k$ 张图片；
 4. 统计这 $k$ 张图片的类别；
 5. 采用多数投票输出类别。
 
-常见距离是欧氏距离：
+常见距离是 **Euclidean Distance（欧氏距离）**：
 
 $$
 d(x_i,x_j)=\sqrt{\sum_{l=1}^{d}(x_{il}-x_{jl})^2}
 $$
 
-KNN 的优点：
+**KNN** 的优点：
 
 - 思想简单；
 - 不需要复杂训练；
 - 适合理解分类基本逻辑。
 
-KNN 的局限：
+**KNN** 的局限：
 
 - 高维图像上距离度量效果可能差；
 - 预测时要和大量样本比较，效率低；
 - 对噪声和数据分布敏感；
 - 不能自动学习高级视觉特征。
 
-所以 KNN 更适合作为图像分类入门基线。
+所以 **KNN** 更适合作为 **Image Classification** 入门基线。
 
 ### 第四步：模型训练
 
-KNN 的“训练”主要是保存训练数据和标签。
+**KNN** 的“训练”主要是保存训练数据和标签。
 
 一般训练流程包括：
 
 1. 读取图像；
 2. 统一尺寸；
-3. 归一化像素值；
+3. **Normalization** 像素值；
 4. 展平成特征向量；
-5. 划分训练集和测试集；
-6. 用训练集拟合 KNN；
-7. 在测试集上评估。
+5. 划分 **Training Set** 和 **Test Set**；
+6. 用 **Training Set** 拟合 **KNN**；
+7. 在 **Test Set** 上评估。
 
 注意：
 
-> **训练集和测试集不能重叠。**
+> **Training Set和Test Set不能重叠。**
 
-如果测试图片已经出现在训练集中，评估结果就会虚高。
+如果测试图片已经出现在 **Training Set** 中，评估结果就会虚高。
 
 ### 第五步：模型评估
 
-示例结果准确率约为 0.44。
+示例结果 **Accuracy（准确率）** 约为 0.44。
 
 这个结果并不高，恰好说明：
 
-> **只用原始像素值 + KNN，很难处理真实图像分类任务。**
+> **只用原始像素值 + KNN，很难处理真实Image Classification任务。**
 
-图像分类常用指标包括准确率、精确率、召回率和 F1-score。
+**Image Classification** 常用指标包括 **Accuracy**、 **Precision（精确率）**、 **Recall（召回率）** 和 F1-score。
 
-#### 准确率
+#### **Accuracy**
 
 $$
 Accuracy = \frac{TP + TN}{TP + TN + FP + FN}
@@ -1024,9 +1024,9 @@ $$
 
 表示总体预测正确的比例。
 
-但当类别不平衡时，准确率可能有误导性。
+但当类别不平衡时， **Accuracy** 可能有误导性。
 
-#### 精确率
+#### **Precision**
 
 $$
 Precision = \frac{TP}{TP + FP}
@@ -1034,9 +1034,9 @@ $$
 
 表示被模型预测为正类的样本中，有多少是真的正类。
 
-如果我们特别希望“预测为猫”的结果尽量准确，就要关注 precision。
+如果我们特别希望“预测为猫”的结果尽量准确，就要关注 **precision**。
 
-#### 召回率
+#### **Recall**
 
 $$
 Recall = \frac{TP}{TP + FN}
@@ -1044,7 +1044,7 @@ $$
 
 表示所有真正正类样本中，有多少被模型找出来。
 
-如果我们特别希望不要漏掉猫，就要关注 recall。
+如果我们特别希望不要漏掉猫，就要关注 **recall**。
 
 #### F1-score
 
@@ -1052,7 +1052,7 @@ $$
 F1 = 2 \cdot \frac{Precision \cdot Recall}{Precision + Recall}
 $$
 
-F1 是 precision 和 recall 的调和平均，适合同时关注查准率和查全率的任务。
+F1 是 **precision** 和 **recall** 的调和平均，适合同时关注查准率和查全率的任务。
 
 ### 第六步：模型使用
 
@@ -1062,12 +1062,12 @@ F1 是 precision 和 recall 的调和平均，适合同时关注查准率和查�
 
 - cat；
 - dog；
-- 或对应概率 / 置信度。
+- 或对应概率 / **Confidence Score**。
 
 
 ### 为什么这个案例效果不高
 
-KNN 示例准确率约为 0.44，低于理想效果。
+**KNN** 示例 **Accuracy** 约为 0.44，低于理想效果。
 
 原因主要有：
 
@@ -1075,25 +1075,25 @@ KNN 示例准确率约为 0.44，低于理想效果。
    - 同一只猫平移几像素，像素向量就会明显变化。
 
 2. **图像维度太高**
-   - 高维空间中距离度量容易失效，KNN 很难找到真正语义相似的图片。
+   - 高维空间中距离度量容易失效， **KNN** 很难找到真正语义相似的图片。
 
 3. **背景干扰强**
-   - KNN 可能把背景、光照、颜色当成主要差异。
+   - **KNN** 可能把背景、光照、颜色当成主要差异。
 
 4. **缺少层次特征学习**
    - 模型没有学到耳朵、胡须、眼睛、轮廓等更高级特征。
 
 5. **泛化能力弱**
-   - 遇到训练集中没覆盖的姿态、光照和品种时容易出错。
+   - 遇到 **Training Set** 中没覆盖的姿态、光照和品种时容易出错。
 
 改进方向：
 
-- 使用 CNN 或 ViT；
-- 使用预训练模型提取 embedding；
-- 增加数据增强；
+- 使用 **CNN** 或 ViT；
+- 使用 **Pretrained Model** 提取 embedding；
+- 增加 **Data Augmentation（数据增强）**；
 - 清洗错误标签；
 - 平衡类别数量；
-- 引入验证集调参；
+- 引入 **Validation Set（验证集）** 调参；
 - 使用更合适的评价指标。
 
 ---
@@ -1102,10 +1102,10 @@ KNN 示例准确率约为 0.44，低于理想效果。
 
 | 任务 | 输入 | 输出 | 解决的问题 | 典型模型 / 工具 |
 |---|---|---|---|---|
-| 图像分类 | 一张图像 | 一个类别标签 | 这张图是什么 | KNN、CNN、ViT、TensorFlow.js Classifier |
-| 图像识别 / 目标检测 | 一张图像 | 类别 + 边界框 | 图里有什么，在哪里 | R-CNN、Fast R-CNN、Faster R-CNN、RTOD |
-| 图像分割 | 一张图像 | 每个像素的标签或实例 mask | 每个物体的精确边界在哪里 | FCN、Mask R-CNN、Panoptic FPN、SAM |
-| 图像描述 | 一张图像 | 自然语言描述 | 如何用语言描述这张图 | Show, Attend and Tell、Image Caption Generator |
+| **Image Classification** | 一张图像 | 一个类别标签 | 这张图是什么 | **KNN**、 **CNN**、ViT、TensorFlow.js Classifier |
+| 图像识别 / **Object Detection** | 一张图像 | 类别 + **Bounding Box** | 图里有什么，在哪里 | R-CNN、Fast R-CNN、Faster R-CNN、RTOD |
+| **Image Segmentation** | 一张图像 | 每个像素的标签或实例 mask | 每个物体的精确边界在哪里 | **FCN**、Mask R-CNN、Panoptic FPN、SAM |
+| **Image Captioning** | 一张图像 | 自然语言描述 | 如何用语言描述这张图 | Show, Attend and Tell、Image Caption **Generator** |
 
 四者的关系可以理解为视觉理解能力逐步加深：
 

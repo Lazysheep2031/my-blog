@@ -715,7 +715,7 @@ cursor.execute(query_tmpl, [personname])
 
 参数通过列表传入，而不是直接字符串拼接。
 
-这和 prepared statement 的思想相同，可以降低 SQL injection 风险。
+这和 **prepared statement（预处理语句）** 的思想相同，可以降低 SQL injection 风险。
 
 
 ## Client-Side Code and Web Services
@@ -875,7 +875,7 @@ Big Web Services 使用更复杂的 XML 表示请求和结果，并在 HTTP 之�
 
 例子：
 
-- 学生离线填写申请表，联网后自动提交
+- 学生离线填写申请表，联网后 **Autocommit（自动提交）**
 - 邮件客户端离线写邮件，联网后发送
 
 HTML5 提供 local storage。
@@ -1035,7 +1035,7 @@ Business logic layer 提供业务实体和业务动作的抽象。
 
 > 学生只有在完成先修课程、缴清学费后，才能选某门课。
 
-这不是数据库外键能直接表达的规则，需要应用层业务逻辑处理。
+这不是数据库 **Foreign Key（外键）** 能直接表达的规则，需要应用层业务逻辑处理。
 
 Business logic 还包括 **workflow（工作流）** 。
 
@@ -1066,7 +1066,7 @@ Data access layer 位于 business logic 和 database 之间。
 - 封装 SQL 查询
 - 管理结果集
 - 管理事务
-- 把对象模型映射到关系模型
+- 把对象模型映射到 **Relational Model（关系模型）**
 
 最简单情况下：
 
@@ -1074,7 +1074,7 @@ Data access layer 位于 business logic 和 database 之间。
 Business logic calls DAO method → DAO executes SQL → returns result
 ```
 
-更复杂情况下，业务层用 object-oriented model，数据库用 relational model，就需要 ORM。
+更复杂情况下，业务层用 object-oriented model，数据库用 **relational model**，就需要 ORM。
 
 ### Object-Relational Mapping
 
@@ -1093,7 +1093,7 @@ ORM 负责自动完成：
 - class 到 relation 的映射
 - object 到 tuple 的映射
 - object attribute 到 table attribute 的映射
-- object relationship 到 relation / foreign key 的映射
+- object relationship 到 relation / **foreign key** 的映射
 - 查询对象时生成 SQL
 - 保存对象时生成 insert / update
 
@@ -1124,7 +1124,7 @@ public class Student {
 含义：
 
 - `@Entity`：这个 Java class 映射到数据库关系
-- `@Id`：`ID` 是主键
+- `@Id`：`ID` 是 **Primary Key（主键）**
 - `name`、`department`、`tot_cred` 映射成表中的属性
 
 保存对象：
@@ -1310,7 +1310,7 @@ Web proxy 或浏览器可以缓存页面。
 - password leakage
 - authentication
 - authorization
-- audit trails
+- **audit trails（审计轨迹）**
 - privacy
 
 ### SQL Injection
@@ -1347,9 +1347,9 @@ X'; update instructor set salary = salary + 10000; --
 
 可能导致更新语句被执行。
 
-#### Prepared Statement
+#### **Prepared Statement**
 
-正确做法：使用 prepared statement，并把用户输入作为参数。
+正确做法：使用 **prepared statement**，并把用户输入作为参数。
 
 安全写法：
 
@@ -1361,7 +1361,7 @@ pStmt.setString(1, name);
 ResultSet rs = pStmt.executeQuery();
 ```
 
-prepared statement 的作用是：
+**prepared statement** 的作用是：
 
 - SQL 结构先固定
 - 用户输入只作为参数值
@@ -1495,7 +1495,7 @@ slides 示例：
 - 服务器生成同样序列并验证
 - 需要设备和服务器时钟大致同步
 
-但双因素认证不能完全防止 **man-in-the-middle attack** 。
+但 **Two-Factor Authentication** 不能完全防止 **man-in-the-middle attack** 。
 
 攻击者可以伪装成银行网站：
 
@@ -1509,7 +1509,7 @@ User → Fake site → Real bank site
 
 - 用户也要认证网站
 - 使用 HTTPS
-- 使用 digital certificates
+- 使用 **digital certificates（数字证书）**
 
 ### Single Sign-On
 
@@ -1613,9 +1613,9 @@ ID = sys_context.user_id()
 
 这样即使应用代码漏掉检查，数据库层仍然可以阻止越权访问。
 
-### Audit Trails
+### **Audit Trails**
 
-**Audit trail（审计轨迹）** 是记录用户行为的日志。
+**Audit Trail** 是记录用户行为的日志。
 
 应用必须记录：
 
@@ -1625,7 +1625,7 @@ ID = sys_context.user_id()
 - 从哪个 IP 发起请求
 - 是否访问了敏感数据
 
-审计轨迹用于：
+**Audit Trail** 用于：
 
 - 检测安全漏洞
 - 修复安全事件造成的损害
@@ -1706,9 +1706,9 @@ date of birth + postal code
 
 > 算法可以公开，key 必须保密。
 
-### Symmetric-Key Encryption
+### **Symmetric-Key Encryption（对称加密）**
 
-**Symmetric-key encryption（对称加密）** 使用同一个 key 加密和解密。
+**Symmetric-Key Encryption** 使用同一个 key 加密和解密。
 
 ```text
 plaintext --encrypt with K--> ciphertext
@@ -1728,7 +1728,7 @@ ciphertext --decrypt with K--> plaintext
 
 #### DES
 
-**DES（Data Encryption Standard）** 是较早的对称加密标准。
+**DES（Data Encryption Standard）** 是较早的 **Symmetric-Key Encryption** 标准。
 
 它根据 key 对字符进行替换和重排。
 
@@ -1749,9 +1749,9 @@ ciphertext --decrypt with K--> plaintext
 - 支持 128 / 192 / 256 bit key
 - 现代系统广泛使用
 
-### Public-Key Encryption
+### **Public-Key Encryption（公钥加密）**
 
-**Public-key encryption（公钥加密 / 非对称加密）** 使用两个 key：
+**Public-Key Encryption** 使用两个 key：
 
 | key | 是否公开 | 作用 |
 |---|---|---|
@@ -1769,7 +1769,7 @@ Receiver uses own private key to decrypt
 
 - public key 可以公开发布
 - private key 不需要传输
-- 解决了对称加密中“如何安全传 key”的问题
+- 解决了 **Symmetric-Key Encryption** 中“如何安全传 key”的问题
 
 典型算法：
 
@@ -1787,15 +1787,15 @@ RSA 的安全性基于：
 
 ### Hybrid Encryption
 
-Public-key encryption 安全，但计算成本高。
+**Public-key encryption** 安全，但计算成本高。
 
-Symmetric-key encryption 快，但 key 分发困难。
+**Symmetric-key encryption** 快，但 key 分发困难。
 
 因此实际系统常用混合方案：
 
 1. 随机生成一个对称密钥
-2. 用 public-key encryption 安全传输这个对称密钥
-3. 后续大量数据用 symmetric-key encryption 加密
+2. 用 **public-key encryption** 安全传输这个对称密钥
+3. 后续大量数据用 **symmetric-key encryption** 加密
 
 HTTPS 就采用类似思想。
 
@@ -1845,9 +1845,9 @@ password_hash = hash(password + salt)
 
 数据库可以在不同层次加密。
 
-#### Disk Block Level
+#### **Disk Block（磁盘块）** Level
 
-最底层：加密磁盘块。
+最底层：加密 **Disk Block**。
 
 ```text
 disk block encrypted on disk
@@ -1884,7 +1884,7 @@ DBMS decrypts block in memory
 
 限制：
 
-- 参与 primary key / foreign key 的属性通常不适合直接加密
+- 参与 **primary key** / **foreign key** 的属性通常不适合直接加密
 - 加密后比较、排序、索引会变困难
 
 #### Key Management
@@ -1939,11 +1939,11 @@ Smart card 可以保存 private key。
 - private key 不可被读出
 - 只允许把数据发给卡片做加密 / 解密
 
-### Digital Signatures
+### **Digital Signatures（数字签名）**
 
-**Digital signature（数字签名）** 用于验证数据真实性。
+**Digital Signature** 用于验证数据真实性。
 
-它使用 public-key encryption 的反向角色：
+它使用 **public-key encryption** 的反向角色：
 
 ```text
 Sender signs with private key
@@ -1962,17 +1962,17 @@ Anyone verifies with sender's public key
 直观类比：
 
 - 纸质世界里，签名证明文件来自某个人
-- 电子世界里，数字签名证明数据来自某个 private key 持有者
+- 电子世界里， **Digital Signature** 证明数据来自某个 private key 持有者
 
-### Digital Certificates
+### **Digital Certificates**
 
 问题：
 
 > 浏览器拿到某个网站的 public key，怎么知道这个 public key 真的属于这个网站？
 
-解决方案： **digital certificate（数字证书）** 。
+解决方案： **Digital Certificate** 。
 
-数字证书由 **certification authority（CA）** 签发。
+**Digital Certificate** 由 **certification authority（CA）** 签发。
 
 基本机制：
 
@@ -1996,14 +1996,14 @@ Website certificate
 
 浏览器递归验证证书链，直到 root CA。
 
-HTTPS 使用 digital certificates：
+HTTPS 使用 **digital certificates**：
 
 - 网站向浏览器提供证书
 - 浏览器验证证书
 - 证书通过后，浏览器使用网站 public key 建立安全通信
 - 实际大量数据通常再切换到一次性 symmetric key 加密
 
-Digital certificate 解决的是：
+**Digital certificate** 解决的是：
 
 > 如何确认对方的 public key 可信。
 
@@ -2042,17 +2042,17 @@ Database Server 负责数据存取
 - Hibernate 的基本映射思想
 - REST 和 Big Web Services 的区别
 - connection pooling 和 caching
-- SQL injection 的原理和 prepared statement 防御
+- SQL injection 的原理和 **prepared statement** 防御
 - XSS 和 CSRF 的区别
-- two-factor authentication
+- **two-factor authentication**
 - SAML / OpenID / OAuth 的基本用途
 - application-level authorization 的困难
-- audit trail 的作用
-- symmetric-key 与 public-key encryption
+- **audit trail** 的作用
+- symmetric-key 与 **public-key encryption**
 - DES / AES / RSA
 - salt bits 的作用
 - challenge-response
-- digital signature 与 digital certificate
+- **digital signature** 与 **digital certificate**
 
 ### 一句话总结
 

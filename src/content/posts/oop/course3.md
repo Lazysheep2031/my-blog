@@ -73,14 +73,14 @@ STL 可以先拆成三块来看:
 
 ### Sequential containers
 
-顺序容器强调“元素按位置排列”。
+**Sequence Container（顺序容器）** 强调“元素按位置排列”。
 
 这讲提到的典型成员：
 
 - `array`：静态数组
 - `vector`：动态数组
 - `deque`：double-ended queue
-- `forward_list`：单向链表
+- `forward_list`： **Singly Linked List（单向链表）**
 - `list`：双向链表
 
 ### Associative containers
@@ -97,7 +97,7 @@ STL 可以先拆成三块来看:
 其中：
 
 - `set` 主要存 key
-- `map` 存 key-value pair
+- `map` 存 **key-value pair（键值对）**
 
 ### Unordered associative containers
 
@@ -110,7 +110,7 @@ STL 可以先拆成三块来看:
 - `unordered_multiset`
 - `unordered_multimap`
 
-### Container adaptors
+### **Container adaptors（容器适配器）**
 
 这类不是全新的底层结构，而是对已有容器接口做“包装”。
 
@@ -123,7 +123,7 @@ STL 可以先拆成三块来看:
 它们会限制你能使用的操作，让接口更贴近某种抽象模型。
 
 
-## vector：最常用的动态顺序容器
+## vector：最常用的动态 **Sequence Container**
 
 `vector` 可以先把它理解成“会自动扩容的数组”。  
 
@@ -159,7 +159,7 @@ int main() {
 
 ### vector 的常见操作
 
-**1. Constructor / Destructor**
+**1. Constructor（构造函数） / Destructor（析构函数）**
 
 先创建对象，生命周期结束时自动销毁。
 
@@ -217,10 +217,10 @@ int main() {
 :::
 
 
-## list：链表式顺序容器
+## list：链表式 **Sequence Container**
 
-`list` 是链表风格的顺序容器。  
-并不是所有顺序容器都像 `vector` 一样适合随机访问。
+`list` 是链表风格的 **Sequence Container**。  
+并不是所有 **Sequence Container** 都像 `vector` 一样适合随机访问。
 
 
 ```cpp
@@ -257,7 +257,7 @@ int main() {
 - `list`：更像链表
 
 
-## map：键值对容器
+## map： **Key-Value Pair** 容器
 
 `map` 是很重要的一类关联容器，用来存 **key-value pair** 。
 
@@ -295,9 +295,9 @@ int main() {
 
 map 的重点
 
-- 它存的是 key-value pair
+- 它存的是 **key-value pair**
 - 通过 key 查找 value
-- 默认属于 **有序关联容器**
+- 默认属于 **Ordered Associative Container（有序关联容器）**
 - 很适合做“查表”类问题
 
 比如：
@@ -313,8 +313,8 @@ map 的重点
 :::
 
 
-## stack：容器适配器
-> 后进先出（LIFO, last in first out）
+## stack： **Container Adapter**
+> **Last In First Out（后进先出，LIFO）**
 
 最常见操作就是：
 
@@ -329,7 +329,7 @@ map 的重点
 - 对外只暴露符合 stack 抽象的那部分操作
 
 好处是接口更清晰。  
-当你说“这里用 stack”时，别人马上知道你的数据访问模式是 LIFO，而不是任意位置都能操作。
+当你说“这里用 stack”时，别人马上知道你的数据访问模式是 **LIFO**，而不是任意位置都能操作。
 
 
 ## Algorithms
@@ -456,7 +456,7 @@ STL 不只服务内置类型，也可以服务你自己写的类。
 但前提是：你的类型得满足对应容器或算法需要的操作。
 
 - 可能需要赋值运算符 `operator=`
-- 可能需要默认构造函数
+- 可能需要 **Default Constructor（默认构造函数）**
 - 如果要进入 `set`、`map` 这类有序容器，通常还需要 `<` 比较，也就是 `operator<`
 
 ```cpp
@@ -500,7 +500,7 @@ v[100] = 1; // Whoops!
 推荐写法：
 
 - 动态追加时，用 `push_back()`
-- 需要预留空间时，用构造函数或 `resize()`
+- 需要预留空间时，用 **Constructor** 或 `resize()`
 
 例如：
 

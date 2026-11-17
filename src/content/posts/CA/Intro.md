@@ -26,11 +26,11 @@ draft: false
 
 | 实验内容                              | 分值      |
 | ------------------------------------- | --------- |
-| Lab 1: Forwarding + Branch Prediction | 6 分      |
+| Lab 1: **Forwarding（数据前递）** + **Branch Prediction（分支预测）** | 6 分      |
 | Lab 2: Interrupt Exception            | 6 分      |
 | Lab 3: Cache Design                   | 8 分      |
 | Lab 4: Memory Hierarchy (TBD)         | 8 分      |
-| Lab 5: Out-of-Order Execution         | 12 分     |
+| Lab 5: **Out-of-Order Execution（乱序执行）**         | 12 分     |
 | Project (TBD)                         | 8 分      |
 | **总计**                              | **48 分** |
 
@@ -41,7 +41,7 @@ draft: false
 
 1. **Lab 1: Forwarding + Pipeline & Branch Prediction**
    - 时长：1-4 周
-   - 内容：数据前递与分支预测
+   - 内容： **Forwarding** 与 **Branch Prediction**
 
 2. **Lab 2: Interrupt Exception**
    - 时长：5-8 周
@@ -57,7 +57,7 @@ draft: false
 
 5. **Lab 5: Out-of-Order Execution**
    - 时长：11-13 周
-   - 内容：乱序执行
+   - 内容： **Out-of-Order Execution**
 
 6. **Project**
    - 时长：13-16 周

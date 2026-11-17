@@ -77,15 +77,15 @@ draft: false
 前面的分类是“按用途分类”，Flynn 分类则是“按内部并行结构分类”。
 
 1. SISD
-Single Instruction Stream, Single Data Stream  
-单指令流，单数据流
+Single **Instruction Stream（指令流）**, Single **Data Stream（数据流）**  
+单 **Instruction Stream**，单 **Data Stream**
 
 特点：
 - 传统串行计算机模型
 - 一条指令处理一组数据
 2. SIMD
-Single Instruction Stream, Multiple Data Streams  
-单指令流，多数据流
+Single **Instruction Stream**, Multiple Data Streams  
+单 **Instruction Stream**，多 **Data Stream**
 
 特点：
 - 同一条指令同时作用于多组数据
@@ -93,8 +93,8 @@ Single Instruction Stream, Multiple Data Streams
 - 常见于向量处理、GPU 等场景
 
 3. MISD
-Multiple Instruction Streams, Single Data Stream  
-多指令流，单数据流
+Multiple Instruction Streams, Single **Data Stream**  
+多 **Instruction Stream**，单 **Data Stream**
 
 特点：
 - 实际中较少见
@@ -102,7 +102,7 @@ Multiple Instruction Streams, Single Data Stream
 
 4. MIMD
 Multiple Instruction Streams, Multiple Data Streams  
-多指令流，多数据流
+多 **Instruction Stream**，多 **Data Stream**
 
 特点：
 - 多个处理单元独立执行不同指令、处理不同数据
@@ -239,7 +239,7 @@ $$\frac{Performance_A}{Performance_B}=\frac{15}{10}=1.5$$
 ## Quantitative Approaches
 
 - CPU Performance Formula
-- Amdahl’s Law
+- **Amdahl’s Law（Amdahl 定律）**
 
 目标是回答两类问题：
 
@@ -399,7 +399,7 @@ Computer B 至少需要 **4GHz** 时钟频率。
 Instruction Count 由以下因素决定：
 
 - 程序本身
-- ISA（指令集体系结构）
+- **Instruction Set Architecture（指令集体系结构，ISA）**
 - 编译器
 
 2. CPI（Cycles Per Instruction）
@@ -476,9 +476,9 @@ $$
 表示第 $i$ 类指令在程序中的 **相对频率** 。
 
 
-### Amdahl’s Law
+### **Amdahl’s Law**
 
-Amdahl 定律用于分析：
+**Amdahl's Law** 用于分析：
 
 > 对系统某一部分进行加速后，整体性能最多能提升多少。
 
@@ -493,10 +493,10 @@ $$
 - $Fraction_{enhanced}$：原执行时间中，可被改进部分所占比例
 - $Speedup_{enhanced}$：该部分本身被加速的倍数
 
-若程序中只有一部分能受益于优化，那么整体加速比一定受限。  
+若程序中只有一部分能受益于优化，那么整体 **Speedup（加速比）** 一定受限。  
 即使局部提速很多倍，整体提升也不可能无限大。
 
-Amdahl 定律体现了一个核心思想：
+**Amdahl's Law** 体现了一个核心思想：
 
 > **系统性能瓶颈往往由“没有被优化的那部分”决定。**
 
@@ -505,7 +505,7 @@ Amdahl 定律体现了一个核心思想：
 - 优先优化最常用、最耗时的部分
 
 
-#### Amdahl 定律的等价理解
+#### **Amdahl's Law** 的等价理解
 
 把总执行时间归一化为 1：
 
@@ -523,7 +523,7 @@ $$
 Execution\ Time_{new} = (1 - Fraction_{enhanced}) + \frac{Fraction_{enhanced}}{Speedup_{enhanced}}
 $$
 
-而整体加速比就是：
+而整体 **Speedup** 就是：
 
 $$
 Speedup_{overall} = \frac{Execution\ Time_{old}}{Execution\ Time_{new}}
@@ -549,12 +549,12 @@ $$
 若某部分只占总时间 5%，即使把它加速 100 倍，整体收益也很有限。  
 所以体系结构设计不是“哪里能优化就优化哪里”，而是：
 
-> **优先优化 common case / bottleneck。**
+> **优先优化 common case / bottleneck（瓶颈段）。**
 
 
-#### Amdahl 定律在并行中的意义
+#### **Amdahl's Law** 在并行中的意义
 
-Amdahl 定律也常用于分析多处理器加速：
+**Amdahl's Law** 也常用于分析多处理器加速：
 
 - 可并行部分：可以分给多个处理器同时做
 - 串行部分：仍然只能顺序执行
@@ -590,7 +590,7 @@ $$
 3. Make the Common Case Fast
 - 不要平均用力，而要优先优化最常见、最耗时的情况
   - cache 利用局部性
-  - branch prediction 优化高频分支
+  - **branch prediction（分支预测）** 优化高频分支
   - 常见指令走快路径
 
 4. Performance via Parallelism
@@ -607,7 +607,7 @@ $$
 
 6. Performance via Prediction
 - 在结果还没真正出来之前，先大胆猜测并提前执行
-  - branch prediction
+  - **branch prediction**
   - speculative execution
   - memory dependence prediction
 
@@ -629,23 +629,23 @@ $$
   - 容错设计
 
 
-## ISA
+## **ISA**
 
-ISA = **Instruction Set Architecture** ，即 **指令集体系结构** 。  
+**ISA** = **Instruction Set Architecture** ，即 **ISA** 。  
 它规定了程序员可见的机器接口，因此常被称为：
 
 > **hardware / software interface**
 
-### ISA 在系统中的位置
+### **ISA** 在系统中的位置
 
-ISA 往上连接软件：
+**ISA** 往上连接软件：
 
 - compiler
 - assembler
 - operating system
 - application
 
-ISA 往下连接硬件实现：
+**ISA** 往下连接硬件实现：
 
 - datapath
 - control
@@ -655,9 +655,9 @@ ISA 往下连接硬件实现：
 
 因此：
 
-- 同一套 ISA 可以对应不同微结构实现
-- 程序只要面向 ISA 编写，就不需要关心具体实现细节
-- 一个处理器更快、另一个更省电，不代表 ISA 不同，可能只是 microarchitecture 不同
+- 同一套 **ISA** 可以对应不同微结构实现
+- 程序只要面向 **ISA** 编写，就不需要关心具体实现细节
+- 一个处理器更快、另一个更省电，不代表 **ISA** 不同，可能只是 microarchitecture 不同
 
 
 ### 从高级语言到机器执行
@@ -670,7 +670,7 @@ $$
 
 1. 高级语言程序经过 compiler 变成汇编
 2. 汇编经过 assembler 变成机器码
-3. CPU 按 ISA 规定解释并执行机器码
+3. CPU 按 **ISA** 规定解释并执行机器码
 
 这里要区分三层：
 
@@ -685,7 +685,7 @@ $$
 - 指令集就是该机器支持的全部机器指令集合
 
 
-### ISA 主要规定什么
+### **ISA** 主要规定什么
 
 
 1. 操作数存在哪里
@@ -704,7 +704,7 @@ $$
 - 2 地址
 - 3 地址
 
-这里的“地址”可以理解为： **一条指令里，显式写出来的操作数个数** （通常是寄存器号/内存地址，不含隐式操作数）。
+这里的“地址”可以理解为： **一条指令里，显式写出来的操作数个数** （通常是寄存器号/内存地址，不含 **Implicit Operand（隐式操作数）**）。
 
 - **0 地址指令** ：不写操作数，操作数默认在栈顶（隐式）。
   - 例：`add`（默认取栈顶两个数相加）
@@ -726,14 +726,14 @@ $$
 
 3. 如何指定操作数位置
 
-也就是 addressing modes（寻址方式）：
+也就是 **addressing modes（寻址方式）**：
 
 - register
 - immediate
 - indirect
 - displacement
 
-寻址方式越丰富，表达能力通常越强，但硬件也更复杂。
+**Addressing Mode** 越丰富，表达能力通常越强，但硬件也更复杂。
 
 4. 支持哪些数据类型与宽度
 
@@ -767,13 +767,13 @@ $$
 #### 影响因素
 
 - Technology：工艺水平决定可实现的复杂度与寄存器规模
-- Computer architecture：系统目标不同，ISA 风格也不同
-- Operating system：要求 ISA 支持特权、中断、地址空间等机制
-- Compiler：编译器越强，ISA 越可以简洁规则
+- Computer architecture：系统目标不同， **ISA** 风格也不同
+- Operating system：要求 **ISA** 支持特权、中断、地址空间等机制
+- Compiler：编译器越强， **ISA** 越可以简洁规则
 - Application：不同应用会推动专用指令或数据类型支持
 
 
-### 4 类 ISA 写法
+### 4 类 **ISA** 写法
 
 - Stack
 - Accumulator
@@ -784,15 +784,15 @@ $$
 
 其中：
 
-- Stack 和 Accumulator 都有 **隐式操作数**
-- Register-memory 和 Load-store 都属于 **GPR（通用寄存器）** 思路
+- Stack 和 Accumulator 都有 **Implicit Operand**
+- Register-memory 和 Load-store 都属于 **General-Purpose Register（通用寄存器，GPR）** 思路
 - 区别在于 ALU 指令能不能直接访问内存
 
 
 | 类型 | 操作数特点 | ALU 指令是否可直接访存 | 记忆点 |
 | --- | --- | --- | --- | 
 | Stack | 0 地址，操作数默认在 TOS | 不直接写地址，靠 `push/pop` 间接访存  | 栈顶隐式取数 |
-| Accumulator | 1 个隐式操作数 `acc` + 1 个显式内存操作数 | 可以，围绕 `acc` 运算  | 结果始终回到累加器 |
+| Accumulator | 1 个 **Implicit Operand** `acc` + 1 个显式内存操作数 | 可以，围绕 `acc` 运算  | 结果始终回到累加器 |
 | Register-memory | 寄存器显式出现，ALU 可直接读内存 | 可以 | 少一次 `load`，但指令格式不规整 |
 | Load-store | ALU 只操作寄存器 | 不可以 |  先装入寄存器再算，最规则 |
 
@@ -820,7 +820,7 @@ pop C
 分析：
 
 - `push A`、`push B` 把两个操作数压到栈顶
-- `add` 默认取栈顶两个数作为隐式操作数
+- `add` 默认取栈顶两个数作为 **Implicit Operand**
 - 运算结果仍留在栈顶
 - `pop C` 再把结果写回内存位置 `C`
 
@@ -901,7 +901,7 @@ $$
 2. 再算 `A + C * B`
 3. 最后做减法
 
-不同 ISA 的区别，主要体现在 **中间结果存放位置** 。
+不同 **ISA** 的区别，主要体现在 **中间结果存放位置** 。
 
 1. Stack
 
@@ -923,7 +923,7 @@ $$
 - 第 1 到 3 步先把 `A * B` 压成一个栈顶结果
 - 第 4 到 8 步继续在栈上算出 `A + C * B`
 - 此时栈顶两个值正好是 `A * B` 和 `A + C * B`
-- `sub` 直接对栈顶两个隐式操作数做减法
+- `sub` 直接对栈顶两个 **Implicit Operand** 做减法
 - 最后 `pop D`
 
 要点：
@@ -1022,7 +1022,7 @@ sub E, D, E
 
 
 :::TIP
-为什么现代 ISA 更偏向 GPR / Load-store?
+为什么现代 **ISA** 更偏向 **GPR** / Load-store?
 
 - Registers 比 memory 快得多
 - 寄存器值可以立即使用

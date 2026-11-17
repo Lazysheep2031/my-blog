@@ -7,7 +7,7 @@ category: 笔记
 draft: false
 ---
 
-## 选择排序：从具体到抽象
+## **Selection Sort（选择排序）**：从具体到抽象
 
 先看最直接版本（只支持 `int`）：
 
@@ -39,9 +39,9 @@ void selectionSort(int arr[], int n) {
 - 上层只关心“做什么”（找最小、交换）
 - 下层负责“怎么做”（循环与细节）
 
-## 函数模板
+## **Function Template（函数模板）**
 
-当你希望同样的算法支持 `int` / `double` / `std::string` 时，函数重载能做，但会重复很多代码。
+当你希望同样的算法支持 `int` / `double` / `std::string` 时， **Function Overloading（函数重载）** 能做，但会重复很多代码。
 
 模板做法：
 
@@ -85,7 +85,7 @@ void selection_sort(T arr[], int n) { ... }
 :::TIP
 为什么每个函数都要写 `template<typename T>`？
 
-因为这四个函数是 **四个独立的函数模板** ，不是一个模板包着四个函数。
+因为这四个函数是 **四个独立的Function Template** ，不是一个模板包着四个函数。
 
 所以 `T` 的作用域只在“紧随其后的那一个函数”里有效：
 
@@ -100,7 +100,7 @@ void selection_sort(T arr[], int n) { ... }
 
 **如果只写一个模板头的写法**
 
-可以把多个操作放进同一个类模板里，让所有成员共享同一个 `T`：
+可以把多个操作放进同一个 **Class Template（类模板）** 里，让所有成员共享同一个 `T`：
 
 ```cpp
 template<typename T>
@@ -114,8 +114,8 @@ struct SelectionSortToolkit {
 
 区别：
 
-- 函数模板版调用更自然：`selectionSort(arr, n)`
-- 类模板版模板头只写一次，但调用更长：`SelectionSortToolkit<int>::selectionSort(arr, n)`
+- **Function Template** 版调用更自然：`selectionSort(arr, n)`
+- **Class Template** 版模板头只写一次，但调用更长：`SelectionSortToolkit<int>::selectionSort(arr, n)`
 
 
 ## `&` 引用
@@ -168,7 +168,7 @@ bool operator<(const Student& s1, const Student& s2)
 - 避免拷贝
 - 不修改实参
 
-### `std::ostream&`：把同一个输出流继续传下去
+### `std::ostream&`：把同一个 **Output Stream（输出流）** 继续传下去
 
 ```cpp
 std::ostream& operator<<(std::ostream& out, const Student& s)
@@ -176,9 +176,9 @@ std::ostream& operator<<(std::ostream& out, const Student& s)
 
 这里有三处值得看：
 
-- `std::ostream& out`：`out` 是输出流对象的引用，不复制 `std::cout`
+- `std::ostream& out`：`out` 是 **Output Stream** 对象的引用，不复制 `std::cout`
 - `const Student& s`：`s` 是学生对象的只读引用
-- 返回 `std::ostream&`：把同一个输出流返回去，支持链式输出
+- 返回 `std::ostream&`：把同一个 **Output Stream** 返回去，支持链式输出
 
 所以这句才成立：
 
@@ -190,7 +190,7 @@ std::cout << a << b << c;
 
 - `T&`：要改原对象
 - `const T&`：不想拷贝，也不想改原对象
-- `std::ostream&`：要把同一个输出流继续往后传
+- `std::ostream&`：要把同一个 **Output Stream** 继续往后传
 
 
 ## Student：自定义类型接入模板
@@ -204,7 +204,7 @@ std::cout << a << b << c;
 
 ### `<` 的两种常见写法
 
-成员函数写法：
+**Member Function（成员函数）** 写法：
 
 ```cpp
 struct Student {
@@ -240,9 +240,9 @@ std::ostream& operator<<(std::ostream& out, const Student& s) {
 
 这里的 `&` 可以顺手这样看：
 
-- `std::ostream& out`：`out` 是输出流本身的别名
+- `std::ostream& out`：`out` 是 **Output Stream** 本身的别名
 - `const Student& s`：`s` 是学生对象的只读别名
-- 返回 `std::ostream&`：把同一个输出流继续传回去
+- 返回 `std::ostream&`：把同一个 **Output Stream** 继续传回去
 
 ## 比较器 Compare
 
@@ -495,7 +495,7 @@ int n = sizeof(arr) / sizeof(arr[0]);
 
 ## 面向对象与多态：`Shape` 抽象层
 
-这一段的核心，是用一个抽象基类把不同图形统一到同一套接口下，再配合虚函数实现多态。
+这一段的核心，是用一个 **Abstract Base Class（抽象基类）** 把不同图形统一到同一套接口下，再配合 **Virtual Function（虚函数）** 实现多态。
 
 ### `Shape` 这层到底想解决什么问题
 
@@ -527,7 +527,7 @@ Shape* arr[] = {
 
 虽然数组里装的是不同类型的对象，但在这一层都被统一看成 `Shape`，因此可以用同一套代码处理。
 
-### 抽象基类（接口层）
+### **Abstract Base Class** （接口层）
 
 ```cpp
 class Shape {
@@ -547,7 +547,7 @@ public:
 };
 ```
 
-- `class Shape`：定义“图形”这个基类
+- `class Shape`：定义“图形”这个 **Base Class（基类）**
 - `area, perimeter`：面积和周长是所有图形共有的数据
 - `calc_area()`：要求所有图形都会算面积
 - `calc_perimeter()`：要求所有图形都会算周长
@@ -570,7 +570,7 @@ virtual std::string name() const = 0;
 
 `virtual` 的核心作用是：
 
-- 当你通过“基类指针/基类引用”访问对象时
+- 当你通过“ **Base Class** 指针/ **Base Class** 引用”访问对象时
 - 程序会根据“对象真实类型”决定调用哪个版本
 
 例如：
@@ -592,20 +592,20 @@ p->calc_area();
 virtual void calc_area() = 0;
 ```
 
-这里的 `=0` 表示纯虚函数。
+这里的 `=0` 表示 **Pure Virtual Function（纯虚函数）**。
 
-- 基类这里只提要求
+- **Base Class** 这里只提要求
 - 不给出具体实现
 - 必须由子类来实现
 
-所以 `Shape` 变成了 **抽象类** ：
+所以 `Shape` 变成了 **Abstract Class（抽象类）** ：
 
 - 你不能写 `Shape s;`
 - 你只能把它当成一个统一接口
 
 也就是说，`Shape` 的角色不是直接拿来创建对象，而是规定所有图形都必须提供哪些能力。
 
-**虚析构函数：`virtual ~Shape() {}`**
+**Virtual Destructor（虚析构函数）：`virtual ~Shape() {}`**
 
 这一句虽然短，但非常关键：
 
@@ -613,9 +613,9 @@ virtual void calc_area() = 0;
 virtual ~Shape() {}
 ```
 
-析构函数的作用，是对象销毁时执行清理工作。
+**Destructor（析构函数）** 的作用，是对象销毁时执行清理工作。
 
-这里把析构函数写成 `virtual`，是为了保证下面这种写法是安全的：
+这里把 **Destructor** 写成 `virtual`，是为了保证下面这种写法是安全的：
 
 ```cpp
 Shape* p = new Rectangle(2, 3);
@@ -624,14 +624,14 @@ delete p;
 
 表面上看，`p` 的类型是 `Shape*`；但它实际指向的是 `Rectangle` 对象。
 
-如果基类析构函数不是虚函数，`delete p` 时就可能只按 `Shape` 这一层来销毁，派生类那一层的清理过程无法正确执行。
+如果 **Base Class**  **Destructor** 不是 **Virtual Function**，`delete p` 时就可能只按 `Shape` 这一层来销毁， **Derived Class（派生类）** 那一层的清理过程无法正确执行。
 
-把析构函数写成虚函数后，删除基类指针时会按真实类型销毁对象：
+把 **Destructor** 写成 **Virtual Function** 后，删除 **Base Class** 指针时会按真实类型销毁对象：
 
-- 先执行派生类析构
-- 再执行基类析构
+- 先执行 **Derived Class** 析构
+- 再执行 **Base Class** 析构
 
-在这份代码里，`Rectangle` / `Circle` / `Triangle` 没有自己额外管理资源，所以就算析构函数体是空的，`virtual` 仍然必须保留。
+在这份代码里，`Rectangle` / `Circle` / `Triangle` 没有自己额外管理资源，所以就算 **Destructor** 体是空的，`virtual` 仍然必须保留。
 
 **`Rectangle : public Shape` 是什么意思？**
 
@@ -683,7 +683,7 @@ private:
 可以这样记：
 
 - `public`：类外也能访问，是对外接口
-- `protected`：类外不能直接访问，但派生类能访问
+- `protected`：类外不能直接访问，但 **Derived Class** 能访问
 - `private`：只有当前类自己能访问
 
 放在这份代码里：
@@ -691,9 +691,9 @@ private:
 - `area / perimeter` 放在 `protected`，因为子类算面积周长时要用到
 - `w / h / r / a / b / c` 放在 `private`，因为它们只是具体图形的内部细节
 
-### 派生类 + override
+### **Derived Class** + override
 
-派生类真正做的事，是把基类里的“要求”补成各自的“具体实现”。
+**Derived Class** 真正做的事，是把 **Base Class** 里的“要求”补成各自的“具体实现”。
 
 例如矩形会写：
 
@@ -705,14 +705,14 @@ void calc_area() override {
 
 圆形、三角形也会各自给出自己的公式。
 
-`override` 的意思是在重写基类里的那个虚函数
+`override` 的意思是在重写 **Base Class** 里的那个 **Virtual Function**
 
-- 如果函数签名写错，编译器会直接报错
+- 如果 **Function Signature（函数签名）** 写错，编译器会直接报错
 - 能防止你以为自己重写了，实际上根本没重写成功
 
-### 构造函数与初始化列表
+### **Constructor（构造函数）** 与 **Initializer List（初始化列表）**
 
-派生类构造函数是这种形式：
+**Derived Class**  **Constructor** 是这种形式：
 
 ```cpp
 Rectangle(double w, double h) : w(w), h(h) {}
@@ -740,7 +740,7 @@ friend std::ostream& operator<<(std::ostream&, const Shape&);
 
 这里的 `friend` 表示：
 
-- `operator<<` 不是 `Shape` 的成员函数
+- `operator<<` 不是 `Shape` 的 **Member Function**
 - 但我们授权它访问 `Shape` 的内部成员
 
 对应定义是：
@@ -760,11 +760,11 @@ std::ostream& operator<<(std::ostream& out, const Shape& s)
 std::cout << shape;
 ```
 
-`<<` 通常写成非成员函数更自然，但非成员函数默认不能访问类里的非公有成员，所以这里用 `friend` 授权。
+`<<` 通常写成 **Non-Member Function（非成员函数）** 更自然，但 **Non-Member Function** 默认不能访问类里的非公有成员，所以这里用 `friend` 授权。
 
 同时，这里也再次体现了 `&` 的用法：
 
-- `std::ostream& out`：输出流按引用传入，不复制 `cout`
+- `std::ostream& out`： **Output Stream** 按引用传入，不复制 `cout`
 - `const Shape& s`：图形按只读引用传入
 - 返回 `std::ostream&`：这样才能继续连写 `<<`
 
@@ -774,7 +774,7 @@ std::cout << shape;
 s.name()
 ```
 
-这里 `name()` 是虚函数，所以即使 `s` 的静态类型写成 `Shape&`，真正调用的仍然会是各个派生类自己的 `name()`。
+这里 `name()` 是 **Virtual Function**，所以即使 `s` 的静态类型写成 `Shape&`，真正调用的仍然会是各个 **Derived Class** 自己的 `name()`。
 
 ### 多态输出与排序
 
@@ -823,7 +823,7 @@ s->calc_area();
 double get_area() const { return area; }
 ```
 
-- 末尾的 `const` 表示这个成员函数不会修改对象状态
+- 末尾的 `const` 表示这个 **Member Function** 不会修改对象状态
 - 这种“读取型接口”通常都写成 `const`
 
 ### 资源管理提醒
@@ -837,7 +837,7 @@ for (Shape* s : arr)
 
 这是因为前面用的是 `new`，所以最后要手动释放。
 
-这里删除的是基类指针：
+这里删除的是 **Base Class** 指针：
 
 ```cpp
 Shape* p = new Rectangle(2, 3);

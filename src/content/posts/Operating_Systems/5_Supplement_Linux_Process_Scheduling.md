@@ -23,13 +23,13 @@ CPU 调度的基本路径仍然是：
 任务运行，直到阻塞、结束或需要重新调度
 ```
 
-在 Linux 的代码中， **`task_struct` 对应 PCB** ，保存任务状态、调度信息及其他进程管理信息； **运行队列（Run Queue）** 组织可参与调度的任务。
+在 Linux 的代码中， **`task_struct` 对应 Process Control Block（进程控制块，PCB）** ，保存任务状态、调度信息及其他进程管理信息； **Run Queue（运行队列）** 组织可参与调度的任务。
 
 三组概念：
 
 - **选择与切换** ：`schedule()` 进行调度选择；最后通过 `switch_to(next)` 完成底层切换。
 - **可运行与正在运行** ：代码中的 `TASK_RUNNING` 表示任务具备运行条件，不据此认定它此刻占着 CPU。
-- **CPU 调度与换出内存** ：时间片结束后回到就绪状态，与中期调度将进程换出内存，是不同的状态变化。
+- **CPU 调度与换出内存** ： **Time Quantum（时间片）** 结束后回到就绪状态，与中期调度将进程换出内存，是不同的状态变化。
 
 同一进程的不同线程可以分别参与不同 CPU 的调度，因此，一个多线程进程可能同时使用多个 CPU 核心。
 
@@ -174,7 +174,7 @@ unsigned int policy;
 | --- | ---: | --- |
 | `SCHED_NORMAL` | 0 | 普通任务的标准调度策略 |
 | `SCHED_FIFO` | 1 | 实时策略，同优先级任务按先后次序执行 |
-| `SCHED_RR` | 2 | 实时策略，同优先级任务按时间片轮转 |
+| `SCHED_RR` | 2 | 实时策略，同优先级任务按 **Round Robin（时间片轮转，RR）** |
 | `SCHED_BATCH` | 3 | 面向批处理／后台任务 |
 | `SCHED_IDLE` | 5 | 空闲时机运行的极低优先级任务 |
 | `SCHED_DEADLINE` | 6 | 根据截止时间安排任务，较早截止者优先 |
@@ -187,7 +187,7 @@ unsigned int policy;
 同一优先级内部，再根据 FIFO 或 RR 安排次序
 ```
 
-因此，`SCHED_FIFO` 中高优先级任务仍能抢占低优先级任务，不能直接套用第五章单一队列、非抢占 FCFS 的全部性质。`SCHED_RR` 的轮转也要放在同优先级任务之间理解。
+因此，`SCHED_FIFO` 中高优先级任务仍能抢占低优先级任务，不能直接套用第五章单一队列、非抢占 **First-Come, First-Served（先来先服务，FCFS）** 的全部性质。`SCHED_RR` 的轮转也要放在同优先级任务之间理解。
 
 ### Nice Values and Internal Priorities
 
@@ -211,7 +211,7 @@ nice =  19  →  static_prio = 139
 
 在 **内核统一优先级编号** 中，数值越小，优先级越高：实时任务使用 `0–99` 区间，普通任务使用 `100–139` 区间。
 
-### Priority Fields in the PCB
+### Priority Fields in the **PCB**
 
 ```c
 int prio;
@@ -230,9 +230,9 @@ unsigned int rt_priority;
 
 ## Scheduling Classes and Entities
 
-### The Scheduling-Related Part of the PCB
+### The Scheduling-Related Part of the **PCB**
 
-PCB 中与调度相关的部分：
+**PCB** 中与调度相关的部分：
 
 ```c
 struct task_struct {
@@ -251,7 +251,7 @@ struct task_struct {
 };
 ```
 
-**`on_rq` 关联任务的在队状态** ；`policy` 标识策略；`sched_class` 指向实现调度行为的调度类；后面的调度实体保存各类调度所需的信息。
+**`on_rq` 关联任务的在队状态** ；`policy` 标识策略；`sched_class` 指向实现调度行为的 **Scheduling Class（调度类）**；后面的 **Scheduling Entity（调度实体）** 保存各类调度所需的信息。
 
 可以把它们的关系概括为：
 
@@ -262,15 +262,15 @@ struct task_struct {
    └─ 算法所需的运行统计和连接信息？ se / rt / dl
 ```
 
-### A Scheduling Class as a Callback Interface
+### A **Scheduling Class** as a **Callback（回调函数）** Interface
 
-**调度类（Scheduling Class）** 给调度器提供一组操作接口，例如：
+**Scheduling Class** 给调度器提供一组操作接口，例如：
 
 - `enqueue_task()`／`dequeue_task()`：任务入队与出队。
 - `pick_next_task()`：选择下一个任务。
 - `put_prev_task()`、`set_curr_task()`、`task_tick()`：处理原任务、当前任务及时钟更新。
 
-`struct sched_class` 将这些操作组织为 **函数指针** 。核心调度代码调用相应接口，具体调度类提供实现。
+`struct sched_class` 将这些操作组织为 **Function Pointer（函数指针）** 。核心调度代码调用相应接口，具体 **Scheduling Class** 提供实现。
 
 ```text
 通用调度流程
@@ -280,9 +280,9 @@ struct task_struct {
 操作该类任务使用的数据结构
 ```
 
-**这里使用 C 的结构体和函数指针实现接口式组织。** 类比面向对象的接口有助于理解，但不要把它当成 C++ 的类继承语法。
+**这里使用 C 的结构体和Function Pointer实现接口式组织。** 类比面向对象的接口有助于理解，但不要把它当成 C++ 的类继承语法。
 
-`next` 将调度类组织成有优先次序的链：
+`next` 将 **Scheduling Class** 组织成有优先次序的链：
 
 ```text
 stop_sched_class
@@ -296,11 +296,11 @@ fair_sched_class
 idle_sched_class
 ```
 
-调度时，需要先考虑类之间的次序，再进入相应类内部选择任务。 **策略与调度类并非一一对应** ：例如，代码中 FIFO 与 RR 都由实时调度类支持，普通调度使用公平调度类。
+调度时，需要先考虑类之间的次序，再进入相应类内部选择任务。 **策略与Scheduling Class并非一一对应** ：例如，代码中 FIFO 与 **RR** 都由实时 **Scheduling Class** 支持，普通调度使用公平 **Scheduling Class**。
 
 ### Scheduling Entities
 
-**调度实体（Scheduling Entity）** 保存某类算法需要的调度信息。
+**Scheduling Entity** 保存某类算法需要的调度信息。
 
 ```text
 普通任务：struct sched_entity
@@ -308,7 +308,7 @@ idle_sched_class
 截止时间任务：struct sched_dl_entity
 ```
 
-普通调度实体中：
+普通 **Scheduling Entity** 中：
 
 ```c
 struct sched_entity {
@@ -323,13 +323,13 @@ struct sched_entity {
 };
 ```
 
-其中，`load` 保存权重信息，`run_node` 让实体接入红黑树，`sum_exec_runtime` 记录累计执行时间，`vruntime` 是 CFS 进行比较的重要量。
+其中，`load` 保存权重信息，`run_node` 让实体接入 **Red-Black Tree（红黑树）**，`sum_exec_runtime` 记录累计执行时间，`vruntime` 是 **Completely Fair Scheduler（完全公平调度器，CFS）** 进行比较的重要量。
 
-## Completely Fair Scheduler
+## **Completely Fair Scheduler**
 
-### Virtual Runtime
+### **Virtual Runtime（虚拟运行时间）**
 
-**完全公平调度器（Completely Fair Scheduler，CFS）** 为普通任务维护 **虚拟运行时间 `vruntime`** ，优先选择 `vruntime` 较小的可运行任务。
+**CFS** 为普通任务维护 **Virtual Runtime `vruntime`** ，优先选择 `vruntime` 较小的可运行任务。
 
 更新公式为：
 
@@ -382,7 +382,7 @@ $$
 \text{share}_i\approx\frac{w_i}{\sum_j w_j}.
 $$
 
-这说明 CFS 的“公平”考虑了权重。只有权重相同的持续可运行任务，才在这个模型下追求大致相等的实际 CPU 份额。
+这说明 **CFS** 的“公平”考虑了权重。只有权重相同的持续可运行任务，才在这个模型下追求大致相等的实际 CPU 份额。
 
 <details>
 <summary>例题：两任务初始 nice 都为 0，将其中一个改为 −1 会怎样？</summary>
@@ -405,15 +405,15 @@ $$
 
 **A 比原先增加约 5.50 个百分点，A 与 B 相差约 11.00 个百分点。** 
 
-上述份额还以只有这两个同范围竞争任务为前提。加入其他任务、任务阻塞或其他调度类占用 CPU，都会改变实际观察到的份额。
+上述份额还以只有这两个同范围竞争任务为前提。加入其他任务、任务阻塞或其他 **Scheduling Class** 占用 CPU，都会改变实际观察到的份额。
 
 </details>
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261015122519.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
-### Red-Black Tree and Task Selection
+### **Red-Black Tree** and Task Selection
 
-CFS 使用 **红黑树（Red-Black Tree）** 组织参与该类调度的实体，排序依据与 `vruntime` 有关。
+**CFS** 使用 **Red-Black Tree** 组织参与该类调度的实体，排序依据与 `vruntime` 有关。
 
 ```text
 vruntime 较小的任务位于树的左侧
@@ -435,7 +435,7 @@ vruntime 较小的任务位于树的左侧
 
 ### Per-CPU Organization
 
-**每个 CPU 维护自己的运行队列 `rq`** ，其中又包含不同调度类别需要的结构。
+**每个 CPU 维护自己的Run Queue `rq`** ，其中又包含不同 **Scheduling Class** 别需要的结构。
 
 ```c
 struct rq {
@@ -455,13 +455,13 @@ CPU 0 的 rq                         CPU 1 的 rq
   └─ curr：当前任务                   └─ curr
 ```
 
-**运行队列是调度对象的组织方式，不要求底层只有一个 FIFO 链表。** 一个 `rq` 可以组合多种结构，同一进程的两个线程也可能分别位于不同 CPU 的调度范围内。
+**Run Queue是调度对象的组织方式，不要求底层只有一个 FIFO 链表。** 一个 `rq` 可以组合多种结构，同一进程的两个线程也可能分别位于不同 CPU 的调度范围内。
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261015122713.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
 ### Real-Time Scheduling Entities
 
-实时调度实体 `sched_rt_entity` 中包含：
+实时 **Scheduling Entity** `sched_rt_entity` 中包含：
 
 ```c
 struct sched_rt_entity {
@@ -472,11 +472,11 @@ struct sched_rt_entity {
 };
 ```
 
-`run_list` 将实体连接到队列，`time_slice` 保存时间片相关信息。它与普通任务使用 `run_node` 接入树结构，体现了 **不同调度算法需要不同的组织方式** 。
+`run_list` 将实体连接到队列，`time_slice` 保存 **Time Quantum** 相关信息。它与普通任务使用 `run_node` 接入树结构，体现了 **不同调度算法需要不同的组织方式** 。
 
-### Priority Queues and Bitmap Lookup
+### Priority Queues and **Bitmap（位图）** Lookup
 
-实时优先级队列 `rt_prio_array` 将 **每个优先级的任务链表** 与 **位图（Bitmap）** 组合起来：
+实时优先级队列 `rt_prio_array` 将 **每个优先级的任务链表** 与 **Bitmap** 组合起来：
 
 ```c
 struct rt_prio_array {
@@ -485,7 +485,7 @@ struct rt_prio_array {
 };
 ```
 
-在 `MAX_RT_PRIO = 100` 情形下，有 `0–99` 共 100 个任务队列；位图另外保留一个边界位。某优先级队列有任务时，对应的位被设置。
+在 `MAX_RT_PRIO = 100` 情形下，有 `0–99` 共 100 个任务队列； **Bitmap** 另外保留一个边界位。某优先级队列有任务时，对应的位被设置。
 
 ```text
 优先级：  0  1  2  3  4  ...
@@ -504,7 +504,7 @@ next = list_entry(queue->next,
                   run_list);
 ```
 
-其含义是： **先借助位图定位最高优先级的非空队列，再取该队列中的第一个调度实体。** 原画面还包含优先级范围检查。
+其含义是： **先借助Bitmap定位最高优先级的非空队列，再取该队列中的第一个Scheduling Entity。** 原画面还包含优先级范围检查。
 
 这避免了每次逐一检查所有优先级链表是否为空。
 
@@ -535,8 +535,8 @@ active 为空后，交换 active 与 expired 两个指针
              开始新一轮
 ```
 
-**“本轮用完时间片”与“进程执行结束”要分开。** 一个任务进入 expired 后，仍可能有后续工作需要运行。
+**“本轮用完Time Quantum”与“进程执行结束”要分开。** 一个任务进入 expired 后，仍可能有后续工作需要运行。
 
-指针交换改变的是“两组数组分别扮演哪个角色”，无需把所有 PCB 从一个数组逐个复制到另一个数组。
+指针交换改变的是“两组数组分别扮演哪个角色”，无需把所有 **PCB** 从一个数组逐个复制到另一个数组。
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261015122857.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />

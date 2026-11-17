@@ -129,7 +129,7 @@ int main()
 }
 ```
 
-在上面的代码中，我们定义了一个类 `Point`，类中包含了数据成员 `x` 和 `y`，以及成员函数 `init`、`print` 和 `move`。通过这种方式，我们将数据和操作数据的函数封装在一起，使得代码更加清晰和易于维护。
+在上面的代码中，我们定义了一个类 `Point`，类中包含了数据成员 `x` 和 `y`，以及 **Member Function（成员函数）** `init`、`print` 和 `move`。通过这种方式，我们将数据和操作数据的函数封装在一起，使得代码更加清晰和易于维护。
 
 这里和 C 风格最本质的区别是：
 
@@ -192,7 +192,7 @@ private:
 
 > 程序是很多对象彼此发送消息。
 
-在 C++ 里，这种“消息”通常就体现为 **成员函数调用** ：
+在 C++ 里，这种“消息”通常就体现为 **Member Function调用** ：
 
 ```cpp
 p.move(2, 3);
@@ -383,9 +383,9 @@ g++ main.cpp point.cpp
 - `point.h` 是别人如何使用 `Point` 的说明书
 - `point.cpp` 是 `Point` 内部到底怎么做的实现细节
 
-### `::` 作用域解析运算符
+### `::` **Scope Resolution Operator（作用域解析运算符）**
 
-当成员函数写在类外实现时，要用：
+当 **Member Function** 写在类外实现时，要用：
 
 ```cpp
 ClassName::functionName
@@ -403,7 +403,7 @@ void Point::move(int dx, int dy)
 
 这里的 `Point::move` 表示：
 
-- 这是 `Point` 类的成员函数 `move`
+- 这是 `Point` 类的 **Member Function** `move`
 - 而不是一个普通全局函数
 
 一种特殊情况：
@@ -423,7 +423,7 @@ void S::f() {
 
 > **告诉编译器：这个名字属于哪个作用域。**
 
-### 编译单元、头文件、链接
+### **Translation Unit（编译单元）**、头文件、链接
 
 - 一个 `.cpp` 文件是一个 **compile unit / translation unit**
 - 编译器一次只看一个 `.cpp`
@@ -441,7 +441,7 @@ void S::f() {
 
 ### `#include` 的本质
 
-> `#include <point.h>` 本质上是在编译单元前面加入这个头文件的代码。
+> `#include <point.h>` 本质上是在 **Translation Unit** 前面加入这个头文件的代码。
 
 更准确地说，`#include` 是 **预处理阶段的文本替换** 。
 
@@ -652,7 +652,7 @@ public:
 - composition（组合）
 
 
-## 构造函数与析构函数
+## **Constructor（构造函数）** 与 **Destructor（析构函数）**
 
 ### 为什么 `init()` 不够好
 
@@ -674,11 +674,11 @@ a.print();
 
 那这个对象就可能在“未正确初始化”的状态下被使用。
 
-所以仅靠一个普通成员函数 `init()`，并不能保证对象一创建就合法。
+所以仅靠一个普通 **Member Function** `init()`，并不能保证对象一创建就合法。
 
-### 构造函数：guaranteed initialization
+### **Constructor**：guaranteed initialization
 
-构造函数（constructor, ctor）的作用就是：
+**Constructor** 的作用就是：
 
 > 当对象创建时，由编译器保证它会被调用。
 
@@ -718,7 +718,7 @@ Point a(1, 2);
 和普通函数的差异在于：
 
 - 普通函数需要你手动调用
-- 构造函数在对象创建时自动调用
+- **Constructor** 在对象创建时自动调用
 
 可以理解成：
 
@@ -729,9 +729,9 @@ void f() {
 }
 ```
 
-### 析构函数：guaranteed cleanup
+### **Destructor**：guaranteed cleanup
 
-析构函数（destructor, dtor）的作用是：
+**Destructor** 的作用是：
 
 > 当对象生命周期结束时，由编译器保证自动调用，用来做清理工作。
 
@@ -750,14 +750,14 @@ public:
 };
 ```
 
-析构函数适合释放：
+**Destructor** 适合释放：
 
 - 文件句柄
 - 锁
-- 动态内存
+- **Dynamic Memory（动态内存）**
 - 其他需要“善后”的资源
 
-### 什么时候会调用 ctor / dtor
+### 什么时候会调用 **ctor** / **dtor**
 
 ```cpp
 X global_x;
@@ -809,7 +809,7 @@ int foo(int a) {
 }
 ```
 
-即使 `return` 提前发生，`local_x` 的析构函数也一定会被调用。
+即使 `return` 提前发生，`local_x` 的 **Destructor** 也一定会被调用。
 
 这点非常重要，因为它正是 RAII 成立的基础。
 
@@ -820,8 +820,8 @@ RAII = **Resource Acquisition Is Initialization** 。
 
 原则是：
 
-- 在构造函数里获取资源
-- 在析构函数里释放资源
+- 在 **Constructor** 里获取资源
+- 在 **Destructor** 里释放资源
 
 这样只要对象能正常析构，资源就一定能释放。
 
@@ -887,13 +887,13 @@ void bar() {
 
 这里 `unique_ptr` 负责托管 `new int[100]`：
 
-- 当 `up` 析构时会自动释放这块动态内存
+- 当 `up` 析构时会自动释放这块 **Dynamic Memory**
 - 避免了忘记 `delete[]`
 
 
 ## 初始化相关问题
 
-### 聚合初始化
+### **Aggregate Initialization（聚合初始化）**
 
 几组常见形式：
 
@@ -915,11 +915,11 @@ X x2[3] = { {1, 1.1, 'a'}, {2, 2.2, 'b'} };
 - 常用于数组、简单 `struct`
 - 少写的部分会做默认补齐
 
-### 默认构造函数
+### **Default Constructor（默认构造函数）**
 
-默认构造函数（default constructor）就是：
+**Default Constructor** 就是：
 
-> **不带参数、可以无参调用的构造函数。**
+> **不带参数、可以无参调用的Constructor。**
 
 ```cpp
 struct Y {
@@ -953,14 +953,14 @@ Y y3[7];
 Y y4;
 ```
 
-都会出问题，因为这需要默认构造函数，但类里已经定义了别的构造函数，编译器就 **不会再自动帮你生成默认构造函数** 。
+都会出问题，因为这需要 **Default Constructor**，但类里已经定义了别的 **Constructor**，编译器就 **不会再自动帮你生成Default Constructor** 。
 
-> If (and only if) there are no constructors defined for a class, the compiler will automatically create a default constructor.
+> If (and only if) there are no **constructors** defined for a class, the compiler will automatically create a **default constructor** .
 
 也就是：
 
-- **只有在你一个构造函数都没写时**
-- 编译器才会自动生成默认构造函数
+- **只有在你一个Constructor都没写时**
+- 编译器才会自动生成 **Default Constructor**
 
 ```cpp
 struct Y {
@@ -975,11 +975,11 @@ int main()
 }
 ```
 
-这里如果完全不写构造函数，那么编译器会生成默认构造函数，因此这段代码可以通过。
+这里如果完全不写 **Constructor**，那么编译器会生成 **Default Constructor**，因此这段代码可以通过。
 
-### 初始化列表
+### **Initializer List（初始化列表）**
 
-> **初始化列表才是真正的初始化。**
+> **Initializer List才是真正的初始化。**
 
 **Example** ：
 
@@ -1013,7 +1013,7 @@ Point(float xa, float ya) {
 
 #### 真正的初始化顺序由 **字段声明顺序** 决定
 
-不是看初始化列表里谁写在前面，而是看类里字段谁先声明。
+不是看 **Initializer List** 里谁写在前面，而是看类里字段谁先声明。
 
 例如：
 
@@ -1064,11 +1064,11 @@ Student::Student(string s) { name = s; }
 
 所以：
 
-> **成员对象、`const` 字段、引用字段，优先用初始化列表。**
+> **成员对象、`const` 字段、引用字段，优先用Initializer List。**
 
 ### 初始化 vs 赋值：可观测实验
 
-下面这段代码可以非常直观地看到“默认构造 + 赋值”和“初始化列表直接构造”的差别：
+下面这段代码可以非常直观地看到“默认构造 + 赋值”和“ **Initializer List** 直接构造”的差别：
 
 ```cpp
 #include <iostream>
@@ -1147,7 +1147,7 @@ int TicketMachine::refundBalance() {
 
 ### `this`：隐藏参数
 
-Point member function 是有一个隐含参数的，这个参数就是 `this` 指针，`this` 指针指向当前对象的地址。通过 `this` 指针，我们可以访问当前对象的成员变量和成员函数。
+Point **member function** 是有一个隐含参数的，这个参数就是 `this` 指针，`this` 指针指向当前对象的地址。通过 `this` 指针，我们可以访问当前对象的成员变量和 **Member Function**。
 
 例如：
 
@@ -1176,7 +1176,7 @@ a.print();
 Point::print(&a);
 ```
 
-所以在成员函数里写：
+所以在 **Member Function** 里写：
 
 ```cpp
 x = ix;
@@ -1205,9 +1205,9 @@ public:
 否则右边和左边的 `x` / `y` 都只会被解释成参数自己。
 
 
-## `const` 对象与 `const` 成员函数
+## `const` 对象与 `const` **Member Function**
 
-### 为什么有 `const` 成员函数
+### 为什么有 `const` **Member Function**
 
 ```cpp
 const Currency the_raise(42, 38);
@@ -1216,9 +1216,9 @@ const Currency the_raise(42, 38);
 问题是：
 
 - 这个对象怎么保证不被修改？
-- 它还能调用哪些成员函数？
+- 它还能调用哪些 **Member Function**？
 
-这就引出了 **`const` 成员函数** 。
+这就引出了 **`const` Member Function** 。
 
 例如：
 
@@ -1245,7 +1245,7 @@ int Date::get_day() const {
 const Date birthday(12,25,1994);
 ```
 
-那么它只能调用 **`const` 成员函数** 。
+那么它只能调用 **`const` Member Function** 。
 
 例如：
 
@@ -1261,7 +1261,7 @@ birthday.set_day(14);         // ERROR
 
 所以对于常对象来说，只有“安全函数”才能被调用。
 
-### `const` 成员函数内部不能做什么
+### `const` **Member Function** 内部不能做什么
 
 
 ```cpp
@@ -1272,10 +1272,10 @@ int Date::get_day() const {
 }
 ```
 
-在 `const` 成员函数里：
+在 `const` **Member Function** 里：
 
 - 不能修改字段
-- 不能调用非 `const` 成员函数
+- 不能调用非 `const` **Member Function**
 
 所以一个很重要的习惯是：
 
@@ -1285,7 +1285,7 @@ int Date::get_day() const {
 
 ### const 重载
 
-这两种成员函数可以同时存在：
+这两种 **Member Function** 可以同时存在：
 
 ```cpp
 class X {
@@ -1315,8 +1315,8 @@ class A {
 
 这种字段：
 
-- 不能在构造函数体里赋值
-- 必须在初始化列表里初始化
+- 不能在 **Constructor** 体里赋值
+- 必须在 **Initializer List** 里初始化
 
 例如：
 
@@ -1334,7 +1334,7 @@ public:
 
 ## `static` 成员
 
-### 静态成员变量
+### **Static Data Member（静态成员变量）**
 
 slides 给出：
 
@@ -1348,7 +1348,7 @@ struct X
 int X::n = 7; // definition
 ```
 
-静态成员变量的特点：
+**Static Data Member** 的特点：
 
 - 属于整个类，而不是某个具体对象
 - 所有对象共享这一份数据
@@ -1368,7 +1368,7 @@ int Counter::total = 0;
 
 无论你创建多少个 `Counter` 对象，它们看到的 `total` 都是同一份。
 
-### 静态成员函数
+### **Static Member Function（静态成员函数）**
 
 ```cpp
 void X::f()
@@ -1377,7 +1377,7 @@ void X::f()
 }
 ```
 
-静态成员函数的特点：
+**Static Member Function** 的特点：
 
 - 不属于某个具体对象
 - 没有隐含参数 `this`
@@ -1397,7 +1397,7 @@ public:
 
 在 `f()` 里你可以访问 `n`，但不能直接访问 `m`。
 
-### 类内编译期常量
+### 类内 **Compile-Time Constant（编译期常量）**
 
 ```cpp
 class HasArray {
@@ -1408,7 +1408,7 @@ class HasArray {
 
 为什么错？
 
-因为这里需要一个 **编译期常量** ，而普通 `const int size;` 是对象级别的字段，不是编译期已知常量。
+因为这里需要一个 **Compile-Time Constant** ，而普通 `const int size;` 是对象级别的字段，不是编译期已知常量。
 
 正确思路是：
 
@@ -1444,9 +1444,9 @@ x.n = 10;
 
 但从语义上更推荐第一种，因为静态成员本来就不依赖具体对象。
 
-### 静态成员与初始化列表
+### 静态成员与 **Initializer List**
 
-静态数据成员不属于某个对象，因此不能放进构造函数初始化列表：
+静态数据成员不属于某个对象，因此不能放进 **Constructor Initializer List（构造函数初始化列表）**：
 
 ```cpp
 struct X {
@@ -1592,7 +1592,7 @@ public:
 
 现代 C++ 里，`inline` 对函数的更重要含义往往已经不是强制内联，而是：
 
-> **允许多个翻译单元看到同一个函数定义。**
+> **允许多个Translation Unit看到同一个函数定义。**
 
 > Nowadays, the keyword `inline` comes to mean “multiple definitions are permitted” rather than “inlining is preferred”.
 
@@ -1606,5 +1606,5 @@ struct Config {
 };
 ```
 
-这样可以把静态成员变量直接放在头文件里定义，并允许多个翻译单元包含，不会触发重复定义错误。
+这样可以把 **Static Data Member** 直接放在头文件里定义，并允许多个 **Translation Unit** 包含，不会触发重复定义错误。
 

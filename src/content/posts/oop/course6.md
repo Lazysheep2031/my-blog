@@ -125,7 +125,7 @@ private:
 };
 ```
 
-构造函数应该写成：
+**Constructor（构造函数）** 应该写成：
 
 ```cpp
 SavingsAccount::SavingsAccount(const string& name,
@@ -138,9 +138,9 @@ SavingsAccount::SavingsAccount(const string& name,
 
 这里的含义是：
 
-- `m_saver(name, address)` 调用 `Person` 的构造函数；
-- `m_balance(0, cents)` 调用 `Currency` 的构造函数；
-- 初始化列表把参数直接传给成员对象的子构造函数。
+- `m_saver(name, address)` 调用 `Person` 的 **Constructor**；
+- `m_balance(0, cents)` 调用 `Currency` 的 **Constructor**；
+- **Initializer List（初始化列表）** 把参数直接传给成员对象的子 **Constructor**。
 
 #### 不推荐的写法
 
@@ -156,12 +156,12 @@ SavingsAccount::SavingsAccount(const string& name,
 
 问题：
 
-- 进入构造函数体之前，`m_saver` 和 `m_balance` 已经被默认构造了；
+- 进入 **Constructor** 体之前，`m_saver` 和 `m_balance` 已经被默认构造了；
 - 函数体里再调用 `set_...`，本质是“先默认初始化，再赋值修改”；
-- 如果成员对象没有默认构造函数，这种写法会直接编译失败；
+- 如果成员对象没有 **Default Constructor（默认构造函数）**，这种写法会直接编译失败；
 - 即使能编译，语义和效率也更差。
 
-结论：成员对象需要构造参数时，应优先使用初始化列表。
+结论：成员对象需要构造参数时，应优先使用 **Initializer List**。
 
 ### 组合后的函数实现：把工作转派出去
 
@@ -223,16 +223,16 @@ void SavingsAccount::print()
 | composition | `A has a B` | `Car has an engine` |
 | inheritance | `A is a B` | `Manager is an Employee` |
 
-### 基类 / 派生类术语
+### **Base Class（基类）** / **Derived Class（派生类）** 术语
 
 | 英文 | 中文 | 说明 |
 |---|---|---|
-| Base class | 基类 | 被继承的类 |
-| Super class | 超类 | 同 base class |
-| Parent class | 父类 | 同 base class |
-| Derived class | 派生类 | 继承别人的类 |
-| Sub class | 子类 | 同 derived class |
-| Child class | 子类 | 同 derived class |
+| **Base class** | **Base Class** | 被继承的类 |
+| Super class | 超类 | 同 **base class** |
+| Parent class | 父类 | 同 **base class** |
+| **Derived class** | **Derived Class** | 继承别人的类 |
+| Sub class | 子类 | 同 **derived class** |
+| Child class | 子类 | 同 **derived class** |
 
 例如：
 
@@ -248,12 +248,12 @@ class Manager : public Employee {
 
 这里：
 
-- `Employee` 是 base class / parent class；
-- `Manager` 是 derived class / child class。
+- `Employee` 是 **base class** / parent class；
+- `Manager` 是 **derived class** / child class。
 
 ### Employee / Manager 例子
 
-#### 声明基类 `Employee`
+#### 声明 **Base Class** `Employee`
 
 ```cpp
 class Employee {
@@ -271,12 +271,12 @@ protected:
 这里要注意：
 
 - `m_name` 和 `m_ssn` 被声明为 `protected`；
-- 派生类可以直接访问 `protected` 成员；
+- **Derived Class** 可以直接访问 `protected` 成员；
 - 类外仍然不能直接访问。
 
 `protected` 的完整规则放在后面的 [Access protection](#access-protection成员访问控制) 中统一讲。
 
-#### `Employee` 构造函数
+#### `Employee` **Constructor**
 
 ```cpp
 Employee::Employee(const string& name, const string& ssn)
@@ -286,9 +286,9 @@ Employee::Employee(const string& name, const string& ssn)
 }
 ```
 
-这里依然使用初始化列表，因为 `m_name` 和 `m_ssn` 是成员字段，应在构造阶段完成初始化。
+这里依然使用 **Initializer List**，因为 `m_name` 和 `m_ssn` 是成员字段，应在构造阶段完成初始化。
 
-#### `Employee` 成员函数
+#### `Employee` **Member Function（成员函数）**
 
 ```cpp
 const string& Employee::get_name() const
@@ -316,9 +316,9 @@ void print(ostream& out) const;
 void print(ostream& out, const string& msg) const;
 ```
 
-后面会看到，派生类中重新定义同名 `print` 时，会触发 **name hiding** 。
+后面会看到， **Derived Class** 中重新定义同名 `print` 时，会触发 **name hiding（同名函数隐藏）** 。
 
-#### 声明派生类 `Manager`
+#### 声明 **Derived Class** `Manager`
 
 ```cpp
 class Manager : public Employee {
@@ -342,7 +342,7 @@ private:
 
 ### 继承中的构造与析构顺序
 
-派生类构造函数写法：
+**Derived Class**  **Constructor** 写法：
 
 ```cpp
 Manager::Manager(const string& name,
@@ -354,9 +354,9 @@ Manager::Manager(const string& name,
 
 这里的 `Employee(name, ssn)` 表示：
 
-> 先调用基类 `Employee` 的构造函数，构造出派生类对象内部的基类子对象。
+> 先调用 **Base Class** `Employee` 的 **Constructor**，构造出 **Derived Class** 对象内部的 **Base Class** 子对象。
 
-可以把派生类对象理解成：
+可以把 **Derived Class** 对象理解成：
 
 ```text
 Manager object
@@ -383,13 +383,13 @@ Employee(name, ssn)
 → Manager constructor body
 ```
 
-如果没有显式给基类传参：
+如果没有显式给 **Base Class** 传参：
 
 ```cpp
 Manager::Manager(...) : m_title(title) {}
 ```
 
-编译器会尝试调用 `Employee` 的默认构造函数。若 `Employee` 没有默认构造函数，会编译失败。
+编译器会尝试调用 `Employee` 的 **Default Constructor**。若 `Employee` 没有 **Default Constructor**，会编译失败。
 
 析构顺序与构造顺序严格相反：
 
@@ -403,7 +403,7 @@ Derived class destructor body
 
 ### 继承后的成员访问与复用
 
-派生类可以复用基类已经写好的成员函数。
+**Derived Class** 可以复用 **Base Class** 已经写好的 **Member Function**。
 
 ```cpp
 void Manager::print(ostream& out) const
@@ -420,9 +420,9 @@ void Manager::print(ostream& out) const
 
 这体现了继承复用的常见模式：
 
-> 先复用基类行为，再补充派生类自己的行为。
+> 先复用 **Base Class** 行为，再补充 **Derived Class** 自己的行为。
 
-其他成员函数：
+其他 **Member Function**：
 
 ```cpp
 const string& Manager::get_title() const
@@ -440,8 +440,8 @@ const string Manager::title_name() const
 这里 `title_name()` 能直接访问 `m_name`，原因是：
 
 - `m_name` 是 `Employee` 的 `protected` 成员；
-- `Manager` 是 `Employee` 的派生类；
-- 派生类内部可以直接访问基类的 `protected` 成员。
+- `Manager` 是 `Employee` 的 **Derived Class**；
+- **Derived Class** 内部可以直接访问 **Base Class** 的 `protected` 成员。
 
 #### 使用例子
 
@@ -482,7 +482,7 @@ int main () {
 
 总表：
 
-| specifier | within same class | in derived class | outside the class |
+| specifier | within same class | in **derived class** | outside the class |
 |---|---:|---:|---:|
 | `private` | Yes | No | No |
 | `protected` | Yes | Yes | No |
@@ -499,8 +499,8 @@ private:
 
 含义：
 
-- `Employee` 自己的成员函数可以访问 `m_ssn`；
-- `Manager : public Employee` 这样的派生类不能直接访问 `m_ssn`；
+- `Employee` 自己的 **Member Function** 可以访问 `m_ssn`；
+- `Manager : public Employee` 这样的 **Derived Class** 不能直接访问 `m_ssn`；
 - 类外也不能访问 `m_ssn`。
 
 例子：
@@ -534,8 +534,8 @@ protected:
 
 含义：
 
-- 基类自己能访问；
-- 派生类也能访问；
+- **Base Class** 自己能访问；
+- **Derived Class** 也能访问；
 - 类外仍然不能访问。
 
 例子：
@@ -558,7 +558,7 @@ public:
 };
 ```
 
-这也是 `Manager::title_name()` 能直接使用基类 `m_name` 的原因。
+这也是 `Manager::title_name()` 能直接使用 **Base Class** `m_name` 的原因。
 
 ### `public`
 
@@ -572,7 +572,7 @@ public:
 含义：
 
 - 类内能访问；
-- 派生类能访问；
+- **Derived Class** 能访问；
 - 类外也能访问。
 
 `public` 成员通常构成类的对外接口。
@@ -669,10 +669,10 @@ class Manager : public Employee {
 友元可以是：
 
 - free function（自由函数）；
-- another class's member function（另一个类的成员函数）；
+- another class's **member function** （另一个类的成员函数）；
 - an entire class（整个类）。
 
-#### 友元函数
+#### **Friend Function（友元函数）**
 
 ```cpp
 #include <iostream>
@@ -697,9 +697,9 @@ int main() {
 }
 ```
 
-这里 `reveal()` 不是 `Box` 的成员函数，但因为被声明成 `friend`，所以可以访问 `Box::secret`。
+这里 `reveal()` 不是 `Box` 的 **Member Function**，但因为被声明成 `friend`，所以可以访问 `Box::secret`。
 
-#### 友元类
+#### **Friend Class（友元类）**
 
 ```cpp
 #include <iostream>
@@ -738,7 +738,7 @@ class A {
 
 常见场景：
 
-- 运算符重载，比如 `operator<<`；
+- **Operator Overloading（运算符重载）**，比如 `operator<<`；
 - 两个类实现上高度协作；
 - 测试代码或调试工具需要深入访问内部状态。
 
@@ -766,7 +766,7 @@ ostream& operator<<(ostream& os, const Point& p) {
 
 > `private` 限制的是“哪些类 / 函数的代码可以访问”，不是限制“某个具体对象只能访问自己的 private”。
 
-只要代码处在同一个类的成员函数内部，就可以访问这个类的任意对象的私有成员。
+只要代码处在同一个类的 **Member Function** 内部，就可以访问这个类的任意对象的私有成员。
 
 #### 同类对象之间互访私有成员
 
@@ -790,7 +790,7 @@ public:
 };
 ```
 
-`other.x` 是 `private`，但这里合法，因为当前代码位于 `Point` 类自己的成员函数中。
+`other.x` 是 `private`，但这里合法，因为当前代码位于 `Point` 类自己的 **Member Function** 中。
 
 另一个例子：
 
@@ -816,7 +816,7 @@ public:
 #### pointer 间接读写 private 成员
 
 
-- 如果你已经在这个类的成员函数内部；
+- 如果你已经在这个类的 **Member Function** 内部；
 - 即使通过 `this` 指针，或者另一个同类对象指针；
 - 仍然可以访问该类的私有成员。
 
@@ -861,7 +861,7 @@ class Derived3 : private Base {};
 
 它们决定的是：
 
-> 继承之后，基类的 `public` / `protected` 成员在派生类里被重新映射成什么访问级别。
+> 继承之后， **Base Class** 的 `public` / `protected` 成员在 **Derived Class** 里被重新映射成什么访问级别。
 
 总表：
 
@@ -877,8 +877,8 @@ class Derived3 : private Base {};
 
 注意：
 
-- 基类的 `private` 成员始终不能被派生类直接访问；
-- 继承方式只影响基类的 `public` 和 `protected` 成员在派生类中的访问级别；
+- **Base Class** 的 `private` 成员始终不能被 **Derived Class** 直接访问；
+- 继承方式只影响 **Base Class** 的 `public` 和 `protected` 成员在 **Derived Class** 中的访问级别；
 - 最常见、最符合 `is-a` 语义的是 `public` 继承。
 
 ### `public` 继承
@@ -959,7 +959,7 @@ int main() {
 }
 ```
 
-`protected` 继承可以让派生类继续使用基类能力，但不把基类接口公开给外部。
+`protected` 继承可以让 **Derived Class** 继续使用 **Base Class** 能力，但不把 **Base Class** 接口公开给外部。
 
 ### `private` 继承
 
@@ -1000,7 +1000,7 @@ int main() {
 `private` 继承更偏向实现复用，不表达自然的 `is-a` 关系。外部不能把 `B` 当作 `A` 使用。
 
 
-## Public inheritance、LSP 与 Upcasting
+## Public inheritance、LSP 与 **Upcasting（上转型）**
 
 ### 替换原则 LSP
 
@@ -1055,16 +1055,16 @@ int main() {
 }
 ```
 
-### Upcasting：上转型
+### **Upcasting**： **Upcasting**
 
-Upcasting 指：
+**Upcasting** 指：
 
-> 把派生类对象当成基类对象来看待。
+> 把 **Derived Class** 对象当成 **Base Class** 对象来看待。
 
 它通常发生在：
 
-- 基类指针；
-- 基类引用。
+- **Base Class** 指针；
+- **Base Class** 引用。
 
 例如：
 
@@ -1081,11 +1081,11 @@ Employee& er = pete;  // Upcast
 - `er` 的静态类型是 `Employee&`；
 - 通过 `ep` / `er` 使用对象时，只能看到 `Employee` 接口视角。
 
-上转型只对引用和指针自然成立，因为它们仍然指向 / 引用原来的对象。
+**Upcasting** 只对引用和指针自然成立，因为它们仍然指向 / 引用原来的对象。
 
-### 引用 / 指针上转型与按值切片
+### 引用 / 指针 **Upcasting** 与按值切片
 
-#### 指针上转型
+#### 指针 **Upcasting**
 
 ```cpp
 Manager pete("Pete", "444-55-6666", "Bakery");
@@ -1094,15 +1094,15 @@ Employee* ep = &pete;
 
 `ep` 指向的实际对象仍然是 `Manager`，只是当前通过 `Employee*` 视角访问。
 
-#### 引用上转型
+#### 引用 **Upcasting**
 
 ```cpp
 Employee& er = pete;
 ```
 
-`er` 是 `pete` 的一个基类引用视角，没有复制对象。
+`er` 是 `pete` 的一个 **Base Class** 引用视角，没有复制对象。
 
-#### 按值赋值会发生 object slicing
+#### 按值赋值会发生 **object slicing（对象切片）**
 
 如果写成：
 
@@ -1110,9 +1110,9 @@ Employee& er = pete;
 Employee e = pete;
 ```
 
-这不是上转型引用，而是创建了一个新的 `Employee` 对象副本。此时会发生 **object slicing（对象切片）** ：
+这不是 **Upcasting** 引用，而是创建了一个新的 `Employee` 对象副本。此时会发生 **Object Slicing** ：
 
-- `Manager` 中属于 `Employee` 的基类部分被拷贝出来；
+- `Manager` 中属于 `Employee` 的 **Base Class** 部分被拷贝出来；
 - `Manager` 自己新增的 `m_title` 等字段被切掉；
 - 得到的是一个独立的 `Employee` 对象。
 
@@ -1160,21 +1160,21 @@ int main() {
 
 | 写法 | 是否复制对象 | 是否保留完整 `Manager` 对象 | 结果 |
 |---|---:|---:|---|
-| `Employee* p = &m;` | 否 | 是 | 指针上转型 |
-| `Employee& r = m;` | 否 | 是 | 引用上转型 |
-| `Employee e = m;` | 是 | 否 | 对象切片 |
+| `Employee* p = &m;` | 否 | 是 | 指针 **Upcasting** |
+| `Employee& r = m;` | 否 | 是 | 引用 **Upcasting** |
+| `Employee e = m;` | 是 | 否 | **Object Slicing** |
 
-### 上转型后的静态绑定与动态绑定
+### **Upcasting** 后的 **Static Binding（静态绑定）** 与 **Dynamic Binding（动态绑定）**
 
 > Lose type information of the object: `ep->print(cout); // The base print() is called`
 
 意思是：
 
-- 通过基类指针 / 引用访问时，编译器当前只看到基类接口；
+- 通过 **Base Class** 指针 / 引用访问时，编译器当前只看到 **Base Class** 接口；
 - 如果函数不是 `virtual`，调用会按照静态类型绑定；
 - `Employee* ep` 调用 `ep->print(cout)` 时，会调用 `Employee::print`。
 
-#### 非 virtual：静态绑定
+#### 非 virtual： **Static Binding**
 
 ```cpp
 #include <iostream>
@@ -1208,9 +1208,9 @@ int main() {
 - `print()` 不是 virtual；
 - 编译器按静态类型决定调用 `Employee::print()`。
 
-#### virtual：动态绑定
+#### virtual： **Dynamic Binding**
 
-如果想让基类指针 / 引用根据对象真实类型调用派生类版本，需要使用 `virtual`。
+如果想让 **Base Class** 指针 / 引用根据对象真实类型调用 **Derived Class** 版本，需要使用 `virtual`。
 
 ```cpp
 #include <iostream>
@@ -1241,15 +1241,15 @@ int main() {
 补充：
 
 - `virtual` 表示允许运行时动态分派；
-- `override` 表示这个函数确实覆盖了基类虚函数；
-- 如果一个类准备用作多态基类，析构函数通常也应该声明为 `virtual`。
+- `override` 表示这个函数确实覆盖了 **Base Class**  **Virtual Function（虚函数）**；
+- 如果一个类准备用作多态 **Base Class**， **Destructor（析构函数）** 通常也应该声明为 `virtual`。
 
 
-## Name hiding：同名函数隐藏
+## **Name hiding**： **Name Hiding**
 
 ### 问题现象
 
-如果派生类重新定义了一个同名成员函数，基类中其他同名重载版本可能会被隐藏。
+如果 **Derived Class** 重新定义了一个同名 **Member Function**， **Base Class** 中其他同名重载版本可能会被隐藏。
 
 例子：
 
@@ -1277,13 +1277,13 @@ bill.print(cout, "Employee:"); // Error -- hidden!
 
 - `Manager` 中声明了同名函数 `print`；
 - 名字查找先在 `Manager` 作用域中找到 `print`；
-- 找到后，基类 `Employee` 中同名重载集合被挡住；
+- 找到后， **Base Class** `Employee` 中同名重载集合被挡住；
 - 编译器只在 `Manager::print` 这一组中匹配参数；
 - `Manager::print(ostream&)` 不能接受两个参数，所以报错。
 
 关键结论：
 
-> 派生类中的同名函数会隐藏基类中整个同名重载集合。
+> **Derived Class** 中的同名函数会隐藏 **Base Class** 中整个同名重载集合。
 
 它不是只隐藏“同参数列表”的版本。
 
@@ -1320,7 +1320,7 @@ int main() {
 
 ### 修复方式：`using Base::func;`
 
-可以在派生类中把基类同名重载重新引入当前作用域：
+可以在 **Derived Class** 中把 **Base Class** 同名重载重新引入当前作用域：
 
 ```cpp
 class Manager : public Employee {
@@ -1347,8 +1347,8 @@ int main() {
 
 | 情况 | 结果 |
 |---|---|
-| 派生类定义同名函数，但没有 `using Base::func;` | 基类同名重载集合被隐藏 |
-| 派生类写 `using Base::func;` | 基类同名重载重新参与重载解析 |
+| **Derived Class** 定义同名函数，但没有 `using Base::func;` | **Base Class** 同名重载集合被隐藏 |
+| **Derived Class** 写 `using Base::func;` | **Base Class** 同名重载重新参与重载解析 |
 
 
 ## 组合 vs 继承：设计判断
@@ -1393,7 +1393,7 @@ int main() {
 
 - 类型扩展；
 - 接口复用；
-- 可以被当作基类使用；
+- 可以被当作 **Base Class** 使用；
 - 满足替换原则。
 
 ### 警惕为了实现复用而滥用继承

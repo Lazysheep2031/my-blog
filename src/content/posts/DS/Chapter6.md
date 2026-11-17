@@ -50,9 +50,9 @@ draft: false
 
 如果后端采用关系数据库，这一步通常就是：
 
-- 决定有哪些关系模式
+- 决定有哪些 **Relation Schema（关系模式）**
 - 每张表有哪些属性
-- 键和外键怎么放
+- 键和 **Foreign Key（外键）** 怎么放
 
 这是 **关系层落地** 。
 
@@ -126,9 +126,9 @@ draft: false
 - 贴近业务语义
 - 适合概念建模
 
-#### Normalization Theory
+#### **Normalization Theory（规范化理论）**
 
-从关系模式和函数依赖出发，分析设计是否有坏味道。
+从 **Relation Schema** 和 **Functional Dependency（函数依赖）** 出发，分析设计是否有坏味道。
 
 优点：
 
@@ -138,14 +138,14 @@ draft: false
 简单区分：
 
 - **E-R 模型负责先把世界说清楚**
-- **规范化负责把关系模式修好**
+- **规范化负责把Relation Schema修好**
 
 
 ## The E-R Model
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202604072313708.png" alt="E-R Model" style="width: 520px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
-### entity / entity set
+### entity / **entity set（实体集）**
 
 #### entity
 
@@ -159,9 +159,9 @@ draft: false
 - 某个教室
 - 某次事件
 
-#### entity set
+#### **entity set**
 
-实体集（entity set）是同一类实体的集合。
+**Entity Set** 是同一类实体的集合。
 
 例如：
 
@@ -177,18 +177,18 @@ draft: false
 
 E-R 图中：
 
-- **矩形 rectangle** 表示实体集
+- **矩形 rectangle** 表示 **Entity Set**
 - 实体的属性写在矩形里或周围
-- **带下划线的属性** 表示主键属性
+- **带下划线的属性** 表示 **Primary Key（主键）** 属性
 
 例如在大学系统里：
 
 - `student(ID, name, tot_cred)`
 - `instructor(ID, name, salary)`
 
-> 这里画的不是某一个 student，而是 `student` 这个 **实体集合** 。
+> 这里画的不是某一个 student，而是 `student` 这个 **Entity Set合** 。
 
-### relationship / relationship set
+### relationship / **relationship set（联系集）**
 
 联系（relationship）是多个实体之间的关联。图中表示为 **菱形 diamond** 。
 
@@ -198,7 +198,7 @@ E-R 图中：
 - 某教师教授某个教学班
 - 某课程有某门先修课
 
-联系集（relationship set）是同类联系的集合。
+**Relationship Set** 是同类联系的集合。
 
 例如：
 
@@ -207,22 +207,22 @@ E-R 图中：
 
 数学表达：
 
-如果联系集 `R` 涉及实体集 `E1, E2, ..., En`，  
+如果 **Relationship Set** `R` 涉及 **Entity Set** `E1, E2, ..., En`，  
 那么每个联系就是一个元组：
 
 `(e1, e2, ..., en)`
 
 其中 `ei ∈ Ei`。
 
-所以 relationship set 本质上就是：
+所以 **relationship set** 本质上就是：
 
-- 从多个实体集中各取一个实体
+- 从多个 **Entity Set** 中各取一个实体
 - 组成一个 **关系元组** 的集合
 
 :::WARNING 
-> relationship set（联系集）的元素个数，一般 **不等于** 参与该联系的各实体集大小的乘积。
+> **Relationship Set** 的元素个数，一般 **不等于** 参与该联系的各 **Entity Set** 大小的乘积。
 
-若一个联系集 `R` 涉及实体集 `E1, E2, ..., En`，那么有：
+若一个 **Relationship Set** `R` 涉及 **Entity Set** `E1, E2, ..., En`，那么有：
 
 $$
 R \subseteq E_1 \times E_2 \times \cdots \times E_n
@@ -230,13 +230,13 @@ $$
 
 这里：
 
-- $E_1 \times E_2 \times \cdots \times E_n$ 表示这些实体集的 **笛卡尔积（Cartesian product）**
-- 它表示“从每个实体集中各取一个实体所形成的 **所有可能组合** ”
-- 而真正的联系集 `R`，只是这些可能组合里， **实际满足该联系语义** 的那些元组构成的集合
+- $E_1 \times E_2 \times \cdots \times E_n$ 表示这些 **Entity Set** 的 **Cartesian Product（笛卡尔积）**
+- 它表示“从每个 **Entity Set** 中各取一个实体所形成的 **所有可能组合** ”
+- 而真正的 **Relationship Set** `R`，只是这些可能组合里， **实际满足该联系语义** 的那些元组构成的集合
 
-所以，联系集可以理解成：
+所以， **Relationship Set** 可以理解成：
 
-> 定义在若干实体集上的一个 **谓词** 所对应的真值集合。
+> 定义在若干 **Entity Set** 上的一个 **谓词** 所对应的真值集合。
 
 也就是：
 
@@ -246,8 +246,8 @@ $$
 
 因此：
 
-- 笛卡尔积给出的是候选元组空间
-- 联系集给出的是其中真正成立的关系元组
+- **Cartesian Product** 给出的是候选元组空间
+- **Relationship Set** 给出的是其中真正成立的关系元组
 
 例如：`advisor(student, instructor)`
 
@@ -304,9 +304,9 @@ $$
 :::
 
 :::TIP
-**role：同一个实体集在一个联系里可以出现多次**
+**role：同一个Entity Set在一个联系里可以出现多次**
 
-有些联系里，同一个实体集会出现多次。
+有些联系里，同一个 **Entity Set** 会出现多次。
 
 经典例子：
 
@@ -314,23 +314,23 @@ $$
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202604081858475.png" alt="Prerequisite Relationship" style="width: 320px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
-这里两边其实都是 `course` 实体集。  
+这里两边其实都是 `course` **Entity Set**。  
 只是它们扮演的角色不同：
 
 - 一个角色是当前课程
 - 一个角色是先修课程
 
-这种同一个实体集在联系中的不同身份叫 **role（角色）** 。
+这种同一个 **Entity Set** 在联系中的不同身份叫 **role（角色）** 。
 
-所以 `course_id` 和 `prereq_id` 不是两个不同实体集，  
-而是同一个 `course` 实体集在一个联系中的两个 role
+所以 `course_id` 和 `prereq_id` 不是两个不同 **Entity Set**，  
+而是同一个 `course` **Entity Set** 在一个联系中的两个 role
 :::
 
 ### Binary 与 Non-binary relationship
 
 #### Binary relationship
 
-二元联系，涉及两个实体集。  
+二元联系，涉及两个 **Entity Set**。  
 数据库里最常见的联系都是二元联系。
 
 例如：
@@ -340,7 +340,7 @@ $$
 
 #### Non-binary relationship
 
-非二元联系，涉及三个及以上实体集。
+非二元联系，涉及三个及以上 **Entity Set**。
 
 例如一个三元联系：
 
@@ -359,7 +359,7 @@ $$
 
 **属性的基本作用**
 
-属性（attribute）是实体集或联系集上记录信息的手段。
+属性（attribute）是 **Entity Set** 或 **Relationship Set** 上记录信息的手段。
 
 例如：
 
@@ -422,7 +422,7 @@ $$
 
 一个教师可能有多个电话号码。
 
-注意这类属性后面落地到关系模式时，通常不能直接做成一个原子字段乱塞一串。  
+注意这类属性后面落地到 **Relation Schema** 时，通常不能直接做成一个原子字段乱塞一串。  
 一般需要进一步拆成独立关系。
 
 ```text
@@ -433,7 +433,7 @@ inst_phone= ( ID, phone_number)
 
 ### Derived
 
-派生属性（derived attribute）可以由其他属性计算出来。
+**Derived Attribute（派生属性）** 可以由其他属性计算出来。
 
 例如：
 
@@ -451,9 +451,9 @@ inst_phone= ( ID, phone_number)
 
 ## Constraints in E-R Model
 
-### Mapping Cardinality
+### **Mapping Cardinality（基数约束）**
 
-基数约束（mapping cardinality）描述：
+**Mapping Cardinality** 描述：
 
 > 一个实体通过某个联系，最多 / 最少能和另一侧多少实体关联。
 
@@ -539,7 +539,7 @@ inst_phone= ( ID, phone_number)
 
 意思是：
 
-- 实体集中的每个实体，都必须至少参与一次该联系
+- **Entity Set** 中的每个实体，都必须至少参与一次该联系
 
 图中通常用 **双线** 表示。
 
@@ -585,9 +585,9 @@ inst_phone= ( ID, phone_number)
 - 学生必须有且只有 `1..1` 个导师
 
 
-### Ternary relationship 中的基数约束
+### Ternary relationship 中的 **Mapping Cardinality**
 
-三元联系里，基数约束更容易混乱。
+三元联系里， **Mapping Cardinality** 更容易混乱。
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202604081904493.png" alt="Ternary Relationship" style="width: 320px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
@@ -599,13 +599,13 @@ inst_phone= ( ID, phone_number)
 多个箭头叠加后语义容易歧义 $\rightarrow$为了避免混乱，禁止超过一个箭头。
 
 
-## Primary Keys in E-R Model
+## **Primary Keys** in E-R Model
 
-### 实体集的主键
+### **Entity Set** 的 **Primary Key**
 
-对实体集来说，主键的要求很直观：
+对 **Entity Set** 来说， **Primary Key** 的要求很直观：
 
-> 属性值必须足以唯一标识实体集中的每个实体。
+> 属性值必须足以唯一标识 **Entity Set** 中的每个实体。
 
 也就是：
 
@@ -616,17 +616,17 @@ inst_phone= ( ID, phone_number)
 - `student` 的 `ID`
 - `course` 的 `course_id`
 
-### 联系集的主键
+### **Relationship Set** 的 **Primary Key**
 
-联系集也要区分不同联系，所以它也有主键问题。
+**Relationship Set** 也要区分不同联系，所以它也有 **Primary Key** 问题。
 
 一般思路：
 
-- 取参与实体集的主键并起来
+- 取参与 **Entity Set** 的 **Primary Key** 并起来
 - 如果联系本身还有属性，而且这些属性也参与区分，则也要考虑进去
 
-设联系集 `R` 涉及 `E1, E2, ..., En`，  
-那么一个基本候选主键是：
+设 **Relationship Set** `R` 涉及 `E1, E2, ..., En`，  
+那么一个基本候选 **Primary Key** 是：
 
 - `primary_key(E1) ∪ primary_key(E2) ∪ ... ∪ primary_key(En)`
 
@@ -635,42 +635,42 @@ inst_phone= ( ID, phone_number)
 
 例子：
 
-- `advisor` 的主键可由 `instructor.ID` 与 `student.ID` 组合得到
+- `advisor` 的 **Primary Key** 可由 `instructor.ID` 与 `student.ID` 组合得到
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202604081908898.png" alt="Advisor Relationship" style="width: 320px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
-#### 不同基数下联系主键选择策略
+#### 不同基数下联系 **Primary Key** 选择策略
 
 这一点重点
 
 1. **Many-to-Many**
 
-两边都可能重复，所以必须用两边主键并集。  
-这是最自然的最小超键。
+两边都可能重复，所以必须用两边 **Primary Key** 并集。  
+这是最自然的最小 **Superkey（超键）**。
 
 2. **One-to-Many**
 
-主键取 many 这一侧的主键即可。  
+**Primary Key** 取 many 这一侧的 **Primary Key** 即可。  
 因为 many 这一侧每个实体至多对应一个 one 侧实体。
 
 3. **Many-to-One**
 
-同理，也是取 many 侧主键。
+同理，也是取 many 侧 **Primary Key**。
 
 4. One-to-One
 
-任意一侧主键都可以作为联系主键。  
+任意一侧 **Primary Key** 都可以作为联系 **Primary Key**。  
 因为两边都是 **最多一个** 。
 
-> **联系主键跟会重复的一侧走。**  
+> **联系Primary Key跟会重复的一侧走。**  
 > 多对多两边都重复，所以两边都要。
 
 
-## Weak Entity Sets
+## **Weak Entity Sets（弱实体集）**
 
-如果一个实体集本身没有足够属性形成主键，它就是 **弱实体集（weak entity set）** 。
+如果一个 **Entity Set** 本身没有足够属性形成 **Primary Key**，它就是 **Weak Entity Set** 。
 
-反过来，能自己形成主键的实体集叫 **强实体集（strong entity set）** 。
+反过来，能自己形成 **Primary Key** 的 **Entity Set** 叫 **Strong Entity Set（强实体集）** 。
 
 弱实体的核心语义不等同于 **属性少** ：
 
@@ -681,13 +681,13 @@ inst_phone= ( ID, phone_number)
 
 1. **identifying entity set**
 
-标识性实体集。  
-也就是它依赖的那个强实体集。
+标识性 **Entity Set**。  
+也就是它依赖的那个 **Strong Entity Set**。
 
 2. **identifying relationship**
 
 标识性联系。  
-弱实体通过它和标识性实体集连接。  
+弱实体通过它和标识性 **Entity Set** 连接。  
 图中用 **双菱形** 表示。
 
 3. **discriminator / partial key**
@@ -723,9 +723,9 @@ inst_phone= ( ID, phone_number)
 - `sec_course` 是 identifying relationship
 - `sec_id`（加上 semester/year 等局部属性）是 discriminator 的一部分
 
-最后 `section` 的主键形成方式是：
+最后 `section` 的 **Primary Key** 形成方式是：
 
-- 强实体 `course` 的主键
+- 强实体 `course` 的 **Primary Key**
 - 加上弱实体的 discriminator
 
 即：
@@ -782,10 +782,10 @@ inst_phone= ( ID, phone_number)
 
 - `dept_name` 作为 `student` 属性可能是冗余
 
-但在 E-R 向关系模式规约时：
+但在 E-R 向 **Relation Schema** 规约时：
 
 - 如果 `stud_dept` 是 many-to-one / one-to-many 且满足条件
-- 我们可能会把 **系的主键** 并回到 `student` 表里
+- 我们可能会把 **系的Primary Key** 并回到 `student` 表里
 
 于是表结构里又出现了：
 
@@ -796,7 +796,7 @@ inst_phone= ( ID, phone_number)
 关键区别是：
 
 - **概念层面** ：不应重复表达同一个语义
-- **关系实现层面** ：可以通过外键并入来更紧凑地表示联系
+- **关系实现层面** ：可以通过 **Foreign Key** 并入来更紧凑地表示联系
 
 也就是：
 
@@ -811,15 +811,15 @@ E-R 图最后是要落到关系数据库上的。
 
 总原则是：
 
-> 对每个实体集、每个联系集，都能构造出对应的 relation schema。
+> 对每个 **Entity Set**、每个 **Relationship Set**，都能构造出对应的 **relation schema**。
 
-也就是说，E-R 是概念模型，关系模式是逻辑模型。  
+也就是说，E-R 是概念模型， **Relation Schema** 是逻辑模型。  
 
 **强实体转表**
 
 - 直接变成同名关系
 - 属性照搬
-- 主键照搬
+- **Primary Key** 照搬
 
 例如：
 
@@ -830,11 +830,11 @@ course(course_id, title, credits)
 
 **弱实体转表**
 
-弱实体集转成表时，必须把其 identifying strong entity 的主键带进来。
+**Weak Entity Set** 转成表时，必须把其 identifying strong entity 的 **Primary Key** 带进来。
 
 - 表包含弱实体自己的属性
-- 再加上 identifying strong entity 的主键
-- 新表主键 = 强实体主键 + 弱实体 discriminator
+- 再加上 identifying strong entity 的 **Primary Key**
+- 新表 **Primary Key** = 强实体 **Primary Key** + 弱实体 discriminator
 
 例如：
 
@@ -849,11 +849,11 @@ section(course_id, sec_id, semester, year)
 
 **多对多联系转表**
 
-many-to-many 联系集要单独建表。
+many-to-many **Relationship Set** 要单独建表。
 
 表中应包含：
 
-- 两边实体集的主键
+- 两边 **Entity Set** 的 **Primary Key**
 - 联系自己的描述性属性（如果有）
 
 例如：
@@ -882,7 +882,7 @@ advisor(s_id, i_id, date)
 
 如果 many 一侧是 **total participation** ，  
 则不一定要为联系单独建表，  
-可以把 one 侧主键作为额外属性，塞进 many 侧的实体表中。
+可以把 one 侧 **Primary Key** 作为额外属性，塞进 many 侧的实体表中。
 
 例子：
 
@@ -906,18 +906,18 @@ instructor(ID, name, salary, dept_name)
 直观理解：
 
 - 每个 instructor 都属于一个 department
-- 那就直接在 instructor 表里放外键 `dept_name`
+- 那就直接在 instructor 表里放 **Foreign Key** `dept_name`
 - 没必要再单独维护一个联系表
 
 **一对一联系转表**
 
 one-to-one 联系中：
 
-- 任意一侧都可以被视为 many 侧来吸收外键
+- 任意一侧都可以被视为 many 侧来吸收 **Foreign Key**
 
 也就是：
 
-- 可以把一方主键作为额外属性加到另一方表中
+- 可以把一方 **Primary Key** 作为额外属性加到另一方表中
 
 但如果参与是 partial 的，要注意：
 
@@ -939,7 +939,7 @@ one-to-one 联系中：
 
 原因是：
 
-- 弱实体表里已经包含了强实体主键
+- 弱实体表里已经包含了强实体 **Primary Key**
 - 也就已经隐含了那条标识联系
 
 例如：
@@ -958,7 +958,7 @@ one-to-one 联系中：
 
 `time_slot(time_slot_id)`
 
-它除了主键 `time_slot_id` 外，没有普通单值属性，只有一个多值属性组：
+它除了 **Primary Key** `time_slot_id` 外，没有普通单值属性，只有一个多值属性组：
 
 - `day`
 - `start_time`
@@ -985,7 +985,7 @@ time_slot_detail(time_slot_id, day, start_time, end_time)
     
 2. 这个例子的优化
 
-由于 `time_slot` 除了主键外没有别的普通属性，所以可以省去那张只有主键的表，直接只保留多值属性对应的表：
+由于 `time_slot` 除了 **Primary Key** 外没有别的普通属性，所以可以省去那张只有 **Primary Key** 的表，直接只保留多值属性对应的表：
 
 ```text
 time_slot(time_slot_id, day, start_time, end_time)
@@ -1002,7 +1002,7 @@ time_slot(time_slot_id, day, start_time, end_time)
 ```
 
 因此，`section` 中通过 `sec_time_slot` 得到的 `time_slot_id`  
-**不能再直接作为外键引用这张优化后的 `time_slot` 表** ，因为它引用的不是一个唯一键。
+**不能再直接作为Foreign Key引用这张优化后的 `time_slot` 表** ，因为它引用的不是一个唯一键。
 
 
 ## Design Issues
@@ -1109,9 +1109,9 @@ relationship 的属性应该挂在哪里?
 
 > 它能不能仅靠自身属性被唯一标识？
 
-如果一个实体集能够只靠自己的属性形成主键，它就是 strong entity。
+如果一个 **Entity Set** 能够只靠自己的属性形成 **Primary Key**，它就是 strong entity。
 
-如果一个实体集不能仅靠自身属性形成完整主键，必须依赖另一个实体集的主键才能唯一标识，它就是 weak entity。
+如果一个 **Entity Set** 不能仅靠自身属性形成完整 **Primary Key**，必须依赖另一个 **Entity Set** 的 **Primary Key** 才能唯一标识，它就是 weak entity。
 
 
 ## Extended E-R Features
@@ -1119,11 +1119,11 @@ relationship 的属性应该挂在哪里?
 基础 E-R 模型已经能覆盖大多数场景。  
 但对于 层次结构、子类、把联系当对象继续参与关系这类问题，需要扩展特性。
 
-### Specialization
+### **Specialization（特化）**
 
-特化（specialization）是 **top-down** 的。
+**Specialization** 是 **top-down** 的。
 
-- 先有一个较一般的高层实体集
+- 先有一个较一般的高层 **Entity Set**
 - 再把其中某些有特殊性质的子集单独抽出来
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202604081950113.png" alt="Specialization" style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
@@ -1136,34 +1136,34 @@ relationship 的属性应该挂在哪里?
 
 这里：
 
-- `person` 是高层实体集
-- `employee` / `student` 是低层实体集
+- `person` 是高层 **Entity Set**
+- `employee` / `student` 是低层 **Entity Set**
 
 `employee` 比一般 `person` 多一个 `salary`。  
 `student` 比一般 `person` 多一个 `tot_cred`。
 
-所以 specialization 的本质是：从更一般往更具体细分。
+所以 **specialization** 的本质是：从更一般往更具体细分。
 
 
-### Generalization
+### **Generalization（概化）**
 
-概化（generalization）是 **bottom-up** 的。
+**Generalization** 是 **bottom-up** 的。
 
 意思是：
 
-- 先看到多个相似的实体集
-- 再把它们抽象成一个更一般的高层实体集
+- 先看到多个相似的 **Entity Set**
+- 再把它们抽象成一个更一般的高层 **Entity Set**
 
 例如：
 
 - 把 `student` 和 `employee` 提炼成上层 `person`
 
-所以 specialization 和 generalization 本质上是反向过程。  
+所以 **specialization** 和 **generalization** 本质上是反向过程。  
 图上的表示方式也相同。
 
 ### Attribute Inheritance
 
-在特化 / 概化层次里，低层实体会继承高层实体的：
+在 **Specialization** / **Generalization** 层次里，低层实体会继承高层实体的：
 
 - 属性
 - 联系参与能力
@@ -1184,7 +1184,7 @@ relationship 的属性应该挂在哪里?
 
 不相交。
 
-一个高层实体最多属于一个低层实体集。
+一个高层实体最多属于一个低层 **Entity Set**。
 
 例如：
 
@@ -1196,7 +1196,7 @@ relationship 的属性应该挂在哪里?
 
 重叠。
 
-一个高层实体可同时属于多个低层实体集。
+一个高层实体可同时属于多个低层 **Entity Set**。
 
 例如大学里就很自然：
 
@@ -1215,7 +1215,7 @@ relationship 的属性应该挂在哪里?
 
 全部。
 
-高层实体集中的每个实体，必须至少落入某个低层实体集。
+高层 **Entity Set** 中的每个实体，必须至少落入某个低层 **Entity Set**。
 
 例如：
 
@@ -1225,7 +1225,7 @@ relationship 的属性应该挂在哪里?
 
 部分。
 
-高层实体不一定非要属于某个低层实体集。
+高层实体不一定非要属于某个低层 **Entity Set**。
 
 例如：
 
@@ -1264,9 +1264,9 @@ aggregation 的做法是：
 > aggregation 就是“把一个 relationship 打包成一个可再参与关系的对象”。
 
 
-## Reducing Generalization to Relational Schemas
+## Reducing **Generalization** to Relational Schemas
 
-特化 / 概化层次最后还是要转成关系模式。  
+**Specialization** / **Generalization** 层次最后还是要转成 **Relation Schema**。  
 
 **Method 1：高层一张表，低层各一张表**
 
@@ -1274,7 +1274,7 @@ aggregation 的做法是：
 
 - 高层实体一张表
 - 每个低层实体各一张表
-- 低层表包含高层主键和自己的局部属性
+- 低层表包含高层 **Primary Key** 和自己的局部属性
 
 例如：
 
@@ -1361,10 +1361,10 @@ UML（Unified Modeling Language）本身是更通用的软件建模语言。
 
 ### UML 和 E-R 的主要对应关系
 
-- E-R 的 entity set ↔ UML 的 class
-- E-R 的 relationship set ↔ UML 的 association
-- 基数约束依然能表达
-- generalization / specialization 在 UML 里也有
+- E-R 的 **entity set** ↔ UML 的 class
+- E-R 的 **relationship set** ↔ UML 的 association
+- **Mapping Cardinality** 依然能表达
+- **generalization** / **specialization** 在 UML 里也有
 
 对于 binary relationship，UML 常用做法是：
 
@@ -1387,7 +1387,7 @@ UML（Unified Modeling Language）本身是更通用的软件建模语言。
 - E-R 图里这些更自然。  
 - UML 更偏向类与对象建模，不强调这一套属性分类符号。
 
-2. Derived attribute 在 UML 里更像无参方法
+2. **Derived attribute** 在 UML 里更像无参方法
 
 3. 可见性控制是 UML 独有常见元素
 
@@ -1399,7 +1399,7 @@ UML（Unified Modeling Language）本身是更通用的软件建模语言。
 
 这个明显带有面向对象风格。
 
-4. 基数约束的位置和 E-R 图正好反过来
+4. **Mapping Cardinality** 的位置和 E-R 图正好反过来
 
 > UML 中基数标注的位置，和 E-R 图里是反过来的。
 

@@ -158,7 +158,7 @@ A* pa = new B;
 C* pc = static_cast<C*>(pa);  // compiles, but *pa is B
 ```
 
-这段代码能通过编译，因为 `C` 确实是 `A` 的派生类，`A* -> C*` 在类型层面存在下行转换关系。
+这段代码能通过编译，因为 `C` 确实是 `A` 的 **Derived Class（派生类）**，`A* -> C*` 在类型层面存在下行转换关系。
 
 但运行时 `pa` 实际指向的是 `B`，不是 `C`。因此得到的 `pc` 不是一个真正指向 `C` 对象的指针，继续解引用会产生严重问题。
 
@@ -168,14 +168,14 @@ C* pc = static_cast<C*>(pa);  // compiles, but *pa is B
 C* pc = dynamic_cast<C*>(pa);  // returns nullptr
 ```
 
-`dynamic_cast` 会检查 `pa` 实际指向的对象是否真的是 `C` 或 `C` 的派生类。
+`dynamic_cast` 会检查 `pa` 实际指向的对象是否真的是 `C` 或 `C` 的 **Derived Class**。
 
 - 如果转换成功，返回有效指针；
 - 如果指针转换失败，返回 `nullptr`；
 - 如果引用转换失败，抛出 `std::bad_cast`；
-- 源类型必须是 **polymorphic type（多态类型）** ，也就是类中至少有一个虚函数。
+- 源类型必须是 **polymorphic type（多态类型）** ，也就是类中至少有一个 **Virtual Function（虚函数）**。
 
-如果 `A` 没有虚函数：
+如果 `A` 没有 **Virtual Function**：
 
 ```cpp
 struct A {
@@ -189,7 +189,7 @@ struct A {
 C* pc = dynamic_cast<C*>(pa);  // Error: A is not polymorphic
 ```
 
-原因是 `dynamic_cast` 需要运行时类型信息 RTTI，而 RTTI 通常依赖多态类型的虚函数机制。
+原因是 `dynamic_cast` 需要 **Run-Time Type Information（运行时类型信息，RTTI）**，而 **RTTI** 通常依赖 **Polymorphic Type** 的 **Virtual Function** 机制。
 
 ### 演示 1：`static_cast` 与对象二进制表示
 
@@ -261,7 +261,7 @@ Binary data of int (hex): 07 00 00 00
 
 ### 演示 2：`dynamic_cast` 的运行时检查
 
-一个不带虚函数的版本：
+一个不带 **Virtual Function** 的版本：
 
 ```cpp
 #include <iostream>
@@ -330,7 +330,7 @@ int main()
 error: 'A' is not polymorphic
 ```
 
-原因是 `A` 没有虚函数，不是多态类型。加上虚函数后，`dynamic_cast` 才能使用运行时类型信息：
+原因是 `A` 没有 **Virtual Function**，不是 **Polymorphic Type**。加上 **Virtual Function** 后，`dynamic_cast` 才能使用 **RTTI**：
 
 ```cpp
 #include <iostream>
@@ -371,7 +371,7 @@ int main()
 - 转成 `B*` 成功，`dynamic_cast<B*>(pa)` 返回有效地址。
 
 :::WARNING
-`dynamic_cast` 只能检查多态类型。只要类中有至少一个虚函数，它就是 polymorphic type。实际工程中，如果要通过基类指针删除派生类对象，基类通常还应该提供 `virtual ~A() = default;`。
+`dynamic_cast` 只能检查 **Polymorphic Type**。只要类中有至少一个 **Virtual Function**，它就是 **polymorphic type**。实际工程中，如果要通过 **Base Class（基类）** 指针删除 **Derived Class** 对象， **Base Class** 通常还应该提供 `virtual ~A() = default;`。
 :::
 
 ### 演示 3：`reinterpret_cast` 的危险性
@@ -429,11 +429,11 @@ int main()
 它不能说明该地址处真的有一个 `D` 对象。继续访问 `pd` 指向的对象通常是错误的。
 
 
-## Multiple inheritance
+## **Multiple inheritance（多重继承）**
 
 ### 基本形式：mix and match
 
-**Multiple inheritance（多重继承）** 指一个类同时继承多个基类。
+**Multiple Inheritance** 指一个类同时继承多个 **Base Class**。
 
 例子：
 
@@ -469,9 +469,9 @@ class Consultant :
 
 这种写法的直观意义是“组合多个身份”：一个 consultant 既可以是技术人员，又可以是临时雇员。
 
-### 多重继承的数据布局
+### **Multiple Inheritance** 的数据布局
 
-多重继承会让对象内部同时包含多个 base class subobject。
+**Multiple Inheritance** 会让对象内部同时包含多个 **base class** subobject。
 
 以上面的 `Consultant` 为例，它大致包含：
 
@@ -485,7 +485,7 @@ Consultant object
     └── employer
 ```
 
-所以多重继承不是简单地“复制几个函数接口”，它会真实影响对象内存布局。
+所以 **Multiple Inheritance** 不是简单地“复制几个函数接口”，它会真实影响对象内存布局。
 
 用 `iostream` package 作为例子。标准输入输出库中有类似结构：
 
@@ -496,24 +496,24 @@ basic_istream      basic_ostream
          basic_iostream
 ```
 
-`basic_iostream` 同时具备输入和输出能力，这是一种多重继承的实际应用。
+`basic_iostream` 同时具备输入和输出能力，这是一种 **Multiple Inheritance** 的实际应用。
 
-### Vanilla MI：重复基类
+### Vanilla MI： **Repeated Base Class（重复基类）**
 
-默认情况下，多重继承中的基类会被复制。
+默认情况下， **Multiple Inheritance** 中的 **Base Class** 会被复制。
 
 这称为 **Vanilla MI** 。特点是：
 
 - members are duplicated；
-- derived class has access to full copies of each base class；
+- **derived class** has access to full copies of each **base class**；
 - 有时这是有用的。
 
 例如：
 
 - 一个链表节点可能需要有多套 link，用于同时挂在多个链表中；
-- 输入流和输出流可能需要各自持有 stream buffer 相关结构。
+- **Input Stream（输入流）** 和 **Output Stream（输出流）** 可能需要各自持有 stream buffer 相关结构。
 
-### 重复基类带来的二义性
+### **Repeated Base Class** 带来的二义性
 
 考虑 diamond-shaped inheritance：
 
@@ -564,17 +564,17 @@ m.m_i++;  // ERROR: D1::B1::m_i or D2::B1::m_i?
 这里 `m_i` 也有两份，因此访问二义。
 
 :::TIP
-重复基类本身不一定是问题。如果 `D1` 和 `D2` 各自使用自己的 `B1` 只是实现细节，外部不直接访问，就未必会出错。问题出现在重复的数据带来了逻辑二义性。
+**Repeated Base Class** 本身不一定是问题。如果 `D1` 和 `D2` 各自使用自己的 `B1` 只是实现细节，外部不直接访问，就未必会出错。问题出现在重复的数据带来了逻辑二义性。
 :::
 
 ### Protocol / Interface classes
 
-多重继承相对安全的使用场景是继承多个 **protocol / interface classes** 。
+**Multiple Inheritance** 相对安全的使用场景是继承多个 **protocol / interface classes** 。
 
-Protocol / Interface class 通常是一个抽象基类，满足：
+Protocol / Interface class 通常是一个 **Abstract Base Class（抽象基类）**，满足：
 
-- 所有 non-static member functions 都是 pure virtual，除了 destructor；
-- destructor 是 virtual destructor，通常有空实现；
+- 所有 non-static **member functions（成员函数）** 都是 pure virtual，除了 **destructor（析构函数）**；
+- **destructor** 是 **virtual destructor（虚析构函数）**，通常有空实现；
 - 没有 non-static member variables，无论是自己声明还是继承来的；
 - 可以包含 static members。
 
@@ -593,11 +593,11 @@ public:
 };
 ```
 
-这种接口类主要提供行为约束，不携带对象状态。即使多重继承多个接口，也不容易造成重复数据的二义性。
+这种接口类主要提供行为约束，不携带对象状态。即使 **Multiple Inheritance** 多个接口，也不容易造成重复数据的二义性。
 
-### Virtual base classes
+### Virtual **base classes**
 
-如果希望 diamond inheritance 中只保留一份共同基类，可以使用 **virtual base class** 。
+如果希望 diamond inheritance 中只保留一份共同 **Base Class**，可以使用 **virtual base class** 。
 
 ```cpp
 struct B1 {
@@ -631,28 +631,28 @@ M
 
 对 C++ 来说，`virtual` 往往意味着 **indirect** ：
 
-- virtual member functions 使用 dynamic binding，本质上有指针间接寻址；
-- virtual base classes 也通过间接方式表示共享基类。
+- virtual **member functions** 使用 **dynamic binding（动态绑定）**，本质上有指针间接寻址；
+- virtual **base classes** 也通过间接方式表示共享 **Base Class**。
 
-因此 virtual base class 会带来：
+因此 virtual **base class** 会带来：
 
 - 运行时开销；
 - 空间开销；
 - 更复杂的对象布局和构造顺序。
 
 :::TIP
-如果基类重复不是问题，就没有必要把基类声明为 `virtual`。对于不含数据的 abstract base class，重复一份通常没有实际问题，反而可以避免 virtual base 的复杂性。
+如果 **Base Class** 重复不是问题，就没有必要把 **Base Class** 声明为 `virtual`。对于不含数据的 **abstract base class**，重复一份通常没有实际问题，反而可以避免 virtual base 的复杂性。
 :::
 
-### 多重继承的复杂性
+### **Multiple Inheritance** 的复杂性
 
-多重继承会引入很多额外问题：
+**Multiple Inheritance** 会引入很多额外问题：
 
 - name conflicts；
 - dominance rule；
 - order of construction；
 - virtual base 由谁构造；
-- 需要 virtual base 时，前面的基类没有声明成 virtual，派生类无法事后修补；
+- 需要 virtual base 时，前面的 **Base Class** 没有声明成 virtual， **Derived Class** 无法事后修补；
 - virtual base 相关代码可能被多条继承路径影响；
 - 编译器实现和对象模型更复杂。
 
@@ -660,7 +660,7 @@ M
 
 > Use sparingly. Avoid diamond patterns. In general, SAY NO.
 
-也就是：多重继承不是不能用，但要非常谨慎。优先考虑 composition、单继承加接口、或者更简单的设计。
+也就是： **Multiple Inheritance** 不是不能用，但要非常谨慎。优先考虑 composition、单继承加接口、或者更简单的设计。
 
 
 ## Namespaces
@@ -749,7 +749,7 @@ namespace MyLib {
 
 ### 实现 namespace 中的函数
 
-实现 namespace 中的函数时，可以用作用域解析运算符 `::`。
+实现 namespace 中的函数时，可以用 **Scope Resolution Operator（作用域解析运算符）** `::`。
 
 ```cpp
 // MyLib.cpp
@@ -771,7 +771,7 @@ void MyLib::Cat::Meow()
 其中：
 
 - `MyLib::foo` 表示 `foo` 是 `MyLib` 命名空间里的函数；
-- `MyLib::Cat::Meow` 表示 `Meow` 是 `MyLib` 命名空间中的 `Cat` 类的成员函数。
+- `MyLib::Cat::Meow` 表示 `Meow` 是 `MyLib` 命名空间中的 `Cat` 类的 **Member Function**。
 
 也可以把实现写进 namespace 块中：
 
@@ -791,7 +791,7 @@ namespace MyLib {
 
 ### 使用 namespace 中的名字
 
-最直接的写法是使用 scope resolution operator：
+最直接的写法是使用 **scope resolution operator**：
 
 ```cpp
 #include "MyLib.h"

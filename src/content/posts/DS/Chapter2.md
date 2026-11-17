@@ -9,8 +9,8 @@ draft: false
 
 ## Structure of Relational Databases
 
-### 关系模型的基本表示
-关系模型用 **表（table）** 来组织数据：
+### **Relational Model（关系模型）** 的基本表示
+**Relational Model** 用 **表（table）** 来组织数据：
 - **relation（关系）** ：一张表
 - **attribute（属性）** ：表中的列
 - **tuple（元组）** ：表中的行
@@ -27,7 +27,7 @@ $$
 D_1, D_2, \dots, D_n
 $$
 
-则一个关系 $r$ 是它们笛卡尔积的一个子集：
+则一个关系 $r$ 是它们 **Cartesian Product（笛卡尔积）** 的一个子集：
 
 $$
 r \subseteq D_1 \times D_2 \times \cdots \times D_n
@@ -35,8 +35,8 @@ $$
 
 也就是说，一个关系本质上是若干个 **n 元组** 组成的集合，每个元组的第 $i$ 个分量取自集合 $D_i$。slides 中用 `name × dept_name × salary` 的例子说明了这一点。
 
-### relation schema 与 relation instance
-- **Relation schema（关系模式）** ：描述表的结构  
+### **relation schema（关系模式）** 与 relation instance
+- **Relation Schema** ：描述表的结构  
   记作：
 
 $$
@@ -67,13 +67,13 @@ $$
 
 
 ### 原子性（atomic）
-关系模型通常要求属性值是 **atomic（原子的）** ，即 **不可再分** 。
+**Relational Model** 通常要求属性值是 **atomic（原子的）** ，即 **不可再分** 。
 
 例如：
 - `"Physics"` 是原子的
 - 如果一个属性里同时塞多个电话号码、多个课程号，就不满足原子性
 
-这体现了关系模型希望一个单元格中只放一个基本值。
+这体现了 **Relational Model** 希望一个单元格中只放一个基本值。
 
 
 ### null（空值）
@@ -93,17 +93,17 @@ $$
 这点很重要，因为关系从理论上看是一个 **集合** ，集合本身就是无序的。
 
 
-## Database Schema
+## **Database Schema（数据库模式）**
 
-### Database schema 的含义
-**Database schema（数据库模式）** 是数据库的 **逻辑结构** 。  
+### **Database schema** 的含义
+**Database Schema** 是数据库的 **逻辑结构** 。  
 也就是：数据库里有哪些表、每张表有哪些属性、属性之间有哪些约束。
 
 ```text
 instructor(ID, name, dept_name, salary)
 ```
 
-这就是一个关系模式；多个关系模式共同组成数据库模式。
+这就是一个 **Relation Schema**；多个 **Relation Schema** 共同组成 **Database Schema**。
 
 
 ### Database instance 的含义
@@ -121,11 +121,11 @@ instructor(ID, name, dept_name, salary)
 * instance 像“变量当前的值”
 
 
-### relation schema 与 database schema 的层次区别
+### **relation schema** 与 **database schema** 的层次区别
 
 要区分两个层次：
 
-#### Relation schema
+#### **Relation schema**
 
 单张表的结构，例如：
 
@@ -133,7 +133,7 @@ instructor(ID, name, dept_name, salary)
 instructor(ID, name, dept_name, salary)
 ```
 
-#### Database schema
+#### **Database schema**
 
 整个数据库的结构，例如数据库里有：
 
@@ -147,17 +147,17 @@ instructor(ID, name, dept_name, salary)
 
 ### schema 中通常还包含什么
 
-教材总结里指出，关系模式除了属性外，通常还会包含属性类型，以及一些约束，例如：
+教材总结里指出， **Relation Schema** 除了属性外，通常还会包含属性类型，以及一些约束，例如：
 
-* primary key constraints
+* **primary key（主键）** constraints
 * foreign-key constraints。
 
 所以 schema 不只是“列名列表”，它还会隐含：
 
 * 属性类型
-* 主键
-* 外键
-* 其他完整性约束
+* **Primary Key**
+* **Foreign Key（外键）**
+* 其他 **Integrity Constraint（完整性约束）**
 
 
 ## Keys
@@ -174,35 +174,35 @@ instructor(ID, name, dept_name, salary)
 因此引入了 **key（键）** 的概念。 
 
 
-### Superkey（超键）
+### **Superkey（超键）**
 
 设 $K \subseteq R$，如果属性集 $K$ 的取值足以唯一标识关系 $R$ 中的一个元组，那么 $K$ 就是一个 **superkey** 。slides 中直接给出了这个定义。
 
 例如在 `instructor(ID, name, dept_name, salary)` 中：
 
-* `{ID}` 是超键
-* `{ID, name}` 也是超键
+* `{ID}` 是 **Superkey**
+* `{ID, name}` 也是 **Superkey**
 
 因为只要包含 `ID`，就已经能唯一标识教师。
 
-超键的要求只有一个：
+**Superkey** 的要求只有一个：
 
 * **能唯一**
 
 但它可以包含多余属性。
 
 
-### Candidate key（候选键）
+### **Candidate key（候选键）**
 
-如果一个超键还是 **minimal（最小的）** ，也就是去掉其中任何一个属性后都不再能唯一标识元组，那么它就是 **candidate key** 。 
+如果一个 **Superkey** 还是 **minimal（最小的）** ，也就是去掉其中任何一个属性后都不再能唯一标识元组，那么它就是 **candidate key** 。 
 
 例如：
 
-* `{ID}` 是候选键
-* `{ID, name}` 不是候选键，因为 `name` 是多余的
+* `{ID}` 是 **Candidate Key**
+* `{ID, name}` 不是 **Candidate Key**，因为 `name` 是多余的
 
 
-候选键 = **最小超键**
+**Candidate Key** = **最小Superkey**
 
 也就是：
 
@@ -210,29 +210,29 @@ instructor(ID, name, dept_name, salary)
 * 又不能冗余
 
 
-### Primary key（主键）
+### **Primary Key**
 
-从若干候选键中，选定一个作为主要标识，就得到 **primary key（主键）** 。 
+从若干 **Candidate Key** 中，选定一个作为主要标识，就得到 **Primary Key** 。 
 
 例如：
 
-* `instructor` 表中通常选 `ID` 作为主键
+* `instructor` 表中通常选 `ID` 作为 **Primary Key**
 
-**主键的作用**
+**Primary Key的作用**
 
 * 唯一标识一行
 * 是表中最核心的识别属性
 * 其他表常通过它来引用该表
 
 
-### Foreign key（外键）
+### **Foreign Key**
 定义是：
 
-若关系 $r_1$ 中属性组 $A$ 引用关系 $r_2$ 的主键 $B$，则在任意数据库实例中，$r_1$ 中每个元组的 $A$ 值都必须在 $r_2$ 中某个元组的 $B$ 值中出现。
+若关系 $r_1$ 中属性组 $A$ 引用关系 $r_2$ 的 **Primary Key** $B$，则在任意数据库实例中，$r_1$ 中每个元组的 $A$ 值都必须在 $r_2$ 中某个元组的 $B$ 值中出现。
 
 简单说：
 
-> 外键就是“一个表中的属性去引用另一个表的主键”。
+> **Foreign Key** 就是“一个表中的属性去引用另一个表的 **Primary Key** ”。
 
 ### 例子
 
@@ -241,7 +241,7 @@ instructor(ID, name, dept_name, salary)
 * `department(dept_name, building, budget)`
 * `instructor(ID, name, dept_name, salary)`
 
-那么 `instructor.dept_name` 可以作为外键，引用 `department.dept_name`。
+那么 `instructor.dept_name` 可以作为 **Foreign Key**，引用 `department.dept_name`。
 
 它的意义是：
 
@@ -251,7 +251,7 @@ instructor(ID, name, dept_name, salary)
 
 ### Referencing relation 与 Referenced relation
 
-和外键关联的两个表称为：
+和 **Foreign Key** 关联的两个表称为：
 
 * **Referencing relation** ：引用别人的那个表
 * **Referenced relation** ：被引用的那个表
@@ -263,13 +263,13 @@ instructor(ID, name, dept_name, salary)
 * `department` 是 referenced relation
 
 
-### Referential integrity（参照完整性）
+### **Referential integrity（参照完整性）**
 
-参照完整性要求：
+**Referential Integrity** 要求：
 
-> 在引用关系中出现的外键值，必须在被引用关系中实际存在。 
+> 在引用关系中出现的 **Foreign Key** 值，必须在被引用关系中实际存在。 
 
-这是外键约束背后的核心思想。
+这是 **Foreign Key** 约束背后的核心思想。
 
 ## Schema Diagram
 
@@ -297,21 +297,21 @@ instructor(ID, name, dept_name, salary)
 - prereq：先修课关系
 
 #### 下划线含义
-- 下划线属性表示 primary key
-- 有的表主键是单属性，如 student(ID)
-- 有的表主键是复合主键，如 section(course_id, sec_id, semester, year)
+- 下划线属性表示 **primary key**
+- 有的表 **Primary Key** 是单属性，如 student(ID)
+- 有的表 **Primary Key** 是复合 **Primary Key**，如 section(course_id, sec_id, semester, year)
 
 #### schema diagram 的含义
 - 每个 box 表示一张 relation
 - box 中列出属性
-- 主键带下划线
+- **Primary Key** 带下划线
 - 箭头表示约束关系
 
 #### 黑色箭头
 - 表示 foreign-key constraint
-- 引用关系中的属性必须在被引用关系主键中存在
+- 引用关系中的属性必须在被引用关系 **Primary Key** 中存在
 
-#### 典型外键关系
+#### 典型 **Foreign Key** 关系
 - student.dept_name -> department.dept_name
 - instructor.dept_name -> department.dept_name
 - course.dept_name -> department.dept_name
@@ -323,10 +323,10 @@ instructor(ID, name, dept_name, salary)
 - section(building, room_no) -> classroom(building, room_no)
 
 #### 红色双箭头
-- 表示 referential integrity constraint
-- 比 foreign key 更一般
+- 表示 **referential integrity** constraint
+- 比 **foreign key** 更一般
 - 例：section.time_slot_id -> time_slot.time_slot_id
-- 原因：time_slot_id 不是 time_slot 表的主键，只是主键的一部分，因此不能作为普通外键
+- 原因：time_slot_id 不是 time_slot 表的 **Primary Key**，只是 **Primary Key** 的一部分，因此不能作为普通 **Foreign Key**
   
 
 ## Relational Query Languages
@@ -343,34 +343,34 @@ instructor(ID, name, dept_name, salary)
 - 三者在 **computing power（表达能力）** 上等价
 - 即：一种能表达的查询，另外两种原则上也能表达
 
-### 关系代数的特点
+### **Relational Algebra** 的特点
 - 属于功能性/操作型查询语言
 - 输入是一个或多个 relation
 - 输出仍然是 relation
 - 不是通用编程语言， **not Turing-machine equivalent**
 
 
-## The Relational Algebra
+## The **Relational Algebra**
 
-关系代数（Relational Algebra）是一种 **procedural query language（过程式查询语言）** 。  
+**Relational Algebra** 是一种 **procedural query language（过程式查询语言）** 。  
 它由一组运算组成，这些运算把 **一个或两个 relation 作为输入** ，并产生 **一个新的 relation 作为输出** 。
 
 - 输入是表（relation）
 - 运算结果仍然是表
 - 因此可以把多个运算不断组合，构成更复杂的查询表达式
 
-这点非常重要，因为它说明关系代数具有 **封闭性** ：
+这点非常重要，因为它说明 **Relational Algebra** 具有 **封闭性** ：
 > relation 运算 relation，结果还是 relation
 
 
-### 关系代数的 6 个基本操作
+### **Relational Algebra** 的 6 个基本操作
 slides 列出的 6 个基本操作是：
 
 1. **Select（选择）** ：$\sigma$
 2. **Project（投影）** ：$\Pi$
 3. **Union（并）** ：$\cup$
 4. **Set Difference（差）** ：$-$
-5. **Cartesian Product（笛卡尔积）** ：$\times$
+5. **Cartesian Product** ：$\times$
 6. **Rename（重命名）** ：$\rho$
 
 
@@ -382,7 +382,7 @@ $\sigma_p(r)$
 
 其中：
 - $r$ 是关系
-- $p$ 是选择谓词（selection predicate）
+- $p$ 是 **Selection Predicate（选择谓词）**
 
 **定义**
 $$
@@ -517,10 +517,10 @@ $$
 **差 = 从前者里减去后者**
 
 
-#### Cartesian Product（笛卡尔积）$\times$
+#### **Cartesian Product** $\times$
 
 
-笛卡尔积把两个关系中的每一行两两配对，形成所有可能组合。
+**Cartesian Product** 把两个关系中的每一行两两配对，形成所有可能组合。
 
 $r \times s$
 
@@ -545,7 +545,7 @@ $$
 则 $r \times s$ 有 12 行。
 
 
-笛卡尔积本身通常“太大”，实际常配合选择一起使用，构成连接。
+**Cartesian Product** 本身通常“太大”，实际常配合选择一起使用，构成连接。
 
 
 #### Rename（重命名）$\rho$
@@ -563,7 +563,7 @@ $$
 1. 给中间结果起名，便于后续引用
 2. 一个关系需要以多个名字出现时使用
 3. 避免属性名冲突
-4. 自连接时非常重要
+4. **Self Join（自连接）** 时非常重要
 
 
 在找最大工资时，用 `d` 作为 `instructor` 的一个副本：
@@ -573,7 +573,7 @@ $$
 
 ### Examples
 
-关系代数表达式可以嵌套。
+**Relational Algebra** 表达式可以嵌套。
 
 $$
 \sigma_{A=C}(r \times s)
@@ -623,7 +623,7 @@ $$
 
 含义：
 1. 先从 `instructor` 中选出 Physics 系教师
-2. 再与 `teaches` 做笛卡尔积
+2. 再与 `teaches` 做 **Cartesian Product**
 3. 再按 `ID` 匹配
 4. 最后投影出 `name` 和 `course_id`
 
@@ -633,8 +633,8 @@ $$
 #### 两者比较
 - 两个查询结果相同
 - Query 2 更高效，因为它先做选择，减少了中间结果规模
-- 关系代数表达式可以有多种等价写法
-- 尽量早做选择（selection push-down）有利于查询优化
+- **Relational Algebra** 表达式可以有多种等价写法
+- 尽量早做选择（**selection push-down（选择下推）**）有利于查询优化
 
 
 ### 最大工资例子
@@ -667,12 +667,12 @@ $$
 * 再从全集中删掉它们
 * 剩下的就是最大值
 
-这是关系代数很经典的构造思路。
+这是 **Relational Algebra** 很经典的构造思路。
 
 
-### 关系代数的封闭性
+### **Relational Algebra** 的封闭性
 
-如果 $E_1$ 和 $E_2$ 是关系代数表达式，那么下面这些也是合法的关系代数表达式：
+如果 $E_1$ 和 $E_2$ 是 **Relational Algebra** 表达式，那么下面这些也是合法的 **Relational Algebra** 表达式：
 * $E_1 \cup E_2$
 * $E_1 - E_2$
 * $E_1 \times E_2$
@@ -690,10 +690,10 @@ $$
 包括：
 
 * Intersection（交）
-* Natural Join（自然连接）
-* Semijoin（半连接）
+* **Natural Join（自然连接）**
+* **Semijoin（半连接）**
 * Assignment（赋值）
-* Outer Join（外连接）
+* **Outer Join（外连接）**
 * Division（除法）
 
 
@@ -716,9 +716,9 @@ $$
 找两个结果都包含的元组。
 
 
-#### Natural Join（自然连接）$\bowtie$
+#### **Natural Join** $\bowtie$
 
-自然连接把两个关系中 **同名属性值相等** 的元组合并起来。
+**Natural Join** 把两个关系中 **同名属性值相等** 的元组合并起来。
 
 设：
 
@@ -757,18 +757,18 @@ r \bowtie_\theta s = \sigma_\theta(r \times s)
 $$
 
 
-先做笛卡尔积，再按任意条件 $\theta$ 进行筛选。
+先做 **Cartesian Product**，再按任意条件 $\theta$ 进行筛选。
 
-**自然连接 vs theta 连接**
+**Natural Join vs theta 连接**
 
-* 自然连接：自动按公共属性相等匹配
+* **Natural Join**：自动按公共属性相等匹配
 * theta 连接：匹配条件由你显式指定
 
 
-#### Outer Join（外连接）
+#### **Outer Join**
 
 普通连接只保留“匹配成功”的元组，可能丢信息。
-外连接是为了 **避免信息丢失** 。
+**Outer Join** 是为了 **避免信息丢失** 。
 
 先做连接，再把没匹配上的元组补回来，缺失部分用 `null` 填充。
 
@@ -783,15 +783,15 @@ $$
 若 `instructor` 中某个老师没有出现在 `teaches` 中：
 
 * 普通 join 会把他丢掉
-* left outer join 会保留这位老师，只是 `course_id` 填 null
+* left **outer join** 会保留这位老师，只是 `course_id` 填 null
 
 **与 null 的关系**
 
 * `null` 表示未知或不存在
 * 所有涉及 `null` 的比较大致上都视为 false
-* 以后会进一步学习三值逻辑。
+* 以后会进一步学习 **Three-Valued Logic（三值逻辑）**。
 
-**用基本操作表示外连接**
+**用基本操作表示Outer Join**
 
 **Left Outer Join** （$r$ ⟕ $s$）：
 
@@ -812,7 +812,7 @@ $$
 $$
 
 
-#### Semijoin（半连接）$\ltimes_\theta$
+#### **Semijoin** $\ltimes_\theta$
 
 **记号**
 
@@ -909,13 +909,13 @@ $r \div s$
 * “all”
 
 
-### 广义投影与聚合
+### **Generalized Projection（广义投影）** 与聚合
 
-#### Generalized Projection（广义投影）
+#### **Generalized Projection**
 
 **含义**
 
-广义投影在普通投影的基础上，允许在投影列表中出现算术表达式。
+**Generalized Projection** 在普通投影的基础上，允许在投影列表中出现算术表达式。
 
 **形式**
 
@@ -937,9 +937,9 @@ $$
 不仅能“选列”，还能“算新列”。
 
 
-#### Aggregate Functions（聚合函数）
+#### **Aggregate Functions（聚合函数）**
 
-**常见聚合函数**
+**常见Aggregate Function**
 
 slides 列出了：
 
@@ -953,10 +953,10 @@ slides 列出了：
 
 **聚合操作形式**
 
-设 $E$ 是一个关系代数表达式：
+设 $E$ 是一个 **Relational Algebra** 表达式：
 
 * $G_1, G_2, \dots, G_n$ 是分组属性
-* $F_i$ 是聚合函数
+* $F_i$ 是 **Aggregate Function**
 * $A_i$ 是属性名
 
 则可以写成分组聚合表达式。
@@ -984,12 +984,12 @@ $$
 
 
 
-### null 与三值逻辑
+### null 与 **Three-Valued Logic**
 
 **null 的逻辑语义**
 
 * 与 `null` 比较，结果不是 true/false，而可能是 **unknown**
-* 因此采用三值逻辑：true / false / unknown 
+* 因此采用 **Three-Valued Logic**：true / false / unknown 
 
 **规则**
 
@@ -1004,9 +1004,9 @@ $$
 若选择条件计算为 `unknown`，则通常按 false 处理，不会选中该元组。
 
 
-### 关系代数与 SQL 的联系
+### **Relational Algebra** 与 SQL 的联系
 
-#### 纯关系代数 vs 多重集关系代数
+#### 纯 **Relational Algebra** vs **Multiset（多重集）**  **Relational Algebra**
 
 * **Pure relational algebra** ：去重，因为 relation 是集合
 * **Multiset relational algebra** ：保留重复，更接近 SQL 语义。
@@ -1015,7 +1015,7 @@ $$
 
 因为 SQL 默认允许重复行存在，除非显式 `DISTINCT`。
 
-**多重集下的规则**
+**Multiset下的规则**
 
 * selection：保留满足条件元组的重复次数
 * projection：每个输入元组都投影，重复不自动消除
@@ -1025,7 +1025,7 @@ $$
 * difference：做差后的剩余次数 
 
 
-#### SQL 和关系代数的对应
+#### SQL 和 **Relational Algebra** 的对应
 
 1. 普通 SQL
 ```sql
@@ -1036,7 +1036,7 @@ where P
 
 可理解为：
 
-1. `from`：先把表放在一起，底层可看成笛卡尔积
+1. `from`：先把表放在一起，底层可看成 **Cartesian Product**
    $$
    r_1 \times r_2 \times \dots \times r_m
    $$

@@ -45,9 +45,9 @@ $$
 
 在最简单的连续分配模型中，一个进程占据一整块连续物理内存。
 
-**基址寄存器（Base Register）** 保存起始物理地址；**界限寄存器（Limit Register）** 保存可访问区域的长度。
+**Base Register（基址寄存器）** 保存起始 **Physical Address（物理地址）**； **Limit Register（界限寄存器）** 保存可访问区域的长度。
 
-设基址为 $B$，长度为 $L$，合法物理地址满足：
+设基址为 $B$，长度为 $L$，合法 **Physical Address** 满足：
 
 $$
 B\le PA<B+L.
@@ -59,7 +59,7 @@ $$
 
 #### Example
 
-**Base = 300040，Limit = 120900，进程可以访问哪些物理地址？**
+**Base = 300040，Limit = 120900，进程可以访问哪些Physical Address？**
 
 <details>
 <summary>地址范围与边界检查</summary>
@@ -74,9 +74,9 @@ $$
 
 如果进程通过 `new` 申请更多空间，而相邻区域已被其他进程占用，就很难直接扩大原来的连续区域。这也是后面引入分页的原因。
 
-### Address Binding
+### **Address Binding（地址绑定）**
 
-**地址绑定（Address Binding）** 将一种地址表示映射为另一种地址表示。
+**Address Binding** 将一种地址表示映射为另一种地址表示。
 
 例如，源代码中的变量名 `count` 可以先变为“模块起点后第 14 个字节”，再绑定到具体地址 74014。
 
@@ -86,7 +86,7 @@ $$
 
 **装入时绑定（Load Time）**：编译时不知道最终位置，先生成可重定位代码，装入内存时确定地址。更换装入位置时，重新装入并完成重定位。
 
-**执行时绑定（Execution Time）**：运行期间仍允许改变物理位置，每次访问时由硬件完成地址映射，需要 MMU 等硬件支持。
+**执行时绑定（Execution Time）**：运行期间仍允许改变物理位置，每次访问时由硬件完成地址映射，需要 **Memory-Management Unit（内存管理单元，MMU）** 等硬件支持。
 
 ### Multistep Processing of a User Program
 
@@ -103,25 +103,25 @@ $$
 
 编译器把源程序转换为目标代码；链接器组合模块并处理符号引用；装入器建立运行所需的内存映像。
 
-**链接解决模块之间如何连接，装入解决程序如何进入执行环境。** 动态链接还允许将部分链接工作留到运行阶段。
+**链接解决模块之间如何连接，装入解决程序如何进入执行环境。** **Dynamic Linking（动态链接）** 还允许将部分链接工作留到运行阶段。
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261106211648.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
-### Logical vs. Physical Address Space
+### Logical vs. **Physical Address** Space
 
-**逻辑地址（Logical Address，也称虚拟地址）**：CPU 执行程序时产生的地址。
+**Logical Address（逻辑地址，也称虚拟地址）**：CPU 执行程序时产生的地址。
 
-**物理地址（Physical Address）**：内存单元实际使用的地址。
+**Physical Address**：内存单元实际使用的地址。
 
-一个程序能够产生的逻辑地址组成逻辑地址空间，对应的物理地址组成物理地址空间。
+一个程序能够产生的 **Logical Address** 组成 **Logical Address** 空间，对应的 **Physical Address** 组成 **Physical Address** 空间。
 
-在编译时或装入时完成物理地址绑定的简单模型中，两者相同；执行时绑定则允许逻辑地址与物理地址不同。程序使用逻辑地址，硬件负责完成映射。
+在编译时或装入时完成 **Physical Address** 绑定的简单模型中，两者相同；执行时绑定则允许 **Logical Address** 与 **Physical Address** 不同。程序使用 **Logical Address**，硬件负责完成映射。
 
-### Memory-Management Unit
+### **Memory-Management Unit**
 
-**内存管理单元（Memory-Management Unit，MMU）** 完成运行时地址转换。
+**MMU** 完成运行时地址转换。
 
-最简单的动态重定位方式是给逻辑地址加上重定位寄存器中的基址：
+最简单的动态重定位方式是给 **Logical Address** 加上重定位寄存器中的基址：
 
 $$
 PA=B+LA.
@@ -145,7 +145,7 @@ $$
 
 #### Example
 
-**重定位寄存器为 14000，CPU 访问逻辑地址 346。**
+**重定位寄存器为 14000，CPU 访问Logical Address 346。**
 
 <details>
 <summary>地址转换与进程移动</summary>
@@ -156,21 +156,21 @@ $$
 
 程序内部仍然保存和使用地址 346。只有真正访存时，硬件才把它转换为 14346。
 
-如果进程被搬到另一个物理位置，更新重定位信息即可保持原来的逻辑地址有效。
+如果进程被搬到另一个物理位置，更新重定位信息即可保持原来的 **Logical Address** 有效。
 
 </details>
 
-### Dynamic Loading
+### **Dynamic Loading（动态装载）**
 
-**动态装载（Dynamic Loading）**：子程序被调用时才装入内存，未使用的子程序不占用主存。
+**Dynamic Loading**：子程序被调用时才装入内存，未使用的子程序不占用主存。
 
 适合包含大量低频功能的程序，例如异常处理代码。
 
-### Dynamic Linking
+### **Dynamic Linking**
 
-**动态链接（Dynamic Linking）**：将链接工作推迟到运行时，常用于共享库。
+**Dynamic Linking**：将链接工作推迟到运行时，常用于共享库。
 
-调用位置先保留一小段 **桩代码（Stub）**，负责找到目标库函数；解析完成后，后续调用可以直接使用得到的地址。
+调用位置先保留一小段 **Stub（桩代码）**，负责找到目标库函数；解析完成后，后续调用可以直接使用得到的地址。
 
 ```text
 调用库函数 → 通过桩代码定位函数 → 必要时装入库 → 执行函数
@@ -193,7 +193,7 @@ $$
 
 图中的过程是：$P_1$ 换出，腾出主存；$P_2$ 换入，获得执行机会。**换出不会终止进程**，它只是暂时失去驻留在主存中的条件。
 
-优先级调度可以使用 **Roll Out / Roll In**：先换出低优先级进程，让高优先级进程进入内存运行。
+**Priority Scheduling（优先级调度）** 可以使用 **Roll Out / Roll In**：先换出低优先级进程，让高优先级进程进入内存运行。
 
 ### Cost and Relocation
 
@@ -208,7 +208,7 @@ $$
 <details>
 <summary>进程换回来时，必须放回原来的物理位置吗？</summary>
 
-取决于地址绑定方式。
+取决于 **Address Binding** 方式。
 
 已经绑定到固定物理位置的代码需要保持原有地址关系；采用执行时动态重定位，可以装入不同位置，并更新映射信息。
 
@@ -226,9 +226,9 @@ $$
 
 ### Memory Layout and Protection
 
-**连续内存分配（Contiguous Allocation）** 要求每个进程占据一整块连续的物理地址区域。
+**Contiguous Allocation（连续内存分配）** 要求每个进程占据一整块连续的 **Physical Address** 区域。
 
-一种典型布局是：低地址区域保存操作系统及中断向量，较高地址区域分配给用户进程。
+一种典型布局是：低地址区域保存操作系统及 **Interrupt Vector（中断向量）**，较高地址区域分配给用户进程。
 
 动态重定位采用：
 
@@ -236,7 +236,7 @@ $$
 0\le LA<L,\qquad PA=B+LA.
 $$
 
-如果检查的已经是物理地址，则等价地检查：
+如果检查的已经是 **Physical Address**，则等价地检查：
 
 $$
 B\le PA<B+L.
@@ -273,16 +273,16 @@ $$
 
 面对大小为 $n$ 的请求，从空闲块列表中选哪一块？
 
-**首次适应（First-Fit）**：按搜索顺序选择第一个足够大的空洞，找到后立即停止。
+**First-Fit（首次适应）**：按搜索顺序选择第一个足够大的空洞，找到后立即停止。
 
-**最佳适应（Best-Fit）**：选择能够容纳请求的最小空洞，使本次分配留下的空洞最小。若未按大小组织，需要搜索整个列表。
+**Best-Fit（最佳适应）**：选择能够容纳请求的最小空洞，使本次分配留下的空洞最小。若未按大小组织，需要搜索整个列表。
 
-**最坏适应（Worst-Fit）**：选择最大的空洞，希望剩余部分仍足够大，可以继续使用；同样需要找到全局最大值。
+**Worst-Fit（最坏适应）**：选择最大的空洞，希望剩余部分仍足够大，可以继续使用；同样需要找到全局最大值。
 
-最佳适应可能留下许多很小的空洞；最坏适应可能提前消耗大块空间。
+**Best-Fit** 可能留下许多很小的空洞； **Worst-Fit** 可能提前消耗大块空间。
 
 <details>
-<summary>First-Fit 的平均搜索次数一定是空洞数的一半吗？</summary>
+<summary><strong>First-Fit</strong> 的平均搜索次数一定是空洞数的一半吗？</summary>
 
 不一定。平均搜索长度取决于空洞大小、排列顺序和请求大小的分布。
 
@@ -315,42 +315,42 @@ $$
 
 | 算法 | 五次请求对应的空闲块编号 | 最终剩余大小（KiB） |
 | --- | --- | --- |
-| 首次适应 | 1、2、5、3、5 | 185、100、150、200、17、125 |
-| 最佳适应 | 6、2、5、4、5 | 300、100、350、0、17、10 |
-| 最坏适应 | 5、5、2、3、失败 | 300、242、150、200、135、125 |
+| **First-Fit** | 1、2、5、3、5 | 185、100、150、200、17、125 |
+| **Best-Fit** | 6、2、5、4、5 | 300、100、350、0、17、10 |
+| **Worst-Fit** | 5、5、2、3、失败 | 300、242、150、200、135、125 |
 
-例如最坏适应先从 750 中分配 115，剩 635；再从 635 中分配 500，剩 135。最后虽然空闲总量仍足够，却没有一个空洞能容纳 375。
+例如 **Worst-Fit** 先从 750 中分配 115，剩 635；再从 635 中分配 500，剩 135。最后虽然空闲总量仍足够，却没有一个空洞能容纳 375。
 
 </details>
 
 ### Fragmentation
 
-**外部碎片（External Fragmentation）**：空闲空间分散在已分配区域之间，空闲总量足够，但缺少满足请求的连续区域。
+**External Fragmentation（外部碎片）**：空闲空间分散在已分配区域之间，空闲总量足够，但缺少满足请求的连续区域。
 
-**内部碎片（Internal Fragmentation）**：已经分配给进程的空间大于实际需求，多出来的部分位于分配块内部，不能直接再分配给其他进程。
+**Internal Fragmentation（内部碎片）**：已经分配给进程的空间大于实际需求，多出来的部分位于分配块内部，不能直接再分配给其他进程。
 
-**尚未分配的零散空洞属于外部碎片；已分配块内部的空余属于内部碎片。**
+**尚未分配的零散空洞属于External Fragmentation；已分配块内部的空余属于Internal Fragmentation。**
 
-### Compaction
+### **Compaction（紧缩）**
 
-**紧缩（Compaction）** 通过移动内存中的内容，将分散空洞合并成一块大的连续空间。
+**Compaction** 通过移动内存中的内容，将分散空洞合并成一块大的连续空间。
 
 ```text
 紧缩前：OS | 进程 A | 空洞 | 进程 B | 空洞 | 进程 C | 空洞
 紧缩后：OS | 进程 A | 进程 B | 进程 C |        大空洞
 ```
 
-移动进程会改变物理位置，因此需要执行时动态重定位。紧缩还涉及大量数据复制，成本较高。
+移动进程会改变物理位置，因此需要执行时动态重定位。 **Compaction** 还涉及大量数据复制，成本较高。
 
 I/O 是另一个限制：如果设备正在向某个物理位置写入，不能随意搬走对应区域。可以暂时固定参与 I/O 的内存，或让 I/O 先经过操作系统缓冲区。
 
-紧缩主要处理外部碎片。另一条思路是允许进程使用 **不连续的物理内存**，即后面的分页。
+**Compaction** 主要处理 **External Fragmentation**。另一条思路是允许进程使用 **不连续的物理内存**，即后面的分页。
 
 ## Paging
 
 ### Pages and Frames
 
-**分页（Paging）** 将逻辑地址空间划分为固定大小的页（Page），将物理内存划分为相同大小的页框（Frame）。
+**分页（Paging）** 将 **Logical Address** 空间划分为固定大小的页（Page），将物理内存划分为相同大小的页框（Frame）。
 
 一个逻辑页可以放到任意空闲页框中，进程的各页不必在物理内存中连续。
 
@@ -358,7 +358,7 @@ I/O 是另一个限制：如果设备正在向某个物理位置写入，不能�
 
 ### Address Translation Scheme
 
-设逻辑地址共 $m$ 位，页大小为 $S=2^n$ 字节：
+设 **Logical Address** 共 $m$ 位，页大小为 $S=2^n$ 字节：
 
 $$
 LA=\underbrace{p}_{m-n\text{ 位}}\ \underbrace{d}_{n\text{ 位}}.
@@ -370,7 +370,7 @@ $$
 p=\left\lfloor\frac{LA}{S}\right\rfloor,\qquad d=LA\bmod S.
 $$
 
-页表以 $p$ 为索引，查到页框号 $f$，再形成物理地址：
+页表以 $p$ 为索引，查到页框号 $f$，再形成 **Physical Address**：
 
 $$
 \boxed{PA=fS+d}.
@@ -399,36 +399,36 @@ $$
 页框号： 1  4  3  7
 ```
 
-逻辑页 0、1、2、3 连续编号，分别放在物理页框 1、4、3、7。程序仍按自己的逻辑地址访问，物理布局由页表隐藏。
+逻辑页 0、1、2、3 连续编号，分别放在物理页框 1、4、3、7。程序仍按自己的 **Logical Address** 访问，物理布局由页表隐藏。
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261106212232.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
 2. **16 字节逻辑空间、32 字节物理内存，页面大小为 4 字节。**
 
-逻辑地址 0～15 依次保存 `a`～`p`，页表为：
+**Logical Address** 0～15 依次保存 `a`～`p`，页表为：
 
-| 页号 | 页框号 | 逻辑地址范围 | 物理地址范围 |
+| 页号 | 页框号 | **Logical Address** 范围 | **Physical Address** 范围 |
 | --- | --- | --- | --- |
 | 0 | 5 | 0～3 | 20～23 |
 | 1 | 6 | 4～7 | 24～27 |
 | 2 | 1 | 8～11 | 4～7 |
 | 3 | 2 | 12～15 | 8～11 |
 
-计算逻辑地址 0、3、4、13 对应的物理地址。
+计算 **Logical Address** 0、3、4、13 对应的 **Physical Address**。
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261106212252.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
 <details>
-<summary>页号、偏移和物理地址</summary>
+<summary>页号、偏移和<strong>Physical Address</strong></summary>
 
-$S=4$，页内偏移占 2 位。逻辑页数为 4，逻辑地址共 4 位；物理页框数为 8，物理地址共 5 位。
+$S=4$，页内偏移占 2 位。逻辑页数为 4， **Logical Address** 共 4 位；物理页框数为 8， **Physical Address** 共 5 位。
 
 - $LA=0$：$p=0,d=0,f=5$，$PA=5\times4+0=20$。
 - $LA=3$：$p=0,d=3,f=5$，$PA=5\times4+3=23$。
 - $LA=4$：$p=1,d=0,f=6$，$PA=6\times4+0=24$。
 - $LA=13$：$p=3,d=1,f=2$，$PA=2\times4+1=9$。
 
-访问同一页时只改变偏移；跨页后，物理地址可能跳到不相邻的页框。
+访问同一页时只改变偏移；跨页后， **Physical Address** 可能跳到不相邻的页框。
 
 </details>
 
@@ -458,7 +458,7 @@ page 3 → frame 20
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261106212316.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
-### Internal Fragmentation and Page Size
+### **Internal Fragmentation** and Page Size
 
 设进程需要 $N$ 字节、页大小为 $S$：
 
@@ -469,14 +469,14 @@ $$
 
 对一个连续大小的分配，未满部分位于最后一页，最多为 $S-1$ 字节。在末页占用近似均匀的估算下，平均浪费约半页。
 
-**页小**：内部碎片较少，页表项较多。**页大**：页表较小、批量传输有利，但内部碎片可能增多。
+**页小**： **Internal Fragmentation** 较少，页表项较多。**页大**：页表较小、批量传输有利，但 **Internal Fragmentation** 可能增多。
 
 #### Example
 
 **页面大小为 2048 字节，进程大小为 72766 字节。**
 
 <details>
-<summary>计算页框数与内部碎片</summary>
+<summary>计算页框数与<strong>Internal Fragmentation</strong></summary>
 
 $$
 72766=35\times2048+1086.
@@ -494,7 +494,7 @@ $$
 
 页表较小时可以用高速寄存器实现；页表较大时，通常放在主存中。
 
-**页表基址寄存器（PTBR）** 指向当前页表。**页表长度寄存器（PTLR）** 表示页表大小；以表项数表示时，合法页号满足 $0\le p<PTLR$。
+**Page-Table Base Register（页表基址寄存器，PTBR）** 指向当前页表。 **Page-Table Length Register（页表长度寄存器，PTLR）** 表示页表大小；以表项数表示时，合法页号满足 $0\le p<PTLR$。
 
 在线性页表中，设每个页表项占 $E$ 字节：
 
@@ -504,7 +504,7 @@ $$
 
 **这里算出的是页表项的位置，读取表项后才得到数据所在的页框。**
 
-进程切换时，需要恢复新进程的页表信息，才能把相同的逻辑地址解释到正确的物理位置。
+进程切换时，需要恢复新进程的页表信息，才能把相同的 **Logical Address** 解释到正确的物理位置。
 
 若页表和数据都在主存中，一次访问需要：
 
@@ -515,42 +515,42 @@ $$
 
 这就是两次访存问题。此处只考虑单级页表，不计其他缓存。
 
-### Translation Lookaside Buffer
+### **Translation Lookaside Buffer（快表，TLB）**
 
-**快表（Translation Lookaside Buffer，TLB）** 缓存近期使用的地址映射。其基本表项包含页号和页框号，使用关联查找，可以并行比较候选项。
+**TLB** 缓存近期使用的地址映射。其基本表项包含页号和页框号，使用关联查找，可以并行比较候选项。
 
-TLB 保存地址转换信息，数据 Cache 保存指令或数据内容，二者用途不同。
+**TLB** 保存地址转换信息，数据 Cache 保存指令或数据内容，二者用途不同。
 
-**命中**：从 TLB 直接得到页框号，访问目标数据，不必再读取主存页表。
+**命中**：从 **TLB** 直接得到页框号，访问目标数据，不必再读取主存页表。
 
-**未命中**：查主存中的页表，取得映射后通常填入 TLB，再访问目标数据；TLB 满时需要替换表项。
+**未命中**：查主存中的页表，取得映射后通常填入 **TLB**，再访问目标数据； **TLB** 满时需要替换表项。
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261106212404.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
 <details>
-<summary>TLB Miss 是否意味着页面不在内存中？</summary>
+<summary><strong>TLB</strong> Miss 是否意味着页面不在内存中？</summary>
 
-不意味着。它只说明快表中没有所需映射；页表仍可能记录一个已经驻留的物理页框。
+不意味着。它只说明 **TLB** 中没有所需映射；页表仍可能记录一个已经驻留的物理页框。
 
-缺页处理还要检查页面状态，不能把一次普通的 TLB 未命中直接算成磁盘 I/O。
+缺页处理还要检查页面状态，不能把一次普通的 **TLB** 未命中直接算成磁盘 I/O。
 
 </details>
 
 ### Address-Space Identifiers
 
-不同进程可能使用相同的虚拟页号，TLB 需要区分映射属于哪个地址空间。
+不同进程可能使用相同的虚拟页号， **TLB** 需要区分映射属于哪个地址空间。
 
-**地址空间标识（ASID）** 与页号共同标识一条映射。带 ASID 的表项可以在进程切换后继续保留；没有相应区分机制时，切换地址空间通常需要清除旧映射。
+**Address Space Identifier（地址空间标识，ASID）** 与页号共同标识一条映射。带 **ASID** 的表项可以在进程切换后继续保留；没有相应区分机制时，切换地址空间通常需要清除旧映射。
 
-### Effective Access Time
+### **Effective Access Time（有效访问时间，EAT）**
 
-设 TLB 查询时间为 $t$，一次主存访问为 $m$，命中率为 $\alpha$。采用串行查询、单级页表、无缺页的模型：
+设 **TLB** 查询时间为 $t$，一次主存访问为 $m$，命中率为 $\alpha$。采用串行查询、单级页表、无缺页的模型：
 
 $$
 T_{\text{hit}}=t+m,\qquad T_{\text{miss}}=t+2m.
 $$
 
-**有效访问时间（Effective Access Time，EAT）** 是两条路径的加权平均：
+**EAT** 是两条路径的加权平均：
 
 $$
 \begin{aligned}
@@ -560,7 +560,7 @@ EAT
 \end{aligned}
 $$
 
-当一次主存访问为 $1\ \mu s$，TLB 查询时间记为 $\epsilon\ \mu s$：
+当一次主存访问为 $1\ \mu s$， **TLB** 查询时间记为 $\epsilon\ \mu s$：
 
 $$
 \boxed{EAT=\alpha(1+\epsilon)+(1-\alpha)(2+\epsilon)
@@ -582,12 +582,12 @@ $$
 EAT=0.95\times220+0.05\times420=230\text{ ns}.
 $$
 
-不使用 TLB 时为 $2m=400\text{ ns}$。使用 TLB 后仍需要实际访问数据，命中时间不能只算查询 TLB 的 20 ns。
+不使用 **TLB** 时为 $2m=400\text{ ns}$。使用 **TLB** 后仍需要实际访问数据，命中时间不能只算查询 **TLB** 的 20 ns。
 
 </details>
 
 <details>
-<summary>TLB 带来净收益，需要满足什么条件？</summary>
+<summary><strong>TLB</strong> 带来净收益，需要满足什么条件？</summary>
 
 在上述串行模型中：
 
@@ -597,7 +597,7 @@ t+(2-\alpha)m<2m
 \alpha>\frac tm.
 $$
 
-固定 $t,m$ 时，命中率越高，EAT 越低。
+固定 $t,m$ 时，命中率越高， **EAT** 越低。
 
 </details>
 
@@ -607,11 +607,11 @@ $$
 
 **保护位** 限制页面能否读、写或执行。向只读页面写入，会触发保护异常。
 
-**有效—无效位（Valid–Invalid Bit）** 在这里表示页面是否属于进程的合法逻辑地址空间：`v` 为合法页，`i` 为非法页。后续按需分页还涉及页面是否驻留，两种判断需要区分。
+**Valid–Invalid Bit（有效—无效位）** 在这里表示页面是否属于进程的合法 **Logical Address** 空间：`v` 为合法页，`i` 为非法页。后续按需分页还涉及页面是否驻留，两种判断需要区分。
 
 #### Example
 
-**程序只使用逻辑地址 0～10468，页大小为 2 KiB，逻辑空间共 14 位。**
+**程序只使用Logical Address 0～10468，页大小为 2 KiB，逻辑空间共 14 位。**
 
 页表中 0～5 页为有效页，对应页框 `[2, 3, 4, 7, 8, 9]`；6、7 页无效。
 
@@ -666,11 +666,11 @@ P3 页表：     3    4    6    2
 
 ### Hierarchical Page Tables
 
-虚拟地址空间很大时，完整线性页表本身也很大，而且很多表项根本没有对应的已使用页面。
+**Virtual Address Space（虚拟地址空间）** 很大时，完整线性页表本身也很大，而且很多表项根本没有对应的已使用页面。
 
-**层次页表（Hierarchical Page Table）** 把页表拆成多个较小的表，再用上一级页表记录它们的位置。没有使用的虚拟地址区域，可以不创建对应的下级页表。
+**Hierarchical Page Table（层次页表）** 把页表拆成多个较小的表，再用上一级页表记录它们的位置。没有使用的虚拟地址区域，可以不创建对应的下级页表。
 
-二级页表把逻辑地址拆为：
+二级页表把 **Logical Address** 拆为：
 
 $$
 LA=(p_1,p_2,d).
@@ -712,7 +712,7 @@ $$
 
 #### Example
 
-1. **32-bit 逻辑地址，页大小为 1 KiB，采用 $12:10:10$ 的二级地址划分。**
+1. **32-bit Logical Address，页大小为 1 KiB，采用 $12:10:10$ 的二级地址划分。**
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261106212546.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
@@ -840,7 +840,7 @@ $$
 
 前 $L$ 次查页表，最后一次访问数据。二级为 3 次，三级为 4 次。
 
-加入 TLB，查询时间为 $t$、命中率为 $\alpha$：
+加入 **TLB**，查询时间为 $t$、命中率为 $\alpha$：
 
 $$
 \begin{aligned}
@@ -854,7 +854,7 @@ $$
 
 ### Hashed Page Tables
 
-**哈希页表（Hashed Page Table）** 用虚拟页号计算哈希值，再在对应桶中寻找映射，适合较大的稀疏地址空间。
+**Hashed Page Table（哈希页表）** 用虚拟页号计算哈希值，再在对应桶中寻找映射，适合较大的 **Sparse Address Space（稀疏地址空间）**。
 
 每条记录保存虚拟页号、物理页框号和指向下一条记录的指针。同一桶中的记录形成链表，用于处理哈希冲突。
 
@@ -872,7 +872,7 @@ $$
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261106212704.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
-图中先遇到虚拟页 $q$，与目标 $p$ 不同，继续沿链查找；找到 $(p,r)$ 后，用页框号 $r$ 与偏移 $d$ 形成物理地址。
+图中先遇到虚拟页 $q$，与目标 $p$ 不同，继续沿链查找；找到 $(p,r)$ 后，用页框号 $r$ 与偏移 $d$ 形成 **Physical Address**。
 
 #### Example
 
@@ -905,14 +905,14 @@ $$
 
 普通页表以虚拟页号为索引，记录该页位于哪个物理页框。
 
-**反向页表（Inverted Page Table，IPT）** 为每个物理页框保存一项，记录这个页框属于哪个进程、保存哪个虚拟页面。在这一模型中，整个系统共用一张反向页表。
+**Inverted Page Table（反向页表，IPT）** 为每个物理页框保存一项，记录这个页框属于哪个进程、保存哪个虚拟页面。在这一模型中，整个系统共用一张 **IPT**。
 
 ```text
 普通页表：   虚拟页号 p → 物理页框号 f
 反向页表：   物理页框号 f → (进程标识, 虚拟页号)
 ```
 
-因此，反向页表项数由物理页框数决定：
+因此， **IPT** 项数由物理页框数决定：
 
 $$
 \boxed{N_{\text{IPT}}=\frac{\text{物理内存容量}}{\text{页大小}}}.
@@ -939,7 +939,7 @@ $$
 \frac{256}{4}=64\text{ 个页框}.
 $$
 
-对应的反向页表只需要 **64 项**。它只描述物理内存中现有的驻留页面；非驻留页面的信息还需要其他结构维护。
+对应的 **IPT** 只需要 **64 项**。它只描述物理内存中现有的驻留页面；非驻留页面的信息还需要其他结构维护。
 
 </details>
 
@@ -949,11 +949,11 @@ $$
 
 例如，`blue` 和 `bright` 对应文档 1、3；`sky` 对应文档 2、3。去掉停用词后，只保留有检索价值的词及其文档列表。
 
-这里借用的是组织数据的思路，倒排索引与反向页表各自保存的内容不同。
+这里借用的是组织数据的思路，倒排索引与 **IPT** 各自保存的内容不同。
 
-### Hashing an Inverted Page Table
+### Hashing an **Inverted Page Table**
 
-反向页表按物理页框组织，CPU 却只知道进程标识和虚拟页号。直接遍历整张表可能很慢，因此再用哈希表缩小搜索范围，并用 TLB 缓存成功的转换结果。
+**IPT** 按物理页框组织，CPU 却只知道进程标识和虚拟页号。直接遍历整张表可能很慢，因此再用哈希表缩小搜索范围，并用 **TLB** 缓存成功的转换结果。
 
 ```text
 (PID, p) → 哈希桶 → 候选 IPT 表项 → 比较 PID 和 p
@@ -963,7 +963,7 @@ $$
                                   PA = fS + d
 ```
 
-哈希页表和反向页表可以结合：前者描述查找方式，后者规定主要映射表按物理页框组织。
+**Hashed Page Table** 和 **IPT** 可以结合：前者描述查找方式，后者规定主要映射表按物理页框组织。
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261106212822.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
@@ -974,7 +974,7 @@ $$
 <details>
 <summary>沿冲突链查找，取得物理页框号</summary>
 
-哈希桶给出的首个反向页表下标是 `0x0`。
+哈希桶给出的首个 **IPT** 下标是 `0x0`。
 
 该项为 `(PID=1, VPN=0xA63)`，与请求不匹配。沿 `Next=0x18F1B` 继续查找。
 
@@ -984,21 +984,21 @@ $$
 f=0x18F1B,\qquad d=0x123.
 $$
 
-得到物理地址二元组 $(0x18F1B,0x123)$。若页大小为 $S$，完整地址就是 $0x18F1B\times S+0x123$；偏移的数值本身不能确定页大小。
+得到 **Physical Address** 二元组 $(0x18F1B,0x123)$。若页大小为 $S$，完整地址就是 $0x18F1B\times S+0x123$；偏移的数值本身不能确定页大小。
 
 </details>
 
-共享页是反向页表的一个难点：一个物理页框可能同时对应多个进程的虚拟地址，单个 $(PID,p)$ 记录无法表示所有别名，需要额外管理。
+共享页是 **IPT** 的一个难点：一个物理页框可能同时对应多个进程的虚拟地址，单个 $(PID,p)$ 记录无法表示所有别名，需要额外管理。
 
-### Inverted Page Table Exercises
+### **Inverted Page Table** Exercises
 
-考虑简单的按需分页环境，无分段。进程 $P_1,P_2$ 的逻辑地址范围均为 0～99，页面大小为 5。哈希函数为：
+考虑简单的按需分页环境，无分段。进程 $P_1,P_2$ 的 **Logical Address** 范围均为 0～99，页面大小为 5。哈希函数为：
 
 $$
 h(P_i,p)=i+p.
 $$
 
-注意输入是 **逻辑页号**。如果给出逻辑地址 $a$，应先计算：
+注意输入是 **逻辑页号**。如果给出 **Logical Address** $a$，应先计算：
 
 $$
 p=\left\lfloor\frac a5\right\rfloor,\qquad d=a\bmod5.
@@ -1014,7 +1014,7 @@ $$
 | 18 | $P_1$ | 17 | 2 |
 | 19 | $P_1$ | 18 | 3 |
 
-反向页表的页框 0 空闲；页框 1 属于 $P_2$、可读写；页框 2、4 属于 $P_1$、可读写；页框 3 属于 $P_1$、只读。
+**IPT** 的页框 0 空闲；页框 1 属于 $P_2$、可读写；页框 2、4 属于 $P_1$、可读写；页框 3 属于 $P_1$、只读。
 
 图中 $(P_1,3)$ 放在槽 5，而直接哈希值为 $1+3=4$。
 
@@ -1022,7 +1022,7 @@ $$
 
 #### Example
 
-1. **分别计算请求 `P1:30`、`P2:22` 的哈希值。冒号后表示逻辑地址。**
+1. **分别计算请求 `P1:30`、`P2:22` 的哈希值。冒号后表示Logical Address。**
 
 <details>
 <summary>先求逻辑页号，再计算哈希</summary>
@@ -1043,7 +1043,7 @@ $$
 
 </details>
 
-2. **请求 `P1:86`，求物理地址。**
+2. **请求 `P1:86`，求Physical Address。**
 
 <details>
 <summary>完整地址转换</summary>
@@ -1064,7 +1064,7 @@ $$
 
 </details>
 
-3. **$P_2$ 尝试读取逻辑地址 7，会发生什么？数据结构如何变化？**
+3. **$P_2$ 尝试读取Logical Address 7，会发生什么？数据结构如何变化？**
 
 <details>
 <summary>缺页处理与恢复执行</summary>
@@ -1073,24 +1073,24 @@ $$
 p=\lfloor7/5\rfloor=1,\qquad d=2,\qquad h=2+1=3.
 $$
 
-给定状态下，$P_2$ 的第 1 页尚未驻留，发生缺页异常。
+给定状态下，$P_2$ 的第 1 页尚未驻留，发生 **Page Fault（缺页异常）**。
 
 1. 分配空闲页框 0，将所需页面装入。
-2. 更新 IPT 的第 0 项，记录它保存 $(P_2,1)$。
+2. 更新 **IPT** 的第 0 项，记录它保存 $(P_2,1)$。
 3. 在哈希槽 3 建立 $(P_2,1)\to0$ 的映射。
 4. 恢复并重新执行原来的访存指令。
 
-更新后的物理地址为：
+更新后的 **Physical Address** 为：
 
 $$
 PA=0\times5+2=\boxed{2}.
 $$
 
-进程仍使用原来的逻辑地址 7。成功处理后可以继续运行，无需自行修改访问地址。
+进程仍使用原来的 **Logical Address** 7。成功处理后可以继续运行，无需自行修改访问地址。
 
 </details>
 
-### Hierarchical Page Table Exercises
+### **Hierarchical Page Table** Exercises
 
 #### Example
 
@@ -1235,7 +1235,7 @@ $$
   └─ 符号表、数组等数据
 ```
 
-在纯分段模型中，**进程的不同段可以分散存放，但每个段内部占据连续物理内存**。因此仍然存在外部碎片和动态空闲块分配问题。
+在纯分段模型中，**进程的不同段可以分散存放，但每个段内部占据连续物理内存**。因此仍然存在 **External Fragmentation** 和动态空闲块分配问题。
 
 <div style="display: flex; justify-content: center; align-items: flex-start; gap: 16px; max-width: 856px; margin: 0 auto;">
   <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261106213004.png" style="width: calc((100% - 16px) / 2); min-width: 0; height: auto; display: block; margin: 0;" />
@@ -1244,7 +1244,7 @@ $$
 
 ### Segmentation Architecture
 
-逻辑地址是二元组：
+**Logical Address** 是二元组：
 
 $$
 \boxed{LA=(s,d)}.
@@ -1252,10 +1252,10 @@ $$
 
 $s$ 为段号，$d$ 为段内偏移。段表每项保存：
 
-- **Base**：该段的起始物理地址。
+- **Base**：该段的起始 **Physical Address**。
 - **Limit**：该段的长度。
 
-**段表基址寄存器（STBR）** 指向段表；**段表长度寄存器（STLR）** 表示段数。
+**Segment-Table Base Register（段表基址寄存器，STBR）** 指向段表； **Segment-Table Length Register（段表长度寄存器，STLR）** 表示段数。
 
 首先检查段号：
 
@@ -1289,7 +1289,7 @@ $$
 
 段表项可以关联有效位，以及读、写、执行权限。无效段或不允许的访问会触发异常。
 
-代码可以按段共享，私有数据分别保留。因为各段长度不同，为段寻找连续物理区域仍需要处理首次适应等动态分配问题。
+代码可以按段共享，私有数据分别保留。因为各段长度不同，为段寻找连续物理区域仍需要处理 **First-Fit** 等动态分配问题。
 
 ### Example
 
@@ -1308,7 +1308,7 @@ $$
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261106213156.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
 <details>
-<summary>各段的物理地址范围</summary>
+<summary>各段的<strong>Physical Address</strong>范围</summary>
 
 采用左闭右开区间：
 
@@ -1320,7 +1320,7 @@ $$
 段 4：[4700, 5700)
 ```
 
-段号只用于索引段表，不代表物理地址先后顺序。
+段号只用于索引段表，不代表 **Physical Address** 先后顺序。
 
 </details>
 
@@ -1345,7 +1345,7 @@ $$
 | 单位大小 | 页与页框等长 | 各段长度可不同 |
 | 地址格式 | 页号＋页内偏移 | 段号＋段内偏移 |
 | 基本映射 | 查页框号，保留偏移 | 查基址，检查段长，再相加 |
-| 主要碎片 | 内部碎片 | 外部碎片 |
+| 主要碎片 | **Internal Fragmentation** | **External Fragmentation** |
 | 共享与保护 | 以页为单位 | 以逻辑段为单位 |
 
 **段适合表达逻辑结构、共享和保护；页适合固定粒度的物理内存管理。** 两者可以结合。
@@ -1370,7 +1370,7 @@ $$
 
 ### Example
 
-**32-bit 逻辑地址采用 $10:12:10$ 的“段号、页号、偏移”划分。**
+**32-bit Logical Address采用 $10:12:10$ 的“段号、页号、偏移”划分。**
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261106213215.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
@@ -1393,13 +1393,13 @@ $$
 
 1. 用 $s$ 查段表，检查段和访问权限，取得该段页表基址。
 2. 用 $p$ 查该段页表，取得页框号 $f$。
-3. 保留 $d$，形成物理地址：
+3. 保留 $d$，形成 **Physical Address**：
 
 $$
 \boxed{PA=f\times1024+d}.
 $$
 
-图中的物理地址为 32 位，低 10 位仍为偏移，高 22 位为物理页框号。
+图中的 **Physical Address** 为 32 位，低 10 位仍为偏移，高 22 位为物理页框号。
 
 </details>
 
@@ -1413,15 +1413,15 @@ Pentium 支持纯分段，也支持分段后继续分页。
 逻辑地址 → 分段单元 → 线性地址 → 分页单元 → 物理地址
 ```
 
-**逻辑地址** 由段选择子和段内偏移组成；**线性地址** 是分段转换的结果；**物理地址** 是分页转换后的实际内存地址。
+**Logical Address** 由段选择子和段内偏移组成；**线性地址** 是分段转换的结果； **Physical Address** 是分页转换后的实际内存地址。
 
-这一过程中的分段单元和分页单元共同完成内存管理单元的地址转换工作。
+这一过程中的分段单元和分页单元共同完成 **MMU** 的地址转换工作。
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261106213252.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
 ### Segment Selector and Descriptor Tables
 
-逻辑地址为：
+**Logical Address** 为：
 
 $$
 (\underbrace{selector}_{16\text{ 位}},\underbrace{offset}_{32\text{ 位}}).

@@ -17,13 +17,13 @@ draft: false
 
 - 语法检查
 - 检查查询中引用的 relation / attribute 是否存在
-- 把 SQL 翻译成内部表示，再转成关系代数表达式
+- 把 SQL 翻译成内部表示，再转成 **Relational Algebra（关系代数）** 表达式
 
 2. **Optimization**
 
 - 生成与原表达式等价的其他表达式
 - 为每种表达式考虑不同物理执行方法
-- 估计每种执行计划的代价
+- 估计每种 **Evaluation Plan（执行计划）** 的代价
 - 选择估计代价最低的计划
 
 3. **Evaluation**
@@ -32,9 +32,9 @@ draft: false
 - 实际执行该计划
 - 返回查询结果
 
-> SQL 只描述“我要什么结果”；执行计划决定“系统如何拿到这些结果”。
+> SQL 只描述“我要什么结果”； **Evaluation Plan** 决定“系统如何拿到这些结果”。
 
-### 表达式与执行计划
+### 表达式与 **Evaluation Plan**
 
 考虑查询：
 
@@ -44,7 +44,7 @@ from instructor natural join (teaches natural join course)
 where dept_name = 'Music';
 ```
 
-直接转换得到的关系代数表达式可以写成：
+直接转换得到的 **Relational Algebra** 表达式可以写成：
 
 $$
 \Pi_{\text{name},\text{title}}
@@ -87,7 +87,7 @@ $$
 $$
 
 这些仍然只是 **逻辑表达式** 。  
-一个完整的 **evaluation plan（执行计划）** 还需要明确：
+一个完整的 **Evaluation Plan** 还需要明确：
 
 - `dept_name='Music'` 是否使用索引
 - 两次 join 分别选择 hash join、merge join 还是 nested-loop join
@@ -103,7 +103,7 @@ $$
 - 对两个输入做 merge join
 - 最终排序去重并输出 `name, title`
 
-> 关系代数树只说明操作结构；执行计划还为节点标注了实际算法与执行协调方式。
+> **Relational Algebra** 树只说明操作结构； **Evaluation Plan** 还为节点标注了实际算法与执行协调方式。
 
 <div style="display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; align-items: flex-start;">
   <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260526133414.png"  style="width: 420px; max-width: 100%; height: auto; display: block;" />
@@ -120,8 +120,8 @@ $$
 
 **Cost-based query optimization** 通常分为三步：
 
-1. 使用等价规则生成逻辑等价表达式。
-2. 给每个表达式配置不同算法，得到候选 evaluation plans。
+1. 使用 **Equivalence Rule（等价规则）** 生成逻辑等价表达式。
+2. 给每个表达式配置不同算法，得到候选 **evaluation plans**。
 3. 根据估计代价选择最便宜的计划。
 
 代价估计依赖三类信息：
@@ -152,7 +152,7 @@ plan comparison
 chosen plan
 ```
 
-### 查看执行计划
+### 查看 **Evaluation Plan**
 
 多数数据库都允许查看 optimizer 选择的计划。
 
@@ -200,22 +200,22 @@ cost = f .. l
 
 ### 等价表达式
 
-两个关系代数表达式 $E_1$ 和 $E_2$ 等价，指的是：
+两个 **Relational Algebra** 表达式 $E_1$ 和 $E_2$ 等价，指的是：
 
 > 对每一个合法数据库实例，它们都产生相同的结果。
 
-传统关系代数把 relation 当作集合。  
+传统 **Relational Algebra** 把 relation 当作集合。  
 SQL 的输入输出一般采用 **multiset / bag semantics（多重集语义）** ，所以优化器必须保证：
 
 - 结果中的 tuple 值相同
 - 每个 tuple 出现的次数也相同
 
-一个 **equivalence rule（等价规则）** 给出两种可互换的表达式形式。  
+一个 **Equivalence Rule** 给出两种可互换的表达式形式。  
 优化器可以用它把当前表达式改写为其他候选表达式。
 
 ### Selection 与 Projection 规则
 
-设 $E$、$E_1$、$E_2$ 为关系代数表达式，$\theta$ 为选择条件，$L$ 为属性集合。
+设 $E$、$E_1$、$E_2$ 为 **Relational Algebra** 表达式，$\theta$ 为选择条件，$L$ 为属性集合。
 
 #### Conjunctive Selection 的分解
 
@@ -265,7 +265,7 @@ $$
 
 - 后续投影保留了最终需要的全部属性
 
-#### Selection 与 Cartesian Product / Theta Join
+#### Selection 与 **Cartesian Product（笛卡尔积）** / Theta Join
 
 $$
 \sigma_{\theta}(E_1 \times E_2)
@@ -281,14 +281,14 @@ $$
 
 也就是说：
 
-- 笛卡尔积加连接条件可以直接表示为 join
+- **Cartesian Product** 加连接条件可以直接表示为 join
 - join 后再筛选的跨表条件可以合并进 join predicate
 
 ### Join 规则
 
 #### Join 的交换律
 
-对于 theta join 和 natural join：
+对于 theta join 和 **natural join（自然连接）**：
 
 $$
 E_1 \bowtie_{\theta} E_2
@@ -298,7 +298,7 @@ $$
 
 交换输入后，结果属性顺序可能不同；若属性顺序重要，可再加 projection 调整。
 
-#### Natural Join 的结合律
+#### **Natural Join** 的结合律
 
 $$
 (E_1 \bowtie E_2) \bowtie E_3
@@ -353,7 +353,7 @@ $$
 \sigma_{\theta_1}(E_1) \bowtie_{\theta} \sigma_{\theta_2}(E_2)
 $$
 
-这就是 **selection pushdown** 。
+这就是 **selection pushdown（选择下推）** 。
 
 它通常有利，因为：
 
@@ -396,7 +396,7 @@ $$
 
 > 可以尽早丢弃不需要的属性，但 join predicate 和最终输出仍需要的属性不能被提前删掉。
 
-### Set Operation、Aggregation 与 Outer Join 规则
+### Set Operation、Aggregation 与 **Outer Join（外连接）** 规则
 
 #### Union 与 Intersection
 
@@ -469,7 +469,7 @@ $$
 - 按属性集合 $G$ 分组
 - 计算聚合表达式 $A$
 
-若选择谓词 $\theta$ 只涉及 grouping attributes $G$，则：
+若 **Selection Predicate（选择谓词）** $\theta$ 只涉及 grouping attributes $G$，则：
 
 $$
 \sigma_{\theta}({}_G\gamma_A(E))
@@ -484,9 +484,9 @@ $$
 
 若 predicate 涉及聚合值，例如 `sum(salary) > 100000`，就不能按此规则直接下推。
 
-#### Outer Join 的基本规则
+#### **Outer Join** 的基本规则
 
-Full outer join 满足交换律：
+Full **outer join** 满足交换律：
 
 $$
 E_1 \mathbin{\text{⟗}} E_2
@@ -494,7 +494,7 @@ E_1 \mathbin{\text{⟗}} E_2
 E_2 \mathbin{\text{⟗}} E_1
 $$
 
-Left outer join 与 right outer join 可互相转换：
+Left **outer join** 与 right **outer join** 可互相转换：
 
 $$
 E_1 \mathbin{\text{⟕}} E_2
@@ -520,13 +520,13 @@ $$
 
 原因：
 
-- left outer join 中没有匹配的 $E_1$ tuple 会在 $E_2$ 属性上补 `null`
+- left **outer join** 中没有匹配的 $E_1$ tuple 会在 $E_2$ 属性上补 `null`
 - null-rejecting selection 最终会把它们全部删除
-- 因此外连接可以改为内连接
+- 因此 **Outer Join** 可以改为 **Inner Join（内连接）**
 
-### Outer Join 的限制
+### **Outer Join** 的限制
 
-内连接上的很多等价规则，不能机械地套到 outer join 上。
+**Inner Join** 上的很多 **Equivalence Rule**，不能机械地套到 **outer join** 上。
 
 例如：
 
@@ -536,9 +536,9 @@ $$
 \sigma_{\text{year}=2017}(instructor \bowtie teaches)
 $$
 
-除非能证明 selection 对 `teaches` 的空值扩展 tuple 是 null-rejecting，且语义确实允许消去外连接。
+除非能证明 selection 对 `teaches` 的空值扩展 tuple 是 null-rejecting，且语义确实允许消去 **Outer Join**。
 
-Outer join 通常也不满足结合律：
+**Outer join** 通常也不满足结合律：
 
 $$
 (r \mathbin{\text{⟕}} s) \mathbin{\text{⟕}} t
@@ -547,14 +547,14 @@ r \mathbin{\text{⟕}} (s \mathbin{\text{⟕}} t)
 $$
 
 :::WARNING
-优化时遇到 outer join，应先确认：
+优化时遇到 **outer join**，应先确认：
 
 - 哪一侧需要保留未匹配 tuple
 - selection 是否引用 null-supplying side
 - selection 是否是 null-rejecting
 - join reorder 是否会改变补 `null` 的位置
 
-直接把内连接的下推、重排规则照搬到 outer join，会改变查询语义。
+直接把 **Inner Join** 的下推、重排规则照搬到 **outer join**，会改变查询语义。
 :::
 
 ### Multiple Transformations Example
@@ -582,7 +582,7 @@ $$
 
 优化过程可以分成三步。
 
-#### Selection pushdown
+#### **Selection pushdown**
 
 两个 predicate 分别只依赖一个基本关系：
 
@@ -654,7 +654,7 @@ $$
 最直接的方法是：
 
 1. 从原表达式开始。
-2. 对当前已找到的每个表达式及其所有子表达式，尝试应用每条等价规则。
+2. 对当前已找到的每个表达式及其所有子表达式，尝试应用每条 **Equivalence Rule**。
 3. 把新表达式加入候选集合。
 4. 重复直到不能产生新表达式。
 
@@ -677,9 +677,9 @@ until 不再出现新表达式
 
 优化方式：
 
-- **共享公共子表达式** ：表达式用 DAG 而非大量重复的树表示。
+- **共享Common Subexpression（公共子表达式）** ：表达式用 DAG 而非大量重复的树表示。
 - **检测重复表达式** ：同样的子表达式只保存一份。
-- **Dynamic Programming / Memoization** ：一个子问题的最优计划只计算一次。
+- **Dynamic Programming（动态规划） / Memoization** ：一个子问题的最优计划只计算一次。
 - **Cost-based pruning** ：明显不可能胜出的计划尽早剪枝。
 - **Heuristics** ：只搜索更有希望的结构，例如 left-deep join tree。
 
@@ -705,7 +705,7 @@ until 不再出现新表达式
 
 这类估计称为：
 
-> **Cardinality Estimation（基数估计）** ：估计每个关系代数子表达式会产生多少 tuple。
+> **Cardinality Estimation（基数估计）** ：估计每个 **Relational Algebra** 子表达式会产生多少 tuple。
 
 Cardinality estimation 一旦严重失准，可能导致：
 
@@ -899,9 +899,9 @@ Histogram、多列统计信息与执行期自适应机制，都是为了缓解�
 设：
 
 - $r(R)$ 与 $s(S)$ 为两个关系
-- natural join 的共同属性为 $R \cap S$
+- **natural join** 的共同属性为 $R \cap S$
 
-#### Cartesian Product
+#### **Cartesian Product**
 
 $$
 n_{r \times s} = n_r \cdot n_s
@@ -913,7 +913,7 @@ $$
 l_r + l_s
 $$
 
-若 $R \cap S = \varnothing$，natural join 等同于 Cartesian product。
+若 $R \cap S = \varnothing$， **natural join** 等同于 **Cartesian product**。
 
 #### 共同属性是某一侧的 Key
 
@@ -930,7 +930,7 @@ $$
 n_{r \bowtie s} \le n_s
 $$
 
-如果共同属性还是 $s$ 中引用 $r$ 的 foreign key，并且外键值均有效，则：
+如果共同属性还是 $s$ 中引用 $r$ 的 **foreign key（外键）**，并且 **Foreign Key** 值均有效，则：
 
 $$
 n_{r \bowtie s} = n_s
@@ -941,7 +941,7 @@ $$
 
 即：
 
-> 外键侧每一行都恰好 join 到被引用表中的一行。
+> **Foreign Key** 侧每一行都恰好 join 到被引用表中的一行。
 
 #### 一般单属性 Join
 
@@ -1030,8 +1030,8 @@ Catalog 给定：
 
 含义：
 
-- `student.ID` 是主键
-- `takes.ID` 是引用 `student.ID` 的外键
+- `student.ID` 是 **Primary Key（主键）**
+- `takes.ID` 是引用 `student.ID` 的 **Foreign Key**
 - `takes` 中出现了 `2500` 个不同学生
 - 这些学生平均每人选过：
 
@@ -1041,13 +1041,13 @@ $$
 
 门课程。
 
-因为 `takes.ID` 是引用 `student.ID` 的外键：
+因为 `takes.ID` 是引用 `student.ID` 的 **Foreign Key**：
 
 $$
 n_{student \bowtie takes} = n_{takes} = 10000
 $$
 
-即使不知道 foreign key，只使用 distinct value 估计：
+即使不知道 **foreign key**，只使用 distinct value 估计：
 
 $$
 \frac{5000 \times 10000}{2500} = 20000
@@ -1066,7 +1066,7 @@ $$
 :::TIP
 这个例子要记住：
 
-- **约束信息** ，例如 primary key / foreign key，可以直接给出更可靠的 cardinality。
+- **约束信息** ，例如 **primary key** / **foreign key**，可以直接给出更可靠的 cardinality。
 - **统计估计** 是在不知道更强语义约束时的退而求其次。
 :::
 
@@ -1120,7 +1120,7 @@ $$
 
 直接用这些上界作为粗略估计。它们可能不精确，但安全且计算便宜。
 
-#### Outer Join
+#### **Outer Join**
 
 粗略估计为：
 
@@ -1130,9 +1130,9 @@ n_{r \mathbin{\text{⟕}} s}
 n_{r \bowtie s} + n_r
 $$
 
-右外连接对称。
+右 **Outer Join** 对称。
 
-对于 full outer join：
+对于 full **outer join**：
 
 $$
 n_{r \mathbin{\text{⟗}} s}
@@ -1242,7 +1242,7 @@ $$
 即粗略假设每个 group 的聚合结果不同。
 
 
-## Choice of Evaluation Plans
+## Choice of **Evaluation Plans**
 
 ### 操作之间会相互影响
 
@@ -1293,16 +1293,16 @@ $$
 
 子集 $\{r_1,r_2,r_3\}$ 的 join order 有 12 种。若先求出该子集的最优顺序，再与 $r_4$、$r_5$ 逐步合并，原本需要比较的 $12 \times 12$ 种组合可以理解为拆成 $12 + 12$ 的两步选择。
 
-因此不必生成全部 join order：动态规划把每个子集的最优顺序只计算一次并复用。
+因此不必生成全部 join order： **Dynamic Programming** 把每个子集的最优顺序只计算一次并复用。
 
 这说明：
 
 - 枚举全部 join trees 在关系数稍大时就不可行
-- 必须用动态规划、限制树形或启发式方法压缩搜索空间
+- 必须用 **Dynamic Programming**、限制树形或启发式方法压缩搜索空间
 
-### Dynamic Programming 选择 Join Plan
+### **Dynamic Programming** 选择 Join Plan
 
-动态规划的关键观察是：
+**Dynamic Programming** 的关键观察是：
 
 > 如果已经知道某个 relation 子集的最优计划，就应复用它，而不应在更大 join 中重复求解。
 
@@ -1398,7 +1398,7 @@ Left-deep 的优势：
 
 
 - 当 $n=10$ 时，全 join order 规模约为 `176` 亿
-- bushy-tree 动态规划只需数量级约 `59000` 的子组合计算
+- bushy-tree **Dynamic Programming** 只需数量级约 `59000` 的子组合计算
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260526144246.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
@@ -1426,7 +1426,7 @@ $$
 
 > **Interesting sort order** ：对后续 join、`order by` 或 `group by` 可能有用的中间结果排序顺序。
 
-因此动态规划不能只保存：
+因此 **Dynamic Programming** 不能只保存：
 
 - 每个 relation subset 的唯一最便宜计划
 
@@ -1436,7 +1436,7 @@ $$
 
 通常 interesting order 的种类不多，所以不会显著改变复杂度数量级。
 
-### 基于等价规则的 Cost-Based Optimization
+### 基于 **Equivalence Rule** 的 Cost-Based Optimization
 
 仅处理 join order 还不够。更通用的 optimizer 需要同时处理：
 
@@ -1444,7 +1444,7 @@ $$
 - projection
 - join
 - aggregation
-- outer join
+- **outer join**
 - nested query rewrite
 - physical operator selection
 
@@ -1472,7 +1472,7 @@ Cost-based optimization 很有价值，但优化本身也消耗时间。
 - 尽早执行 selection
 - 尽早执行 projection
 - 优先执行结果规模最小的 selection / join
-- 避免不必要的 Cartesian product
+- 避免不必要的 **Cartesian product**
 - 优先考虑 left-deep join order
 
 这些规则通常有效，因为它们倾向于压缩中间结果。
@@ -1485,7 +1485,7 @@ Cost-based optimization 很有价值，但优化本身也消耗时间。
 - $r$ 非常小
 - $s$ 非常大
 - $s$ 的 join attribute 上有索引
-- selection predicate 涉及 $s$ 的另一个没有索引的属性
+- **selection predicate** 涉及 $s$ 的另一个没有索引的属性
 
 此时先扫描整个 $s$ 做 selection 可能很贵。  
 更好的计划可能是：
@@ -1515,7 +1515,7 @@ Cost-based optimization 很有价值，但优化本身也消耗时间。
 - 更充分的枚举和成本比较通常是值得的
 
 
-## Nested Subqueries
+## Nested **Subqueries（子查询）**
 
 ### Correlated Evaluation
 
@@ -1540,7 +1540,7 @@ instructor.ID
 
 这个属性叫做 **correlation variable（相关变量）** 。
 
-SQL 语义上，可以把内层 subquery 理解为一个依赖外层当前 tuple 的函数：
+SQL 语义上，可以把内层 **subquery** 理解为一个依赖外层当前 tuple 的函数：
 
 - 对外层 `instructor` 的每一条 tuple
 - 带入其 `ID`
@@ -1557,7 +1557,7 @@ SQL 语义上，可以把内层 subquery 理解为一个依赖外层当前 tuple
 - 可能产生大量随机 I/O
 - 对大表极其昂贵
 
-### Semijoin 与重复元组问题
+### **Semijoin（半连接）** 与重复元组问题
 
 上面的 `exists` 查询不能直接粗暴改写成普通 join：
 
@@ -1574,7 +1574,7 @@ where instructor.ID = teaches.ID
 - 普通 join 会为每条匹配 `teaches` tuple 输出一份教师 tuple
 - `exists` 只要求“至少存在一条”，不会因为多次匹配而增加外层 tuple 的出现次数
 
-为保持 SQL multiset 语义，应使用 **semijoin（半连接）** 。
+为保持 SQL **multiset（多重集）** 语义，应使用 **Semijoin** 。
 
 定义：
 
@@ -1607,7 +1607,7 @@ from instructor, t1
 where t1.ID = instructor.ID;
 ```
 
-### Anti-Semijoin
+### **Anti-Semijoin（反半连接）**
 
 对于 `not exists`：
 
@@ -1622,7 +1622,7 @@ where not exists (
 );
 ```
 
-可使用 **anti-semijoin（反半连接）** ：
+可使用 **Anti-Semijoin** ：
 
 $$
 \Pi_{\text{name}}
@@ -1668,7 +1668,7 @@ $$
 \right)
 $$
 
-把 nested query 转换为 join / semijoin / anti-semijoin 的过程称为：
+把 nested query 转换为 join / **semijoin** / **anti-semijoin** 的过程称为：
 
 > **Decorrelation（去相关）** 。
 
@@ -1678,9 +1678,9 @@ $$
 - 可以使用高效 join algorithm
 - optimizer 可以统一考虑 join order 和索引
 
-### Scalar Aggregate Subquery
+### Scalar Aggregate **Subquery**
 
-聚合子查询的 decorrelation 更复杂。
+聚合 **Subquery** 的 decorrelation 更复杂。
 
 例子：
 
@@ -1710,7 +1710,7 @@ T =
 \right)
 $$
 
-然后与 `instructor` 做带条件的 semijoin：
+然后与 `instructor` 做带条件的 **semijoin**：
 
 $$
 \Pi_{\text{name}}
@@ -1721,21 +1721,21 @@ T
 \right)
 $$
 
-但并非所有 scalar subquery 都能这样安全转换：
+但并非所有 **scalar subquery（标量子查询）** 都能这样安全转换：
 
-- 标量子查询返回多行时，原 SQL 可能产生 runtime exception
+- **Scalar Subquery** 返回多行时，原 SQL 可能产生 runtime exception
 - 聚合、`null` 与重复语义会增加转换难度
 - decorrelation 是否值得做，也应经过成本比较
 
-因此现实优化器对复杂 nested subquery 的 decorrelation 支持通常有限。
+因此现实优化器对复杂 nested **subquery** 的 decorrelation 支持通常有限。
 
 
-## Materialized Views
+## **Materialized Views（物化视图）**
 
-### 物化视图的作用
+### **Materialized View** 的作用
 
 普通 view 通常只保存定义查询。  
-**Materialized view（物化视图）** 会把查询结果实际计算并存储下来。
+**Materialized View** 会把查询结果实际计算并存储下来。
 
 例子：
 
@@ -1761,11 +1761,11 @@ group by dept_name;
 代价是：
 
 - 数据存在冗余
-- 基表更新后，物化视图也必须同步更新
+- 基表更新后， **Materialized View** 也必须同步更新
 
 ### View Maintenance
 
-保持物化视图与基表一致的任务称为：
+保持 **Materialized View** 与基表一致的任务称为：
 
 > **Materialized View Maintenance（物化视图维护）** 。
 
@@ -1775,7 +1775,7 @@ group by dept_name;
 - 使用触发器维护
 - 在应用程序更新基表时同步维护
 - 周期性重算，例如每天夜间刷新
-- 使用数据库系统直接提供的 materialized view refresh 机制
+- 使用数据库系统直接提供的 **materialized view** refresh 机制
 
 完整重算逻辑简单，但通常代价大。  
 更常用的思想是：
@@ -1804,7 +1804,7 @@ group by dept_name;
 
 #### Join
 
-设物化视图：
+设 **Materialized View**：
 
 $$
 v = r \bowtie s
@@ -1957,9 +1957,9 @@ $$
 
 `union` 与 `set difference` 也可类似维护。
 
-#### Outer Join
+#### **Outer Join**
 
-Outer join 的维护与 join 类似，但更复杂：
+**Outer join** 的维护与 join 类似，但更复杂：
 
 - 删除一侧 tuple 后，另一侧某些 tuple 可能从“已有匹配”变为“需要补 null 的未匹配 tuple”
 - 插入一侧 tuple 后，另一侧某些原先补 null 的 tuple 可能重新变为匹配结果
@@ -1984,11 +1984,11 @@ $$
 D_1 \bowtie E_2
 $$
 
-### 使用物化视图优化查询
+### 使用 **Materialized View** 优化查询
 
-物化视图不仅要被维护，还可以被 optimizer 用于 query rewrite。
+**Materialized View** 不仅要被维护，还可以被 optimizer 用于 query rewrite。
 
-#### 将查询改写为使用物化视图
+#### 将查询改写为使用 **Materialized View**
 
 若已有：
 
@@ -2014,7 +2014,7 @@ $$
 - `v` 是否足够小
 - 读取 `v` 是否比重新计算 `r ⋈ s` 更便宜
 
-#### 展开物化视图反而更便宜
+#### 展开 **Materialized View** 反而更便宜
 
 假设：
 
@@ -2040,9 +2040,9 @@ $$
 \sigma_{A=10}(r) \bowtie s
 $$
 
-> 有物化视图，不代表每次都应该读取物化视图；它只是 optimizer 的一个额外候选 access path。
+> 有 **Materialized View**，不代表每次都应该读取 **Materialized View**；它只是 optimizer 的一个额外候选 access path。
 
-### Materialized View Selection 与 Index Selection
+### **Materialized View** Selection 与 Index Selection
 
 系统需要决定：
 
@@ -2067,7 +2067,7 @@ $$
 
 > 在空间限制和关键查询 / 更新约束下，使总体 workload 执行时间最小。
 
-许多商业数据库提供 tuning assistant / wizard，协助 DBA 选择索引和物化视图。
+许多商业数据库提供 tuning assistant / wizard，协助 DBA 选择索引和 **Materialized View**。
 
 
 ## Advanced Topics in Query Optimization
@@ -2186,7 +2186,7 @@ where r.B = s.B;
 
 若满足：
 
-- `r.B` 是引用 `s.B` 的 foreign key
+- `r.B` 是引用 `s.B` 的 **foreign key**
 - `r.B` 声明为 `not null`
 - 查询不需要 `s` 的任何属性
 - 查询也不对 `s` 施加额外 filtering condition
@@ -2248,7 +2248,7 @@ $$
 
 **Multiquery optimization** 的目标是：
 
-> 面向一组查询选择总体代价最低的联合执行方式，并在确实有收益时共享公共子表达式。
+> 面向一组查询选择总体代价最低的联合执行方式，并在确实有收益时共享 **Common Subexpression**。
 
 一种便宜但不一定最优的 heuristic：
 
@@ -2262,7 +2262,7 @@ $$
 - 系统只从磁盘读一次
 - 将扫描产生的数据流同时供给多条查询
 
-物化视图维护中，多个 view 的更新计划也可能共享子表达式，因此同样可利用 multiquery optimization。
+**Materialized View Maintenance** 中，多个 view 的更新计划也可能共享子表达式，因此同样可利用 multiquery optimization。
 
 ### Parametric Query Optimization
 

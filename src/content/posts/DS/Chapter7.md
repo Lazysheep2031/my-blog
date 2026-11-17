@@ -9,7 +9,7 @@ draft: false
 
 ## Features of Good Relational Design
 
-一个关系模式设计得好，通常至少要满足：
+一个 **Relation Schema（关系模式）** 设计得好，通常至少要满足：
 
 - **不重复存同一事实**
 - **插入、删除、更新都不会很别扭**
@@ -19,16 +19,16 @@ draft: false
 这一章里最核心的 **坏设计** 有三个：
 
 1. **Information repetition** ：同一信息在很多元组里重复出现。  
-2. **Insertion anomalies** ：想录入一个事实，却被迫顺带录入别的事实。  
-3. **Update difficulty / update anomalies** ：修改一个事实时，要改很多地方，一旦漏改就不一致。
+2. **Insertion anomalies（插入异常）** ：想录入一个事实，却被迫顺带录入别的事实。  
+3. **Update difficulty / update anomalies（更新异常）** ：修改一个事实时，要改很多地方，一旦漏改就不一致。
 
 ### 坏设计的核心
 
 大学数据库的 E-R 图：
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202604072313708.png" alt="E-R Model" style="width: 520px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
-规约后的关系模式：
-这里每个实体的`_abc_`共同构成Primary Key。
+规约后的 **Relation Schema**：
+这里每个实体的`_abc_`共同构成 **Primary Key（主键）**。
 
 - `classroom(_building_, _room_number_, capacity)`
 - `department(_dept_name_, building, budget)`
@@ -70,7 +70,7 @@ inst_dept(ID, name, salary, dept_name, building, budget)
 这会直接导致：
 
 - **信息重复** ：同一个系馆和预算在多行里重复
-- **插入异常** ：如果新建一个系，但这个系还没有老师，你很难只插入 department 事实
+- **Insertion Anomaly** ：如果新建一个系，但这个系还没有老师，你很难只插入 department 事实
 - **更新困难** ：系预算改了，要改所有该系老师所在行
 
 :::NOTE
@@ -108,7 +108,7 @@ dept\_name \to building, budget
 $$
 
 那么 `dept_name` 决定了 `building, budget`。  
-但在 `inst_dept` 里，`dept_name` 又不是整个表的候选键，于是同一个 `dept_name` 会在多行中反复出现，对应的 `building, budget` 也就被迫重复。
+但在 `inst_dept` 里，`dept_name` 又不是整个表的 **Candidate Key（候选键）**，于是同一个 `dept_name` 会在多行中反复出现，对应的 `building, budget` 也就被迫重复。
 
 这正是：
 
@@ -142,7 +142,7 @@ employee2(name, street, city, salary)
 - `(57766, Kim, Main, Perryridge, 75000)`
 - `(98776, Kim, North, Hampton, 67000)`
 
-分解后再自然连接，会得到四行组合，其中两行是假的：
+分解后再 **Natural Join（自然连接）**，会得到四行组合，其中两行是假的：
 
 - 57766 + Main + 75000
 - 57766 + North + 67000  ← 假
@@ -154,15 +154,15 @@ employee2(name, street, city, salary)
 > 分解之后 join 回来，比原表多了额外元组。  
 > 这类分解叫 **lossy decomposition** 。
 
-### Lossless Join Decomposition
+### **Lossless Join（无损连接）** Decomposition
 
-如果关系模式 $R$ 被分解成 $R_1, R_2$，并且对任意合法实例 $r$ 都有：
+如果 **Relation Schema** $R$ 被分解成 $R_1, R_2$，并且对任意合法实例 $r$ 都有：
 
 $$
 \Pi_{R_1}(r) \bowtie \Pi_{R_2}(r) = r
 $$
 
-那么这个分解就是 **lossless decomposition** 。
+那么这个分解就是 **lossless decomposition（无损分解）** 。
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202604141339324.png" alt="Lossless Join Decomposition" style="width: 520px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
@@ -210,7 +210,7 @@ $$
 那么公共属性 $B$ 能决定 $R_2(B,C)$，分解无损。
 
 
-## Atomic Domains and First Normal Form
+## Atomic Domains and **First Normal Form（第一范式，1NF）**
 
 ### Atomic domain
 
@@ -240,29 +240,29 @@ Example：
 
 这通常是坏设计。
 
-### 1NF
+### **1NF**
 
-一个关系模式在 **第一范式（1NF）** 中，当且仅当：
+一个 **Relation Schema** 在 **1NF** 中，当且仅当：
 
 > 所有属性的域都是 atomic domains。
 
-所以 1NF 主要解决的是：
+所以 **1NF** 主要解决的是：
 
 - 属性值该不该再拆
 - 一列里能不能塞一个集合 / 复合对象 / 编码串
 
 
-> 1NF 处理的是“属性值原子性”问题。  
+> **1NF** 处理的是“属性值原子性”问题。  
 > 3NF / BCNF / 4NF 处理的是“依赖与冗余”问题。  
 
 
 可以把各个范式理解成一层层加强的“ **消冗余规则** ”：
 
 - **1NF** ：每个属性值都必须是 **原子的**
-- **2NF** ：在 1NF 基础上， **非主属性不能只依赖复合主键的一部分**
-- **3NF** ：在 2NF 基础上， **非主属性不能传递依赖于主键**
-- **BCNF** ：进一步加强， **任何决定因素都必须是超键**
-- **4NF** ：再进一步，处理 **多值依赖** 造成的冗余
+- **2NF** ：在 **1NF** 基础上， **非主属性不能只依赖复合Primary Key的一部分**
+- **3NF** ：在 2NF 基础上， **非主属性不能传递依赖于Primary Key**
+- **BCNF** ：进一步加强， **任何决定因素都必须是Superkey（超键）**
+- **4NF** ：再进一步，处理 **Multivalued Dependency（多值依赖）** 造成的冗余
 
 一个常见的包含关系是：
 
@@ -273,11 +273,11 @@ $$
 也就是说，后面的范式更严格。
 
 
-## Functional Dependencies
+## **Functional Dependencies（函数依赖）**
 
 ### Legal instance
 
-函数依赖讨论是：在所有符合业务规则的 **legal instances** 上，什么约束一定成立。
+**Functional Dependency** 讨论是：在所有符合业务规则的 **legal instances** 上，什么约束一定成立。
 
 例如大学数据库里，常见约束有：
 
@@ -286,11 +286,11 @@ $$
 - 每个学生主要隶属于一个系
 - 每个系只有一个 building 和一个 budget
 
-这些业务规则，就是函数依赖背后的来源。
+这些业务规则，就是 **Functional Dependency** 背后的来源。
 
-### 函数依赖的定义
+### **Functional Dependency** 的定义
 
-设关系模式为 $R$，且 $\alpha \subseteq R, \beta \subseteq R$。  
+设 **Relation Schema** 为 $R$，且 $\alpha \subseteq R, \beta \subseteq R$。  
 如果对任意合法关系实例 $r(R)$，只要任意两个元组在 $\alpha$ 上相等，就一定在 $\beta$ 上也相等，那么称：
 
 $$
@@ -317,9 +317,9 @@ $$
 
 - 一个系名确定后，它所在 building 唯一确定
 
-### Superkey 与 Candidate Key 的关系
+### **Superkey** 与 **Candidate Key** 的关系
 
-#### Superkey
+#### **Superkey**
 
 如果：
 
@@ -333,9 +333,9 @@ $$
 
 - $K$ 能唯一标识整个元组
 
-#### Candidate Key
+#### **Candidate Key**
 
-如果 $K$ 是 superkey，并且任何真子集都不是 superkey，那么 $K$ 是 **candidate key** 。
+如果 $K$ 是 **superkey**，并且任何真子集都不是 **superkey**，那么 $K$ 是 **candidate key** 。
 
 $$
 K \to R \quad \text{且} \quad \text{for no } \alpha \subset K, \alpha \to R 
@@ -348,8 +348,8 @@ $$
 
 **关键关系** :
 
-- 键是一种特殊的函数依赖
-- 函数依赖比键表达力更强
+- 键是一种特殊的 **Functional Dependency**
+- **Functional Dependency** 比键表达力更强
 
 因为很多约束不是“标识整个元组”，而是“某些属性决定另一些属性”。
 
@@ -371,7 +371,7 @@ $$
 dept\_name \to salary
 $$
 
-### Trivial functional dependency
+### Trivial **functional dependency**
 
 如果：
 
@@ -394,11 +394,11 @@ $$
 
 这类依赖不提供额外约束信息。
 
-**函数依赖比键更强：**
+**Functional Dependency比键更强：**
 
 键只能表达：
 - 哪些属性唯一标识元组
-但函数依赖还能表达：
+但 **Functional Dependency** 还能表达：
 - 哪些非键属性之间存在稳定决定关系
 而数据库设计里最危险的冗余，恰恰经常来自：
 - 一个非键属性决定另一个非键属性
@@ -409,14 +409,14 @@ $$
 dept\_name \to building, budget
 $$
 
-这就是为什么规范化理论以函数依赖为核心。
+这就是为什么 **Normalization Theory（规范化理论）** 以 **Functional Dependency** 为核心。
 
 
 ## Functional-Dependency Theory
 
 ### Closure of F
 
-给定函数依赖集 $F$，从 $F$ 可以逻辑推出的所有函数依赖构成 **closure of F** ，记为：
+给定 **Functional Dependency** 集 $F$，从 $F$ 可以逻辑推出的所有 **Functional Dependency** 构成 **closure of F** ，记为：
 
 $$
 F^+
@@ -436,9 +436,9 @@ $$
 
 所以 $A \to C \in F^+$。
 
-### Armstrong’s Axioms
+### **Armstrong’s Axioms（Armstrong 公理）**
 
-Armstrong 公理是函数依赖推理的基础规则。
+**Armstrong’s Axioms** 是 **Functional Dependency** 推理的基础规则。
 
 **1. Reflexivity（自反）**
 
@@ -503,7 +503,7 @@ $$
 
 ### Additional Rules
 
-这几条常用规则都能由 Armstrong 公理推出。
+这几条常用规则都能由 **Armstrong’s Axioms** 推出。
 
 **1. Union**
 
@@ -564,7 +564,7 @@ $$
 
 **Exercise 1** :
 
-在关系模式 $R(\alpha, \beta, \gamma)$ 上，若函数依赖$\alpha\gamma \to \beta\gamma$成立，证明它与$\alpha\gamma \to \beta$等价。也就是说，函数依赖右侧的重复属性可以去掉。
+在 **Relation Schema** $R(\alpha, \beta, \gamma)$ 上，若 **Functional Dependency** $\alpha\gamma \to \beta\gamma$成立，证明它与$\alpha\gamma \to \beta$等价。也就是说， **Functional Dependency** 右侧的重复属性可以去掉。
 
 **证明：**
 
@@ -618,7 +618,7 @@ $$
 
 
 
-### Attribute Closure
+### **Attribute Closure（属性闭包）**
 
 给定属性集 $\alpha$，在 $F$ 下由它能决定的所有属性集合，记为：$\alpha^+$
 
@@ -673,14 +673,14 @@ $$
 (AG)^+ = ABCGHI
 $$
 
-如果这已经包含了 $R$ 的全部属性，那么 `AG` 就是 superkey。  
-再进一步检查其真子集是否还是 superkey，就能判断是不是 candidate key。
+如果这已经包含了 $R$ 的全部属性，那么 `AG` 就是 **superkey**。  
+再进一步检查其真子集是否还是 **superkey**，就能判断是不是 **candidate key**。
 
-#### Attribute Closure 的用途
+#### **Attribute Closure** 的用途
 
 **1. 测试 superkey**
 
-判断 $\alpha$ 是否为 superkey，只要看：
+判断 $\alpha$ 是否为 **superkey**，只要看：
 
 $$
 \alpha^+ \supseteq R
@@ -688,7 +688,7 @@ $$
 
 是否成立。
 
-**2. 测试函数依赖是否成立**
+**2. 测试Functional Dependency是否成立**
 
 判断：
 
@@ -709,7 +709,7 @@ $$
 理论上可以对每个属性子集 $\gamma \subseteq R$ 算 $\gamma^+$，进而得到完整的 $F^+$。  
 但这通常代价很高，所以实际更常做局部判断。
 
-计算属性闭包和函数依赖闭包：
+计算 **Attribute Closure** 和 **Closure of Functional Dependencies（函数依赖闭包）**：
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/202604141431751.png" alt="Attribute Closure" style="width: 520px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
@@ -730,7 +730,7 @@ $$
 
 ### Extraneous Attribute
 
-如果一个函数依赖中的某个属性删掉以后，整个依赖系统表达的约束不变，那么这个属性就是 **extraneous** 。
+如果一个 **Functional Dependency** 中的某个属性删掉以后，整个依赖系统表达的约束不变，那么这个属性就是 **extraneous** 。
 
 分两种情况。
 
@@ -772,7 +772,7 @@ $$
 
 ### Canonical Cover 的定义
 
-函数依赖集 $F$ 的 **canonical cover** ，记作 $F_c$，满足：
+**Functional Dependency** 集 $F$ 的 **canonical cover** ，记作 $F_c$，满足：
 
 - $F$ 与 $F_c$ 逻辑等价
 - $F_c$ 中没有 extraneous attributes
@@ -839,7 +839,7 @@ $$
 (AE)^+ = ABCE
 $$
 
-候选键是：
+**Candidate Key** 是：
 
 $$
 AD
@@ -850,7 +850,7 @@ $$
 
 ### BCNF 定义
 
-关系模式 $R$ 关于函数依赖集 $F$ 属于 **Boyce–Codd Normal Form (BCNF)** ，如果对所有属于 $F^+$ 的函数依赖：
+**Relation Schema** $R$ 关于 **Functional Dependency** 集 $F$ 属于 **Boyce–Codd Normal Form (BCNF)** ，如果对所有属于 $F^+$ 的 **Functional Dependency**：
 
 $$
 \alpha \to \beta
@@ -859,9 +859,9 @@ $$
 都满足下面至少一个条件：
 
 1. 该依赖是 trivial 的，即 $\beta \subseteq \alpha$
-2. $\alpha$ 是 $R$ 的 superkey
+2. $\alpha$ 是 $R$ 的 **superkey**
 
-**BCNF 的意思：每个“真正有约束力”的决定因素，都必须是超键。**
+**BCNF 的意思：每个“真正有约束力”的决定因素，都必须是Superkey。**
 
 **反例：inst_dept**
 
@@ -875,7 +875,7 @@ $$
 dept\_name \to building, budget
 $$
 
-而 `dept_name` 不是 superkey，所以它不在 BCNF。
+而 `dept_name` 不是 **superkey**，所以它不在 BCNF。
 
 ### BCNF 分解思路
 
@@ -928,10 +928,10 @@ $$
 R(A,B,C,D),\quad F = \{A \to B,\; B \to CD\}
 $$
 
-**候选键** ：
+**Candidate Key** ：
 
 - `A+ = ABCD`
-- 所以候选键是 `A`
+- 所以 **Candidate Key** 是 `A`
 
 **分解** ：
 
@@ -941,7 +941,7 @@ $$
 B \to CD
 $$
 
-且 `B` 不是 superkey，所以违反 BCNF。
+且 `B` 不是 **superkey**，所以违反 BCNF。
 
 分解为：
 
@@ -961,7 +961,7 @@ $$
 B \to BCD
 $$
 
-也就是 `B` 是 `R1` 的候选键。
+也就是 `B` 是 `R1` 的 **Candidate Key**。
 
 ### Dependency Preserving
 
@@ -975,14 +975,14 @@ $$
 
 意思是：
 
-- 原来所有函数依赖，都能只靠子表中的依赖推出
+- 原来所有 **Functional Dependency**，都能只靠子表中的依赖推出
 - 不需要把子表 join 起来才能检验约束
 
 这在实际系统里很重要，因为：
 
 > 跨表 join 去检查更新是否合法，代价通常比较高。
 
-### BCNF 与依赖保持的冲突
+### BCNF 与 **Dependency Preservation（依赖保持）** 的冲突
 
 **Example 1：同一个关系的两种 BCNF 分解**
 
@@ -992,7 +992,7 @@ $$
 R(A,B,C),\quad F = \{A \to B,\; B \to C\}
 $$
 
-候选键是 `A`，原关系不在 BCNF。
+**Candidate Key** 是 `A`，原关系不在 BCNF。
 
 **分解一**
 
@@ -1025,23 +1025,23 @@ $$
 R(A,B,C,D,E), \quad F=\{A \to B,\; B \to CD,\; E \to D\}
 $$
 
-先求 candidate key。
+先求 **candidate key**。
 
-由于 `A` 和 `E` 从未出现在任何函数依赖的右边，因此任何 candidate key 都必须包含 `A` 和 `E`。又因为：
+由于 `A` 和 `E` 从未出现在任何 **Functional Dependency** 的右边，因此任何 **candidate key** 都必须包含 `A` 和 `E`。又因为：
 
 $$
 (AE)^+ = \{A,B,C,D,E\}
 $$
 
-所以候选键为：
+所以 **Candidate Key** 为：
 
 - `AE`
 
 原关系不属于 BCNF，因为：
 
-- `A \to B` 中，`A` 不是 superkey
-- `B \to CD` 中，`B` 不是 superkey
-- `E \to D` 中，`E` 不是 superkey
+- `A \to B` 中，`A` 不是 **superkey**
+- `B \to CD` 中，`B` 不是 **superkey**
+- `E \to D` 中，`E` 不是 **superkey**
 
 **分解一：标准算法可能得到的 BCNF 分解**
 
@@ -1087,7 +1087,7 @@ $$
    - `R1(B,C,D)` 中，`B -> CD`，而 `B` 是该关系的 key
    - `R2(A,B)` 中，`A -> B`，而 `A` 是该关系的 key
    - `R3(E,D)` 中，`E -> D`，而 `E` 是该关系的 key
-   - `R4(A,E)` 中不存在非平凡函数依赖，因此也属于 BCNF
+   - `R4(A,E)` 中不存在非平凡 **Functional Dependency**，因此也属于 BCNF
 
 2. **dependency preserving**
    原始依赖都可以在某个单独子关系中直接检查：
@@ -1096,7 +1096,7 @@ $$
    - `E -> D` 在 `R3(E,D)` 中
 
 3. **lossless-join**
-   因为 `R4(A,E)` 包含原关系的 candidate key `AE`，所以该分解是无损连接的。
+   因为 `R4(A,E)` 包含原关系的 **candidate key** `AE`，所以该分解是 **Lossless Join** 的。
 
 这个例子说明：
 
@@ -1119,7 +1119,7 @@ $$
 是两件不同的事。
 
 
-**Example 3：有些关系根本做不到“既 BCNF 又依赖保持”**
+**Example 3：有些关系根本做不到“既 BCNF 又Dependency Preservation”**
 
 给定：
 
@@ -1127,7 +1127,7 @@ $$
 R(J,K,L),\quad F = \{JK \to L,\; L \to K\}
 $$
 
-有两个候选键：
+有两个 **Candidate Key**：
 
 - `JK`
 - `JL`
@@ -1156,7 +1156,7 @@ BCNF 很干净，但有时太严格。
 有些场景中我们更关心：
 
 - 更新时能不能高效检查依赖
-- 能不能保证分解后依赖保持
+- 能不能保证分解后 **Dependency Preservation**
 
 于是定义一个稍微放松一点的范式： **3NF** 。
 
@@ -1166,7 +1166,7 @@ BCNF 很干净，但有时太严格。
 
 ### 3NF 定义
 
-关系模式 $R$ 在 3NF 中，如果对所有属于 $F^+$ 的依赖：
+**Relation Schema** $R$ 在 3NF 中，如果对所有属于 $F^+$ 的依赖：
 
 $$
 \alpha \to \beta
@@ -1175,8 +1175,8 @@ $$
 至少满足以下一个条件：
 
 1. $\alpha \to \beta$ 是 trivial 的
-2. $\alpha$ 是 superkey
-3. $\beta - \alpha$ 中每个属性，都属于某个 candidate key
+2. $\alpha$ 是 **superkey**
+3. $\beta - \alpha$ 中每个属性，都属于某个 **candidate key**
 
 第三条就是对 BCNF 的最小放松。
 
@@ -1194,25 +1194,25 @@ $$
 dept_advisor(s_ID, i_ID, dept_name)
 ```
 
-函数依赖：
+**Functional Dependency**：
 
 $$
 F = \{s\_ID, dept\_name \to i\_ID,\; i\_ID \to dept\_name\}
 $$
 
-候选键有两个：
+**Candidate Key** 有两个：
 
 - `(s_ID, dept_name)`
 - `(i_ID, s_ID)`
 
 **为什么它在 3NF** :
 
-- $s\_ID, dept\_name \to i\_ID$：左边是 superkey
-- $i\_ID \to dept\_name$：右边的 `dept_name` 属于候选键 `(s_ID, dept_name)`
+- $s\_ID, dept\_name \to i\_ID$：左边是 **superkey**
+- $i\_ID \to dept\_name$：右边的 `dept_name` 属于 **Candidate Key** `(s_ID, dept_name)`
 
 所以它满足 3NF。
 
-但它未必在 BCNF，因为 `i_ID` 本身不一定是 superkey。
+但它未必在 BCNF，因为 `i_ID` 本身不一定是 **superkey**。
 
 **Example 2:3NF 也可能仍有冗余**
 
@@ -1230,20 +1230,20 @@ $$
 > 3NF 是折中，不是彻底消除冗余。
 ### 3NF Synthesis Algorithm
 
-3NF 的构造法依赖 **canonical cover** 。直接根据函数依赖去“合成”一组关系模式。
+3NF 的构造法依赖 **canonical cover** 。直接根据 **Functional Dependency** 去“合成”一组 **Relation Schema**。
 
 - 让每条重要依赖都能落在某一个关系里
 - 从而尽量保证 **dependency preserving**
-- 同时再补上 candidate key，保证 **lossless join**
+- 同时再补上 **candidate key**，保证 **lossless join**
 
 算法思路：
 
 1. 先求 $F_c$
    
-   也就是先求函数依赖集 $F$ 的 **canonical cover** 。  
-   这一步的作用是先把依赖集整理成一个“精简但等价”的版本，避免后面因为冗余依赖而生成重复或不必要的关系模式。
+   也就是先求 **Functional Dependency** 集 $F$ 的 **canonical cover** 。  
+   这一步的作用是先把依赖集整理成一个“精简但等价”的版本，避免后面因为冗余依赖而生成重复或不必要的 **Relation Schema**。
 
-2. 对 $F_c$ 中每个依赖 $\alpha \to \beta$，建立一个关系模式 $R_i = \alpha \cup \beta$
+2. 对 $F_c$ 中每个依赖 $\alpha \to \beta$，建立一个 **Relation Schema** $R_i = \alpha \cup \beta$
    
    这一步的含义是：
 
@@ -1252,21 +1252,21 @@ $$
    这样这条依赖就能在单个关系里被直接检查，而不需要通过 join 多个关系才能验证。  
    这正是 **dependency preserving** 的关键来源。
 
-3. 如果当前没有任何一个模式包含原关系的 candidate key，则额外加入一个候选键关系
+3. 如果当前没有任何一个模式包含原关系的 **candidate key**，则额外加入一个 **Candidate Key** 关系
    
-   前两步按依赖生成的关系，不一定会自动包含原关系的某个候选键。  
-   如果分解后的关系中没有任何一个关系包含 candidate key，就可能无法保证无损连接。
+   前两步按依赖生成的关系，不一定会自动包含原关系的某个 **Candidate Key**。  
+   如果分解后的关系中没有任何一个关系包含 **candidate key**，就可能无法保证 **Lossless Join**。
 
    所以这里要额外检查：
 
-   - 是否已经有某个关系包含原关系的 candidate key
-   - 如果没有，就专门加入一个“候选键关系”
+   - 是否已经有某个关系包含原关系的 **candidate key**
+   - 如果没有，就专门加入一个“ **Candidate Key** 关系”
 
    这样做是为了保证整个分解是 **lossless join** 。
 
 4. 可选地删掉被其他关系完全包含的冗余关系
    
-   如果某个关系模式的属性集合完全包含于另一个关系模式中，那它通常就是冗余的，可以删除。  
+   如果某个 **Relation Schema** 的属性集合完全包含于另一个 **Relation Schema** 中，那它通常就是冗余的，可以删除。  
    这一步不会破坏前面的主要性质，但可以让最终分解更简洁。
 
 
@@ -1330,10 +1330,10 @@ return (R1, R2, ..., Ri)
 所以实际设计里常见策略是：
 
 - 能上 BCNF 就优先 BCNF
-- 如果 BCNF 破坏依赖保持且代价太高，就退回 3NF
+- 如果 BCNF 破坏 **Dependency Preservation** 且代价太高，就退回 3NF
 
 
-## Multivalued Dependencies and 4NF
+## **Multivalued Dependencies** and 4NF
 
 ### 为什么 BCNF 还不够
 
@@ -1397,7 +1397,7 @@ $$
 
 #### MVD 的形式定义
 
-设关系模式 $R$，且 $\alpha \subseteq R, \beta \subseteq R$。  
+设 **Relation Schema** $R$，且 $\alpha \subseteq R, \beta \subseteq R$。  
 若在任意合法实例中，只要两个元组在 $\alpha$ 上相同，就可以交换它们的 $\beta$ 与其余部分并仍得到合法元组，则称：
 
 $$
@@ -1436,7 +1436,7 @@ $$
 
 也就是：
 
-> 每个函数依赖都是多值依赖。
+> 每个 **Functional Dependency** 都是 **Multivalued Dependency**。
 
 但反过来不成立。
 
@@ -1445,7 +1445,7 @@ $$
 ### 4NF
 #### 4NF的定义
 
-关系模式 $R$ 关于依赖集 $D$（其中既可有 FD 也可有 MVD）属于 **Fourth Normal Form (4NF)** ，如果对所有属于 $D^+$ 的多值依赖：
+**Relation Schema** $R$ 关于依赖集 $D$（其中既可有 FD 也可有 MVD）属于 **Fourth Normal Form (4NF)** ，如果对所有属于 $D^+$ 的 **Multivalued Dependency**：
 
 $$
 \alpha \twoheadrightarrow \beta
@@ -1454,7 +1454,7 @@ $$
 都满足至少一个条件：
 
 1. 它是 trivial 的，即 $\beta \subseteq \alpha$ 或 $\alpha \cup \beta = R$
-2. $\alpha$ 是 superkey
+2. $\alpha$ 是 **superkey**
 
 注意：
 
@@ -1531,7 +1531,7 @@ $$
 A \twoheadrightarrow B
 $$
 
-且 `A` 不是 superkey，所以违反 4NF。
+且 `A` 不是 **superkey**，所以违反 4NF。
 
 按 4NF 分解算法逐步分解：
 
@@ -1559,7 +1559,7 @@ $$
   A \twoheadrightarrow I
   $$
 
-  且 `A` 不是 `R4` 的 superkey，因此 `R4` 违反 4NF。
+  且 `A` 不是 `R4` 的 **superkey**，因此 `R4` 违反 4NF。
 
 4. 由 $A \twoheadrightarrow I$ 分解 `R4`：
   - `R5(A,I)`（在 4NF）
@@ -1587,7 +1587,7 @@ $$
 D = \{A \to D,\; A \twoheadrightarrow B,\; A \twoheadrightarrow C\}
 $$
 
-候选键是：
+**Candidate Key** 是：
 
 $$
 ABCD
@@ -1623,7 +1623,7 @@ $$
 
 ### R 从哪里来
 
-规范化总是假设“先有一个关系模式 $R$”。
+规范化总是假设“先有一个 **Relation Schema** $R$”。
 
 这个 $R$ 可能来自三种来源：
 
@@ -1678,7 +1678,7 @@ $$
 - 更新更贵
 - 程序员需要自己维护冗余一致性，容易出错
 
-**方案 2：使用 materialized view**
+**方案 2：使用 materialized view（物化视图）**
 
 优点：
 
@@ -1735,9 +1735,9 @@ company_year(company_id, earnings_2012, earnings_2013, earnings_2014)
 - 跨年份计算也别扭
 - 每多一年都要加新列
 - 这其实是 **crosstab（交叉表）** ：把某个属性的取值变成列名
-- crosstab 常见于电子表格与数据分析工具，但不一定适合作为核心事务表结构
+- **crosstab** 常见于电子表格与数据分析工具，但不一定适合作为核心事务表结构
 
-> 规范化理论只处理“依赖导致的冗余”。  
+> **Normalization Theory** 只处理“依赖导致的冗余”。  
 > 它不自动替你解决“数据建模方式是否顺着业务查询习惯、是否便于长期演进”这类问题。
 
 
@@ -1766,7 +1766,7 @@ company_year(company_id, earnings_2012, earnings_2013, earnings_2014)
 
 某一时刻的数据状态叫 **snapshot** 。
 
-如果一个函数依赖是在每个时间点的 snapshot 上都成立，那么它是 **temporal functional dependency** 。
+如果一个 **Functional Dependency** 是在每个时间点的 snapshot 上都成立，那么它是 **temporal functional dependency** 。
 
 记号上可以写成一种“带时间语义的 FD”，其意思是：
 
@@ -1782,26 +1782,26 @@ company_year(company_id, earnings_2012, earnings_2013, earnings_2014)
 - 普通 FD 在整个历史表上未必成立
 - temporal FD 在每个 snapshot 上成立
 
-### Temporal Primary Key
+### Temporal **Primary Key**
 
-在 temporal relation 中，原主键通常不再足够。
+在 temporal relation 中，原 **Primary Key** 通常不再足够。
 
 例如课程历史表中，同一个 `course_id` 可以在不同时段对应多条记录。  
-但也不能简单地把 `(course_id, start, end)` 当主键就结束，因为这样 **无法阻止时间区间重叠** 。
+但也不能简单地把 `(course_id, start, end)` 当 **Primary Key** 就结束，因为这样 **无法阻止时间区间重叠** 。
 
 真正需要的是：
 
-> 若两条元组的主键值相同，则它们的 valid time interval 不能重叠。
+> 若两条元组的 **Primary Key** 值相同，则它们的 valid time interval 不能重叠。
 
 这就是 **temporal primary key** 的核心。
 
-### Temporal Foreign Key
+### Temporal **Foreign Key（外键）**
 
-普通外键只要求：
+普通 **Foreign Key** 只要求：
 
 - 引用值在被引用表中存在
 
-temporal foreign key 还要额外关心：
+temporal **foreign key** 还要额外关心：
 
 - 时间区间是否匹配
 
@@ -1856,7 +1856,7 @@ period for validtime (start, end)
 
 表示 `start, end` 共同定义该元组的有效时间段。
 
-2. Temporal primary key
+2. Temporal **primary key**
 
 例如：
 
@@ -1869,7 +1869,7 @@ primary key (course_id, validtime without overlaps)
 - 相同 `course_id` 的多个版本可以存在
 - 但它们的 validtime 不能重叠
 
-3. Temporal foreign key
+3. Temporal **foreign key**
 
 SQL:2011 也支持这类语义声明。
 
@@ -1877,7 +1877,7 @@ SQL:2011 也支持这类语义声明。
 
 - 真正支持 temporal PK / temporal FK 的数据库并不多
 - IBM DB2、Teradata 有部分支持
-- PostgreSQL 不原生支持 temporal primary key，但可以曲线实现
+- PostgreSQL 不原生支持 temporal **primary key**，但可以曲线实现
 
 #### PostgreSQL workaround
 
@@ -1897,5 +1897,5 @@ exclude (course_id with =, validtime with &&)
 
 - 若 `course_id` 相同，则它们的 `validtime` 不允许 overlap
 
-这相当于手工实现 temporal primary key。
+这相当于手工实现 temporal **primary key**。
 

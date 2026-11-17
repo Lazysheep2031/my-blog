@@ -99,7 +99,7 @@ $$
 
 </details>
 
-### Set Families and Power Sets
+### Set Families and **Power Sets（幂集）**
 
 集合族 $\mathcal S$ 的元素本身是集合。对集合族做并、交，可以写成：
 
@@ -113,7 +113,7 @@ $$
 
 例如，$\mathcal S=\{\{a,b\},\{b,c\},\{c,d\}\}$，则 $\bigcup\mathcal S=\{a,b,c,d\}$，$\bigcap\mathcal S=\varnothing$。若 $\mathcal S=\{\{n\}:n\in\mathbb N\}$，则 $\bigcup\mathcal S=\mathbb N$。
 
-**幂集（Power Set）** 是一个集合的所有子集组成的集合，记作 $2^A$：
+**Power Set** 是一个集合的所有子集组成的集合，记作 $2^A$：
 
 $$
 2^A=\{B:B\subseteq A\}.
@@ -144,9 +144,9 @@ $$
 
 ## Relations and Functions
 
-### Ordered Pairs, Cartesian Products, and Relations
+### **Ordered Pairs（有序对）**, **Cartesian Products（笛卡尔积）**, and Relations
 
-**有序对（Ordered Pair）** 保留位置：
+**Ordered Pair** 保留位置：
 
 $$
 (a,b)=(c,d)\iff a=c\text{ 且 }b=d.
@@ -154,7 +154,7 @@ $$
 
 当 $a\ne b$ 时，$(a,b)\ne(b,a)$；也允许 $(a,a)$。这与集合的无序性、去重性质不同。
 
-**笛卡尔积（Cartesian Product）** 列出两个集合之间所有可能的有序配对：
+**Cartesian Product** 列出两个集合之间所有可能的有序配对：
 
 $$
 A\times B=\{(a,b):a\in A,\ b\in B\}.
@@ -168,13 +168,13 @@ $$
 \end{aligned}
 $$
 
-$A$ 与 $B$ 上的 **二元关系（Binary Relation）** 就是 $A\times B$ 的一个子集：
+$A$ 与 $B$ 上的 **Binary Relation（二元关系）** 就是 $A\times B$ 的一个子集：
 
 $$
 R\subseteq A\times B.
 $$
 
-例如，$\{(1,b),(1,c),(3,d),(9,d)\}$ 是上述笛卡尔积中的一个关系。
+例如，$\{(1,b),(1,c),(3,d),(9,d)\}$ 是上述 **Cartesian Product** 中的一个关系。
 
 “小于”也可以写成关系 $\{(i,j)\in\mathbb N^2:i<j\}$。
 
@@ -186,7 +186,7 @@ $$
 
 ### Functions
 
-**函数（Function）** $f:A\to B$ 是一个满足特殊条件的二元关系：
+**函数（Function）** $f:A\to B$ 是一个满足特殊条件的 **Binary Relation**：
 
 $$
 f\subseteq A\times B,\qquad
@@ -207,25 +207,25 @@ $$
 
 若输入是元组，通常省去一层括号。例如 $f:\mathbb N^2\to\mathbb N$，$f(m,n)=m+n$。
 
-### Injections, Surjections, and Bijections
+### **Injections（单射）**, **Surjections（满射）**, and **Bijections（双射）**
 
 | 类型 | 定义 | 检查方式 |
 | --- | --- | --- |
-| 单射（Injection） | $a\ne a'\Rightarrow f(a)\ne f(a')$ | 不同输入会不会合并到同一个输出？ |
-| 满射（Surjection） | $\forall b\in B,\ \exists a\in A,\ f(a)=b$ | 是否覆盖整个目标集合 $B$？ |
-| 双射（Bijection） | 同时是单射和满射 | 两边元素一一对应，无重复也无遗漏 |
+| **Injection** | $a\ne a'\Rightarrow f(a)\ne f(a')$ | 不同输入会不会合并到同一个输出？ |
+| **Surjection** | $\forall b\in B,\ \exists a\in A,\ f(a)=b$ | 是否覆盖整个目标集合 $B$？ |
+| **Bijection** | 同时是 **Injection** 和 **Surjection** | 两边元素一一对应，无重复也无遗漏 |
 
-证明单射时，也可以从 $f(a)=f(a')$ 推出 $a=a'$。
+证明 **Injection** 时，也可以从 $f(a)=f(a')$ 推出 $a=a'$。
 
-### Inverse Relations and Functions
+### **Inverse Relations（逆关系）** and Functions
 
-对任意 $R\subseteq A\times B$，交换每个有序对的两个位置，得到 **逆关系** ：
+对任意 $R\subseteq A\times B$，交换每个 **Ordered Pair** 的两个位置，得到 **Inverse Relation** ：
 
 $$
 R^{-1}=\{(b,a):(a,b)\in R\}\subseteq B\times A.
 $$
 
-逆关系始终可以定义，但 $f^{-1}$ 要成为从整个 $B$ 到 $A$ 的函数，需要 $f:A\to B$ 是双射：单射保证反向输出唯一，满射保证每个 $b\in B$ 都有反向输出。
+**Inverse Relation** 始终可以定义，但 $f^{-1}$ 要成为从整个 $B$ 到 $A$ 的函数，需要 $f:A\to B$ 是 **Bijection**： **Injection** 保证反向输出唯一， **Surjection** 保证每个 $b\in B$ 都有反向输出。
 
 此时：
 
@@ -233,7 +233,7 @@ $$
 f^{-1}(f(a))=a,\qquad f(f^{-1}(b))=b.
 $$
 
-> $\{a\in A:f(a)=b\}$ 写成 $f^{-1}(b)$，此时返回的是一个集合，可能为空或包含多个元素。要区分“集合值的逆像”与“双射的逆函数”。
+> $\{a\in A:f(a)=b\}$ 写成 $f^{-1}(b)$，此时返回的是一个集合，可能为空或包含多个元素。要区分“集合值的逆像”与“ **Bijection** 的逆函数”。
 
 <details>
 <summary>自然同构与“关系变成集合值函数”</summary>
@@ -283,15 +283,15 @@ $$
 >$Q\circ R=\{(a,c):\exists b,\ (a,b)\in Q\land(b,c)\in R\}$，即先 $Q$ 后 $R$；上述 $h$ 写作 $f\circ g$。
 
 
-## Types of Binary Relations
+## Types of **Binary Relations**
 
-### Graphs and Adjacency Matrices
+### Graphs and **Adjacency Matrices（邻接矩阵）**
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260915112310.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
-考虑 $R\subseteq A\times A$。用 **有向图（Directed Graph）** 表示时，每个元素对应一个节点；$(a,b)\in R$ 对应一条从 $a$ 指向 $b$ 的边。$(a,a)$ 对应自环。这里不允许同一方向上的平行边。
+考虑 $R\subseteq A\times A$。用 **Directed Graph（有向图）** 表示时，每个元素对应一个节点；$(a,b)\in R$ 对应一条从 $a$ 指向 $b$ 的边。$(a,a)$ 对应自环。这里不允许同一方向上的平行边。
 
-**邻接矩阵（Adjacency Matrix）** 。固定节点顺序 $a_1,\ldots,a_n$ 后，按关系定义写为：
+**Adjacency Matrix** 。固定节点顺序 $a_1,\ldots,a_n$ 后，按关系定义写为：
 
 $$
 M_{ij}=\begin{cases}
@@ -314,11 +314,11 @@ $$
 > **反对称不等于“不是对称关系”。** 等号关系既对称又反对称；也有关系既不对称，又不反对称。
 > “有相同父亲”具有自反性、对称性；“是父亲”具有反对称性；“是祖先”具有传递性。$\mathbb N$ 上的 $\le$ 同时自反、反对称、传递。
 
-### Equivalence Relations and Classes
+### **Equivalence Relations（等价关系）** and Classes
 
-**等价关系（Equivalence Relation）** 同时满足自反、对称、传递。
+**Equivalence Relation** 同时满足自反、对称、传递。
 
-元素 $a$ 所在的 **等价类（Equivalence Class）** 为：
+元素 $a$ 所在的 **Equivalence Class（等价类）** 为：
 
 $$
 [a]=\{b\in A:(a,b)\in R\}.
@@ -328,7 +328,7 @@ $$
 
 **模 7 同余**
 
-在 $\mathbb N$ 上定义 $i\sim j$ 当且仅当 $7\mid(i-j)$。证明它是等价关系。
+在 $\mathbb N$ 上定义 $i\sim j$ 当且仅当 $7\mid(i-j)$。证明它是 **Equivalence Relation**。
 
 <details>
 <summary>展开证明</summary>
@@ -339,19 +339,19 @@ $$
 
 **传递** ：若 $i-j=7k$、$j-\ell=7m$，则 $i-\ell=7(k+m)$。
 
-所以该关系是等价关系。按定义得到七个等价类：
+所以该关系是 **Equivalence Relation**。按定义得到七个 **Equivalence Class**：
 
 $$
 [r]=\{r,r+7,r+14,\ldots\},\qquad r=0,1,\ldots,6.
 $$
 
-例如，$[1]=[8]=[15]$。 **等价类的名称可以选不同代表元，但表示同一块集合。**
+例如，$[1]=[8]=[15]$。 **Equivalence Class的名称可以选不同代表元，但表示同一块集合。**
 
 </details>
 
-#### Theorem: Equivalence Classes Form a Partition
+#### Theorem: **Equivalence Classes** Form a Partition
 
-非空集合 $A$ 上的等价关系 $R$，其所有不同等价类构成 $A$ 的划分。
+非空集合 $A$ 上的 **Equivalence Relation** $R$，其所有不同 **Equivalence Class** 构成 $A$ 的划分。
 <details>
 <summary>展开证明</summary>
 
@@ -359,33 +359,33 @@ $$
 
 **非空** ：自反性给出 $aRa$，所以 $a\in[a]$。
 
-**不同等价类不相交** ：设 $c\in[a]\cap[b]$，则 $aRc$、$bRc$。由对称性和传递性得到 $aRb$、$bRa$。
+**不同Equivalence Class不相交** ：设 $c\in[a]\cap[b]$，则 $aRc$、$bRc$。由对称性和传递性得到 $aRb$、$bRa$。
 
 对任意 $x\in[a]$，有 $aRx$；由 $bRa$ 与 $aRx$ 得 $bRx$，所以 $x\in[b]$，即 $[a]\subseteq[b]$。同理 $[b]\subseteq[a]$，故 $[a]=[b]$。
 
-因此， **两个等价类只要有一个公共元素，就完全相同。**
+因此， **两个Equivalence Class只要有一个公共元素，就完全相同。**
 
-**覆盖** ：每个 $a\in A$ 都属于自己的等价类 $[a]$，所以 $\bigcup\Pi=A$。
+**覆盖** ：每个 $a\in A$ 都属于自己的 **Equivalence Class** $[a]$，所以 $\bigcup\Pi=A$。
 
 </details>
 
-反过来，给定划分 $\Pi$，定义“$a,b$ 在同一块中”即可得到等价关系。因此， **等价关系与划分可以相互确定** 。
+反过来，给定划分 $\Pi$，定义“$a,b$ 在同一块中”即可得到 **Equivalence Relation**。因此， **Equivalence Relation与划分可以相互确定** 。
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260915112928.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
 ### Orders and Extremal Elements
 
-**偏序（Partial Order）** 同时满足自反、反对称、传递。用 $a\preceq b$ 表示 $(a,b)\in R$。
+**Partial Order（偏序）** 同时满足自反、反对称、传递。用 $a\preceq b$ 表示 $(a,b)\in R$。
 
-偏序不要求任意两个元素都可比较；若进一步满足
+**Partial Order** 不要求任意两个元素都可比较；若进一步满足
 
 $$
 \forall a,b\in A,\quad a\preceq b\text{ 或 }b\preceq a,
 $$
 
-就得到 **全序（Total Order）** 。
+就得到 **Total Order（全序）** 。
 
-“祖先关系”在约定每个人也是自己的祖先后，成为偏序；不同支系的人未必可比较。自然数上的 $\le$ 是全序。
+“祖先关系”在约定每个人也是自己的祖先后，成为 **Partial Order**；不同支系的人未必可比较。自然数上的 $\le$ 是 **Total Order**。
 
 | 概念 | 条件 | 含义 |
 | --- | --- | --- |
@@ -397,10 +397,10 @@ $$
 “极小”只排除更小者，不要求与所有其他元素可比较；“最小”提出了更强的要求。
 
 :::NOTE
-例如，将整除偏序限制在 $\{2,3,6\}$：令 $a\preceq b\iff a\mid b$。极小元素有 2、3 两个，最小元素不存在；6 同时是极大元素和最大元素。
+例如，将整除 **Partial Order** 限制在 $\{2,3,6\}$：令 $a\preceq b\iff a\mid b$。极小元素有 2、3 两个，最小元素不存在；6 同时是极大元素和最大元素。
 :::
 
-> **非空有限偏序至少有一个极小元素；由对偶定义也至少有一个极大元素。** 无限偏序没有这一保证，例如整数上的 $\le$ 没有极小元素。全序最多有一个极小元素；若存在，它也是最小元素。
+> **非空有限Partial Order至少有一个极小元素；由对偶定义也至少有一个极大元素。** 无限 **Partial Order** 没有这一保证，例如整数上的 $\le$ 没有极小元素。 **Total Order** 最多有一个极小元素；若存在，它也是最小元素。
 
 ### Paths and Cycles
 
@@ -412,36 +412,36 @@ $$
 
 ## Finite and Infinite Sets
 
-### Cardinality and Bijections
+### **Cardinality（基数）** and **Bijections**
 
-集合 $A,B$ **等势（Equinumerous）** ，表示存在双射 $f:A\to B$，记作 $|A|=|B|$。这里 $|A|$ 表示集合的 **基数（Cardinality）** 。
+集合 $A,B$ **Equinumerous（等势）** ，表示存在 **Bijection** $f:A\to B$，记作 $|A|=|B|$。这里 $|A|$ 表示集合的 **Cardinality** 。
 
-有限集的基数是元素个数；无限集也用双射比较大小。
+有限集的 **Cardinality** 是元素个数；无限集也用 **Bijection** 比较大小。
 
 #### Example
 
-**17 的非负整数倍与完全平方数等势**
+**17 的非负整数倍与完全平方数Equinumerous**
 
 $$
 f(17n)=n^2,\qquad n\in\mathbb N
 $$
 
-一一对应，所以两者等势。
+一一对应，所以两者 **Equinumerous**。
 
 | 类型 | 定义 |
 | --- | --- |
-| 有限集 | 与某个 $\{1,\ldots,n\}$ 等势；$n=0$ 时为空集 |
-| 可数无限集 | 与 $\mathbb N$ 等势 |
-| 可数集（Countable Set） | 有限集或可数无限集 |
-| 不可数集（Uncountable Set） | 不是可数集的集合 |
+| 有限集 | 与某个 $\{1,\ldots,n\}$ **Equinumerous**；$n=0$ 时为空集 |
+| **Countably Infinite Set（可数无限集）** | 与 $\mathbb N$ **Equinumerous** |
+| **Countable Set（可数集）** | 有限集或 **Countably Infinite Set** |
+| **Uncountable Set（不可数集）** | 不是 **Countable Set** 的集合 |
 
-基数比较的写法：若存在单射 $A\to B$，记 $|A|\le|B|$；若同时不等势，记 $|A|<|B|$。
+**Cardinality** 比较的写法：若存在 **Injection** $A\to B$，记 $|A|\le|B|$；若同时不 **Equinumerous**，记 $|A|<|B|$。
 
 **证明可数无限，关键是给出无遗漏的一一编号；证明不可数，关键是说明任何声称完整的编号都会遗漏对象。**
 
-### Dovetailing
+### **Dovetailing（交错枚举）**
 
-**交错枚举（Dovetailing）** : 将多个可数集合的枚举过程交错进行，
+**Dovetailing** : 将多个 **Countable Set** 合的枚举过程交错进行，
 
 若 $A=\{a_0,a_1,\ldots\}$、$B=\{b_0,b_1,\ldots\}$、$C=\{c_0,c_1,\ldots\}$ 两两不交，可枚举为：
 
@@ -451,13 +451,13 @@ $$
 
 这样不会因为一直枚举 $A$ 而永远轮不到 $B,C$。集合有交叠时，跳过已经列出的重复元素即可。
 
-对于可数无限多个可数无限集，需要每轮只处理有限多个位置，并让各位置最终都被访问。由此得到： **可数无限多个可数无限集的并仍然可数无限。**
+对于可数无限多个 **Countably Infinite Set**，需要每轮只处理有限多个位置，并让各位置最终都被访问。由此得到： **可数无限多个Countably Infinite Set的并仍然可数无限。**
 
 #### Example
 
 **证明自然数对集合可数无限**
 
-证明 $\mathbb N\times\mathbb N$ 与 $\mathbb N$ 等势。
+证明 $\mathbb N\times\mathbb N$ 与 $\mathbb N$ **Equinumerous**。
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260915122254.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
@@ -478,7 +478,7 @@ $$
 
 
 <details>
-<summary>展开双射公式与编号推导</summary>
+<summary>展开<strong>Bijection</strong>公式与编号推导</summary>
 
 令 $s=i+j$，编号从 0 开始。在和为 $s$ 的一组之前，已经有
 
@@ -493,7 +493,7 @@ f(i,j)=\frac{(i+j)(i+j+1)}2+i
       =\frac{(i+j)^2+3i+j}{2}.
 $$
 
-不同组对应互不重叠的连续编号区间；同组中不同的 $i$ 对应不同编号，因此是单射。所有区间首尾相接，覆盖全部自然数，因此是满射。
+不同组对应互不重叠的连续编号区间；同组中不同的 $i$ 对应不同编号，因此是 **Injection**。所有区间首尾相接，覆盖全部自然数，因此是 **Surjection**。
 
 </details>
 
@@ -503,10 +503,10 @@ $$
 
 **实数集是否比开区间更大？**
 
-$|\mathbb R|>|(0,1)|$ 是否成立？ **两者等势。**
+$|\mathbb R|>|(0,1)|$ 是否成立？ **两者Equinumerous。**
 
 <details>
-<summary>展开双射构造</summary>
+<summary>展开<strong>Bijection</strong>构造</summary>
 
 给出函数：
 
@@ -523,7 +523,7 @@ $$
 f^{-1}(y)=\tan\!\left(\pi\left(y-\frac12\right)\right),\qquad 0<y<1.
 $$
 
-所以 $f$ 是双射，$|\mathbb R|=|(0,1)|$。区间是否有界与基数大小需要分别判断。
+所以 $f$ 是 **Bijection**，$|\mathbb R|=|(0,1)|$。区间是否有界与 **Cardinality** 大小需要分别判断。
 
 </details>
 
@@ -533,7 +533,7 @@ $$
 
 旅馆有编号 $1,2,3,\ldots$ 的无限多个房间，且全部住满。新来一位客人时，让原来住在 $n$ 号房的客人移到 $n+1$ 号房，腾出 1 号房给新客人。
 
-### Continuum Hypothesis
+### **Continuum Hypothesis（连续统假设）**
 
 讨论自然数与实数之间是否存在中间大小的无限集合。记
 
@@ -541,15 +541,15 @@ $$
 |\mathbb N|=\aleph_0,\qquad |\mathbb R|=\mathfrak c.
 $$
 
-**连续统假设（Continuum Hypothesis）** 断言不存在集合 $A$ 满足 $\aleph_0<|A|<\mathfrak c$。
+**Continuum Hypothesis** 断言不存在集合 $A$ 满足 $\aleph_0<|A|<\mathfrak c$。
 
-$\mathfrak c=2^{\aleph_0}$，在连续统假设成立时有 $\mathfrak c=\aleph_1$。
+$\mathfrak c=2^{\aleph_0}$，在 **Continuum Hypothesis** 成立时有 $\mathfrak c=\aleph_1$。
 
 ## Proof Techniques
 
-### Mathematical Induction
+### **Mathematical Induction（数学归纳法）**
 
-**数学归纳法（Mathematical Induction）** 将无限多个命题的证明组织为“起点成立 + 从已有情形推出下一情形”。
+**Mathematical Induction** 将无限多个命题的证明组织为“起点成立 + 从已有情形推出下一情形”。
 
 形式为：若 $A\subseteq\mathbb N$ 满足
 
@@ -593,7 +593,7 @@ $$
 
 #### Example
 
-**幂集的大小**
+**Power Set的大小**
 
 证明任意有限集合 $A$ 都满足 $|2^A|=2^{|A|}$。
 
@@ -627,9 +627,9 @@ $$
 
 </details>
 
-### Pigeonhole Principle
+### **Pigeonhole Principle（鸽巢原理）**
 
-**鸽巢原理（Pigeonhole Principle）** ：若 $A,B$ 为有限集，且 $|A|>|B|$，则不存在从 $A$ 到 $B$ 的单射。
+**Pigeonhole Principle** ：若 $A,B$ 为有限集，且 $|A|>|B|$，则不存在从 $A$ 到 $B$ 的 **Injection**。
 
 换句话说，只要函数 $f:A\to B$ 存在，就必有两个不同元素被映到同一个目标。
 
@@ -638,7 +638,7 @@ $$
 
 对 $|B|$ 归纳。
 
-**基础情形** ：$|B|=0$，而 $|A|>|B|$，所以 $A$ 非空。从非空集合到空集的函数都不存在，更不可能存在单射。
+**基础情形** ：$|B|=0$，而 $|A|>|B|$，所以 $A$ 非空。从非空集合到空集的函数都不存在，更不可能存在 **Injection**。
 
 **归纳步骤** ：设结论在目标集合大小不超过 $n$ 时成立。现有 $|B|=n+1$，$|A|>|B|$，并假设给定函数 $f:A\to B$。
 
@@ -650,7 +650,7 @@ $$
 g:A-\{a\}\to B-\{f(a)\}.
 $$
 
-仍有 $|A-\{a\}|>|B-\{f(a)\}|=n$。由归纳假设，$g$ 不是单射，所以 $f$ 也不是单射。
+仍有 $|A-\{a\}|>|B-\{f(a)\}|=n$。由归纳假设，$g$ 不是 **Injection**，所以 $f$ 也不是 **Injection**。
 
 </details>
 
@@ -665,7 +665,7 @@ $$
 
 取一条节点数最少的路径 $(a_1,\ldots,a_n)$，其中 $a_1=a$、$a_n=b$。
 
-若 $n>|A|$，把路径中的 $n$ 个位置映到 $A$ 中相应节点，由鸽巢原理存在 $i<j$，使得 $a_i=a_j$。
+若 $n>|A|$，把路径中的 $n$ 个位置映到 $A$ 中相应节点，由 **Pigeonhole Principle** 存在 $i<j$，使得 $a_i=a_j$。
 
 删掉两次出现之间的绕行，得到
 
@@ -679,9 +679,9 @@ $$
 
 </details>
 
-### Diagonalization
+### **Diagonalization（对角化）**
 
-**对角化（Diagonalization）** 的核心构造是： **针对第 $i$ 个候选对象，在第 $i$ 个位置故意与它不同。** 这样得到的新对象不可能等于候选列表中的任何一个。
+**Diagonalization** 的核心构造是： **针对第 $i$ 个候选对象，在第 $i$ 个位置故意与它不同。** 这样得到的新对象不可能等于候选列表中的任何一个。
 
 设 $R\subseteq A\times A$，定义各行对应的集合
 
@@ -715,12 +715,12 @@ $$
 因此 $D=\{a,d,f\}$。它与第 $a$ 行在元素 $a$ 上不同，与第 $b$ 行在元素 $b$ 上不同，以此类推。
 
 
-#### Theorem: Uncountability of the Power Set of N
+#### Theorem: Uncountability of the **Power Set** of N
 
 $2^{\mathbb N}$ 不可数。
 
 <details>
-<summary>展开对角化证明</summary>
+<summary>展开<strong>Diagonalization</strong>证明</summary>
 
 假设所有自然数子集都能枚举为 $R_0,R_1,R_2,\ldots$，构造
 
@@ -762,9 +762,9 @@ $r$ 的第 $i$ 位与 $r_i$ 的第 $i$ 位不同，因此 $r$ 不等于列表中
 
 </details>
 
-## Closures
+## **Closures（闭包）**
 
-### Closure Properties
+### **Closure Properties（封闭性）**
 
 设 $D$ 是讨论对象的全集，$R\subseteq D^{n+1}$ 是一条具有 $n$ 个输入、一个输出位置的关系。若 $B\subseteq D$ 满足
 
@@ -773,26 +773,26 @@ b_1,\ldots,b_n\in B\ \land\ (b_1,\ldots,b_n,b_{n+1})\in R
 \quad\Rightarrow\quad b_{n+1}\in B,
 $$
 
-就称 $B$ **对 $R$ 封闭（Closed under $R$）** 。对一组这样的关系封闭，称为一个闭包性质。
+就称 $B$ **对 $R$ 封闭（Closed under $R$）** 。对一组这样的关系封闭，称为一个 **Closure Property**。
 
 **允许的规则以集合内元素为输入时，所有要求得到的结果也已经在集合内。**
 
-| 例子 | 封闭性／闭包 |
+| 例子 | **Closure Property** ／ **Closure** |
 | --- | --- |
 | 自然数 | 对加法、乘法封闭；对减法不封闭，例如 $0-1\notin\mathbb N$ |
-| 从 $\{0,1\}$ 出发，不断相加 | 得到的闭包是 $\mathbb N$ |
-| 从 $\mathbb N$ 出发，不断相减 | 得到的闭包是整数集 $\mathbb Z$ |
+| 从 $\{0,1\}$ 出发，不断相加 | 得到的 **Closure** 是 $\mathbb N$ |
+| 从 $\mathbb N$ 出发，不断相减 | 得到的 **Closure** 是整数集 $\mathbb Z$ |
 | 从某人出发，不断加入已有成员的父母 | 得到包含本人在内的祖先集合 |
 
-若给定初始集合 $A\subseteq D$，它在这些规则下的 **闭包（Closure）** 是： **包含 $A$、满足指定封闭性，并且没有多余元素的最小集合。** 
+若给定初始集合 $A\subseteq D$，它在这些规则下的 **Closure** 是： **包含 $A$、满足指定Closure Property，并且没有多余元素的最小集合。** 
 
-*封闭性描述一个集合是否已经满足规则；闭包描述从指定初始集合出发需要补全成什么。*
+* **Closure Property** 描述一个集合是否已经满足规则； **Closure** 描述从指定初始集合出发需要补全成什么。*
 
-### Existence and Uniqueness of Closures
+### Existence and Uniqueness of **Closures**
 
 **存在且唯一**
 
-对任意由上述关系定义的闭包性质 $P$，以及 $A\subseteq D$，存在唯一最小的 $B$，使得 $A\subseteq B$ 且 $B$ 满足 $P$。
+对任意由上述关系定义的 **Closure Property** $P$，以及 $A\subseteq D$，存在唯一最小的 $B$，使得 $A\subseteq B$ 且 $B$ 满足 $P$。
 
 <details>
 <summary>展开证明</summary>
@@ -812,18 +812,18 @@ $D$ 本身就是候选集合，所以 $\mathcal S$ 非空。
 
 </details>
 
-### Transitive and Reflexive Transitive Closures
+### Transitive and Reflexive Transitive **Closures**
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260915125602.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
 对 $R\subseteq A\times A$，令 $I_A=\{(a,a):a\in A\}$。
 
-| 闭包 | 要满足的性质 | 图上的含义 |
+| **Closure** | 要满足的性质 | 图上的含义 |
 | --- | --- | --- |
-| 自反闭包 | 自反 | $R\cup I_A$ |
-| 对称闭包 | 对称 | $R\cup R^{-1}$ |
-| 传递闭包 $R^+$ | 传递 | 加入原图中通过至少一条边可达的有序对 |
-| 自反传递闭包 $R^*$ | 自反、传递 | 允许不经过边的到自身路径，故 $R^*=R^+\cup I_A$ |
+| **Reflexive Closure（自反闭包）** | 自反 | $R\cup I_A$ |
+| 对称 **Closure** | 对称 | $R\cup R^{-1}$ |
+| **Transitive Closure（传递闭包）** $R^+$ | 传递 | 加入原图中通过至少一条边可达的 **Ordered Pair** |
+| **Reflexive Transitive Closure（自反传递闭包）** $R^*$ | 自反、传递 | 允许不经过边的到自身路径，故 $R^*=R^+\cup I_A$ |
 
 $$
 R\subseteq R^+,\qquad R^+\text{ 传递},\qquad
@@ -839,21 +839,21 @@ R^*=R^+\cup\{(a,a),(b,b),(c,c)\}.
 $$
 
 <details>
-<summary>展开证明：为什么“所有可达对”恰好是自反传递闭包？</summary>
+<summary>展开证明：为什么“所有可达对”恰好是<strong>Reflexive Transitive Closure</strong>？</summary>
 
 令 $S=\{(a,b):\text{在 }R\text{ 中存在从 }a\text{ 到 }b\text{ 的路径}\}$，允许单节点路径。
 
 原有边给出路径，所以 $R\subseteq S$；单节点路径保证自反；两段路径可以接起来，保证传递。
 
-再取任意包含 $R$ 的自反、传递关系 $Q$。对一条 $R$ 中的路径逐步使用传递性，其起点到终点的有序对必在 $Q$ 中；单节点路径对应的有序对由自反性保证。因此 $S\subseteq Q$。
+再取任意包含 $R$ 的自反、传递关系 $Q$。对一条 $R$ 中的路径逐步使用传递性，其起点到终点的 **Ordered Pair** 必在 $Q$ 中；单节点路径对应的 **Ordered Pair** 由自反性保证。因此 $S\subseteq Q$。
 
 $S$ 满足所有条件且包含于每个候选关系，故 $S=R^*$。
 
 </details>
 
-### Closure Algorithms and Complexity
+### **Closure** Algorithms and Complexity
 
-三个求有限关系 $R^*$ 的算法。令 $n=|A|$，把检查、插入一个有序对视为基本操作。
+三个求有限关系 $R^*$ 的算法。令 $n=|A|$，把检查、插入一个 **Ordered Pair** 视为基本操作。
 
 | 方法 | 核心思路 | 时间上界 |
 | --- | --- | --- |
@@ -872,7 +872,7 @@ $$
 
 则 $g\in O(f)$。
 
-当 $f\in O(g)$ 且 $g\in O(f)$ 时，将它们视为同一增长阶。这个关系具有自反性、对称性、传递性，因而也是一个等价关系。例如，若
+当 $f\in O(g)$ 且 $g\in O(f)$ 时，将它们视为同一增长阶。这个关系具有自反性、对称性、传递性，因而也是一个 **Equivalence Relation**。例如，若
 
 $$
 f(n)\le c g(n)+d,\qquad g(n)\le c'h(n)+d',
@@ -914,7 +914,7 @@ C ← R ∪ I_A
 返回 C
 ```
 
-至多补入 $n^2$ 个有序对，每次搜索检查至多 $n^3$ 个三元组，总上界为 $O(n^5)$。
+至多补入 $n^2$ 个 **Ordered Pair**，每次搜索检查至多 $n^3$ 个三元组，总上界为 $O(n^5)$。
 
 正确性需要两面：终止时已经自反、传递且包含 $R$；每条新增边又来自原图中真实路径的拼接，因此不会超出 $R^*$。
 
@@ -932,7 +932,7 @@ for j = 1, ..., n:
 
 最外层枚举的是 **中间节点 $a_j$** 。将路径中间节点的最大编号称为路径的秩；无中间节点的路径秩为 0。
 
-归纳不变式：第 $j$ 轮结束时，$C$ 恰好包含那些存在一条路径、且路径中间节点都来自 $\{a_1,\ldots,a_j\}$ 的有序对。
+归纳不变式：第 $j$ 轮结束时，$C$ 恰好包含那些存在一条路径、且路径中间节点都来自 $\{a_1,\ldots,a_j\}$ 的 **Ordered Pair**。
 
 第 $j$ 轮中新允许的路径可以在 $a_j$ 处分成两段，两段内部只用编号更小的中间节点，因而前一轮已经知道两端分别可达 $a_j$。反过来，通过 $a_j$ 拼接也只会形成允许的路径。出现重复节点时，先删去绕行即可。
 
@@ -944,45 +944,45 @@ $$
 a_1\to a_4\to a_3\to a_2.
 $$
 
-反复补边法依次加入 $(a_1,a_3)$、$(a_1,a_2)$、$(a_4,a_2)$；Warshall 算法在 $j=3$ 时加入 $(a_4,a_2)$，在 $j=4$ 时加入其余两对。加上初始化的自环，两者得到同一闭包。
+反复补边法依次加入 $(a_1,a_3)$、$(a_1,a_2)$、$(a_4,a_2)$；Warshall 算法在 $j=3$ 时加入 $(a_4,a_2)$，在 $j=4$ 时加入其余两对。加上初始化的自环，两者得到同一 **Closure**。
 
 </details>
 
 <details>
-<summary>展开一般有限闭包的计算</summary>
+<summary>展开一般有限<strong>Closure</strong>的计算</summary>
 
 将反复补边推广为：从 $B=A$ 开始，只要某条规则的全部输入已在 $B$ 中、输出尚未加入，就把该输出加入 $B$；直到没有任何规则需要新增元素。
 
 若 $D$ 有 $n$ 个元素，每次成功迭代至少增加一个元素，成功迭代次数至多为 $n$。每次全量检查 $k$ 个关系、每个关系的元数至多为 $r$，朴素扫描给出 $O(k n^r)$ 的单轮上界，因此总上界为 $O(k n^{r+1})$。固定 $k,r$ 时就是多项式时间；对固定关系组给出 $O(n^{r+1})$。
 
-终止时满足所有规则，且只加入规则要求的结果，因此得到最小闭包。 **多项式上界以规则数和元数固定为前提。**
+终止时满足所有规则，且只加入规则要求的结果，因此得到最小 **Closure**。 **多项式上界以规则数和元数固定为前提。**
 
 </details>
 
-## Alphabets, Strings, and Languages
+## **Alphabets（字母表）**, **Strings（字符串）**, and Languages
 
-### Alphabets and Strings
+### **Alphabets** and **Strings**
 
-**字母表（Alphabet）** $\Sigma$ 是有限的符号集合，例如 $\{0,1\}$、$\{a,b,\ldots,z\}$。
+**Alphabet** $\Sigma$ 是有限的符号集合，例如 $\{0,1\}$、$\{a,b,\ldots,z\}$。
 
-**字符串（String）** 是字母表中符号组成的有限序列。顺序与重复次数都要保留，因此 `ab` 与 `ba` 不同，`a` 与 `aa` 也不同。
+**String** 是 **Alphabet** 中符号组成的有限序列。顺序与重复次数都要保留，因此 `ab` 与 `ba` 不同，`a` 与 `aa` 也不同。
 
 | 记号 | 含义 | 例子 |
 | --- | --- | --- |
 | $e$ | 空串，没有任何符号 | $e$ |
-| $\lvert w\rvert$ | 字符串长度 | $\lvert101\rvert=3$，$\lvert e\rvert=0$ |
-| $\Sigma^n$ | 所有长度为 $n$ 的字符串 | $\{0,1\}^2=\{00,01,10,11\}$ |
-| $\Sigma^*$ | 所有有限长度字符串，包括空串 | $\bigcup_{n\ge0}\Sigma^n$ |
+| $\lvert w\rvert$ | **String** 长度 | $\lvert101\rvert=3$，$\lvert e\rvert=0$ |
+| $\Sigma^n$ | 所有长度为 $n$ 的 **String** | $\{0,1\}^2=\{00,01,10,11\}$ |
+| $\Sigma^*$ | 所有有限长度 **String**，包括空串 | $\bigcup_{n\ge0}\Sigma^n$ |
 
-符号 $a$ 与长度为 1 的字符串 `a`，通常不作区分。一个字符串也可以看作位置到符号的函数 $w:\{1,\ldots,|w|\}\to\Sigma$。
+符号 $a$ 与长度为 1 的 **String** `a`，通常不作区分。一个 **String** 也可以看作位置到符号的函数 $w:\{1,\ldots,|w|\}\to\Sigma$。
 
-例如，`accordion` 的第 2、3 个位置都是 `c`：它们是同一个符号的两次 **出现** ，位置不同。若 $|\Sigma|=k$，长度恰为 $n$ 的字符串共有 $k^n$ 个。
+例如，`accordion` 的第 2、3 个位置都是 `c`：它们是同一个符号的两次 **出现** ，位置不同。若 $|\Sigma|=k$，长度恰为 $n$ 的 **String** 共有 $k^n$ 个。
 
-**每个字符串都有限长，但允许的长度没有统一上限，因而字符串的全体可以无限。**
+**每个String都有限长，但允许的长度没有统一上限，因而String的全体可以无限。**
 
-### Concatenation, Substrings, Prefixes, and Suffixes
+### Concatenation, **Substrings（子串）**, **Prefixes（前缀）**, and **Suffixes（后缀）**
 
-字符串的 **连接（Concatenation）** $xy$ 或 $x\circ y$，表示先写 $x$，再写 $y$。例如：
+**String** 的 **连接（Concatenation）** $xy$ 或 $x\circ y$，表示先写 $x$，再写 $y$。例如：
 
 $$
 01\circ001=01001,\qquad
@@ -999,17 +999,17 @@ $$
 
 | 概念 | 条件 | 例子 |
 | --- | --- | --- |
-| 子串（Substring） | $w=xvy$ | `road` 是 `broader` 的子串 |
-| 前缀（Prefix） | $w=vy$ | `road` 是 `roadrunner` 的前缀 |
-| 后缀（Suffix） | $w=xv$ | `road` 是 `abroad` 的后缀 |
+| **Substring** | $w=xvy$ | `road` 是 `broader` 的 **Substring** |
+| **Prefix** | $w=vy$ | `road` 是 `roadrunner` 的 **Prefix** |
+| **Suffix** | $w=xv$ | `road` 是 `abroad` 的 **Suffix** |
 
-这里 $x,y$ 可以为空串，所以 $e$ 与 $w$ 自身都是 $w$ 的子串，也都是其前缀、后缀。
+这里 $x,y$ 可以为空串，所以 $e$ 与 $w$ 自身都是 $w$ 的 **Substring**，也都是其 **Prefix**、 **Suffix**。
 
-**子串对应连续的一段位置；同一子串的多次出现允许重叠。** `ababab` 中，`ab` 出现 3 次，`abab` 出现 2 次。
+**Substring对应连续的一段位置；同一Substring的多次出现允许重叠。** `ababab` 中，`ab` 出现 3 次，`abab` 出现 2 次。
 
-### String Powers and Reversal
+### **String** Powers and Reversal
 
-字符串的幂通过归纳定义：
+**String** 的幂通过归纳定义：
 
 $$
 w^0=e,\qquad w^{i+1}=w^i w\quad(i\ge0).
@@ -1029,7 +1029,7 @@ $$
 
 **连接后的反转**
 
-证明对任意字符串 $w,x$，
+证明对任意 **String** $w,x$，
 
 $$
 (wx)^R=x^Rw^R.
@@ -1061,7 +1061,7 @@ $$
 
 ### Languages
 
-字母表 $\Sigma$ 上的 **语言（Language）** 是 $\Sigma^*$ 的任意子集：
+**Alphabet** $\Sigma$ 上的 **语言（Language）** 是 $\Sigma^*$ 的任意子集：
 
 $$
 L\subseteq\Sigma^*.
@@ -1076,11 +1076,11 @@ $\varnothing$、$\Sigma$、$\Sigma^*$ 都是语言。有限语言可以逐项列
 | $\{w\in\{0,1\}^*:w\text{ 的 0、1 数量相等}\}$ | 只限制数量，不限制排列方式 |
 | $\{w\in\Sigma^*:w=w^R\}$ | 回文串组成的语言 |
 
-**语言是否有限，看它有多少个字符串；字符串长度是否有限，看一个字符串有多少个符号。**
+**语言是否有限，看它有多少个String；String长度是否有限，看一个String有多少个符号。**
 
-### Enumerating Strings
+### Enumerating **Strings**
 
-对 **非空有限字母表** $\Sigma\ne\varnothing$，$\Sigma^*$ 可数无限。
+对 **非空有限Alphabet** $\Sigma\ne\varnothing$，$\Sigma^*$ 可数无限。
 
 枚举规则是： **先按长度从小到大，同长度再按字典序排列。** 对 $\Sigma=\{0,1\}$，得到：
 
@@ -1090,11 +1090,11 @@ $$
 
 每个长度只有有限多个串，每个有限串都能在有限位置出现，且没有重复。由于 $\Sigma$ 非空，串长可以任意增大，所以集合确实无限。
 
-> 空字母表，则 $\varnothing^*=\{e\}$，是有限集合。
+> 空 **Alphabet**，则 $\varnothing^*=\{e\}$，是有限集合。
 
 ### Set Operations and Language Concatenation
 
-语言可以使用并、交、差等集合运算。给定字母表后，补语言相对于 $\Sigma^*$：
+语言可以使用并、交、差等集合运算。给定 **Alphabet** 后，补语言相对于 $\Sigma^*$：
 
 $$
 \overline L=\Sigma^*-L.
@@ -1106,7 +1106,7 @@ $$
 L_1L_2=\{xy:x\in L_1,\ y\in L_2\}.
 $$
 
-注意：$xy$ 是字符串，$L_1L_2$ 是语言。
+注意：$xy$ 是 **String**，$L_1L_2$ 是语言。
 
 #### Example
 
@@ -1138,7 +1138,7 @@ $$
 
 </details>
 
-### Language Powers, Kleene Star, and Positive Closure
+### Language Powers, **Kleene Star（克林星闭包）**, and **Positive Closure（正闭包）**
 
 语言的幂也按连接定义：
 
@@ -1146,16 +1146,16 @@ $$
 L^0=\{e\},\qquad L^{i+1}=LL^i.
 $$
 
-**$L^0$ 中仍有一个元素，即空串。** 这与字符串的 $w^0=e$ 所处的对象层次不同。
+**$L^0$ 中仍有一个元素，即空串。** 这与 **String** 的 $w^0=e$ 所处的对象层次不同。
 
-**克林星闭包（Kleene Star）** 允许从 $L$ 中选取零个或多个字符串连接：
+**Kleene Star** 允许从 $L$ 中选取零个或多个 **String** 连接：
 
 $$
 L^*=\bigcup_{i\ge0}L^i
 =\{w_1\cdots w_k:k\ge0,\ w_1,\ldots,w_k\in L\}.
 $$
 
-**正闭包** 要求至少选取一个：
+**Positive Closure** 要求至少选取一个：
 
 $$
 L^+=\bigcup_{i\ge1}L^i=LL^*.
@@ -1180,11 +1180,11 @@ $$
 
 因此， **“正闭包”中的“正”指选取次数至少为 1，不保证生成的串非空。**
 
-两个层次之间的联系：$L^+$ 是包含 $L$ 且对字符串连接封闭的最小语言；$L^*$ 还要求包含空串。将字母表 $\Sigma$ 看成由单符号串组成的语言，做星闭包恰好得到此前定义的所有字符串 $\Sigma^*$。
+两个层次之间的联系：$L^+$ 是包含 $L$ 且对 **String** 连接封闭的最小语言；$L^*$ 还要求包含空串。将 **Alphabet** $\Sigma$ 看成由单符号串组成的语言，做 **Kleene Star** 恰好得到此前定义的所有 **String** $\Sigma^*$。
 
 #### Example
 
-**0、1 数量不等的语言，其星闭包是什么？**
+**0、1 数量不等的语言，其Kleene Star是什么？**
 
 设 $L=\{w\in\{0,1\}^*:w\text{ 中的 0、1 数量不相等}\}$。则
 
@@ -1205,15 +1205,15 @@ $$
 
 </details>
 
-### Empty Language, Empty String, and Singleton Language
+### Empty Language, Empty **String**, and Singleton Language
 
 | 对象 | 类型 | 大小／长度 |
 | --- | --- | --- |
-| $\varnothing$ | 一个没有任何字符串的语言 | $\lvert\varnothing\rvert=0$ |
-| $e$ | 一个字符串 | $\lvert e\rvert=0$ |
+| $\varnothing$ | 一个没有任何 **String** 的语言 | $\lvert\varnothing\rvert=0$ |
+| $e$ | 一个 **String** | $\lvert e\rvert=0$ |
 | $\{e\}$ | 只包含空串的语言 | $\lvert\{e\}\rvert=1$ |
 
-由连接与星闭包的定义得到关键性质：
+由连接与 **Kleene Star** 的定义得到关键性质：
 
 $$
 L\varnothing=\varnothing L=\varnothing,\qquad
@@ -1222,7 +1222,7 @@ L\{e\}=\{e\}L=L,\qquad
 (L^*)^*=L^*.
 $$
 
-连接 $\varnothing$ 时无法从该集合选出任何一个串；连接 $\{e\}$ 时可以选出空串，且不改变另一部分。对已经允许任意有限次连接的 $L^*$ 再做星闭包，也不会产生新串。
+连接 $\varnothing$ 时无法从该集合选出任何一个串；连接 $\{e\}$ 时可以选出空串，且不改变另一部分。对已经允许任意有限次连接的 $L^*$ 再做 **Kleene Star**，也不会产生新串。
 
 ## Finite Representations of Languages
 
@@ -1232,7 +1232,7 @@ $$
 
 一套固定的有限表示方式需要满足：表示本身是有限符号串；每个有效表示确定一个语言。一个语言可以有多个表示，但同一个表示不能同时含混地代表不同语言。
 
-对于非空有限字母表 $\Sigma$，论证链为：
+对于非空有限 **Alphabet** $\Sigma$，论证链为：
 
 $$
 \underbrace{\text{有限描述的全体至多可数}}_{\text{描述是有限字符串}}
@@ -1245,7 +1245,7 @@ $$
 **每个语言 $L\subseteq\Sigma^*$ 至多可数，但所有语言组成的集合 $2^{\Sigma^*}$ 不可数。**
 
 <details>
-<summary>所有语言不可数：对角化</summary>
+<summary>所有语言不可数：<strong>Diagonalization</strong></summary>
 
 设 $\Sigma^*=\{w_0,w_1,\ldots\}$。若所有语言可枚举为 $L_0,L_1,\ldots$，令
 
@@ -1253,13 +1253,13 @@ $$
 D=\{w_i:w_i\notin L_i\}.
 $$
 
-$D$ 是语言，却对每个 $i$ 都与 $L_i$ 在是否包含 $w_i$ 上不同，故不在列表中，矛盾。这是前面对 $2^{\mathbb N}$ 的证明在字符串集合上的应用。
+$D$ 是语言，却对每个 $i$ 都与 $L_i$ 在是否包含 $w_i$ 上不同，故不在列表中，矛盾。这是前面对 $2^{\mathbb N}$ 的证明在 **String** 集合上的应用。
 
 </details>
 
-### Regular Expression Syntax and Semantics
+### **Regular Expression（正则表达式）** Syntax and Semantics
 
-**正则表达式（Regular Expression）** 使用基本符号以及并、连接、星运算，有限地描述语言。
+**Regular Expression** 使用基本符号以及并、连接、星运算，有限地描述语言。
 
 将“表达式这个符号串”与“表达式表示的语言”分开，用 $\mathcal L(\alpha)$ 表示表达式 $\alpha$ 对应的语言。
 
@@ -1271,7 +1271,7 @@ $D$ 是语言，却对每个 $i$ 都与 $L_i$ 在是否包含 $w_i$ 上不同，
 | 若 $\alpha,\beta$ 是表达式，则 $(\alpha\cup\beta)$ 是表达式 | $\mathcal L(\alpha\cup\beta)=\mathcal L(\alpha)\cup\mathcal L(\beta)$ |
 | 若 $\alpha$ 是表达式，则 $\alpha^*$ 是表达式 | $\mathcal L(\alpha^*)=\mathcal L(\alpha)^*$ |
 
-**只有能通过这些规则有限次构造出来的符号串，才属于本节定义的正则表达式。** 这是一种归纳定义。
+**只有能通过这些规则有限次构造出来的符号串，才属于本节定义的Regular Expression。** 这是一种归纳定义。
 
 空串不必额外列为基础表达式，因为 $\varnothing^*$ 已经表示 $\{e\}$；下面在表达式中写 $e$ 时，作为 $\varnothing^*$ 的简写。
 
@@ -1279,7 +1279,7 @@ $D$ 是语言，却对每个 $i$ 都与 $L_i$ 在是否包含 $w_i$ 上不同，
 
 #### Examples
 
-| 表达式 | 表示的字符串集合 |
+| 表达式 | 表示的 **String** 集合 |
 | --- | --- |
 | $a^*b^*$ | 任意多个 $a$ 后接任意多个 $b$，两部分都可为空 |
 | $a^*\cup b^*$ | 全为 $a$ 的串，或全为 $b$ 的串；包含空串 |
@@ -1335,7 +1335,7 @@ $$
 
 **从表达式读出语言**
 
-#### Strings Ending in a
+#### **Strings** Ending in a
 
 求 $\mathcal L((a\cup b)^*a)$。
 
@@ -1353,11 +1353,11 @@ $$
 \end{aligned}
 $$
 
-任意前缀后接一个 $a$，因此包含 `a`，不包含空串。
+任意 **Prefix** 后接一个 $a$，因此包含 `a`，不包含空串。
 
 </details>
 
-#### Strings Without ac
+#### **Strings** Without ac
 
 表达式
 
@@ -1365,7 +1365,7 @@ $$
 c^*(a\cup bc^*)^*
 $$
 
-表示 $\{a,b,c\}$ 上所有 **不含子串 `ac`** 的字符串。
+表示 $\{a,b,c\}$ 上所有 **不含Substring `ac`** 的 **String**。
 
 <details>
 <summary>展开双向说明</summary>
@@ -1378,7 +1378,7 @@ $$
 
 </details>
 
-#### Strings Without 111
+#### **Strings** Without 111
 
 
 $$
@@ -1387,7 +1387,7 @@ $$
 
 第一项处理完全没有 1 的串。第二项把 1 划成长度为 1 或 2 的连续块，相邻块之间至少一个 0，首尾允许任意多个 0，因此恰好排除三个连续的 1。
 
-### Regular Expression Identities
+### **Regular Expression** Identities
 
 下表中的等号均指 **所表示的语言相等** ，不要求表达式的符号串相同。
 
@@ -1396,45 +1396,45 @@ $$
 | 并的交换律 | $R\cup S=S\cup R$ |
 | 连接的结合律 | $R(ST)=(RS)T$ |
 | 连接对并的分配律 | $R(S\cup T)=RS\cup RT$；$(R\cup S)T=RT\cup ST$ |
-| 空语言的星闭包 | $\varnothing^*=\{e\}$ |
-| 星闭包的幂等性 | $(R^*)^*=R^*$ |
+| 空语言的 **Kleene Star** | $\varnothing^*=\{e\}$ |
+| **Kleene Star** 的幂等性 | $(R^*)^*=R^*$ |
 | 两组串反复连接 | $(R^*S^*)^*=(R\cup S)^*$ |
-| 增加空串不改变星闭包 | $(\{e\}\cup R)^*=R^*$ |
+| 增加空串不改变 **Kleene Star** | $(\{e\}\cup R)^*=R^*$ |
 
 **连接一般没有交换律。** 从定义看，特定的 $R,S$ 完全可能满足 $SR=RS$，例如 $R=S$。
 
 <details>
-<summary>展开证明：为什么两组星闭包再连接，与并后取星闭包相同？</summary>
+<summary>展开证明：为什么两组<strong>Kleene Star</strong>再连接，与并后取<strong>Kleene Star</strong>相同？</summary>
 
 证明 $(R^*S^*)^*=(R\cup S)^*$。
 
-左边任意字符串，都由若干块 $R^*S^*$ 连接得到。把每块进一步拆开，其组成部分均来自 $R$ 或 $S$，所以属于 $(R\cup S)^*$。
+左边任意 **String**，都由若干块 $R^*S^*$ 连接得到。把每块进一步拆开，其组成部分均来自 $R$ 或 $S$，所以属于 $(R\cup S)^*$。
 
-反过来，$R\subseteq R^*S^*$，因为可以从 $S^*$ 取空串；同样 $S\subseteq R^*S^*$。所以 $R\cup S\subseteq R^*S^*$，再利用星闭包的单调性即可得到另一包含方向。
+反过来，$R\subseteq R^*S^*$，因为可以从 $S^*$ 取空串；同样 $S\subseteq R^*S^*$。所以 $R\cup S\subseteq R^*S^*$，再利用 **Kleene Star** 的单调性即可得到另一包含方向。
 
 这里外层星号很重要。直接写成 $R^*\cup S^*=(R\cup S)^*$ 一般不成立：取 $R=\{a\}$、$S=\{b\}$，右边包含 `ab`，左边不包含。
 
 </details>
 
-### Regular Languages and Expressive Limits
+### **Regular Languages（正则语言）** and Expressive Limits
 
-能够被某个正则表达式表示的语言称为 **正则语言（Regular Language）** ：
+能够被某个 **Regular Expression** 表示的语言称为 **Regular Language** ：
 
 $$
 L\text{ 正则}\iff\exists\alpha,\quad L=\mathcal L(\alpha).
 $$
 
-也可以从闭包角度理解：正则语言的全体由基础语言族
+也可以从 **Closure** 角度理解： **Regular Language** 的全体由基础语言族
 
 $$
 \{\{a\}:a\in\Sigma\}\cup\{\varnothing\}
 $$
 
-在 **并、连接、星闭包** 这三种操作下生成。这里操作的对象已经是语言，最后得到的是一个语言族。
+在 **并、连接、Kleene Star** 这三种操作下生成。这里操作的对象已经是语言，最后得到的是一个语言族。
 
-**同一个正则语言可以有无限多个正则表达式。** 例如 $\alpha$、$(\alpha\cup\varnothing)$、$((\alpha\cup\varnothing)\cup\varnothing)$ 等都表示相同语言。这不违背有限表示的要求：要求的是一个表示不能同时歧义地指向不同语言。
+**同一个Regular Language可以有无限多个Regular Expression。** 例如 $\alpha$、$(\alpha\cup\varnothing)$、$((\alpha\cup\varnothing)\cup\varnothing)$ 等都表示相同语言。这不违背有限表示的要求：要求的是一个表示不能同时歧义地指向不同语言。
 
-正则表达式的表达能力有限，例如 $\{0^n1^n:n\ge0\}$ 不能由正则表达式描述。
+**Regular Expression** 的表达能力有限，例如 $\{0^n1^n:n\ge0\}$ 不能由 **Regular Expression** 描述。
 
 ### Language Recognition and Generation
 
@@ -1442,8 +1442,8 @@ $$
 
 | 方式 | 输入／出发点 | 要回答的问题 |
 | --- | --- | --- |
-| 语言识别装置 | 给定一个字符串 $w$ | $w$ 是否属于 $L$？ |
-| 语言生成器 | 给定生成规则，并按规则选择 | 如何生成且只生成 $L$ 中的字符串？ |
+| 语言识别装置 | 给定一个 **String** $w$ | $w$ 是否属于 $L$？ |
+| 语言生成器 | 给定生成规则，并按规则选择 | 如何生成且只生成 $L$ 中的 **String**？ |
 
 #### Example
 

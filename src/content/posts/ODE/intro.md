@@ -31,10 +31,10 @@ draft: false
 理解常微分方程的基本 **概念、理论与方法** ：
 
 - 对典型的一阶 ODE 和可降阶二阶 ODE 进行分类与求解
-- 线性 ODE（方程组）的一般理论与 **特征值方法**
+- 线性 ODE（方程组）的一般理论与 **Eigenvalue Method（特征值方法）**
 - 简单的 ODE 建模（§3）
-- ⭐ 幂级数方法基础与 Sturm-Liouville 理论（§2.8）
-- ⭐ ODE 方程组的线性稳定性分析
+- ⭐ **Power Series（幂级数）** 方法基础与 Sturm-Liouville 理论（§2.8）
+- ⭐ ODE 方程组的 **Linear Stability Analysis（线性稳定性分析）**
 
 > ⭐ 标记为选讲/扩展内容。
 
@@ -45,6 +45,6 @@ draft: false
 | ---- | ------------------------------------------------------- |
 | 1–3  | Overview；Chapter 1: First-order Equations； **Quiz #1** |
 | 4    | Chapter 2: Linear ODEs                                  |
-| 5    | Chapter 3: Method of Power Series                       |
+| 5    | Chapter 3: Method of **Power Series**                       |
 | 6    | **Quiz #2** ；Chapter 5: Systems of LODEs                |
-| 7–8  | Chapter 7: Intro. to Stability                          |
+| 7–8  | Chapter 7: Intro. to **Stability（稳定性）**                          |

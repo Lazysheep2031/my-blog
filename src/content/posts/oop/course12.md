@@ -7,11 +7,11 @@ category: 笔记
 draft: false
 ---
 
-## Function overloading
+## **Function overloading（函数重载）**
 
 ### 基本概念
 
-**Function overloading（函数重载）** 指：多个函数可以拥有同一个函数名，但参数表必须不同。
+**Function Overloading** 指：多个函数可以拥有同一个函数名，但参数表必须不同。
 
 参数表包括：
 
@@ -39,11 +39,11 @@ print(1999L, 15);      // #3
 
 调用时，编译器根据实参列表选择最合适的函数版本。
 
-函数重载的意义是：把一组语义相同或相似的操作组织成同一个名字。这样使用者只需要记住一个概念性的函数名，具体版本由编译器选择。
+**Function Overloading** 的意义是：把一组语义相同或相似的操作组织成同一个名字。这样使用者只需要记住一个概念性的函数名，具体版本由编译器选择。
 
 ### Overload and auto-cast
 
-普通函数重载允许发生一定程度的 implicit conversion（隐式类型转换）。
+普通 **Function Overloading** 允许发生一定程度的 **implicit conversion（隐式类型转换）**。
 
 ```cpp
 void foo(int i) {}
@@ -67,15 +67,15 @@ int main() {
 - `foo(2L)` 可能出现二义性，因为 `long` 转 `int` 和转 `double` 都可能被认为可行。
 
 :::TIP
-普通函数重载可以依赖隐式转换，但隐式转换可能带来二义性。写代码时尽量让调用意图清晰，必要时使用显式类型转换。
+普通 **Function Overloading** 可以依赖 **Implicit Conversion**，但 **Implicit Conversion** 可能带来二义性。写代码时尽量让调用意图清晰，必要时使用显式类型转换。
 :::
 
 
-## Default arguments
+## **Default arguments（默认参数）**
 
-### 默认参数的含义
+### **Default Argument** 的含义
 
-**Default argument（默认参数）** 是写在函数声明中的默认值。当函数调用时少传了一部分参数，编译器会自动把缺失的参数补上。
+**Default Argument** 是写在函数声明中的默认值。当函数调用时少传了一部分参数，编译器会自动把缺失的参数补上。
 
 ```cpp
 int harpo(int n, int m = 4, int j = 5);
@@ -86,12 +86,12 @@ beeps = harpo(1, 8);   // 等价于 harpo(1, 8, 5)
 beeps = harpo(8, 7, 6); // 三个参数都显式给出
 ```
 
-默认参数的重点：
+**Default Argument** 的重点：
 
 - 默认值写在 declaration（声明）处；
 - 调用时由编译器补齐；
 - 函数本体仍然只有一个版本；
-- default arguments 与 function overloading 的机制不同。
+- **default arguments** 与 **function overloading** 的机制不同。
 
 可以理解为：
 
@@ -107,9 +107,9 @@ harpo(2, 4, 5);
 
 函数定义本身仍然接收三个参数。
 
-### 默认参数必须从右往左给
+### **Default Argument** 必须从右往左给
 
-默认参数必须从参数列表右端开始连续提供。
+**Default Argument** 必须从参数列表右端开始连续提供。
 
 ```cpp
 int chico(int n, int m = 6, int j); // illegal
@@ -161,9 +161,9 @@ list of Y
 
 重复代码通常是设计上的坏味道。
 
-#### 2. Make a common base class
+#### 2. Make a common **base class（基类）**
 
-把所有对象都继承自某个公共基类，例如 `Object`，然后写 `list<Object*>`。
+把所有对象都继承自某个公共 **Base Class**，例如 `Object`，然后写 `list<Object*>`。
 
 问题：
 
@@ -209,11 +209,11 @@ class List {
 
 标准库中大量使用模板：
 
-- function template：例如 `std::sort`；
-- class template：例如 `std::vector<T>`、`std::list<T>`、`std::stack<T>`、`std::queue<T>`。
+- **function template（函数模板）**：例如 `std::sort`；
+- **class template（类模板）**：例如 `std::vector<T>`、`std::list<T>`、`std::stack<T>`、`std::queue<T>`。
 
 
-## Function templates
+## **Function templates**
 
 ### 从 swap 开始
 
@@ -229,7 +229,7 @@ void swap_int(int& x, int& y) {
 
 如果还想交换 `float`、`string`、`Currency`、`Person`，逻辑完全一样，只是类型不同。
 
-用函数模板可以写成：
+用 **Function Template** 可以写成：
 
 ```cpp
 template<typename T>
@@ -275,7 +275,7 @@ int main() {
 这个模板对 `T` 有隐含要求：
 
 - `T` 可以被 copy construction；
-- `T` 可以被 copy assignment。
+- `T` 可以被 **copy assignment（拷贝赋值）**。
 
 因为函数体中有：
 
@@ -358,9 +358,9 @@ my_swap<string>
 模板的类型检查主要发生在实例化阶段。模板定义本身可能看起来没问题，但一旦用某个不满足要求的类型实例化，才会报错。
 :::
 
-### 模板参数推导
+### **Template Argument Deduction（模板参数推导）**
 
-函数模板调用时，编译器会根据实参类型推导模板参数。
+**Function Template** 调用时，编译器会根据实参类型推导模板参数。
 
 ```cpp
 template<typename T>
@@ -375,7 +375,7 @@ print(3.4, 7.6);   // T = double
 
 关键规则：
 
-> 函数模板参数推导要求类型精确匹配，不会先做隐式类型转换。
+> **Function Template** 参数推导要求类型精确匹配，不会先做 **Implicit Conversion**。
 
 所以：
 
@@ -391,9 +391,9 @@ my_swap(int, double);    // error
 print(static_cast<double>(2), 5.3); // T = double
 ```
 
-### 函数模板与普通函数共存
+### **Function Template** 与普通函数共存
 
-函数模板可以和普通函数重载共存。
+**Function Template** 可以和普通 **Function Overloading** 共存。
 
 ```cpp
 #include <iostream>
@@ -420,8 +420,8 @@ int main() {
 匹配顺序可以记成：
 
 1. 查找是否有 exact match 的普通函数；
-2. 查找是否有 exact match 的函数模板实例；
-3. 查找普通函数是否能通过 implicit conversion 匹配。
+2. 查找是否有 exact match 的 **Function Template** 实例；
+3. 查找普通函数是否能通过 **implicit conversion** 匹配。
 
 对应上面的调用：
 
@@ -467,16 +467,16 @@ foo<float>();
 这里 `T` 没有出现在函数参数中，编译器无法根据实参推导，所以需要写 `foo<int>()`。
 
 
-## Class templates
+## **Class templates**
 
 ### 基本概念
 
-**Class template（类模板）** 是把类型参数用于类定义。
+**Class Template** 是把类型参数用于类定义。
 
 类由两部分组成：
 
 - data members；
-- member functions。
+- **member functions（成员函数）**。
 
 如果类中保存的数据类型可变，同时操作逻辑不依赖具体类型，就可以把该类型参数化。
 
@@ -525,11 +525,11 @@ v1[20] = 10;
 v2[20] = Complex(cos(pi / 4), sin(pi / 4));
 ```
 
-`Vector<int>` 和 `Vector<Complex>` 是两个不同的具体类型。它们来自同一个类模板，但实例化后的类型不同。
+`Vector<int>` 和 `Vector<Complex>` 是两个不同的具体类型。它们来自同一个 **Class Template**，但实例化后的类型不同。
 
-### 类模板的成员函数定义
+### **Class Template** 的 **Member Function** 定义
 
-如果成员函数写在类外，需要重复写模板头，并且用 `Vector<T>::` 指明作用域。
+如果 **Member Function** 写在类外，需要重复写模板头，并且用 `Vector<T>::` 指明作用域。
 
 ```cpp
 template<typename T>
@@ -571,12 +571,12 @@ T& Vector<T>::operator[](int index)
 ```
 
 - 前面的 `template<typename T>` 表示这是模板定义；
-- `Vector<T>::` 表示这是 `Vector<T>` 这个类模板实例的成员；
+- `Vector<T>::` 表示这是 `Vector<T>` 这个 **Class Template** 实例的成员；
 - 返回值、参数和函数体中都可以使用 `T`。
 
-### 类模板与函数模板组合：sort
+### **Class Template** 与 **Function Template** 组合：sort
 
-函数模板可以接收类模板实例。
+**Function Template** 可以接收 **Class Template** 实例。
 
 ```cpp
 // bubble sort，仅用于说明模板机制，不推荐实际使用
@@ -685,7 +685,7 @@ Vector<Func> funcs;
 
 ### Non-type template parameters
 
-模板参数除了类型，也可以是编译期常量值。这叫 **non-type template parameter** 。
+模板参数除了类型，也可以是 **Compile-Time Constant（编译期常量）** 值。这叫 **non-type template parameter** 。
 
 常见用途：把数组长度作为模板参数。
 
@@ -785,11 +785,11 @@ FixedVector<int> v3; // FixedVector<int, 100>
 
 ### 跨类型 complex 构造
 
-**Member template** 指：在类或类模板内部，某个成员函数本身又是模板。
+**Member template** 指：在类或 **Class Template** 内部，某个 **Member Function** 本身又是模板。
 
 典型例子是 `complex<T>` 的跨类型构造。
 
-先写一个普通的类模板：
+先写一个普通的 **Class Template**：
 
 ```cpp
 #include <iostream>
@@ -819,7 +819,7 @@ int main() {
 }
 ```
 
-编译器自动生成的 copy constructor 只处理同类型：
+编译器自动生成的 **copy constructor（拷贝构造函数）** 只处理同类型：
 
 ```cpp
 MyComplex<double> -> MyComplex<double>
@@ -831,7 +831,7 @@ MyComplex<double> -> MyComplex<double>
 MyComplex<double> -> MyComplex<int>
 ```
 
-如果希望支持跨类型初始化，就要给构造函数额外引入一个模板参数 `U`。
+如果希望支持跨类型初始化，就要给 **Constructor（构造函数）** 额外引入一个模板参数 `U`。
 
 ```cpp
 #include <iostream>
@@ -893,7 +893,7 @@ T = int
 U = double
 ```
 
-构造函数负责把 `double` 成员转换成 `int` 成员。
+**Constructor** 负责把 `double` 成员转换成 `int` 成员。
 
 :::WARNING
 从宽类型到窄类型可能损失精度，例如 `double -> int` 会截断小数部分。member template 只提供转换通道，不保证转换语义一定安全。
@@ -904,7 +904,7 @@ U = double
 
 模板可以和继承组合。关键是看实例化之后产生了哪些具体类型。
 
-### 类模板继承普通类
+### **Class Template** 继承普通类
 
 ```cpp
 class Base {
@@ -927,7 +927,7 @@ Derived<double> dd;
 Derived<string> ds;
 ```
 
-会得到多个不同的派生类类型：
+会得到多个不同的 **Derived Class（派生类）** 类型：
 
 ```text
 Derived<int>
@@ -946,7 +946,7 @@ Base
  └── Derived<string>
 ```
 
-### 类模板继承类模板
+### **Class Template** 继承 **Class Template**
 
 ```cpp
 template<typename T>
@@ -974,9 +974,9 @@ List<int>    <- MyList<int>
 List<double> <- MyList<double>
 ```
 
-这里的 base class 也随着 `T` 变化。`List<int>` 和 `List<double>` 是不同类型。
+这里的 **base class** 也随着 `T` 变化。`List<int>` 和 `List<double>` 是不同类型。
 
-### 普通类继承模板实例化类型
+### 普通类继承 **Template Instantiation** 类型
 
 普通类也可以继承某个已经实例化好的模板类型。
 
@@ -1001,9 +1001,9 @@ class SupervisorGroup : public List<Employee*> {
 
 | 形式 | 例子 | 含义 |
 |---|---|---|
-| 类模板继承普通类 | `template<class T> class D : public B {}` | 多个 `D<T>` 共享同一个 `B` |
-| 类模板继承类模板 | `template<class T> class D : public B<T> {}` | 每个 `D<T>` 对应一个 `B<T>` |
-| 普通类继承模板实例 | `class D : public B<int> {}` | `B<int>` 已经是具体 base class |
+| **Class Template** 继承普通类 | `template<class T> class D : public B {}` | 多个 `D<T>` 共享同一个 `B` |
+| **Class Template** 继承 **Class Template** | `template<class T> class D : public B<T> {}` | 每个 `D<T>` 对应一个 `B<T>` |
+| 普通类继承模板实例 | `class D : public B<int> {}` | `B<int>` 已经是具体 **base class** |
 
 
 ## CRTP
@@ -1023,9 +1023,9 @@ class Derived : public Base<Derived> {
 };
 ```
 
-看起来有点奇怪：派生类继承基类模板时，把自己的类型作为模板参数传回基类。
+看起来有点奇怪： **Derived Class** 继承 **Base Class** 模板时，把自己的类型作为模板参数传回 **Base Class**。
 
-这样基类模板就能“知道”具体派生类类型。
+这样 **Base Class** 模板就能“知道”具体 **Derived Class** 类型。
 
 典型写法：
 
@@ -1052,11 +1052,11 @@ struct Derived : public Base<Derived> {
 };
 ```
 
-CRTP 常用来在泛型编程中模拟类似 virtual function 的接口，但调用在编译期决定。
+CRTP 常用来在泛型编程中模拟类似 **virtual function（虚函数）** 的接口，但调用在编译期决定。
 
-### 用普通虚函数做 Newton solver
+### 用普通 **Virtual Function** 做 Newton solver
 
-前面设计课里用过 Newton solver。这里先用虚函数版本回顾动态多态。
+前面设计课里用过 Newton solver。这里先用 **Virtual Function** 版本回顾 **Dynamic Polymorphism（动态多态）**。
 
 ```cpp
 #include <cmath>
@@ -1139,18 +1139,18 @@ int main() {
 
 这个版本的特点：
 
-- `Problem` 是抽象基类；
+- `Problem` 是 **Abstract Base Class（抽象基类）**；
 - `newton_solve` 接收 `const Problem&`；
 - `p.f(x)` 和 `p.df(x)` 是 virtual call；
 - 具体调用哪个函数由对象的动态类型决定。
 
 优点：接口明确，用户知道必须继承 `Problem` 并实现 `f` / `df`。
 
-代价：通过虚函数表进行动态绑定，有运行时开销。
+代价：通过 **Virtual Table（虚函数表）** 进行 **Dynamic Binding（动态绑定）**，有运行时开销。
 
-### 普通函数模板版本
+### 普通 **Function Template** 版本
 
-也可以不用继承，把 `newton_solve` 写成函数模板。
+也可以不用继承，把 `newton_solve` 写成 **Function Template**。
 
 ```cpp
 #include <cmath>
@@ -1226,8 +1226,8 @@ int main() {
 
 这个版本的特点：
 
-- 没有抽象基类；
-- 没有虚函数；
+- 没有 **Abstract Base Class**；
+- 没有 **Virtual Function**；
 - `Problem` 只要有 `f(double)` 和 `df(double)` 就能工作；
 - 编译器为不同问题类型生成不同版本的 `newton_solve`。
 
@@ -1238,11 +1238,11 @@ template<typename Problem>
 double newton_solve(const Problem& p, double x0, ...)
 ```
 
-用户从函数签名上只能看到 `Problem` 这个模板参数，看不到 `Problem` 必须提供 `f` 和 `df`。如果误传一个没有 `f` / `df` 的类型，错误会在模板实例化时出现。
+用户从 **Function Signature（函数签名）** 上只能看到 `Problem` 这个模板参数，看不到 `Problem` 必须提供 `f` 和 `df`。如果误传一个没有 `f` / `df` 的类型，错误会在 **Template Instantiation** 时出现。
 
 ### CRTP 版本
 
-CRTP 可以让接口关系更明确，同时避免虚函数调用。
+CRTP 可以让接口关系更明确，同时避免 **Virtual Function** 调用。
 
 ```cpp
 #include <cmath>
@@ -1351,7 +1351,7 @@ public:
 static_cast<const Derived*>(this)
 ```
 
-把当前对象当作 `Derived` 使用，然后调用派生类中的实现函数。
+把当前对象当作 `Derived` 使用，然后调用 **Derived Class** 中的实现函数。
 
 `newton_solve` 的接口也更明确：
 
@@ -1360,7 +1360,7 @@ template<typename Derived>
 double newton_solve(const Problem<Derived>& p, double x0, ...)
 ```
 
-这说明传入对象必须处在 `Problem<Derived>` 这套 CRTP 结构中。相比普通函数模板，使用者更容易看出问题类应当如何定义。
+这说明传入对象必须处在 `Problem<Derived>` 这套 CRTP 结构中。相比普通 **Function Template**，使用者更容易看出问题类应当如何定义。
 
 ### CRTP 的特点
 
@@ -1368,21 +1368,21 @@ CRTP 可以看成一种 **static polymorphism（静态多态）** 。
 
 | 方式 | 调用机制 | 接口形式 | 开销 | 适合场景 |
 |---|---|---|---|---|
-| virtual function | 运行时动态绑定 | 抽象基类 + virtual | 有虚函数开销 | 需要运行时多态 |
-| 普通函数模板 | 编译期实例化 | 隐式要求 `f` / `df` | 无虚函数开销 | 泛型算法，接口要求简单 |
-| CRTP | 编译期静态绑定 | `Derived : Base<Derived>` | 无虚函数开销 | 想表达继承式接口，又希望静态分发 |
+| **virtual function** | 运行时 **Dynamic Binding** | **Abstract Base Class** + virtual | 有 **Virtual Function** 开销 | 需要运行时多态 |
+| 普通 **Function Template** | 编译期实例化 | 隐式要求 `f` / `df` | 无 **Virtual Function** 开销 | 泛型算法，接口要求简单 |
+| CRTP | 编译期 **Static Binding（静态绑定）** | `Derived : Base<Derived>` | 无 **Virtual Function** 开销 | 想表达继承式接口，又希望静态分发 |
 
 CRTP 的优点：
 
-- 不需要 vtable；
+- 不需要 **vtable**；
 - 调用可在编译期解析；
-- 基类可以调用派生类实现；
-- 接口比纯 duck typing 的函数模板更显式。
+- **Base Class** 可以调用 **Derived Class** 实现；
+- 接口比纯 duck typing 的 **Function Template** 更显式。
 
 CRTP 的限制：
 
 - 不能直接替代运行时多态；
-- 不适合需要把不同派生类统一放进 `vector<Base*>` 的场景；
+- 不适合需要把不同 **Derived Class** 统一放进 `vector<Base*>` 的场景；
 - 写法较绕，对初学者不直观；
 - 报错仍可能比较长。
 
@@ -1398,13 +1398,13 @@ CRTP 的限制：
 
 模板通常要把定义也放在头文件中。
 
-原因：模板实例化发生在编译期。编译器在调用点看到：
+原因： **Template Instantiation** 发生在编译期。编译器在调用点看到：
 
 ```cpp
 my_swap<int>(a, b);
 ```
 
-它需要拿到模板函数体，才能把 `T` 替换成 `int` 并生成真实函数。如果调用点只看到函数签名，看不到模板定义，就无法实例化。
+它需要拿到模板函数体，才能把 `T` 替换成 `int` 并生成真实函数。如果调用点只看到 **Function Signature**，看不到模板定义，就无法实例化。
 
 所以模板常见写法是：
 
@@ -1440,7 +1440,7 @@ class Vector {
 #endif
 ```
 
-重点是：使用模板的编译单元必须能看到模板定义。
+重点是：使用模板的 **Translation Unit（编译单元）** 必须能看到模板定义。
 
 :::TIP
 模板定义放在头文件中通常不会像普通函数那样直接导致 multiple definition 问题。编译器和链接器有机制处理模板实例的合并。课堂中老师也强调：模板的东西基本都放 header file 里。

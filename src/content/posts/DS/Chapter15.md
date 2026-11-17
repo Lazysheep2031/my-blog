@@ -20,7 +20,7 @@ draft: false
 - **parse** ：检查 SQL 语法是否正确；
 - **verify** ：检查查询中引用的 relation、attribute 是否存在。
 
-之后，系统会把查询翻译成关系代数表达式。
+之后，系统会把查询翻译成 **Relational Algebra（关系代数）** 表达式。
 
 :::EXAMPLE
 SQL 查询：
@@ -31,7 +31,7 @@ from instructor natural join (teaches natural join course)
 where dept_name = 'Music' and year = 2009;
 ```
 
-可以翻译成关系代数表达式：
+可以翻译成 **Relational Algebra** 表达式：
 
 $$
 \Pi_{name,title}
@@ -45,16 +45,16 @@ $$
 
 ### Optimization
 
-同一个 SQL 查询可以对应多个等价的关系代数表达式，也可以对应多个不同的物理执行计划。
+同一个 SQL 查询可以对应多个等价的 **Relational Algebra** 表达式，也可以对应多个不同的物理 **Evaluation Plan（执行计划）**。
 
 优化器的任务是：
 
-> 在所有等价的 evaluation plans 中，选择估计代价最低的计划。
+> 在所有等价的 **evaluation plans** 中，选择估计代价最低的计划。
 
 优化包括两层：
 
-1. **逻辑优化** ：改变关系代数表达式结构，例如 selection pushdown。
-2. **物理优化** ：为每个操作选择具体算法，例如 index scan、hash join、merge join。
+1. **Logical Optimization（逻辑优化）** ：改变 **Relational Algebra** 表达式结构，例如 **selection pushdown（选择下推）**。
+2. **Physical Optimization（物理优化）** ：为每个操作选择具体算法，例如 index scan、hash join、merge join。
 
 :::EXAMPLE
 上面的查询可以从初始表达式树变成更好的表达式树：
@@ -70,11 +70,11 @@ $$
 
 查询执行引擎接收 optimizer 产生的 query-evaluation plan，按计划运行各个操作，访问存储系统并返回结果。
 
-### Evaluation Plan
+### **Evaluation Plan**
 
 **evaluation plan** 指明了：
 
-- 每个关系代数操作采用什么算法；
+- 每个 **Relational Algebra** 操作采用什么算法；
 - 操作之间如何协调；
 - 中间结果是物化到磁盘，还是通过 pipeline 直接传给父操作；
 - 是否使用索引、排序、hash table 等物理结构。
@@ -95,7 +95,7 @@ $$
 
 ### EXPLAIN
 
-大多数数据库支持查看优化器选出的执行计划。
+大多数数据库支持查看优化器选出的 **Evaluation Plan**。
 
 常见命令：
 
@@ -131,7 +131,7 @@ startup_cost..total_cost
 
 ## Measures of Query Cost
 
-### 代价模型
+### **Cost Model（代价模型）**
 
 查询总代价通常可以从多个角度衡量：
 
@@ -140,7 +140,7 @@ startup_cost..total_cost
 - network communication
 - memory usage
 
-但在传统数据库代价模型中，磁盘 I/O 通常是主导因素，也比较容易估计。
+但在传统数据库 **Cost Model** 中，磁盘 I/O 通常是主导因素，也比较容易估计。
 
 所以本章简化为：
 
@@ -161,7 +161,7 @@ $$
 
 典型值：
 
-| 存储介质 | $t_S$ | $t_T$ | 直观理解 |
+| **Storage Media（存储介质）** | $t_S$ | $t_T$ | 直观理解 |
 |---|---:|---:|---|
 | 高端磁盘 | 约 4 ms | 约 0.1 ms | seek 远比顺序传输贵 |
 | SSD | 约 20-90 μs | 约 2-10 μs | random access 仍贵，但差距变小 |
@@ -169,7 +169,7 @@ $$
 :::NOTE
 本章公式通常忽略 CPU cost 和最终输出写盘 cost。
 
-真实数据库系统会把 CPU、内存、并发、网络等因素也纳入优化器代价模型。这里只是为了推导算法代价，先抓最主要的 I/O 因素。
+真实数据库系统会把 CPU、内存、并发、网络等因素也纳入优化器 **Cost Model**。这里只是为了推导算法代价，先抓最主要的 I/O 因素。
 :::
 
 ### buffer 对代价估计的影响
@@ -203,7 +203,7 @@ from instructor
 where dept_name = 'Music';
 ```
 
-对应关系代数：
+对应 **Relational Algebra**：
 
 $$
 \sigma_{dept\_name='Music'}(instructor)
@@ -211,7 +211,7 @@ $$
 
 selection 的核心问题是：
 
-> 怎样少读磁盘块，就找到满足条件的 tuple？
+> 怎样少读 **Disk Block（磁盘块）**，就找到满足条件的 tuple？
 
 记号：
 
@@ -226,7 +226,7 @@ selection 的核心问题是：
 :::TIP
 理解 selection 算法时，先区分三件事：
 
-1. **能不能用 index** ：条件是否作用在 index search key 上；
+1. **能不能用 index** ：条件是否作用在 index **search key（搜索键）** 上；
 2. **结果有几条** ：条件属性是不是 key；
 3. **结果在磁盘上是否连续** ：index 是 clustering 还是 secondary。
 
@@ -305,17 +305,17 @@ index scan 使用索引来定位 tuple。
 
 前提是：
 
-> selection condition 必须作用在 index 的 search key 上。
+> selection condition 必须作用在 index 的 **search key** 上。
 
-**clustering index** ：
+**clustering index（聚集索引）** ：
 
-- clustering index：数据文件本身按 index search key 的顺序存放，或者至少相近值尽量放在一起；
-- secondary index：index leaf 按 search key 排序，但数据文件本身不按这个 search key 排序。
+- **clustering index**：数据文件本身按 index **search key** 的顺序存放，或者至少相近值尽量放在一起；
+- secondary index：index leaf 按 **search key** 排序，但数据文件本身不按这个 **search key** 排序。
 
 :::EXAMPLE
 假设 index 建在属性 `A` 上。
 
-clustering index 的数据文件可能是：
+**clustering index** 的数据文件可能是：
 
 ```text
 A: 0, 5, 10, 20, 30, 30, 30, 50, 60
@@ -329,7 +329,7 @@ A: 10, 30, 5, 60, 30, 0, 50, 30
 
 两者都能通过 B+ 树找到记录。区别在于：
 
-- clustering index 中，相同或相近的 `A` 值通常连续；
+- **clustering index** 中，相同或相近的 `A` 值通常连续；
 - secondary index 中，满足条件的记录可能散落在很多 data blocks 中。
 :::
 
@@ -402,7 +402,7 @@ $$
 
 这时 $A=v$ 可能返回多条记录。
 
-因为是 clustering index，满足条件的记录在数据文件中通常连续存放。
+因为是 **clustering index**，满足条件的记录在数据文件中通常连续存放。
 
 设匹配记录占 $b$ 个连续 data blocks，代价为：
 
@@ -571,7 +571,7 @@ $$
 
 #### A5 Clustering B+-tree Index, Comparison
 
-如果 relation 按 $A$ 排序，并且有 clustering index：
+如果 relation 按 $A$ 排序，并且有 **clustering index**：
 
 - 对于 $A \ge v$：用 index 找到第一条 $\ge v$ 的 tuple，然后顺序扫描后面的记录；
 - 对于 $A \le v$：从 relation 开头开始顺序扫描，直到第一条 $>v$ 的 tuple。
@@ -711,9 +711,9 @@ where dept_name = 'Music' and salary > 90000;
 如果 `Music` 系有 1000 人，而 `salary > 90000` 只有 10 人，但 salary 没有 index，系统仍只能先用 `dept_name` index 再过滤。
 :::
 
-#### A8 Conjunctive Selection Using Composite Index
+#### A8 Conjunctive Selection Using **Composite Index（复合索引）**
 
-如果存在 composite index，例如：
+如果存在 **composite index**，例如：
 
 ```text
 (dept_name, salary)
@@ -725,7 +725,7 @@ where dept_name = 'Music' and salary > 90000;
 where dept_name = 'Finance' and salary = 80000
 ```
 
-可以直接用复合索引定位同时满足两个条件的记录。
+可以直接用 **Composite Index** 定位同时满足两个条件的记录。
 
 :::EXAMPLE
 单属性索引方案：
@@ -736,17 +736,17 @@ salary index    -> 找到所有工资 80000 的教师
 然后取交集
 ```
 
-复合索引方案：
+**Composite Index** 方案：
 
 ```text
 (dept_name, salary) index -> 直接找 ('Finance', 80000)
 ```
 
-复合索引通常更直接，候选集更小。
+**Composite Index** 通常更直接，候选集更小。
 :::
 
 :::WARNING
-复合索引有顺序。
+**Composite Index** 有顺序。
 
 索引 `(dept_name, salary)` 对下面查询很有效：
 
@@ -922,7 +922,7 @@ bitmap:  0 1 0 1 0 0 1 0
 
 如果 relation 能放进内存，可以使用 quicksort 等内存排序算法。
 
-如果 relation 放不进内存，则需要 **external sorting** 。
+如果 relation 放不进内存，则需要 **external sorting（外部排序）** 。
 
 直接通过 index 读出有序数据也可行，但如果 index 是 secondary index，可能导致每条 tuple 一次随机 I/O，代价很高。
 
@@ -937,7 +937,7 @@ from instructor
 order by salary;
 ```
 
-可以沿着 `salary` index 的 leaf nodes 读出有序 pointer。
+可以沿着 `salary` index 的 **leaf nodes（叶节点）** 读出有序 pointer。
 
 但每个 pointer 指向的数据记录可能在不同 data block 中。于是为了输出完整 tuple，可能每条 tuple 都触发一次随机 I/O。
 
@@ -946,7 +946,7 @@ order by salary;
 
 ### External Sort-Merge
 
-外部排序最常用的是 external sort-merge。
+**External Sorting** 最常用的是 external sort-merge。
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260519113404.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
@@ -964,7 +964,7 @@ Phase 2: merge runs
 
 直观理解：
 
-> 内存一次只能装一小段，就先把每一小段内部排好序；然后像归并排序一样，把很多有序小段合成一个全局有序文件。
+> 内存一次只能装一小段，就先把每一小段内部排好序；然后像 **Merge Sort（归并排序）** 一样，把很多有序小段合成一个全局有序文件。
 
 #### Create Sorted Runs
 
@@ -1362,7 +1362,7 @@ join 是查询处理中最重要也最昂贵的操作之一。
 选择哪一种，取决于：
 
 - 是否有索引；
-- 是否是 equi-join / natural join；
+- 是否是 equi-join / **natural join（自然连接）**；
 - 两个 relation 是否已排序；
 - 可用内存大小；
 - relation 的 block 数和 tuple 数；
@@ -1466,7 +1466,7 @@ $$
 公式含义：
 
 - 读 outer relation 自身：$b_r$；
-- outer 中每一条 tuple 都要触发一次 inner relation 全表扫描：$n_r \cdot b_s$；
+- outer 中每一条 tuple 都要触发一次 inner relation **Full Table Scan（全表扫描）**：$n_r \cdot b_s$；
 - 每次重新扫描 inner，近似一次 seek，共 $n_r$ 次；
 - 读 outer blocks 也估计 $b_r$ 次 seeks。
 
@@ -1696,7 +1696,7 @@ $$
 
 如果满足：
 
-- join 是 equi-join 或 natural join；
+- join 是 equi-join 或 **natural join**；
 - inner relation 的 join attribute 上有 index；
 
 则可以用 index lookup 替代 inner relation 的文件扫描。
@@ -1820,7 +1820,7 @@ merge join 也叫 sort-merge join。
 适用于：
 
 - equi-join；
-- natural join。
+- **natural join**。
 
 <img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20260519114958.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
 
@@ -1832,7 +1832,7 @@ merge join 也叫 sort-merge join。
 
 核心思想：
 
-> 两边都按 join key 排序后，可以像归并排序一样用两个指针从前往后扫。
+> 两边都按 join key 排序后，可以像 **Merge Sort** 一样用两个指针从前往后扫。
 
 :::EXAMPLE
 `student` 按 `ID` 排序：
@@ -2042,7 +2042,7 @@ hybrid merge join 的做法是：
 hash join 适用于：
 
 - equi-join；
-- natural join。
+- **natural join**。
 
 它的核心思想是：
 
@@ -2523,9 +2523,9 @@ r.C = s.C 的 join
 要注意去重，因为同一对 tuple 可能同时满足两个条件。
 :::
 
-### Semijoin
+### **Semijoin（半连接）**
 
-semijoin 记作：
+**semijoin** 记作：
 
 $$
 r \ltimes_{\theta} s
@@ -2535,9 +2535,9 @@ $$
 
 > 输出 $r$ 中那些至少能在 $s$ 中找到一个匹配 tuple 的 tuple，但输出结果只包含 $r$ 的属性。
 
-如果某个 tuple $r_i$ 在 $r$ 中出现 $n$ 次，并且至少有一个 $s_i$ 与它匹配，那么它在 semijoin 结果中也出现 $n$ 次。
+如果某个 tuple $r_i$ 在 $r$ 中出现 $n$ 次，并且至少有一个 $s_i$ 与它匹配，那么它在 **semijoin** 结果中也出现 $n$ 次。
 
-也就是说，semijoin 保留 $r$ 中 tuple 的重复次数。
+也就是说， **semijoin** 保留 $r$ 中 tuple 的重复次数。
 
 可以由普通 join 表达为：
 
@@ -2561,7 +2561,7 @@ Bob 选了 OS          -> Bob 出现一次
 
 然后再 projection 回 student 属性，还要去重。
 
-semijoin 可以直接判断：
+**semijoin** 可以直接判断：
 
 ```text
 Alice 在 takes 中有匹配 -> 输出 Alice 一次
@@ -2580,11 +2580,11 @@ Cindy 无匹配            -> 不输出
 - **hash semijoin** ：对 $s$ 建 hash table，对 $r$ probe，只要有匹配就输出 $r$ tuple。
 
 :::NOTE
-semijoin 和 join 的区别在输出。
+**semijoin** 和 join 的区别在输出。
 
 - join 输出 $r$ 和 $s$ 拼接后的 tuple；
-- semijoin 只输出 $r$ 的 tuple；
-- semijoin 常用于减少数据传输或减少后续操作输入规模。
+- **semijoin** 只输出 $r$ 的 tuple；
+- **semijoin** 常用于减少数据传输或减少后续操作输入规模。
 :::
 
 ### Joins over Spatial Data
@@ -2695,7 +2695,7 @@ aggregation 与 duplicate elimination 类似，都需要把同组 tuple 放到�
 - sorting：按 group-by attributes 排序；
 - hashing：按 group-by attributes 分桶。
 
-然后对每组应用 aggregate function。
+然后对每组应用 **aggregate function（聚合函数）**。
 
 :::EXAMPLE
 ```sql
@@ -2711,9 +2711,9 @@ group by dept_name;
 
 在 run generation 或 intermediate merge 阶段就合并同组数据。
 
-对不同 aggregate function：
+对不同 **aggregate function**：
 
-| 聚合函数 | 可维护的中间状态 |
+| **Aggregate Function** | 可维护的中间状态 |
 |---|---|
 | `count` | 当前计数 |
 | `min` | 当前最小值 |
@@ -2788,13 +2788,13 @@ s -> s0, s1, ..., sn
 3. 如果 $s_i$ 中 tuple 出现在 hash index 中，则从 index 删除；
 4. 最后输出 hash index 中剩余 tuples。
 
-### Outer Join
+### **Outer Join（外连接）**
 
-outer join 可以通过两种方式实现。
+**outer join** 可以通过两种方式实现。
 
 #### join 后补 null
 
-以 left outer join 为例：
+以 left **outer join** 为例：
 
 $$
 r \mathbin{⟕}_{\theta} s
@@ -2828,7 +2828,7 @@ $$
 - 如果 $r$ 是 probe relation，probe 时发现没有匹配，就输出 null-padded $r$ tuple；
 - 如果 $r$ 是 build relation，则 probe 时记录哪些 $r$ tuple 被匹配；最后输出未匹配的 $r$ tuple 并补 null。
 
-right outer join 和 full outer join 可以类似处理。
+right **outer join** 和 full **outer join** 可以类似处理。
 
 ### Keyword Queries
 
@@ -2872,7 +2872,7 @@ K1, K2, ..., Kn
 
 ## Evaluation of Expressions
 
-前面讨论的是单个关系代数操作。
+前面讨论的是单个 **Relational Algebra** 操作。
 
 但一个 SQL 查询通常会变成一棵 operator tree。
 
@@ -2992,7 +2992,7 @@ demand-driven 也叫 lazy evaluation 或 pull model。
 
 特点：
 
-- 父节点需要 tuple 时才向下拉取；
+- **Parent Node（父节点）** 需要 tuple 时才向下拉取；
 - 控制流从 root 往 leaf 传递请求；
 - 数据流从 leaf 往 root 返回 tuple。
 
@@ -3143,7 +3143,7 @@ hash join 可以两层分区：
 
 解释执行有开销：
 
-- 每处理一条 tuple，都要根据 metadata 找 attribute 位置；
+- 每处理一条 tuple，都要根据 **metadata（元数据）** 找 attribute 位置；
 - 表达式计算需要通用解释器；
 - 函数调用和分支判断较多。
 
@@ -3163,9 +3163,9 @@ query compilation 的思想是：
 - OLAP 查询；
 - 重复执行或处理大量 tuple 的查询。
 
-### Column-Oriented Storage
+### **Column-Oriented Storage（列式存储）**
 
-column-oriented storage 对查询处理也很重要。
+**column-oriented storage** 对查询处理也很重要。
 
 如果查询只访问少数属性，列存可以避免读取无关列。
 

@@ -34,13 +34,13 @@ DDL 是 **Data Definition Language** ，数据定义语言。
 - 表长什么样
 - 每一列是什么类型
 - 哪些列不能为空
-- 哪些列是主键、外键
+- 哪些列是 **Primary Key（主键）**、 **Foreign Key（外键）**
 
 DDL 不只是定义列名和类型，理论上还可以描述：
 
 - relation 的 schema
 - 每个属性对应的 domain
-- integrity constraints
+- **integrity constraints（完整性约束）**
 - 以及后续会见到的索引、安全授权、物理存储结构等信息
 
 典型命令：
@@ -155,7 +155,7 @@ interval '1' day
 
 也就是说：
 
-> 在关系模型里说属性属于某个域，到了 SQL 里就具体落成这一列是什么数据类型。
+> 在 **Relational Model（关系模型）** 里说属性属于某个域，到了 SQL 里就具体落成这一列是什么数据类型。
 
 ### `create table` 与常见约束
 
@@ -182,7 +182,7 @@ create table r (
 - `r` 是表名
 - `Ai` 是属性名
 - `Di` 是属性的数据类型
-- 后面可以继续声明完整性约束
+- 后面可以继续声明 **Integrity Constraint**
 
 
 ```sql
@@ -222,7 +222,7 @@ name varchar(20) not null
 
 **`primary key`**
 
-主键解决的是：
+**Primary Key** 解决的是：
 
 > 如何唯一标识表中的一条记录。
 
@@ -238,16 +238,16 @@ create table instructor (
 
 理解重点：
 
-- 主键必须唯一
-- 主键不能为 `null`
+- **Primary Key** 必须唯一
+- **Primary Key** 不能为 `null`
 - slides 特别强调： **primary key declaration automatically ensures not null**
 
-也就是说，只要某列被声明成主键，它自动就不能是空值。
+也就是说，只要某列被声明成 **Primary Key**，它自动就不能是空值。
 
 
-**复合主键**
+**复合Primary Key**
 
-有些表单靠一列不够唯一，就需要多列一起组成主键。
+有些表单靠一列不够唯一，就需要多列一起组成 **Primary Key**。
 
 slides 中 `takes` 的例子：
 
@@ -271,7 +271,7 @@ create table takes (
 
 **`foreign key`**
 
-外键解决的是：
+**Foreign Key** 解决的是：
 
 > 怎样把一张表和另一张表联系起来，并保证引用合法。
 
@@ -304,7 +304,7 @@ create table course (
 );
 ```
 
-这体现了外键的本质：
+这体现了 **Foreign Key** 的本质：
 
 > 让表与表之间的联系不仅能连起来，而且连得合法。
 
@@ -335,7 +335,7 @@ create table student (
 
 **参照动作：`on delete / on update`**
 
-外键后面可以跟参照动作，例如：
+**Foreign Key** 后面可以跟参照动作，例如：
 
 - `on delete cascade`
 - `on delete set null`
@@ -355,7 +355,7 @@ create table student (
 最常见的直觉：
 
 - `cascade`：跟着改、跟着删
-- `set null`：把外键列改成 `null`
+- `set null`：把 **Foreign Key** 列改成 `null`
 - `restrict` / `no action`：不允许你这么做
 
 
@@ -454,7 +454,7 @@ where P;
 
 > The result of an SQL query is a relation.
 
-也就是说，查询的输出本身依然可以看成一张关系表，这也是为什么查询结果还能继续参与后续操作，比如再做子查询、再做集合运算、再放进 `from` 里。
+也就是说，查询的输出本身依然可以看成一张关系表，这也是为什么查询结果还能继续参与后续操作，比如再做 **Subquery（子查询）**、再做集合运算、再放进 `from` 里。
 
 可以把它理解成一个三步过程：
 
@@ -474,7 +474,7 @@ select name
 from instructor;
 ```
 
-这和关系代数里的 **投影** 是对应的。
+这和 **Relational Algebra（关系代数）** 里的 **投影** 是对应的。
 
 SQL 名字默认大小写不敏感
 
@@ -549,7 +549,7 @@ from instructor, teaches;
 
 > `instructor × teaches`
 
-也就是 **笛卡尔积** 。
+也就是 **Cartesian Product（笛卡尔积）** 。
 
 这一步本身通常没什么实际意义，但它是多表查询的出发点。
 
@@ -564,7 +564,7 @@ from instructor
 where dept_name = 'Comp. Sci.' and salary > 80000;
 ```
 
-`where` 对应关系代数中的 **选择** 。
+`where` 对应 **Relational Algebra** 中的 **选择** 。
 
 它解决的问题是：
 
@@ -626,7 +626,7 @@ from instructor;
 
 虽然 `all` 很少手写，但
 
-> SQL 默认不是集合语义，而是允许重复的多重集语义。
+> SQL 默认不是集合语义，而是允许重复的 **Multiset Semantics（多重集语义）**。
 
 
 **`between`**
@@ -745,7 +745,7 @@ from instructor natural join teaches;
 - `instructor` 和 `teaches` 里共同有 `ID`
 - 而这个共同属性刚好就是它们真实的连接键
 
-所以自然连接在同名属性就是同一个含义时很好用。
+所以 **Natural Join（自然连接）** 在同名属性就是同一个含义时很好用。
 
 
 **`natural join` 的风险**
@@ -890,7 +890,7 @@ from instructor;
 
 **给表起别名**
 
-一个自连接的经典例子：
+一个 **Self Join（自连接）** 的经典例子：
 
 ```sql
 select distinct T.name
@@ -933,7 +933,7 @@ where name like '%dar%';
 
 **`escape`**
 
-如果你想匹配的字符串里本身就有 `%`，那 `%` 会和通配符含义冲突。
+如果你想匹配的字符串里本身就有 `%`，那 `%` 会和 **Wildcard（通配符）** 含义冲突。
 
 这时可以用 `escape`。
 
@@ -946,8 +946,8 @@ like '100 #%' escape '#'
 
 它的意思是：
 
-- 把 `\` 或 `#` 指定成转义字符
-- 后面的 `%` 不再表示通配符，而表示字符 `%` 本身
+- 把 `\` 或 `#` 指定成 **Escape Character（转义字符）**
+- 后面的 `%` 不再表示 **Wildcard**，而表示字符 `%` 本身
 
 
 
@@ -1127,7 +1127,7 @@ except
 - `intersect all`
 - `except all`
 
-多重集计数规则是：
+**Multiset** 计数规则是：
 
 - `r union all s`：某元组出现 `m + n` 次
 - `r intersect all s`：某元组出现 `min(m, n)` 次
@@ -1213,9 +1213,9 @@ salary is null
 ```
 
 
-### 三值逻辑
+### **Three-Valued Logic（三值逻辑）**
 
-因为有 `null`，SQL 不是普通二值逻辑，而是三值逻辑。
+因为有 `null`，SQL 不是普通二值逻辑，而是 **Three-Valued Logic**。
 
 
 #### OR
@@ -1248,13 +1248,13 @@ salary is null
 所以很多为什么这条记录没查出来的问题，本质上都是 `null` 导致条件变成了 `unknown`。
 
 
-## Aggregate Functions
+## **Aggregate Functions（聚合函数）**
 
 > 如果我不只是想看单条记录，而是想做统计，该怎么办？
 
-### 常见聚合函数
+### 常见 **Aggregate Function**
 
-5 个最基本的聚合函数：
+5 个最基本的 **Aggregate Function**：
 
 - `avg`
 - `min`
@@ -1264,7 +1264,7 @@ salary is null
 
 它们操作的对象不是单个元组，而是：
 
-> 某一列值构成的一个集合（更准确说是多重集）。
+> 某一列值构成的一个集合（更准确说是 **Multiset**）。
 
 
 **基本例子**
@@ -1332,7 +1332,7 @@ group by dept_name;
 
 **`group by` 和 `select` 的关系**
 
-> `select` 子句中，凡是不在聚合函数里的属性，都必须出现在 `group by` 列表中。
+> `select` 子句中，凡是不在 **Aggregate Function** 里的属性，都必须出现在 `group by` 列表中。
 
 例如下面是错误写法：
 
@@ -1402,7 +1402,7 @@ order by cnt;
 - `having count(*) > 10`：只保留人数超过 10 的组
 
 
-### 聚合函数与 `null`
+### **Aggregate Function** 与 `null`
 
 #### 1. `sum(salary)` 会忽略 `null`
 
@@ -1413,7 +1413,7 @@ from instructor;
 
 如果某些工资是 `null`，它们不会参与求和。
 
-#### 2. 除 `count(*)` 外，其他聚合函数都忽略聚合列中的 `null`
+#### 2. 除 `count(*)` 外，其他 **Aggregate Function** 都忽略聚合列中的 `null`
 
 也就是说：
 
@@ -1451,11 +1451,11 @@ having count(distinct name) = count(ID);
 - 那么不同姓名个数就等于学生总人数
 
 
-## Nested Subqueries
+## Nested **Subqueries**
 
-### 子查询的作用
+### **Subquery** 的作用
 
-> 子查询是嵌套在另一个查询中的 `select-from-where` 表达式。
+> **Subquery** 是嵌套在另一个查询中的 `select-from-where` 表达式。
 
 它的常见用途包括：
 
@@ -1463,7 +1463,7 @@ having count(distinct name) = count(ID);
 - 集合比较
 - 集合大小/存在性测试
 
-理解子查询最好的方式是：
+理解 **Subquery** 最好的方式是：
 
 > 先用一个查询算出一个中间结果，再让外层查询拿这个结果继续判断。
 
@@ -1493,7 +1493,7 @@ where semester = 'Fall'
 
 所以：
 
-> `in` 本质上是在问：这个值是否属于子查询返回的集合。
+> `in` 本质上是在问：这个值是否属于 **Subquery** 返回的集合。
 
 
 **`not in`：不属于某个集合**
@@ -1596,13 +1596,13 @@ where salary > all (
 - 集合比较用 `some / all`
 
 
-### 标量子查询与存在性测试
+### **Scalar Subquery（标量子查询）** 与存在性测试
 
-**标量子查询**
+**Scalar Subquery**
 
-标量子查询指的是：
+**Scalar Subquery** 指的是：
 
-> 这个子查询应该只返回一个值。
+> 这个 **Subquery** 应该只返回一个值。
 
 ```sql
 select name
@@ -1613,18 +1613,18 @@ where salary * 10 >
      where department.dept_name = instructor.dept_name);
 ```
 
-这里子查询返回的是某个院系的 `budget`，即一个单值。
+这里 **Subquery** 返回的是某个院系的 `budget`，即一个单值。
 
-> 如果标量子查询返回多行，会产生运行时错误。
+> 如果 **Scalar Subquery** 返回多行，会产生运行时错误。
 
 所以你必须确保它真的只会返回一个值。
 
 
 **`exists`：只关心有没有**
 
-`exists` 不关心子查询具体返回什么值，只关心：
+`exists` 不关心 **Subquery** 具体返回什么值，只关心：
 
-> 子查询结果是否非空。
+> **Subquery** 结果是否非空。
 
 - `exists r`：`r ≠ Ø`
 - `not exists r`：`r = Ø`
@@ -1646,11 +1646,11 @@ where semester = 'Fall'
 ```
 
 
-**相关子查询 correlated subquery**
+**Correlated Subquery（相关子查询）**
 
-上面这个 `exists` 例子就是相关子查询。
+上面这个 `exists` 例子就是 **Correlated Subquery**。
 
-因为内层子查询里用到了外层的：
+因为内层 **Subquery** 里用到了外层的：
 
 ```sql
 S.course_id
@@ -1661,7 +1661,7 @@ S.course_id
 - 内层查询不是独立执行一次就完
 - 而是会随着外层当前元组不同而变化
 
-所以相关子查询的本质是：
+所以 **Correlated Subquery** 的本质是：
 
 > 内层查询依赖外层当前这一行。
 
@@ -1699,7 +1699,7 @@ where not exists (
 
 它测试的是：
 
-> 子查询结果中是否没有重复元组。
+> **Subquery** 结果中是否没有重复元组。
 > 对空集它也会返回 true。
 
 例如找 2009 年至多开过一次的课程：
@@ -1718,11 +1718,11 @@ where unique (
 如果再加上 `exists`，就能把至多一次改成恰好一次。
 
 
-### `from` 子查询、`lateral` 与 `with`
+### `from` **Subquery**、`lateral` 与 `with`
 
-**`from` 子查询**
+**`from` Subquery**
 
-SQL 允许把子查询结果直接当作一张临时表放进 `from` 中。
+SQL 允许把 **Subquery** 结果直接当作一张临时表放进 `from` 中。
 
 例如先算每个系的平均工资，再从中筛出大于 42000 的系：
 
@@ -1743,7 +1743,7 @@ where avg_salary > 42000;
 - 再对中间结果继续查询
 
 
-**给 `from` 子查询起名字**
+**给 `from` Subquery起名字**
 
 ```sql
 select dept_name, avg_salary
@@ -1757,7 +1757,7 @@ where avg_salary > 42000;
 
 这里：
 
-- `dept_avg` 是子查询得到的临时关系名
+- `dept_avg` 是 **Subquery** 得到的临时关系名
 - 后面的 `(dept_name, avg_salary)` 是它的列名
 
 
@@ -1782,13 +1782,13 @@ from instructor I1,
 
 所以可以把 `lateral` 理解成：
 
-> `from` 子句里的可引用前文的子查询。
+> `from` 子句里的可引用前文的 **Subquery**。
 
 
 
-**`with`：临时视图 temporary view**
+**`with`：Temporary View（临时视图）**
 
-> `with` 子句定义一个临时视图，它只在当前查询中可用。
+> `with` 子句定义一个 **Temporary View**，它只在当前查询中可用。
 
 例如找预算最大的院系：
 
@@ -1863,7 +1863,7 @@ delete from instructor
 where dept_name = 'Finance';
 ```
 
-**`delete` 中也可以用子查询**
+**`delete` 中也可以用Subquery**
 
 例如删除所在院系位于 Watson 楼的教师：
 
@@ -2027,7 +2027,7 @@ end;
 所以 `case` 是实际 SQL 里非常常见的工具。
 
 
-**`update` + 子查询**
+**`update` + Subquery**
 
 一个很典型的重算字段例子：
 

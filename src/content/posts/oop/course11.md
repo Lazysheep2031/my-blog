@@ -490,7 +490,7 @@ setiosflags(flags);
 resetiosflags(flags);
 ```
 
-或者使用 stream member functions：
+或者使用 stream **member functions（成员函数）**：
 
 ```cpp
 cout.setf(flags);
@@ -516,7 +516,7 @@ cout  // ostream
 cin   // istream
 ```
 
-如果把 `operator<<` 写成 `Point` 的 member function，调用形式会变成：
+如果把 `operator<<` 写成 `Point` 的 **member function**，调用形式会变成：
 
 ```cpp
 p.operator<<(cout);
@@ -545,7 +545,7 @@ friend ostream& operator<<(ostream& out, const Point& p) {
 }
 ```
 
-这种函数仍然是 free function，不是 member function。
+这种函数仍然是 free function，不是 **member function**。
 
 它被称为 hidden friend 的原因是：
 
@@ -592,7 +592,7 @@ int main() {
 - `operator<<` 的 `Point` 参数是 `const Point&`，因为输出不修改对象；
 - `operator>>` 的 `Point` 参数是 `Point&`，因为输入要修改对象；
 - 两个 operator 都返回 stream reference，保证可以 chaining；
-- 为了支持 `Point b; cin >> b;`，`Point` 需要 default constructor，这里通过默认参数实现。
+- 为了支持 `Point b; cin >> b;`，`Point` 需要 **default constructor（默认构造函数）**，这里通过 **Default Argument（默认参数）** 实现。
 
 
 ## Example：组合类型 LineSegment 的输出

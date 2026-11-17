@@ -7,7 +7,7 @@ category: 笔记
 draft: true
 ---
 
-本文深入讲解 C++ STL 中的迭代器（Iterator）概念，阐述了为什么需要 Iterator 以及它如何统一不同容器的访问方式。内容涵盖 Iterator 的基本操作、Map Iterator 的特殊性（返回键值对）、`lower_bound`/`upper_bound` 区间遍历技巧、五大 Iterator 分类体系及其对算法的影响、const 迭代器的使用、Iterator 失效问题，以及 Iterator 在 STL 泛型编程中作为"容器与算法之间桥梁"的核心地位，并深入分析了 `[begin, end)` 半开区间设计和 `std::find` 等算法的使用模式。
+本文深入讲解 C++ STL 中的迭代器（Iterator）概念，阐述了为什么需要 Iterator 以及它如何统一不同容器的访问方式。内容涵盖 Iterator 的基本操作、Map Iterator 的特殊性（返回 **Key-Value Pair（键值对）**）、`lower_bound`/`upper_bound` 区间遍历技巧、五大 Iterator 分类体系及其对算法的影响、const 迭代器的使用、Iterator 失效问题，以及 Iterator 在 STL **Generic Programming（泛型编程）** 中作为"容器与算法之间桥梁"的核心地位，并深入分析了 `[begin, end)` **Half-Open Range（半开区间）** 设计和 `std::find` 等算法的使用模式。
 
 ## 目录
 
@@ -20,7 +20,7 @@ draft: true
   - [3️⃣ Range-based for](#3️⃣-range-based-for)
 - [Map Iterators](#map-iterators)
   - [1️⃣ 基本遍历（iterator 写法）](#1️⃣-基本遍历iterator-写法)
-  - [2️⃣ Range-based for + structured binding（最推荐）](#2️⃣-range-based-for--structured-binding最推荐)
+  - [2️⃣ Range-based for + **structured binding（结构化绑定）** （最推荐）](#2️⃣-range-based-for--structured-binding-最推荐)
   - [3️⃣ find 的经典用法](#3️⃣-find-的经典用法)
 - [Further Iterator Usages：`lower_bound` / `upper_bound` 与区间遍历](#further-iterator-usageslower_bound--upper_bound-与区间遍历)
   - [`lower_bound` / `upper_bound` 定义（有序容器）](#lower_bound--upper_bound-定义有序容器)
@@ -35,7 +35,7 @@ draft: true
 - [Iterator Categories](#iterator-categories)
   - [Random Access Iterator 支持：](#random-access-iterator-支持)
 - [为什么 sort 不能用于 list？](#为什么-sort-不能用于-list)
-- [Iterator Invalidation](#iterator-invalidation)
+- [**Iterator Invalidation（迭代器失效）**](#iterator-invalidation)
   - [vector](#vector)
   - [list](#list)
 - [begin() / end() 设计思想](#begin--end-设计思想)
@@ -58,11 +58,11 @@ draft: true
 
 ## 为什么需要 Iterator？
 
-Sequence Containers：
+**Sequence Containers（顺序容器）**：
 
 - 通过 index 访问（如 `v[i]`）
 
-Associative Containers：
+**Associative Containers（关联容器）**：
 
 - 没有 index
 - 不能用下标遍历
@@ -129,7 +129,7 @@ for (auto it = v.begin(); it != v.end(); ++it)
 
 ## Map Iterators
 
-`std::map<K, V>` 的 iterator **解引用不是 value** ，而是一个键值对：
+`std::map<K, V>` 的 iterator **解引用不是 value** ，而是一个 **Key-Value Pair**：
 
 > `std::pair<const K, V>`
 
@@ -140,7 +140,7 @@ for (auto it = v.begin(); it != v.end(); ++it)
 
 > [!NOTE]
 > key 之所以是 const：
-> map 的内部结构依赖 key 的排序（红黑树等），改 key 会破坏数据结构不变量。
+> map 的内部结构依赖 key 的排序（**Red-Black Tree（红黑树）** 等），改 key 会破坏数据结构不变量。
 
 ---
 
@@ -164,7 +164,7 @@ auto key2 = it->first;   // 更常用（-> 是 iterator 的语法糖）
 
 ---
 
-### 2️⃣ Range-based for + structured binding（最推荐）
+### 2️⃣ Range-based for + **structured binding** （最推荐）
 
 ```cpp
 for (const auto& [key, value] : m) {
@@ -172,7 +172,7 @@ for (const auto& [key, value] : m) {
 }
 ```
 
-- `[key, value]` 来自对 `pair<const K, V>` 的 structured binding
+- `[key, value]` 来自对 `pair<const K, V>` 的 **structured binding**
 - `const auto&`：避免拷贝 + 明确只读 key/value（更安全）
 
 > [!TIP]  
@@ -205,7 +205,7 @@ if (it == m.end()) {
 
 ## Further Iterator Usages：`lower_bound` / `upper_bound` 与区间遍历
 
-在 **有序关联容器** （`set/map/multiset/multimap`）里，我们可以用 `lower_bound` 和 `upper_bound` 拿到一个 **iterator 区间** ，再像遍历 `[begin, end)` 一样遍历这个区间。
+在 **Ordered Associative Container（有序关联容器）** （`set/map/multiset/multimap`）里，我们可以用 `lower_bound` 和 `upper_bound` 拿到一个 **iterator 区间** ，再像遍历 `[begin, end)` 一样遍历这个区间。
 
 ---
 
@@ -217,7 +217,7 @@ if (it == m.end()) {
 如果不存在对应元素，返回 `end()`（past-the-end）。
 
 > [!NOTE]
-> 它们返回的都是 **iterator** ，因此可以直接用来构造一个半开区间：
+> 它们返回的都是 **iterator** ，因此可以直接用来构造一个 **Half-Open Range**：
 > `[lower_bound(k1), upper_bound(k2))`
 
 ```cpp
@@ -256,7 +256,7 @@ STL 的核心思想之一： **算法不依赖容器本身，而依赖 iterator 
 | Category                   | 核心能力                                     | 常见例子 / 容器                      |
 | -------------------------- | -------------------------------------------- | ------------------------------------ |
 | **Input Iterator**         | 只读、单趟（single-pass）、`++it`、`*it` 读  | `istream_iterator`                   |
-| **Output Iterator**        | 只写、单趟、`++it`、`*it = value` 写         | `ostream_iterator`、`back_inserter`  |
+| **Output Iterator（输出迭代器）**        | 只写、单趟、`++it`、`*it = value` 写         | `ostream_iterator`、`back_inserter`  |
 | **Forward Iterator**       | 可读写、多趟（multi-pass）、单向 `++it`      | `forward_list`                       |
 | **Bidirectional Iterator** | 在 Forward 基础上支持 `--it`（双向）         | `list`, `map`, `set`                 |
 | **Random Access Iterator** | 支持跳跃：`it+n`、`it-n`、`it[i]`、`it1<it2` | `vector`, `deque`, `array`、原生指针 |
@@ -303,15 +303,15 @@ algo(begin, end, ...);
 当标准算法因为 iterator 限制不可用时，容器可能提供自己的版本：
 
 - `std::list` 有 `list.sort()`（链表适合用合并排序等实现）
-- `std::map / std::set` 查找应使用成员函数：
+- `std::map / std::set` 查找应使用 **Member Function（成员函数）**：
   - `m.find(k)` / `s.find(k)`（对数级）
   - 而不是 `std::find(begin, end, k)`（线性）
 
 > [!TIP]  
 > 一个实用原则：
 >
-> - **关联容器（map/set）优先用成员函数（find/lower_bound/upper_bound）**
-> - **序列容器（vector/list）更多用 STL algorithm（sort/find/accumulate）**
+> - **Associative Container（map/set）优先用Member Function（find/lower_bound/upper_bound）**
+> - **Sequence Container（vector/list）更多用 STL algorithm（sort/find/accumulate）**
 
 ---
 
@@ -321,7 +321,7 @@ algo(begin, end, ...);
 
 只要容器支持：
 
-- `begin()` / `end()`：给出遍历的起点和终点（半开区间 `[begin, end)`）
+- `begin()` / `end()`：给出遍历的起点和终点（**Half-Open Range** `[begin, end)`）
 - `++it`：移动到下一个元素
 - `*it`：访问当前元素
 
@@ -386,7 +386,7 @@ auto it = v.cbegin();
 | 类型                   | 支持能力       | 典型容器       |
 | ---------------------- | -------------- | -------------- |
 | Input Iterator         | 只读、向前     | istream        |
-| Output Iterator        | 只写、向前     | ostream        |
+| **Output Iterator**        | 只写、向前     | ostream        |
 | Forward Iterator       | 多次遍历、向前 | forward_list   |
 | Bidirectional Iterator | 可前进、后退   | list, set, map |
 | Random Access Iterator | 可跳跃访问     | vector, deque  |
@@ -421,7 +421,7 @@ std::sort(list.begin(), list.end()); // ❌
 
 ---
 
-## Iterator Invalidation
+## **Iterator Invalidation**
 
 修改容器后，iterator 可能失效。
 
@@ -451,7 +451,7 @@ for (auto it = begin; it != end; ++it)
 
 避免越界访问。
 
-这是半开区间设计：
+这是 **Half-Open Range** 设计：
 
 ```
 [begin, end)
@@ -508,7 +508,7 @@ if (it == vec.end()) {
 > `if (it == cont.end())` → 没找到  
 > `else` → 找到了，可以安全使用 `*it` 或 `it->...`
 
-- **`std::find` 是线性查找 O(n)** ，而 `map/set` 应该用成员函数 `find`（对有序关联容器是 `O(log n)`）。
+- **`std::find` 是Linear Search（线性查找） O(n)** ，而 `map/set` 应该用 **Member Function** `find`（对 **Ordered Associative Container** 是 `O(log n)`）。
 
 ---
 
@@ -537,7 +537,7 @@ Iterator 是三者之间的抽象接口。
 ---
 
 > [!TIP]  
-> Iterator 是 STL 泛型编程的核心。  
+> Iterator 是 STL **Generic Programming** 的核心。  
 > 它不是“遍历工具”，而是“抽象接口”。
 
 > [!WARNING]  
