@@ -40,7 +40,7 @@ $$
 
 表项会随路由更新而改变。对某个分组执行转发时，使用当前已经得到的转发信息。
 
-### **Store-and-Forward（存储转发）** **Packet Switching（分组交换）**
+### **Store-and-Forward Packet Switching**
 
 **Store-and-Forward**：先接收完整分组，完成相应检查；检测出错误则丢弃，通过检查后再向下一跳发送。分组接收需要时间，输出链路忙时还要在缓冲区等待。
 
@@ -491,7 +491,7 @@ $$
 \boxed{O(n^2)}.
 $$
 
-### **Oscillation（路由振荡）** in **Link-State Routing**
+### **Oscillation** in **Link-State Routing**
 
 如果链路代价随流量变化，选路会改变流量，变化后的流量又会改变下一轮选路，可能形成 **Routing Oscillation**。
 
@@ -787,7 +787,7 @@ $$
 
 </details>
 
-### The **Count-to-Infinity（无穷计数）** Problem
+### The **Count-to-Infinity** Problem
 
 **DV** 的一个重要问题是 **坏消息可能传播很慢**。邻居通告一个距离时，通常不附带完整路径，接收方无法直接知道自己是否位于这条路径上。
 
@@ -989,7 +989,7 @@ $$
 
 这种方法使每个节点对同一个广播只执行一次复制，阻止无限传播。**重复副本仍可能抵达节点，只是不会再被继续转发。**
 
-#### **Reverse Path Forwarding（反向路径转发，RPF）**
+#### **Reverse Path Forwarding (RPF)**
 
 **RPF** 利用现有单播路由判断广播分组的到达方向。
 
@@ -1150,7 +1150,7 @@ IGMP 消息封装在 IP 数据报中，对应的 IP Protocol 值为 **2**。在�
 
 这里按功能理解查询、报告和离开，具体报文类型取决于 IGMP 版本。
 
-#### **Distance Vector Multicast Routing Protocol（距离向量多播路由协议，DVMRP）** and **Protocol Independent Multicast（协议无关多播，PIM）**
+#### **Distance Vector Multicast Routing Protocol (DVMRP)** and **Protocol Independent Multicast (PIM)**
 
 **DVMRP** 使用 **Source-Based Tree**，结合 **RPF** 与剪枝，把没有接收者的分支去掉。
 
@@ -1280,7 +1280,7 @@ $$
 
 读图时先把这几个字段归为同一组，区分它们与总长度、首部长度的作用。
 
-#### **Time to Live（生存时间，TTL）**
+#### **Time to Live (TTL)**
 
 **TTL** 限制分组在网络中的持续转发。每经过一台路由器， **TTL** 减 1；减到 0 时，路由器丢弃分组，并向源端报告相应错误。
 
@@ -1300,7 +1300,7 @@ $$
 
 **Protocol 区分 IP 所承载的协议；TCP／UDP 的端口号进一步区分应用端点。**
 
-#### **Header Checksum（首部校验和）** and Addresses
+#### **Header Checksum** and Addresses
 
 **Header Checksum** 用于检查 IPv4 首部。路由器转发时会修改 **TTL**，因此必须相应更新 **Header Checksum**。
 
@@ -1366,7 +1366,7 @@ $$
 
 有两种处理思路：**源端先获知路径允许的大小，发送合适长度的分组；或在必要时将分组拆成多个分片。** 每个分片都携带自己的 IP 首部，独立进行转发。
 
-#### Transparent and **Nontransparent Fragmentation（非透明分片）**
+#### Transparent and **Nontransparent Fragmentation**
 
 **Transparent Fragmentation（透明分片）**：分组进入某个网络时被分片，离开该网络前重新组装。下一段网络需要时，再重新分片。
 
@@ -1595,7 +1595,7 @@ $$
 
 </details>
 
-### Subnets and **Subnetting（子网划分）**
+### Subnets and **Subnetting**
 
 **子网（Subnet）** 是主机和路由器接口所在的一个网络范围。识别拓扑中的子网时，可以把路由器各接口从路由器本体上拆开，看形成多少个相互隔离的“岛”。
 
@@ -1752,7 +1752,7 @@ A、B、C 的类别标志也属于前缀，因此剩余的网络编号位分别�
 
 组织取得地址块后，再划分内部子网，并为接口分配地址；主机地址还可以由 **DHCP** 自动配置。**给组织分配一块地址，与给一台主机分配地址，是不同层次的工作。**
 
-### **Classless Inter-Domain Routing（无类别域间路由，CIDR）** and **Route Aggregation（路由聚合）**
+### **Classless Inter-Domain Routing (CIDR)** and **Route Aggregation**
 
 **CIDR** 使用 `地址/前缀长度` 描述网络，不再由 A、B、C 类固定前缀长度。
 
@@ -1933,7 +1933,7 @@ $$
 
 `255.255.255.255` 与某个子网的广播地址也要区分。例如 `128.13.255.255` 的含义由 `128.13.0.0/16` 决定，它的 **主机部分** 为全 1。
 
-### **Network Address Translation（网络地址转换，NAT）**
+### **Network Address Translation (NAT)**
 
 **NAT** 在内部网络和外部网络之间修改地址，使许多内部主机共享较少的外部 IPv4 地址。
 
@@ -2736,5 +2736,916 @@ $$
 本例带回了完整的 78 字节原始数据报，因而能继续看到内层 UDP 的内容。**“原始首部＋数据开头”说明错误报告所引用的内容，实际引用长度可以更长。**
 
 图中的 **Checksum** 状态 `Unverified`／`validation disabled` 表示没有执行对应校验，不能直接理解为校验失败； **ICMP** 自身的校验结果显示为 `correct`。
+
+</details>
+
+
+### Address Resolution Protocol
+
+**地址解析协议（Address Resolution Protocol，ARP）** 根据同一链路上的 IPv4 地址，查询对应的 MAC 地址。以太网使用 48 bit 的 MAC 地址标识帧的发送者和接收者。
+
+发送一个 IP 数据报，需要先确定下一跳，再填写这一跳的以太网首部：
+
+- **目的主机在本地子网**：下一跳就是目的主机，查询它的 MAC 地址。
+- **目的主机在其他子网**：按路由表选择下一跳，查询相邻路由器接口的 MAC 地址。
+
+**IP 地址用于跨网络寻址和路由；MAC 地址用于当前链路上的帧交付。** 路由器先确定从哪个接口、向哪个下一跳转发，ARP 再补齐发送帧需要的地址。
+
+#### Requests and Replies
+
+发送方先查 **ARP 缓存**。没有可用映射时，在本地链路广播请求：“谁拥有这个 IP 地址？请告诉我你的 MAC 地址。”
+
+1. **请求使用广播**：以太网目的地址为 `ff:ff:ff:ff:ff:ff`，本地链路上的设备都能收到。
+2. **目标主机单播应答**：拥有目标 IP 的主机把自己的 MAC 地址发回请求方。
+3. **记录映射并发送数据**：请求方保存 IP 到 MAC 的对应关系，再把 IP 数据报装入发往该 MAC 的帧。
+
+ARP 请求同时携带发送者的 IP 和 MAC，因此应答方已经知道该向谁回复。交换机把广播送到同一广播域内的其他端口，路由器把广播限制在当前链路内。
+
+ARP 直接封装在以太网帧中，EtherType 为 `0x0806`；其外面没有 IPv4 首部。
+
+#### Example
+
+1. **Two Hosts on the CS Network**
+
+**CS 网络为 `192.32.65.0/24`，EE 网络为 `192.32.63.0/24`，二者通过路由器连接。Host 1 要向同一 CS 网络中的 Host 2 发送数据，已知 Host 2 的名字，如何完成地址解析和发送？**
+
+地址配置为：
+
+- CS 网络：Host 1 为 `192.32.65.7`、MAC 为 E1；Host 2 为 `192.32.65.5`、MAC 为 E2；路由器接口为 `192.32.65.1`、MAC 为 E3。
+- EE 网络：Host 3 为 `192.32.63.3`、MAC 为 E5；Host 4 为 `192.32.63.8`、MAC 为 E6；路由器接口为 `192.32.63.1`、MAC 为 E4。
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261123152417159.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+<details>
+<summary>展开：从主机名到以太网帧</summary>
+
+**第一步，取得目的 IP。** Host 1 通过 DNS 查询 Host 2 的名字 `eagle.cs.uni.edu`，得到 `192.32.65.5`。
+
+**第二步，判断是否同网。** 两台主机的地址与 `/24` 掩码按位与，结果均为 `192.32.65.0`，因此可以在 CS 网络中直接交付。
+
+**第三步，广播查询 E2。** 若缓存未命中，Host 1 发出 ARP 请求：
+
+> 谁拥有 `192.32.65.5`？请回复 `192.32.65.7`，我的 MAC 是 E1。
+
+Host 2 发现目标 IP 是自己，单播回复自己的映射 `192.32.65.5 → E2`。Host 1 将其写入缓存。
+
+**第四步，发送数据帧。** 以太网首部为 `E1 → E2`，其中封装的 IP 数据报为 `192.32.65.7 → 192.32.65.5`。
+
+交换机把帧转发给 Host 2。Host 2 接收发往 E2 的帧，取出 IP 数据报，再向上交付。
+
+</details>
+
+2. **Reading an ARP Request**
+
+**第 43 号帧显示 `Who has 192.168.1.156? Tell 192.168.1.145`，捕获长度为 42 B。分析发送者、查询对象及广播地址所在的位置。**
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261123152524954.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+<details>
+<summary>展开：以太网首部与 ARP 字段</summary>
+
+以太网首部中的源 MAC 为 `18:4f:32:f7:e6:99`，目的 MAC 为 `ff:ff:ff:ff:ff:ff`，类型为 `ARP (0x0806)`。
+
+ARP 内容为：
+
+| 字段 | 值 | 含义 |
+| --- | --- | --- |
+| Hardware Type | 1 | 链路类型为以太网 |
+| Protocol Type | `0x0800` | 解析 IPv4 地址 |
+| Hardware Size | 6 | MAC 地址长 6 B |
+| Protocol Size | 4 | IPv4 地址长 4 B |
+| Opcode | 1 | ARP 请求 |
+| Sender MAC | `18:4f:32:f7:e6:99` | 发送者的 MAC |
+| Sender IP | `192.168.1.145` | 发送者的 IP |
+| Target MAC | `00:00:00:00:00:00` | 待查询，暂填全 0 |
+| Target IP | `192.168.1.156` | 希望解析的 IP |
+
+**广播地址填写在以太网首部的目的 MAC 字段中；ARP 内部的 Target MAC 暂时未知。** 两处字段作用不同，所以一个为全 `ff`，另一个为全 `00`。
+
+捕获部分包含 14 B 以太网首部和 28 B ARP 内容：
+
+$$
+14+28=42\ \mathrm{B}.
+$$
+
+收到应答后，发送方才能把发往 `192.168.1.156` 的数据帧填写为目标主机的实际 MAC。
+
+</details>
+
+#### ARP Cache and Gratuitous ARP
+
+主机和路由器都维护 ARP 缓存，保存 **IP 地址、MAC 地址及老化时间**。再次向同一邻居发送时，可以直接使用缓存中的映射；表项老化后重新解析，以适应设备和地址的变化。
+
+接收方还可以利用请求中的发送者信息更新缓存。例如 Host 2 收到前面的请求时，就能记录 `192.32.65.7 → E1`，回复数据时可直接使用。
+
+**免费 ARP（Gratuitous ARP）** 主动广播本机的 IP 到 MAC 映射。它可以使用请求或应答格式，常见特征是发送者 IP 与目标 IP 相同。
+
+它主要用于：
+
+- **发现地址冲突**：查询自己准备使用或正在使用的 IP；若其他设备也声称拥有该地址，就需要处理冲突。
+- **更新邻居缓存**：地址配置变化后，及时通告新的映射。
+- **主备切换**：备用设备接管相同 IP 后，通告新的 MAC，使后续帧转向接管设备。
+
+#### Example
+
+**A Gratuitous ARP Reply**
+
+**抓包中连续出现 `Gratuitous ARP for 10.162.0.1 (Reply)`，每帧 60 B。根据第 1 号帧判断它通告的映射，并解释为什么它是广播帧。**
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261123152533184.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+<details>
+<summary>展开：主动通告地址映射</summary>
+
+| 字段 | 抓包值 |
+| --- | --- |
+| 以太网源 MAC | `74:3a:20:b9:e8:02` |
+| 以太网目的 MAC | `ff:ff:ff:ff:ff:ff` |
+| Opcode | 2，即 Reply |
+| Sender IP | `10.162.0.1` |
+| Sender MAC | `74:3a:20:b9:e8:02` |
+| Target IP | `10.162.0.1` |
+| Target MAC | `ac:d6:18:72:ec:04` |
+
+发送者主动通告：
+
+$$
+\boxed{10.162.0.1\longrightarrow\texttt{74:3a:20:b9:e8:02}}.
+$$
+
+Sender IP 与 Target IP 相同，表示这次通告针对发送者自己的地址。Opcode 为 2，说明这里采用 ARP 应答格式。
+
+**以太网目的 MAC 为全 `ff`，所以这是广播帧。** ARP 内容中的 Target MAC 为 `ac:d6:18:72:ec:04`，不改变外层帧的广播方式。
+
+60 B 由 14 B 以太网首部、28 B ARP 内容和 18 B 填充组成；抓包中未列出 4 B FCS。
+
+</details>
+
+#### The Default Gateway
+
+目的主机位于其他子网时，主机按路由表选择下一跳。**默认网关（Default Gateway）** 提供没有更具体路由时的转发出口，其地址是连接本地子网的路由器接口地址。
+
+发送方用 ARP 查询网关的 MAC，IP 数据报仍填写最终目的主机的 IP。网关收到后，再继续查路由表并完成下一跳发送。
+
+路由器直接管理自身各接口的地址。分组在其内部从输入接口转到输出接口，由路由表和转发逻辑完成；准备从以太网接口发出时，才需要取得相邻接收方的 MAC。
+
+#### Example
+
+1. **From the CS Network to the EE Network**
+
+**Host 1（`192.32.65.7`，E1）向 Host 4（`192.32.63.8`，E6）发送数据。路由器的 CS 接口为 `192.32.65.1`、E3，EE 接口为 `192.32.63.1`、E4。两个接口分别连接 `/24` 子网，相关 ARP 缓存为空。求两次 ARP 的查询对象，以及两段传输的 IP 和 MAC 地址。**
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261123152539343.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+<details>
+<summary>展开：先交给网关，再送到目标</summary>
+
+**第一步，Host 1 解析网关。** `192.32.63.8` 不属于本地的 `192.32.65.0/24`，因此下一跳为默认网关 `192.32.65.1`。Host 1 广播查询这个网关地址，得到 E3。
+
+**第二步，Host 1 发送给路由器。** 以太网帧发往 E3，内部 IP 数据报仍发往 `192.32.63.8`。
+
+**第三步，路由器解析 Host 4。** 路由器拆除收到的以太网首部，按目的 IP 查表，确定从 EE 接口转发；随后在 EE 网络广播查询 `192.32.63.8`，得到 E6。
+
+**第四步，路由器重新封装。** 新帧使用 EE 接口的 E4 作为源 MAC，E6 作为目的 MAC，发送给 Host 4。
+
+| 所在网络 | 源 IP | 目的 IP | 源 MAC | 目的 MAC |
+| --- | --- | --- | --- | --- |
+| CS 网络 | `192.32.65.7` | `192.32.63.8` | E1 | E3 |
+| EE 网络 | `192.32.65.7` | `192.32.63.8` | E4 | E6 |
+
+**这两次 ARP 分别查询网关和目标主机，发生在两个独立的广播域中。** 两段传输的源、目的 IP 保持不变；路由器转发时会递减 TTL，并更新 IPv4 首部校验和。
+
+</details>
+
+2. **Across Two Routers and Three Subnets**
+
+**PC1 经过 R1、R2 向 PC2 发送数据。各路由器已有正确路由，相关 ARP 缓存为空，途中不进行 NAT。说明逐跳处理过程、ARP 查询对象及各段帧的地址。**
+
+三个子网均为 `/24`，地址配置如下：
+
+- **子网 1：`192.168.1.0/24`。** PC1 为 `192.168.1.11`、`MAC_PC1`；R1 的 fa3/0 为 `192.168.1.1`、`MAC_R1a`，是 PC1 的默认网关。
+- **子网 2：`192.168.2.0/24`。** R1 的 fa0/1 为 `192.168.2.1`、`MAC_R1b`；R2 的 fa0/1 为 `192.168.2.2`、`MAC_R2a`。
+- **子网 3：`192.168.3.0/24`。** R2 的 fa3/0 为 `192.168.3.1`、`MAC_R2b`，是 PC2 的默认网关；PC2 为 `192.168.3.22`、`MAC_PC2`。
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261123152544711.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+<details>
+<summary>展开：三次 ARP 与逐跳重新封装</summary>
+
+**1. PC1 构造 IP 数据报。**
+
+源 IP 为 `192.168.1.11`，目的 IP 为 `192.168.3.22`。目标不在子网 1，PC1 选择默认网关 `192.168.1.1`。
+
+**2. PC1 解析 R1 的入口接口并发送。**
+
+PC1 在子网 1 广播查询 `192.168.1.1`，R1 的 fa3/0 回复 `MAC_R1a`。PC1 封装帧，源 MAC 为 `MAC_PC1`，目的 MAC 为 `MAC_R1a`。
+
+**3. R1 查表，转向 R2。**
+
+R1 接收发往自己接口的帧，取出 IP 数据报，按 `192.168.3.22` 查路由表，确定从自己的 fa0/1 发出，下一跳为 R2 的 `192.168.2.2`。
+
+R1 在子网 2 查询 `192.168.2.2`，得到 `MAC_R2a`。随后重新封装，使用本机出口的 `MAC_R1b` 作为源 MAC，使用 `MAC_R2a` 作为目的 MAC。
+
+**4. R2 查表，直接交付 PC2。**
+
+R2 取出 IP 数据报，发现目的地址属于 fa3/0 直连的子网 3。它在这个子网查询 `192.168.3.22`，得到 `MAC_PC2`，再以 `MAC_R2b → MAC_PC2` 封装发送。
+
+**5. PC2 接收。**
+
+PC2 接收发往自身 MAC 的帧，取出目的 IP 为 `192.168.3.22` 的数据报，交给相应上层协议。
+
+三段帧的地址变化为：
+
+| 传输方向 | 源 MAC | 目的 MAC |
+| --- | --- | --- |
+| PC1 → R1 | `MAC_PC1` | `MAC_R1a` |
+| R1 → R2 | `MAC_R1b` | `MAC_R2a` |
+| R2 → PC2 | `MAC_R2b` | `MAC_PC2` |
+
+三段传输的源 IP 都是 `192.168.1.11`，目的 IP 都是 `192.168.3.22`；经过 R1、R2 时，TTL 分别减 1。
+
+本次共发生 **3 次 ARP 请求与应答**，查询对象依次为：
+
+$$
+\texttt{192.168.1.1},\quad
+\texttt{192.168.2.2},\quad
+\texttt{192.168.3.22}.
+$$
+
+**每个发送者只解析当前链路上的下一跳。** PC1 取得 R1 的 MAC 后即可发送，最后一跳由 R2 解析 PC2 的 MAC。
+
+</details>
+
+#### Proxy ARP
+
+**代理 ARP（Proxy ARP）** 由路由器代替远端主机回应 ARP 查询，向请求方提供自己在本地链路上的 MAC。请求方随后把帧交给该路由器，路由器再按目的 IP 转发。
+
+#### Example
+
+**Answering for Host 4**
+
+**仍使用 CS、EE 两网拓扑。假设 Host 1 把 Host 4 的 `192.32.63.8` 当作本地链路上的地址，直接发出 ARP 请求。路由器已启用代理 ARP，并有到 Host 4 的路由。Host 1 会得到哪个 MAC？随后如何发送？**
+
+<details>
+<summary>展开：代理应答与后续转发</summary>
+
+Host 1 在 CS 网络广播查询 `192.32.63.8`。Host 4 位于 EE 网络，收不到这个本地广播。
+
+路由器使用 CS 接口的 E3 代为应答，于是 Host 1 保存：
+
+$$
+\boxed{192.32.63.8\longrightarrow E3}.
+$$
+
+Host 1 发出的帧采用 `E1 → E3`，内部 IP 数据报仍为 `192.32.65.7 → 192.32.63.8`。路由器收到后，通过 EE 接口继续转发，帧地址改为 `E4 → E6`。
+
+这里由路由器在 CS 网络中生成应答，Host 1 的原始 ARP 广播始终留在 CS 网络。
+
+</details>
+
+#### DNS and ARP
+
+**域名系统（Domain Name System，DNS）** 把主机名解析为 IP 地址，查询对象可以位于远端网络。例如执行 `nslookup www.baidu.com`，可以查询该域名对应的 IP 地址。
+
+ARP 处理本地链路上的 **IP 到 MAC 映射**。两者在一次发送中的位置为：
+
+1. 已知主机名时，先用 DNS 得到目的 IP。
+2. 根据目的 IP 查路由，确定当前下一跳。
+3. 用 ARP 缓存或 ARP 查询取得下一跳的 MAC，完成帧封装。
+
+ARP 连接了 IPv4 寻址与链路层交付，工作范围跨越这两个层次的交界。
+
+## Routing in the Internet
+
+### Autonomous Systems
+
+**自治系统（Autonomous System，AS）** 是由同一管理机构控制、采用统一路由策略的一组网络和路由器。一个大学、企业或运营商可以管理自己的 AS，再通过边界路由器与其他 AS 互联。
+
+把整个 Internet 当作一个路由域，会遇到两个问题：
+
+- **规模。** 全网拓扑、路由表和更新消息过多，存储、计算与传播开销都很大。
+- **管理自治。** 不同机构需要自行决定内部协议、链路代价和对外转发策略。
+
+因此，Internet 采用两级路由：
+
+1. **域内路由（Intradomain Routing）**：在一个 AS 内寻找路径，使用内部网关协议（IGP），如 RIP、OSPF。
+2. **域间路由（Interdomain Routing）**：在 AS 之间交换可达信息，使用 BGP。
+
+不同 AS 可以选择不同的域内协议。跨 AS 的可达信息通过 BGP 交换，数据分组在各个 AS 内再沿其内部路由传送。
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261123152551013.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+Internet 的主要骨干包括 **Tier-1 网络**，它们使用高速链路和路由器，与区域网、ISP、数据中心等互联；家庭、学校、企业和移动网络再接入这些网络。网络之间也可以直接互联，因此整体包含多种层次和横向连接。**IP 为这些不同网络提供共同的数据报格式和寻址方式。**
+
+### Devices and Forwarding
+
+不同设备处理的对象和转发依据不同：
+
+- **中继器、集线器** 工作在物理层，转送信号或比特。
+- **网桥、二层交换机** 工作在数据链路层，根据目的 MAC 地址转发帧。
+- **路由器** 工作在网络层，从帧中取出 IP 分组，根据目的 IP 查表，再按输出链路重新封装。
+- **高层网关** 可以在运输层或应用层进行协议转换。
+
+### Routing Information Protocol
+
+**路由信息协议（[Routing Information Protocol](https://www.rfc-editor.org/rfc/rfc2453.html)，RIP）** 使用距离向量算法，以 **跳数** 衡量路径代价。每个路由器维护目的子网、下一跳和距离，并与邻居交换到各个子网的距离。
+
+在下面的计数方式中，直连目标子网计 **1 跳**；经过一个邻居再到目标子网，就把邻居通告的距离加 1。
+
+$$
+D_x(y)=\min_v\{1+D_v(y)\}.
+$$
+
+RIP 的几个数值要分清：
+
+- **有效距离最大为 15，16 表示不可达。** 跳数上限限制了适用的网络规模。
+- 邻居约每 **30 秒** 交换一次路由通告，路由发生变化时也可以触发更新。
+- 使用 **UDP 520 端口** 发送请求和响应。
+- 一个普通响应最多携带 **25 条路由项**；RIPv2 使用占用一个条目位置的认证项时，可携带 24 条路由项。
+
+RIP 的更新依赖邻居逐步传播，因此仍需处理距离向量算法中的无穷计数与收敛问题。**RIP 服务于网络层路由，协议处理可以由应用进程实现，通过 UDP 交换报文。** 得到的路由用于指导 IP 分组转发。
+
+#### Example
+
+1. **Counting Hops to Six Subnets**
+
+**A、B、C、D 形成四边形连接。A 直连子网 u，B 直连 v、w，C 直连 z，D 直连 x、y。求 A 到六个子网的 RIP 跳数。**
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261123152557386.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+<details>
+<summary>展开解答</summary>
+
+A 直接到达 u，因此距离为 1。
+
+经过 B 到 v、w，经过 C 到 z，距离都为 2。到 x、y 需要先到 D，可以经过 B 或 C，距离为 3。
+
+$$
+\boxed{
+\begin{aligned}
+D_A(u)&=1,\\
+D_A(v)=D_A(w)=D_A(z)&=2,\\
+D_A(x)=D_A(y)&=3.
+\end{aligned}}
+$$
+
+例如到 x 的一条路径是 $A\rightarrow B\rightarrow D\rightarrow x$，按本例的子网跳数计为 3。
+
+</details>
+
+2. **Updating Router D's Table**
+
+**D 当前的路由表如下。约 30 秒后，A 通告：到 z 经 C、距离为 4；w、x 都是 A 的直连子网，距离为 1。D 如何更新？**
+
+| 目的子网 | D 当前的下一跳 | 当前跳数 |
+| --- | --- | --- |
+| w | A | 2 |
+| y | B | 2 |
+| z | B | 7 |
+| x | 直连 | 1 |
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261123152601646.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261123152607223.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+<details>
+<summary>展开：先加上到邻居的一跳，再比较</summary>
+
+D 经 A 到 z 的候选距离为：
+
+$$
+1+D_A(z)=1+4=5<7.
+$$
+
+因此更新为：
+
+$$
+\boxed{\text{目的子网 }z,\quad\text{下一跳 }A,\quad\text{跳数 }5}.
+$$
+
+A 自己到 z 的下一跳是 C；D 先把分组交给 A，所以 **D 的下一跳填写 A**。
+
+其余已列出的路由保持原值：到 w 经 A 仍为 $1+1=2$；到 x 经 A 为 2，大于直连的 1；到 y 仍经 B、距离为 2。
+
+</details>
+
+### Open Shortest Path First
+
+**开放最短路径优先（[Open Shortest Path First](https://www.rfc-editor.org/rfc/rfc2328.html)，OSPF）** 使用链路状态算法。路由器发布相邻链路及其代价，通过洪泛交换信息，建立 **链路状态数据库（Link-State Database，LSDB）**，再以自己为根运行 Dijkstra 算法。
+
+同一区域内的路由器最终获得一致的拓扑信息；各自计算的树以不同路由器为根，因此得到的下一跳可以不同。
+
+**链路状态变化会触发更新；即使内容没有变化，自生成的链路状态通告（LSA）也会在 30 分钟时刷新。** OSPF 报文直接封装在 IP 中，IPv4 首部的 **Protocol = 89**。
+
+#### Link Costs and Equal-Cost Paths
+
+OSPF 将路由器和网络抽象成带权有向图。一条路径的代价是沿途输出接口代价之和：
+
+$$
+C(P)=\sum_{e\in P}c(e).
+$$
+
+链路的两个方向可以配置不同代价。对于共享局域网，可以增加一个代表该网络的节点：路由器到网络的边具有接口代价，网络到路由器的边取 0，从而避免重复计算穿越该网络的代价。
+
+如果到同一目的地存在多条最短路径，OSPF 可以保留这些路径并分担流量，这称为 **等价多路径（Equal-Cost Multipath，ECMP）**。比较的是完整路径的总代价。
+
+#### Example
+
+1. **Representing an AS as a Directed Graph**
+
+**R1、R2、R3 通过点到点链路互联，R3、R4、R5 连接在共享 LAN 3 上，R5 再连接 LAN 4。如何把网络画成带权图？R1 到 LAN 4 的一条最短路径代价是多少？**
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261123152612695.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+<details>
+<summary>展开：有向边与共享网络节点</summary>
+
+点到点链路分别画出两个方向。例如 $R2\rightarrow R3$ 的代价为 7，$R3\rightarrow R2$ 的代价为 8。
+
+共享 LAN 3 用一个网络节点表示。进入它的代价分别为：R3 为 3、R4 为 3、R5 为 4；从 LAN 3 到各路由器的代价均为 0。
+
+R1 到 LAN 4 可以经过：
+
+$$
+R1\rightarrow R3\rightarrow\mathrm{LAN\ 3}\rightarrow R5\rightarrow\mathrm{LAN\ 4},
+$$
+
+代价为：
+
+$$
+5+3+0+5=\boxed{13}.
+$$
+
+若先经过 R2 再到 R3，代价为 $4+7+3+0+5=19$，所以不会选择这条更长的路径。
+
+</details>
+
+2. **Calculating Interface Costs**
+
+**以 100 Mb/s 为参考带宽，根据接口带宽计算代价。为什么 100 Mb/s、1 Gb/s 和 10 Gb/s 的接口都可能得到 1？**
+
+<details>
+<summary>展开：参考带宽与整数代价</summary>
+
+这组带宽代价使用：
+
+$$
+c=\max\left(1,\left\lfloor\frac{100\ \mathrm{Mb/s}}{B}\right\rfloor\right).
+$$
+
+| 接口 | 带宽 | Cost |
+| --- | --- | --- |
+| 串行接口 | 1.544 Mb/s | 64 |
+| E1 | 2.048 Mb/s | 48 |
+| Ethernet | 10 Mb/s | 10 |
+| Fast Ethernet | 100 Mb/s | 1 |
+| Gigabit Ethernet | 1000 Mb/s | 1 |
+| 10 Gigabit Ethernet | 10000 Mb/s | 1 |
+| ATM | — | 1 |
+
+例如：
+
+$$
+\left\lfloor\frac{100}{1.544}\right\rfloor=64,\qquad
+\left\lfloor\frac{100}{2.048}\right\rfloor=48.
+$$
+
+带宽越高，计算出的代价越小；最小代价取 1，因此达到参考带宽后，这组设置无法继续区分更高速的接口。需要区分这些链路时，可以提高参考带宽或手动配置接口代价。
+
+</details>
+
+#### Areas and Router Roles
+
+OSPF 可以把一个 AS 划分为多个 **区域（Area）**。各区域内部维护详细拓扑，向外提供目的网络及到达代价，减少拓扑信息的传播和计算范围。
+
+**Area 0 是骨干区域。** 其他区域与骨干相连，必要时通过虚链路建立逻辑连接。跨区域的路径经过源区域、骨干区域、目的区域。
+
+路由器按所在位置和承担的任务分为：
+
+- **内部路由器（Internal Router）**：所有 OSPF 接口属于同一区域。
+- **骨干路由器（Backbone Router）**：至少一个接口属于 Area 0。
+- **区域边界路由器（Area Border Router，ABR）**：连接骨干和其他区域，分别维护所连接区域的 LSDB，并向其他区域通告网络可达信息和代价。
+- **AS 边界路由器（AS Boundary Router，ASBR）**：向 OSPF 引入 AS 外部的路由。
+
+**这些角色可以重叠。** 例如 ABR 同时是骨干路由器；一台骨干路由器也可以承担 ASBR 的任务。
+
+ABR 为各区域分别运行最短路径计算。同一区域内的通信使用区域内路径，跨区通信结合区域内路径和 ABR 通告的信息选择出口。
+
+**末梢区域（Stub Area）** 可以通过配置阻止 AS 外部 LSA 进入，访问 AS 外部目的地时使用 ABR 提供的默认路由，从而减小区域内的数据库。
+
+#### Example
+
+**Routing between Area 2 and Area 1**
+
+**一个 AS 包含中央的 Area 0、左侧的 Area 2 和右侧的 Area 1。Area 2 通过一个 ABR 连接骨干。Area 2 中的主机如何到达 Area 1？图中的几种路由器各承担什么任务？**
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261123152617862.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+<details>
+<summary>展开：区域内路径与跨区路径</summary>
+
+分组先到达 Area 2 的 ABR，进入 Area 0，再经连接 Area 1 的 ABR 到达目的区域，最后沿 Area 1 内部路径送达主机。
+
+Area 2 内的路由器掌握本区域拓扑，利用 ABR 通告的可达信息选择跨区出口。ABR 掌握自己所连接的各区域拓扑，但其他区域只需获得可达网络和代价。
+
+图中左侧连接 Area 2 和骨干的节点是 ABR；中央只参与骨干转发的节点是骨干路由器；右上方连接外部网络并引入外部路由的节点是 ASBR；Area 1 内部的节点是内部路由器。
+
+Area 2 被配置为 Stub 区域。它访问 AS 外部网络时，可以把分组按默认路由交给 ABR。
+
+</details>
+
+#### Neighbors and Adjacencies
+
+路由器通过 **Hello** 报文发现并维护邻居关系；满足条件的邻居进一步建立 **邻接关系（Adjacency）**，同步链路状态数据库。
+
+在广播型多路访问网络上，如果每台路由器都与其余路由器同步数据库，开销会随路由器数量迅速增长。因此，在该网络上选出 **指定路由器（Designated Router，DR）** 和 **备用指定路由器（Backup Designated Router，BDR）**。
+
+普通路由器与 DR、BDR 建立邻接，普通路由器之间可以只保持邻居关系。BDR 同样保持数据库同步，在 DR 故障后接替其工作。
+
+DR 协调该网络上的链路状态交换；数据分组仍按计算出的路由转发。
+
+#### OSPF Messages
+
+OSPF 使用五类报文完成邻居发现、数据库同步和可靠洪泛：
+
+| 报文 | 作用 |
+| --- | --- |
+| Hello | 发现、维护邻居，参与 DR／BDR 选举 |
+| Database Description | 交换数据库摘要，比较已有 LSA |
+| Link State Request | 请求缺失或较新的 LSA |
+| Link State Update | 携带一个或多个 LSA |
+| Link State Acknowledgment | 确认收到的 LSA |
+
+建立邻接的过程中，双方先比较数据库摘要，再请求缺失或较新的信息，通过更新报文传送并确认。
+
+**LSA 的序号用于判断新旧，确认与重传使洪泛可靠。** 新信息逐步传遍区域，使路由器的数据库收敛到一致状态，再据此更新最短路径和路由表。
+
+### Border Gateway Protocol
+
+**边界网关协议（Border Gateway Protocol，BGP）** 用于自治系统之间交换路由。每个 AS 由 **自治系统号（ASN）** 标识，通告的目的地用 CIDR 前缀表示，可以对应一个子网或一组聚合后的子网。
+
+BGP 采用 **路径向量（Path Vector）**：记录到达目的前缀要经过哪些 AS，并结合本地策略选择路由。跨 AS 的路径选择还涉及费用、安全和管理要求，距离短的路径也可能不被采用。
+
+BGP 对等体通过 **TCP 179 端口** 建立连接、交换路由信息。
+
+#### Policies and Interconnection
+
+不同 ISP 可以在 **互联网交换点（Internet Exchange Point，IXP）** 互联，交换路由和流量。
+
+只有一个对外出口的末端网络（Stub Network），通常设置默认路由即可。连接多个 ISP 的 **多宿主网络（Multihoming）** 则可以利用 BGP 宣告自己的前缀、选择出口，并在一条外部链路故障时使用其他链路。
+
+#### Example
+
+**Routing Policy Constraints**
+
+**跨自治系统的路由，为什么不能只比较路径长度？以下五种限制分别会怎样影响选路？**
+
+考虑以下五种策略设定：
+
+1. 教育网不承载商业流量。
+2. 五角大楼的流量避开经过伊拉克的路径。
+3. TeliaSonera 的费用低于 Verizon，优先使用前者提供的路径。
+4. AT&T 在澳大利亚的某条路径性能较差，避开这条路径。
+5. 以 Apple 为起点或终点的流量不经过 Google。
+
+<details>
+<summary>展开解答</summary>
+
+这五条约束依次限制业务类型、经过的地区、使用的提供商、具体链路以及允许经过的网络，分别来自业务范围、安全、费用、性能和组织之间的关系。
+
+**先满足策略，再比较候选路径。** 被策略排除的路径，即使经过的 AS 较少，也不会被采用。
+
+</details>
+
+#### eBGP and iBGP
+
+- **eBGP**：在不同 AS 的路由器之间交换路由。
+- **iBGP**：在同一个 AS 内传播 BGP 路由，让其他路由器也知道外部前缀可以从哪里到达。
+
+域内的 OSPF 等协议负责计算到下一跳、出口路由器的内部路径。**iBGP 分发外部可达信息，IGP 提供内部可达性。**
+
+#### Example
+
+**Sharing an External Prefix**
+
+**AS1 中有路由器 1a、1b、1c、1d。1c 与 AS3 的 3a 相连，1b 与 AS2 的 2a 相连。1c 从 AS3 学到一个新前缀后，AS1 中的其他路由器怎样使用这条路由？**
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261123152622702.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+<details>
+<summary>展开解答</summary>
+
+1. 3a 通过 eBGP 向 1c 通告外部前缀。
+2. 1c 通过 iBGP 把这条路由传播给 AS1 内的其他 BGP 路由器。
+3. 各路由器根据策略选择路由；选中的路由及其下一跳用于建立转发表项。
+4. 发送数据时，域内路由把分组送到相应出口，再交给相邻 AS。
+
+同理，1b 从 AS2 学到的路由也需要在 AS1 内传播。这样，1a、1d 等路由器都能选择合适的外部出口。
+
+</details>
+
+#### Routes and Path Attributes
+
+一条 BGP 路由由 **目的前缀和路径属性** 组成。两个重要属性是：
+
+- **AS_PATH**：到达前缀所经过的 AS 序列，用于选路和检测 AS 级环路。
+- **NEXT_HOP**：到达该前缀所使用的下一跳 IP 地址。它可以是本 AS 内较远的出口，需要通过域内路由找到通往它的具体路径。
+
+向另一个 AS 通告路由时，路由器把自己的 ASN 加到 AS_PATH 前面。收到路由后，如果 AS_PATH 已经包含自己的 ASN，就丢弃这条通告，避免形成 AS 级环路。在本 AS 内通过 iBGP 传播时，AS_PATH 保持不变。
+
+**路由通告由目的网络向外传播；数据分组沿学到的路由走向目的网络。**
+
+#### Example
+
+**Propagating a Route to Prefix C**
+
+**前缀 C 位于 AS3。AS2 为 AS1 和 AS3 提供中转，上下两条路径分别经过 R3a、R2c、R2a、R1a，以及 R3b、R2d、R2b、R1b。写出各位置的 AS_PATH 和 NEXT_HOP，并说明数据与通告的方向。**
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261123152646528.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+<details>
+<summary>展开解答</summary>
+
+图中所有通告的目的前缀都是 C。NEXT_HOP 用路由器名代指其相应接口的 IP 地址。
+
+| 通告位置 | AS_PATH | NEXT_HOP |
+| --- | --- | --- |
+| R3a 向 R2c 通告 | AS3 | R3a |
+| R2a 向 R1a 通告 | AS2, AS3 | R2a |
+| AS1 内的上路表项 | AS2, AS3 | R1a |
+| R3b 向 R2d 通告 | AS3 | R3b |
+| R2b 向 R1b 通告 | AS2, AS3 | R2b |
+| AS1 内的下路表项 | AS2, AS3 | R1b |
+
+AS3 发出通告时，路径为 `AS3`。AS2 向 AS1 转发通告时，在前面加入自己的编号，得到 `AS2, AS3`。之后在 AS1 内传播，AS_PATH 不变。
+
+图中在 AS 内把出口 R1a 或 R1b 设为 NEXT_HOP，可通过 `next-hop-self` 配置实现；**iBGP 默认保留传入的 NEXT_HOP。**
+
+通告从 C 向左传播；A、B 发往 C 的数据向右传送。上路数据经过 R1a、R2a、R2c、R3a，下路经过 R1b、R2b、R2d、R3b，最后到 C。
+
+</details>
+
+#### Transit and Peering
+
+**中转服务（Transit）**：客户向提供商付费，由提供商承载去往其他网络以及返回客户网络的流量。
+
+**对等互联（Peering）**：两个网络按约定直接交换彼此及各自客户的流量，减少经上游提供商中转的开销。
+
+两种关系决定了通告哪些路由、允许转发哪些流量。一个网络愿意交换对方发给自己的流量，并不自动承担对方去往第三方的中转。
+
+#### Example
+
+**Four Autonomous Systems**
+
+**AS2、AS3、AS4 都向 AS1 购买中转服务；AS2 与 AS3 对等互联，AS3 与 AS4 也对等互联。A、B、C 分别接入 AS2、AS3、AS4。A 向 C 发送分组时走哪条路径？能否通过 AS3 免费中转？**
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261123152652722.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+<details>
+<summary>展开解答</summary>
+
+A 向 C 发送数据，路径为 **AS2 → AS1 → AS4**。
+
+相应的路由通告方向为 **AS4 → AS1 → AS2**：
+
+1. AS4 向 AS1 宣告自己可以到达 C。
+2. AS1 再把到 C 的路由通告给客户 AS2。
+3. AS2 据此把发往 C 的数据交给 AS1，由 AS1 中转到 AS4。
+
+AS2 与 AS3 可以直接交换 A、B 之间的流量；AS3 与 AS4 可以直接交换 B、C 之间的流量。
+
+但 AS3 没有承诺为 AS2 和 AS4 提供免费中转。因此，AS3 不向 AS2 导出从对等方 AS4 学到的 C 路由，也不向 AS4 导出从对等方 AS2 学到的 A 路由。**物理上连通的 AS2 → AS3 → AS4 路径，不满足这里的中转策略。**
+
+</details>
+
+#### Route Selection and Hot-Potato Routing
+
+BGP 策略作用在两个位置：
+
+- **路由导出**：只向允许使用该路径的邻居通告路由。
+- **路由选择**：从学到的候选路由中选择本地偏好的路径。
+
+一种常用的选路策略是：先优先客户路径、再考虑对等路径，最后考虑付费上游路径；策略优先级相同时，再比较 AS_PATH 长度等属性。
+
+AS_PATH 较短表示经过的 AS 较少。不同 AS 的内部规模差别很大，因此它不能直接表示物理距离或总时延。
+
+当其他优先条件相同时，可以选择 **域内代价最低的出口**，尽快把流量交给下一个 AS。这称为 **热土豆路由（Hot-Potato Routing）**，也叫就近出口。
+
+#### Example
+
+**Choosing the Nearest Exit**
+
+**沿用前面的两条路径。A 靠近 R1a，B 靠近 R1b，C 靠近 AS3 的上方出口。假设两条路由的策略优先级和 AS_PATH 长度相同，采用就近出口时，A、B 怎样到达 C？C 返回 B 时会沿原路返回吗？**
+
+<details>
+<summary>展开解答</summary>
+
+A 经域内代价较小的 R1a 离开 AS1，使用上方路径；B 经 R1b 离开 AS1，使用下方路径。AS2 也按自己的域内代价选择出口。
+
+B 发往 C 的数据经下路进入 AS3，再由 AS3 内部转发到 C。
+
+C 返回 B 时，会从较近的上方出口离开 AS3，经 AS2 上路进入 AS1，再在 AS1 内转发到 B。**去程和回程可以不同。**
+
+这也说明域内路由的代价会影响 BGP 出口选择。同一个 AS 中，不同位置的路由器可以为同一目的前缀选择不同出口。
+
+</details>
+
+#### BGP Queries and Traceroute
+
+1. **Reading Announced Prefixes**
+
+**一次 BGP Toolkit 查询显示，访问源地址为 `222.205.46.119`，相关通告包括 `222.205.0.0/17`、`222.205.0.0/16` 和 `222.192.0.0/12`。这些前缀都包含该地址吗？如果路由表同时安装了这三条路由，应选择哪条？**
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261123152657589.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+<details>
+<summary>展开解答</summary>
+
+三个前缀的地址范围分别为：
+
+- `222.205.0.0/17`：`222.205.0.0–222.205.127.255`。
+- `222.205.0.0/16`：`222.205.0.0–222.205.255.255`。
+- `222.192.0.0/12`：`222.192.0.0–222.207.255.255`。
+
+`222.205.46.119` 同时落在三个范围内，因此选择 **`222.205.0.0/17`**，它的匹配前缀最长。
+
+该 IPv4 地址的查询结果将 ISP 标为 **AS4538**。
+
+</details>
+
+2. **Looking Up an Autonomous System**
+
+**在 BGP Toolkit 中搜索 `Zhejiang University`，结果显示 `AS24367 — CERNET2 IX at Zhejiang University`。如何理解这条记录？**
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261123152701943.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+<details>
+<summary>展开解答</summary>
+
+`AS24367` 是这条记录中的自治系统号，描述指向浙江大学的 **CERNET2 IPv6 交换节点**。
+
+IX 表示网络交换点：不同网络在这里互联，通过 BGP 交换可达信息，并交换相应流量。
+
+</details>
+
+3. **Tracing a Route to 8.8.8.8**
+
+**执行 `tracert 8.8.8.8`，记录中第 14 跳出现 `as6453.net`，第 10、15 跳超时，第 19 跳到达 `dns.google [8.8.8.8]`。从这些结果能读出哪些信息？**
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261123152705440.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+<details>
+<summary>展开解答</summary>
+
+第 14 跳为：
+
+```text
+ix-xe-1-2-0-0.tcore1.hk2-hongkong.as6453.net
+180.87.112.109
+RTT：66 ms、67 ms、66 ms
+```
+
+主机名中的 `as6453` 提供 AS 归属线索，`hongkong` 提供节点位置线索。
+
+第 19 跳收到 `8.8.8.8` 的应答，三个 RTT 为 **70 ms、69 ms、71 ms**，本次探测已经到达目的地。第 10、15 跳超时，但后续仍有应答，说明这些超时没有阻止此次探测继续到达后面的节点。
+
+**Tracert 显示逐跳路径，AS_PATH 显示经过的自治系统。** 一个 AS 内可以经过多台路由器，两种路径的计数范围不同。
+
+</details>
+
+## Multiprotocol Label Switching
+
+**多协议标签交换（Multiprotocol Label Switching，MPLS）** 在分组前增加标签。进入 MPLS 网络后，路由器根据固定长度的标签查表，决定输出接口及标签操作；离开该网络后，分组可以继续按 IP 地址转发。
+
+IP 转发使用目的地址做最长前缀匹配。标签转发使用当前标签查找已建立的映射，便于把多条流组织到共同路径上，也便于按业务要求安排路径和服务等级。
+
+### Label Stack Entry
+
+MPLS 标签栈位于 **数据链路层首部与网络层首部之间**，常被称为“第 2.5 层”。原有 IP 首部仍然保留，所以标签交换可以与 IP 数据报转发配合使用。
+
+每个标签栈项占 **32 bit，即 4 B**，包含四个字段：
+
+| 字段 | 长度 | 作用 |
+| --- | --- | --- |
+| Label | 20 bit | 用于查找标签转发表 |
+| TC／QoS | 3 bit | 表示流量类别，用于区分转发处理 |
+| S | 1 bit | 栈底标志，最底层标签为 1，其他标签为 0 |
+| TTL | 8 bit | 限制分组可继续转发的跳数，耗尽时丢弃 |
+
+**20 bit 是标签字段的长度，4 B 是一个完整标签栈项的长度。** 多个标签叠加时，每增加一个栈项就增加 4 B。
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261123152711550.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+图中的 TCP 段先封装进 IP 分组，前面加入 MPLS 标签栈项，再装入 PPP 帧。每经过一跳，链路层封装按该跳的链路协议处理。
+
+### Label Switching
+
+**标签交换路由器（Label Switching Router，LSR）** 根据输入标签查表，需要时结合输入接口，得到输出接口和相应操作。典型的转发表关系为：
+
+$$
+(\text{输入接口},\text{输入标签})
+\longrightarrow
+(\text{输出接口},\text{输出标签或出栈操作}).
+$$
+
+**标签只在局部有意义。** 相邻路由器通过控制协议约定标签的含义，经过一跳时按表完成映射。不同链路上的相同数值可以对应不同的转发处理。
+
+边缘的 **标签边缘路由器（Label Edge Router，LER）** 负责把普通分组接入标签路径，或在离开时移除标签。常见操作有：
+
+- **Push**：压入标签，把分组送入一条标签路径。
+- **Swap**：替换栈顶标签，沿路径继续转发。
+- **Pop**：弹出栈顶标签，露出下一层标签或原来的 IP 分组。
+
+### Forwarding Equivalence Classes
+
+**转发等价类（Forwarding Equivalence Class，FEC）** 把采用相同转发处理的分组归为一组。分类可以结合目的前缀、出口、业务类别等信息。
+
+多个流如果要经过同一段路径，并接受相同的转发处理，可以在这一段使用同一套标签映射。它们仍携带各自的 IP 首部，离开公共路径后，可以按最终目的地址继续分流。
+
+#### Example
+
+**Forwarding and Aggregating IP Packets**
+
+**若干 IP 分组要穿过同一个 MPLS 网络，最终目的主机可以不同。入口、内部和出口路由器分别做什么？为什么多个流共享标签路径后仍能到达各自的目的地？**
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261123152716061.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+<details>
+<summary>展开：入口分类、内部换标、出口继续按 IP 转发</summary>
+
+**入口 LER** 检查目的 IP 及其他分类字段，确定 FEC 和相应路径，然后压入标签。
+
+**内部 LSR** 按栈顶标签查表，确定输出接口及下一跳使用的标签，完成标签交换。
+
+**出口 LER** 移除已经完成任务的标签，得到原来的 IP 分组，再根据最终目的地址继续转发。
+
+因此，多个最终目的地可以共享一段标签路径。**标签指导公共路段上的转发，保留的 IP 目的地址用于后续区分。**
+
+</details>
+
+### Label Stacks
+
+MPLS 可以叠加多个标签，形成 **标签栈（Label Stack）**。当前转发主要使用栈顶标签；到达这一层路径的终点后，弹出栈顶，继续处理下一层。
+
+栈底是最靠近 IP 首部的标签，其 **S = 1**；其他标签的 **S = 0**。S 表明弹出当前栈项后，下面是否还有标签。
+
+#### Example
+
+**Sharing a Path with an Outer Label**
+
+**若干分组已经带有不同标签，但接下来都要经过同一段公共路径。如何让公共路径只维护一套转发关系，同时保留分组之后的不同转发需求？**
+
+<details>
+<summary>展开：外层共享，内层保留</summary>
+
+在公共路径入口，为这些分组再压入一层外部标签。公共路段按外层标签转发，原来的不同标签保留在内层。
+
+到达公共路径出口后，弹出外层标签，各分组重新露出原有标签，再按各自的后续路径处理。
+
+若恰好有两层标签，外层的 S 为 0，内层的 S 为 1。移除外层后仍有标签；移除内层后才露出 IP 分组。
+
+两层标签增加的总长度为：
+
+$$
+2\times4=\boxed{8\ \mathrm{B}}.
+$$
+
+</details>
+
+### Establishing Label-Switched Paths
+
+**标签交换路径（Label-Switched Path，LSP）** 是分组按标签转发表经过的一条路径。路由和标签分发由网络内的控制协议完成，终端主机可以直接发送普通 IP 数据报。
+
+一种建立过程为：
+
+1. 路由器确定自己可到达的目的前缀，将相应分组归入 FEC，并为 FEC 分配标签。
+2. 将标签与 FEC 的绑定关系通告给邻居。
+3. 上游路由器结合已有路由，确定下一跳及其分配的标签，建立本地转发表项，再向更上游通告自己的标签绑定。
+4. 逐跳形成连续的标签转发路径，入口即可把分组送入这条路径。
+
+**控制协议负责建立和更新表项，数据分组到达后按现有表项转发。** 网络还可以按带宽、服务等级等要求设置路径和安排资源。
+
+### Interworking across Different Networks
+
+不同链路可以采用不同的帧格式、最大分组大小和转发方式。只要共同承载 IP 分组，端点就可以通过统一的网络层服务通信。
+
+#### Example
+
+**From Wi-Fi through MPLS to Ethernet**
+
+**源主机接入 802.11 网络，中间经过 MPLS 网络，目的主机位于 Ethernet。分组经过三种网络时，哪些信息保留，哪些封装变化？后续链路能容纳的分组较小时怎么办？**
+
+<img src="https://lazysheep-tuchuang-1345706147.cos.ap-shanghai.myqcloud.com/blog/20261123152721815.png"  style="width: 420px; max-width: 100%; height: auto; display: block; margin: 0 auto;" />
+
+<details>
+<summary>展开：共同 IP 层与逐段封装</summary>
+
+源主机把运输层数据装入 IP 分组，再封装为 802.11 帧。第一台路由器取出 IP 分组，确定进入 MPLS 的路径，加入标签后继续转发。
+
+离开 MPLS 网络时，移除相应标签，再根据下一段 Ethernet 的要求封装以太网帧。目的主机取出 IP 分组，将数据交给相应的运输层协议。
+
+**端点的源、目的 IP 地址贯穿整个过程，下层封装随网络变化。** MPLS 中的标签路径可以与两端的数据报传送配合使用。
+
+若 IPv4 数据报超过后续链路的 MTU，且允许分片，路由器会将它分成可通过该链路的多个片；各片携带 IP 首部，最后由目的主机重组。图中最后一段画出的多个分组对应这种分组大小的调整。
 
 </details>
